@@ -13,8 +13,8 @@ let m, bf1, bf2;
 let cx1, cy1;
 
 function setup() {
-  //createCanvas(2000, 2000);
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(1200, 1500);
+  //createCanvas(windowWidth, windowHeight);
   angleMode(DEGREES);
   background(255);
 
