@@ -30,8 +30,6 @@ function setup() {
 
 function draw() {
 
-  
-
   //
   //vessel 1
   //
