@@ -14,7 +14,7 @@ let cx1, cy1;
 
 function setup() {
   //createCanvas(1912, 1612);
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(window.innerWidth, window.innerHeight);
   angleMode(DEGREES);
   background(255);
 
@@ -29,6 +29,8 @@ function setup() {
 }
 
 function draw() {
+
+  
 
   //
   //vessel 1
