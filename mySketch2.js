@@ -13,7 +13,8 @@ let m, bf1, bf2;
 let cx1, cy1;
 
 function setup() {
-  createCanvas(1160, 1500);
+  //createCanvas(1160, 1500);
+  createCanvas(1001, 1300);
   //createCanvas(windowWidth, windowHeight);
   angleMode(DEGREES);
   background(255);
@@ -31,15 +32,15 @@ function setup() {
 function draw() {
 
   //vessel 1 (center)
-  vessel(width*.3, height*.37, 2, 10, 5, 5);
+  vessel(width * .3, height * .37, 2, 10, 5, 4);
   //vessel 2 (left lower)
-  vessel(width*.3, height*.6, 3, 28, 5, 4);
+  vessel(width * .3, height * .6, 3, 28, 5, 2);
   //vessel 3 (lower right)
-  vessel(width*.39, height*.77, 1.75, 28, 5, 6);
+  vessel(width * .39, height * .77, 1.75, 28, 5, 2);
   //vessel 4 (far right)
-  vessel(width*.22, height*.23, 1.35, 28, 5, 5);
+  vessel(width * .22, height * .26, 1.35, 28, 5, 2);
   //vessle 5 (far left)
-  vessel(width*.26, height*.13, 4.5, 10, 5, 4);
+  vessel(width * .26, height * .17, 4, 10, 5, 2);
 
 }
 
@@ -48,7 +49,7 @@ function draw() {
 // }
 
 function vessel(radius, y_input, position, strokeWeightOuter, strokeWeightInner, freq) {
-  
+
   randomSeed(seed);
 
   let d = int(width / 30 + 50);
