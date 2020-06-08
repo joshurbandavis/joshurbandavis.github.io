@@ -17,8 +17,8 @@ p5.disableFriendlyErrors = true; // disables FES
 
 function setup() {
   //createCanvas(1160, 1500);
-  //createCanvas(1001, 1300);
-  createCanvas(900, 900);
+  createCanvas(1001, 1300);
+  //createCanvas(900, 900);
   //createCanvas(windowWidth, windowHeight);
   angleMode(DEGREES);
   //background(255);
