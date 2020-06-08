@@ -16,8 +16,8 @@ p5.disableFriendlyErrors = true; // disables FES
 
 function setup() {
   //createCanvas(1160, 1500);
-  //createCanvas(1001, 1300);
-  createCanvas(693, 900);
+  createCanvas(1001, 1300);
+  //createCanvas(693, 900);
   //createCanvas(windowWidth, windowHeight);
   angleMode(DEGREES);
   //background(255);
@@ -70,7 +70,7 @@ function vessel(radius, y_input, position, strokeWeightOuter, strokeWeightInner,
   fill(lerpColor(pal[0], pal[1], map(cos(frameCount), -1, 1, 0, 1))); strokeWeight(strokeWeightOuter); stroke(lerpColor(pal[2], pal[3], map(sin(frameCount), -1, 1, 0, 1)));
   ellipse(0, 0, m, m / 2);
   //noFill();  strokeWeight(5);  stroke(lerpColor(pal[0], pal[1], map(sin(frameCount), -1, 1, 0, 1)));
-  //fill(lerpColor(pal[0], pal[1], map(cos(frameCount), -1, 1, 0, 1))); strokeWeight(strokeWeightInner); stroke(lerpColor(pal[0], pal[1], map(sin(frameCount), -1, 1, 0, 1)));
+  fill(lerpColor(pal[0], pal[1], map(cos(frameCount), -1, 1, 0, 1))); strokeWeight(strokeWeightInner); stroke(lerpColor(pal[0], pal[1], map(sin(frameCount), -1, 1, 0, 1)));
   //ellipse(0, 0, m, m/2);
   pop();
 
