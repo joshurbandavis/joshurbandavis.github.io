@@ -11,17 +11,22 @@ let seed;
 let frm;
 let m, bf1, bf2;
 let cx1, cy1;
-let fr = 30;
 
+let fr = 30;
+//let ele;
+//let sampleIsLooping = false;
 p5.disableFriendlyErrors = true; // disables FES
 
 function setup() {
   //createCanvas(1160, 1500);
-  createCanvas(1001, 1300);
+  //createCanvas(1001, 1300);
   //createCanvas(900, 900);
   //createCanvas(windowWidth, windowHeight);
+  createCanvas(windowHeight*.77, windowHeight);
   angleMode(DEGREES);
   //background(255);
+
+  //ele = createAudio('assets/DarkMystery.mp3');
 
   frameRate(fr);
 
@@ -38,15 +43,15 @@ function setup() {
 function draw() {
 
   //vessel 1 (center)
-  vessel(width * .3, height * .37, 2, 10, 5, 4);
+  vessel(width * .3, height * .37, 2, 10, 5, 6);
   //vessel 2 (left lower)
-  vessel(width * .3, height * .6, 3, 28, 5, 2);
+  vessel(width * .3, height * .6, 3, 28, 5, 1);
   //vessel 3 (lower right)
-  vessel(width * .34, height * .77, 1.75, 28, 5, 2);
+  vessel(width * .34, height * .77, 1.75, 28, 5, 1);
   //vessel 4 (far right)
-  vessel(width * .19, height * .26, 1.35, 28, 5, 2);
+  vessel(width * .19, height * .26, 1.35, 28, 5, 1);
   //vessle 5 (far left)
-  vessel(width * .22, height * .17, 3.8, 10, 5, 4);
+  vessel(width * .22, height * .15, 3.8, 10, 5, 5);
 
 }
 
@@ -83,7 +88,17 @@ function vessel(radius, y_input, position, strokeWeightOuter, strokeWeightInner,
   );
 
   pop();
+/*
+  if (!sampleIsLooping) {
+    ele.loop();
 
+    sampleIsLooping = true;
+  } else {
+    ele.stop();
+
+    sampleIsLooping=false;
+  }
+  */
   // effect();
   // drawWindow();
   //noStroke();
