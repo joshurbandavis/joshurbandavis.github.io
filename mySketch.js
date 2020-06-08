@@ -11,15 +11,12 @@ let seed;
 let frm;
 let m, bf1, bf2;
 let cx1, cy1;
-let fm = 24;
 
 function setup() {
   createCanvas(1160, 1500);
   //createCanvas(windowWidth, windowHeight);
   angleMode(DEGREES);
   background(255);
-  
-  frameRate(fm);
 
   pal = createPallete(curl);
   let cid = int(random(pal.length));
