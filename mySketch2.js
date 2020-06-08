@@ -12,10 +12,12 @@ let frm;
 let m, bf1, bf2;
 let cx1, cy1;
 
+p5.disableFriendlyErrors = true; // disables FES
+
 function setup() {
   //createCanvas(1160, 1500);
   //createCanvas(1001, 1300);
-  createCanvas(693 ,900);
+  createCanvas(693, 900);
   //createCanvas(windowWidth, windowHeight);
   angleMode(DEGREES);
   //background(255);
