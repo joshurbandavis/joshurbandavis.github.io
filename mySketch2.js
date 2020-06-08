@@ -11,6 +11,7 @@ let seed;
 let frm;
 let m, bf1, bf2;
 let cx1, cy1;
+let fr = 30;
 
 p5.disableFriendlyErrors = true; // disables FES
 
@@ -21,6 +22,8 @@ function setup() {
   //createCanvas(windowWidth, windowHeight);
   angleMode(DEGREES);
   //background(255);
+
+  frameRate(fr);
 
   pal = createPallete(curl);
   let cid = int(random(pal.length));
