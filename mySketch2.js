@@ -14,10 +14,11 @@ let cx1, cy1;
 
 function setup() {
   //createCanvas(1160, 1500);
-  createCanvas(1001, 1300);
+  //createCanvas(1001, 1300);
+  createCanvas(770 ,1000);
   //createCanvas(windowWidth, windowHeight);
   angleMode(DEGREES);
-  background(255);
+  //background(255);
 
   pal = createPallete(curl);
   let cid = int(random(pal.length));
@@ -36,11 +37,11 @@ function draw() {
   //vessel 2 (left lower)
   vessel(width * .3, height * .6, 3, 28, 5, 2);
   //vessel 3 (lower right)
-  vessel(width * .39, height * .77, 1.75, 28, 5, 2);
+  vessel(width * .34, height * .77, 1.75, 28, 5, 2);
   //vessel 4 (far right)
-  vessel(width * .22, height * .26, 1.35, 28, 5, 2);
+  vessel(width * .15, height * .26, 1.35, 28, 5, 2);
   //vessle 5 (far left)
-  vessel(width * .26, height * .17, 4, 10, 5, 2);
+  vessel(width * .2, height * .17, 4, 10, 5, 2);
 
 }
 
@@ -67,7 +68,7 @@ function vessel(radius, y_input, position, strokeWeightOuter, strokeWeightInner,
   fill(lerpColor(pal[0], pal[1], map(cos(frameCount), -1, 1, 0, 1))); strokeWeight(strokeWeightOuter); stroke(lerpColor(pal[2], pal[3], map(sin(frameCount), -1, 1, 0, 1)));
   ellipse(0, 0, m, m / 2);
   //noFill();  strokeWeight(5);  stroke(lerpColor(pal[0], pal[1], map(sin(frameCount), -1, 1, 0, 1)));
-  fill(lerpColor(pal[0], pal[1], map(cos(frameCount), -1, 1, 0, 1))); strokeWeight(strokeWeightInner); stroke(lerpColor(pal[0], pal[1], map(sin(frameCount), -1, 1, 0, 1)));
+  //fill(lerpColor(pal[0], pal[1], map(cos(frameCount), -1, 1, 0, 1))); strokeWeight(strokeWeightInner); stroke(lerpColor(pal[0], pal[1], map(sin(frameCount), -1, 1, 0, 1)));
   //ellipse(0, 0, m, m/2);
   pop();
 
@@ -96,7 +97,7 @@ function effect() {
     point(px, py);
   }
 }
-
+/*
 function drawWindow() {
   w = width / 30;
   noStroke();
@@ -106,7 +107,7 @@ function drawWindow() {
   rect(0, 0, w, height);
   rect(width - w, 0, w, height);
 }
-
+*/
 function createPallete(_url) {
   let slash_index = _url.lastIndexOf('/');
   let pallate_str = _url.slice(slash_index + 1);
