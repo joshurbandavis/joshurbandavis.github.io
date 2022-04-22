@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 <head>
   <link rel="apple-touch-icon" sizes="180x180" href="logo_personalweb_favicon_io/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="logo_personalweb_favicon_io/favicon-32x32.png">
@@ -13,100 +14,116 @@
   <link rel="manifest" href="logo_personalweb_favicon_io/site.webmanifest">
 </head>
 <style>
-body,h1,h2,h3,h4,h5,h6 {font-family: "Raleway", sans-serif}
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Raleway", sans-serif
+  }
 
-body, html {
-  height: 100%;
-  line-height: 1.8;
-}
+  body,
+  html {
+    height: 100%;
+    line-height: 1.8;
+  }
 
-hr { 
-  display: block;
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
-  margin-left: auto;
-  margin-right: auto;
-  border-style: inset;
-  border-width: 1px;
-} 
+  hr {
+    display: block;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    margin-left: auto;
+    margin-right: auto;
+    border-style: inset;
+    border-width: 1px;
+  }
 
-/* Full height image header */
-.bgimg-1 {
-  background-position: 65% 35%;
-  background-size: cover;
-  background-image: url("images/octorococo.jpg");
-  min-height: 100%;
-}
+  /* Full height image header */
+  .bgimg-1 {
+    background-position: 65% 35%;
+    background-size: cover;
+    background-image: url("images/octorococo.jpg");
+    min-height: 100%;
+  }
 
-.iframeVideo {
-	height: 0px;
-	padding-top: 25px;
-	padding-bottom: 56.2%;
-	position: relative;
-}
-.iframeVideo iframe {
-	width: 100%;
-	height: 100%;
-	position: absolute;
-}
+  .iframeVideo {
+    height: 0px;
+    padding-top: 25px;
+    padding-bottom: 56.2%;
+    position: relative;
+  }
 
-.w3-bar .w3-button {
-  padding: 16px;
-}
+  .iframeVideo iframe {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+  }
+
+  .w3-bar .w3-button {
+    padding: 16px;
+  }
 </style>
+
 <body>
 
-<!-- Navbar (sit on top) -->
+  <!-- Navbar (sit on top) -->
 
-<div class="w3-top">
-  <div class="w3-bar w3-black w3-card" id="myNavbar">
-    <a href="#home" class="w3-bar-item w3-button w3-wide">JOSH URBAN DAVIS</a>
-    <!-- Right-sided navbar links -->
-    <div class="w3-right w3-hide-small">
-      <a href="#about" class="w3-bar-item w3-button">ABOUT</a>
-      <a href="#publications" class="w3-bar-item w3-button"><i class="fa fa-book"></i>PUBLICATIONS</a>
-      <a href="#work" class="w3-bar-item w3-button"><i class="fa fa-th"></i>PROJECTS</a>
-      <!-- <a href="#pricing" class="w3-bar-item w3-button"><i class="fa fa-usd"></i>ARTWORK</a> -->
-      <a href="#contact" class="w3-bar-item w3-button"><i class="fa fa-envelope"></i>CONTACT</a>
+  <div class="w3-top">
+    <div class="w3-bar w3-black w3-card" id="myNavbar">
+      <a href="#home" class="w3-bar-item w3-button w3-wide">JOSH URBAN DAVIS</a>
+      <!-- Right-sided navbar links -->
+      <div class="w3-right w3-hide-small">
+        <a href="#about" class="w3-bar-item w3-button">ABOUT</a>
+        <a href="#publications" class="w3-bar-item w3-button"><i class="fa fa-book"></i>PUBLICATIONS</a>
+        <a href="#work" class="w3-bar-item w3-button"><i class="fa fa-th"></i>PROJECTS</a>
+        <!-- <a href="#pricing" class="w3-bar-item w3-button"><i class="fa fa-usd"></i>ARTWORK</a> -->
+        <a href="#contact" class="w3-bar-item w3-button"><i class="fa fa-envelope"></i>CONTACT</a>
+      </div>
+      <!-- Hide right-floated links on small screens and replace them with a menu icon -->
+
+      <a href="javascript:void(0)" class="w3-bar-item w3-button w3-right w3-hide-large w3-hide-medium"
+        onclick="w3_open()">
+        <i class="fa fa-bars"></i>
+      </a>
     </div>
-    <!-- Hide right-floated links on small screens and replace them with a menu icon -->
-
-    <a href="javascript:void(0)" class="w3-bar-item w3-button w3-right w3-hide-large w3-hide-medium" onclick="w3_open()">
-      <i class="fa fa-bars"></i>
-    </a>
   </div>
-</div>
 
-<!-- Sidebar on small screens when clicking the menu icon -->
-<nav class="w3-sidebar w3-bar-block w3-black w3-card w3-animate-left w3-hide-medium w3-hide-large" style="display:none" id="mySidebar">
-  <a href="javascript:void(0)" onclick="w3_close()" class="w3-bar-item w3-button w3-large w3-padding-16">Close ×</a>
-  <a href="#about" onclick="w3_close()" class="w3-bar-item w3-button">ABOUT</a>
-  <a href="#publications" onclick="w3_close()" class="w3-bar-item w3-button">PUBLICATIONS</a>
-  <a href="#work" onclick="w3_close()" class="w3-bar-item w3-button">PROJECTS</a>
-  <!--<a href="#pricing" onclick="w3_close()" class="w3-bar-item w3-button">PRICING</a>-->
-  <a href="#contact" onclick="w3_close()" class="w3-bar-item w3-button">CONTACT</a>
-</nav>
+  <!-- Sidebar on small screens when clicking the menu icon -->
+  <nav class="w3-sidebar w3-bar-block w3-black w3-card w3-animate-left w3-hide-medium w3-hide-large"
+    style="display:none" id="mySidebar">
+    <a href="javascript:void(0)" onclick="w3_close()" class="w3-bar-item w3-button w3-large w3-padding-16">Close ×</a>
+    <a href="#about" onclick="w3_close()" class="w3-bar-item w3-button">ABOUT</a>
+    <a href="#publications" onclick="w3_close()" class="w3-bar-item w3-button">PUBLICATIONS</a>
+    <a href="#work" onclick="w3_close()" class="w3-bar-item w3-button">PROJECTS</a>
+    <!--<a href="#pricing" onclick="w3_close()" class="w3-bar-item w3-button">PRICING</a>-->
+    <a href="#contact" onclick="w3_close()" class="w3-bar-item w3-button">CONTACT</a>
+  </nav>
 
-<!-- Header with full-height image -->
-<header class="bgimg-1 w3-display-container" id="home">
-  <div class="w3-display-left w3-text-white" style="padding:48px">
-    <!--<span class="w3-jumbo w3-hide-small">Start something that matters</span><br>-->
-    <!-- <span class="w3-xxlarge w3-hide-large w3-hide-medium">Start something that matters</span><br> -->
-    <!--<span class="w3-large">Stop wasting valuable time with projects that just isn't you.</span> -->
-    <!--<p><a href="#about" class="w3-button w3-black w3-padding-large w3-large w3-margin-top w3-opacity w3-hover-opacity-off">Learn more and start today</a></p>-->
-  </div> 
-  <div class="w3-display-bottomleft w3-text-grey w3-large" style="padding:24px 48px">
-    <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank"><i class="fa fa-google w3-hover-opacity"></i></a>
-    <a href="https://www.instagram.com/kweenofparts/?hl=en" target="_blank"><i class="fa fa-instagram w3-hover-opacity"></i></a>
-    <!--<i class="fa fa-snapchat w3-hover-opacity"></i>-->
-    <!--<i class="fa fa-pinterest-p w3-hover-opacity"></i>-->
-    <a href="https://twitter.com/kweenofparts" target="_blank"><i class="fa fa-twitter w3-hover-opacity"></i></a>
-    <a href="https://www.linkedin.com/in/josh-urban-davis-54212749/" target="_blank"><i class="fa fa-linkedin w3-hover-opacity"></i></a>
-  </div>
-</header>
+  <!-- Header with full-height image -->
+  <header class="bgimg-1 w3-display-container" id="home">
+    <div class="w3-display-left w3-text-white" style="padding:48px">
+      <!--<span class="w3-jumbo w3-hide-small">Start something that matters</span><br>-->
+      <!-- <span class="w3-xxlarge w3-hide-large w3-hide-medium">Start something that matters</span><br> -->
+      <!--<span class="w3-large">Stop wasting valuable time with projects that just isn't you.</span> -->
+      <!--<p><a href="#about" class="w3-button w3-black w3-padding-large w3-large w3-margin-top w3-opacity w3-hover-opacity-off">Learn more and start today</a></p>-->
+    </div>
+    <div class="w3-display-bottomleft w3-text-grey w3-large" style="padding:24px 48px">
+      <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank"><i
+          class="fa fa-google w3-hover-opacity"></i></a>
+      <a href="https://www.instagram.com/kweenofparts/?hl=en" target="_blank"><i
+          class="fa fa-instagram w3-hover-opacity"></i></a>
+      <!--<i class="fa fa-snapchat w3-hover-opacity"></i>-->
+      <!--<i class="fa fa-pinterest-p w3-hover-opacity"></i>-->
+      <a href="https://twitter.com/kweenofparts" target="_blank"><i class="fa fa-twitter w3-hover-opacity"></i></a>
+      <a href="https://www.linkedin.com/in/josh-urban-davis-54212749/" target="_blank"><i
+          class="fa fa-linkedin w3-hover-opacity"></i></a>
+    </div>
+  </header>
 
-<!-- About Section -->
-<!--<div class="w3-container" style="padding:128px 16px" id="">
+  <!-- About Section -->
+  <!--<div class="w3-container" style="padding:128px 16px" id="">
   <h3 class="w3-center">ABOUT THE COMPANY</h3>
   <p class="w3-center w3-large">Key features of our company</p>
   <div class="w3-row-padding w3-center" style="margin-top:64px">
@@ -133,88 +150,164 @@ hr {
   </div>
 </div> -->
 
-<!-- About Section - "We know design" -->
-<div class="w3-container w3-black" style="padding:128px 16px" id="about">
-  <div class="w3-row-padding">
-    <div class="w3-col m6">
-      <h3>About</h3>
-      <p>+ pronouns: any pronoun is fine +</p>
-      <p>Josh Urban Davis is an american research-based artist and engineer from Texas whose practice incorporates sculpture, performance, writing, sound, and video. </p>
-        <p>His research interests span a wide spectrum of topics in human-computer interaction (HCI), with a specific emphasis on generative design, interaction techniques, and novel interface technologies. </p>
-        <p>Davis' recent creative projects explore the relationship between emerging technologies, social relationships, and identity. Explicitly engaged with the very technologies that he critiques, Davis' work viscerally confronts the viewer, inviting us to contemplate the role new technologies play in mediating our understanding of reality and identity. His work has been exhibited at D!iverseWorks, the Blaffer Art Museum, Chandler Center for the Arts, Art League Houston, and others. </p>
-        <p> He currently lives in Oakland, CA with his cat, Nocturne, where he is pursuing a PhD in computer sciences at Dartmouth. </p>
-      <p><a href="files/Josh_cv_2022_combined.pdf" target="_blank" class="w3-button w3-black"><i class="fa fa-th"> </i> Download CV</a></p>
-    </div>
-    <div class="w3-col m6 ">
-      <img class="w3-image w3-round-large" src="images/josh_kusama_selfie.jpg" align="right" alt="Josh Urban Davis profile photo" width="430" height="520">
+  <!-- About Section - "We know design" -->
+  <div class="w3-container w3-black" style="padding:128px 16px" id="about">
+    <div class="w3-row-padding">
+      <div class="w3-col m6">
+        <h3>About</h3>
+        <p>+ pronouns: any pronoun is fine +</p>
+        <p>Josh Urban Davis is an american research-based artist and engineer from Texas whose practice incorporates
+          sculpture, performance, writing, sound, and video. </p>
+        <p>His research interests span a wide spectrum of topics in human-computer interaction (HCI), with a specific
+          emphasis on generative design, novel creativity support tools, and inclusive technologies. </p>
+        <p>Davis' recent creative projects explore the relationship between emerging technologies, social relationships,
+          and identity. His work has been exhibited at D!iverseWorks, the Blaffer Art Museum, Chandler Center for the
+          Arts, Art League Houston, and others. </p>
+        <p> He currently lives in Oakland, CA with his cat, Nocturne, where he is pursuing a PhD in computer sciences at
+          Dartmouth. </p>
+        <p><a href="files/Josh_cv_2022_combined.pdf" target="_blank" class="w3-button w3-black"><i
+              class="fa fa-th"> </i> Download CV</a></p>
+      </div>
+      <div class="w3-col m6 ">
+        <img class="w3-image w3-round-large" src="images/josh_kusama_selfie.jpg" align="right"
+          alt="Josh Urban Davis profile photo" width="430" height="520">
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Publications Section -->
-<div class="w3-container" style="padding:58px 16px" id="publications">
-  <h3 class="w3-center">PEER-REVIEWED PUBLICATIONS</h3>
-  <!-- <p class="w3-center w3-large">the one that runs the company</p> -->
-  <div class="w3-row-padding" style="margin-top:64px">
+  <!-- Publications Section -->
+  <div class="w3-container" style="padding:58px 16px" id="publications">
+    <h3 class="w3-center">PEER-REVIEWED PUBLICATIONS</h3>
+    <!-- <p class="w3-center w3-large">the one that runs the company</p> -->
+    <div class="w3-col l3 m6 w3-margin-bottom">
+      <div class="w3-card">
+        <img src="images/altText_thumb.png" alt="Alt text Alt CHI" style="width:100%">
+        <div class="w3-container">
+          <h3>Exploring AltNarrative in HCI Imagery and Comics</h3>
+          <p>Makayla Lewis, Miriam Sturdee, John Miers, Thuong Hoang, <b>Josh Urban Davis</b></p>
+          <p>In CHI Conference on Human Factors in Computing Systems Extended Abstracts </p>
+          <p>(CHI’22 Extended Abstracts), April 29–May 05, 2022, New Orleans, LA, USA. ACM, New York, NY, USA, 13 pages.
+            https://doi.org/10.1145/3491101.3516394</p>
+          <p style="color:red;">[21% Acceptance Rate]</p>
+          <p><a href="files/altText.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i
+                class="fa fa-book"></i> Read Paper</a></p>
+        </div>
+      </div>
+    </div>
+    <div class="w3-col l3 m6 w3-margin-bottom">
+      <div class="w3-card">
+        <img src="images/pokerface.png" alt="PokerFace" style="width:100%">
+        <div class="w3-container">
+          <h3>PokerFace</h3>
+          <p class="w3-opacity">
+          <p>Exploring Augmenting Masks through an Interactive, Mixed-Reality Prototype</p>
+          <p> Josh Urban Davis, John Tang, Edward Cutrell, Teddy Seyed</p>
+          <p> Proceedings of the 55th Hawaii International Conference on System Sciences</p>
+          <p>(HICSS'22) https://doi.org/10.24251/HICSS.2022.398</p>
+          <p><a href="files/pokerface.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i
+                class="fa fa-book"></i> Read Paper</a></p>
+          <p><a href="https://hdl.handle.net/10125/79732" target="_blank" class="w3-button w3-light-grey w3-block"><i
+                class="fa fa-youtube-play"></i> Abstract/Cite This</a></p>
+        </div>
+      </div>
+    </div>
+    <div class="w3-col l3 m6 w3-margin-bottom">
+      <div class="w3-card">
+        <img src="images/MSR.png" alt="Assets Paper" style="width:100%">
+        <div class="w3-container">
+          <h3>Mixed abilities and varied experiences: a group auto-ethnography of a virtual summer internship</h3>
+          <p>Kelly Mack, Maitraye Das, Dhruv Jain, Danielle Bragg, John Tang, Andrew Begel, Erin Beneteau, <b>Josh Urban
+              Davis</b>, Abraham Glasser, Joon Sung Park, Venkatesh Potluri</b></p>
+          <p>In ASSETS ’21, October 18–22, 2021, Virtual Event, USA</p>
+          <p style="color:red;">[23.2% Acceptance Rate]</p>
+          <p style="color:red;">[Best Paper: Top 5%]</p>
+          <p><a href="files/assets_21_final.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i
+                class="fa fa-book"></i> Read Paper</a></p>
+          <p><a href="https://dl.acm.org/doi/10.1145/3441852.3471199" target="_blank"
+              class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i> Abstract/Cite This</a></p>
+        </div>
+      </div>
+    </div>
     <div class="w3-col l3 m6 w3-margin-bottom">
       <div class="w3-card">
         <img src="images/Fig2_05.png" alt="Calliope" style="width:100%">
         <div class="w3-container">
           <h3>Designing Co-Creative AI in Virtual Enviornments</h3>
           <p><b>Josh Urban Davis</b> Fraser Anderson, Merten Stroetzel, Tovi Grossman, George Fitzmaurice.</p>
-          <p>Proceedings of ACM Symposium on Creativity and Cognition (C&C'21), 2021</p>
+          <p>In Creativity and Cognition (C&C ’21), </p>
+          <p> June 22, 23, 2021, Virtual Event, Italy. ACM, New York, NY, USA, 11 pages.
+            https://doi.org/10.1145/3450741.3465260</p>
           <p style="color:red;">[23.1% Acceptance Rate]</p>
-          <p><a href="https://dl.acm.org/doi/10.1145/3450741.3465260" target="_blank" class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i> Read Paper</a></p>
-          <p><a href="https://youtu.be/J8WJhj35_5E" target="_blank" class="w3-button w3-light-grey w3-block"><i class="fa fa-youtube-play"></i> See 5 min Talk</a></p>
+          <p><a href="files/calliope.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i> Read Paper</a></p>
+          <p><a href="https://dl.acm.org/doi/10.1145/3450741.3465260" target="_blank"
+              class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i>Abstract/Cite This</a></p>
+          <p><a href="https://youtu.be/J8WJhj35_5E" target="_blank" class="w3-button w3-light-grey w3-block"><i
+                class="fa fa-youtube-play"></i> See 5 min Talk</a></p>
         </div>
       </div>
     </div>
-    <div class="w3-col l3 m6 w3-margin-bottom">
-      <div class="w3-card">
-        <img src="images/hidout-triangle.jpg" alt="A Plurality of Practices" style="width:100%">
-        <div class="w3-container">
-          <h3>A Plurality of Practices</h3>
-          <p class="w3-opacity">Artistic Narratives in HCI Research</p>
-          <p>Miriam Sturdee, Makayla Lewis, Angelika Strohmayer, Katta Spiel, Nantia Koulidou, Sarah Fdili Alaoui, <b>Josh Urban Davis</b></p>
-          <p>Proceedings of ACM Symposium on Creativity and Cognition (C&C'21), 2021</p>
-          <p style="color:red;">[31% Acceptance Rate]</p>
-          <p style="color:red;">[Best Paper: Top 1%]</p>
-          <p><a href="https://dl.acm.org/doi/10.1145/3450741.3466771" target="_blank" class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i> Read Paper</a></p>
-          <p><a href="https://youtu.be/ycWEKL6HnHg" target="_blank" class="w3-button w3-light-grey w3-block"><i class="fa fa-youtube-play"></i> See Demo Video</a></p>
+    <div class="w3-row-padding" style="margin-top:64px">
+      <div class="w3-col l3 m6 w3-margin-bottom">
+        <div class="w3-card">
+          <img src="images/hidout-triangle.jpg" alt="A Plurality of Practices" style="width:100%">
+          <div class="w3-container">
+            <h3>A Plurality of Practices</h3>
+            <p class="w3-opacity">Artistic Narratives in HCI Research</p>
+            <p>Miriam Sturdee, Makayla Lewis, Angelika Strohmayer, Katta Spiel, Nantia Koulidou, Sarah Fdili Alaoui,
+              <b>Josh Urban Davis</b></p>
+            <p>Proceedings of ACM Symposium on Creativity and Cognition (C&C'21), 2021</p>
+            <p style="color:red;">[31% Acceptance Rate]</p>
+            <p style="color:red;">[Best Paper: Top 1%]</p>
+            <p><a href="files/Art_HCI_CR.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i> Read
+                Paper</a></p>
+            <p><a href="https://dl.acm.org/doi/10.1145/3450741.3466771" target="_blank"
+                class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i> Abstract/Cite This</a></p>
+            <p><a href="https://youtu.be/ycWEKL6HnHg" target="_blank" class="w3-button w3-light-grey w3-block"><i
+                  class="fa fa-youtube-play"></i> See Demo Video</a></p>
+          </div>
+        </div>
+      </div>
+      <div class="w3-col l3 m6 w3-margin-bottom">
+        <div class="w3-card">
+          <img src="images/gofont.JPG" alt="goFontYourself" style="width:100%">
+          <div class="w3-container">
+            <h3>Font Your Friends and Loved Ones</h3>
+            <p class="w3-opacity">On the Utility of Ugly Interfaces.</p>
+            <p> <b>Josh Urban Davis</b>, & Johann Wentzel. </p>
+            <p>Extended Abstracts of ACM Conference on Human Factors in Computing Systems (CHI'21), 2021</p>
+            <p style="color:red;">[21% Acceptance Rate]</p>
+            <p><a href="files/font_your_friends_preprint.pdf" target="_blank"
+                class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i> Read Paper</a></p>
+            <p><a href="https://dl.acm.org/doi/10.1145/3411763.3450371" target="_blank"
+                class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i> Abstract/Cite This</a></p>
+            <p><a href="http://gofontyourself.xyz/" target="_blank" class="w3-button w3-light-grey w3-block"><i
+                  class="fa fa-youtube-play"></i> Try It</a></p>
+          </div>
+        </div>
+      </div>
+      <div class="w3-col l3 m6 w3-margin-bottom">
+        <div class="w3-card">
+          <img src="images/tangiblecircuits_header_images.png" alt="TangibleCircuits" style="width:100%">
+          <div class="w3-container">
+            <h3>TangibleCircuits</h3>
+            <p class="w3-opacity">An Interactive 3D Printed Circuit Education Tool for People with Visual Impairments.
+            </p>
+            <p> <b>Josh Urban Davis</b>, Te-Yen Wu, Bo Shi, Hanyi Lui, Athina Panotopoulou, Emily Whiting, & Xing-Dong
+              Yang. </p>
+            <p>Proceedings of ACM Conference on Human Factors in Computing Systems (CHI'20), 2020</p>
+            <p style="color:red;">[23% Acceptance Rate]</p>
+            <p style="color:red;">[Honorable Mention: Top 5%]</p>
+            <p><a href="files/tangiblecircuits_CHI20.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i>
+                Read Paper</a></p>
+            <p><a href="https://dl.acm.org/doi/abs/10.1145/3313831.3376513" target="_blank"
+                class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i> Abstract/Cite This</a></p>
+            <p><a href="https://www.youtube.com/watch?v=wcd1_HpeStA" target="_blank"
+                class="w3-button w3-light-grey w3-block"><i class="fa fa-youtube-play"></i> See Demo Video</a></p>
+          </div>
         </div>
       </div>
     </div>
-	    <div class="w3-col l3 m6 w3-margin-bottom">
-      <div class="w3-card">
-        <img src="images/gofont.JPG" alt="goFontYourself" style="width:100%">
-        <div class="w3-container">
-          <h3>Font Your Friends and Loved Ones</h3>
-          <p class="w3-opacity">On the Utility of Ugly Interfaces.</p>
-          <p> <b>Josh Urban Davis</b>, & Johann Wentzel. </p>
-          <p>Extended Abstracts of ACM Conference on Human Factors in Computing Systems (CHI'21), 2021</p>
-          <p style="color:red;">[21% Acceptance Rate]</p>
-          <p><a href="https://dl.acm.org/doi/10.1145/3411763.3450371" target="_blank" class="w3-button w3-light-grey w3-block"></i> Read Paper</a></p>
-          <p><a href="http://gofontyourself.xyz/" target="_blank" class="w3-button w3-light-grey w3-block"><i class="fa fa-youtube-play"></i> Try It</a></p>
-        </div>
-      </div>
-    </div>
-   <div class="w3-col l3 m6 w3-margin-bottom">
-      <div class="w3-card">
-        <img src="images/tangiblecircuits_header_images.png" alt="TangibleCircuits" style="width:100%">
-        <div class="w3-container">
-          <h3>TangibleCircuits</h3>
-          <p class="w3-opacity">An Interactive 3D Printed Circuit Education Tool for People with Visual Impairments.</p>
-          <p> <b>Josh Urban Davis</b>, Te-Yen Wu, Bo Shi, Hanyi Lui, Athina Panotopoulou, Emily Whiting, & Xing-Dong Yang. </p>
-          <p>Proceedings of ACM Conference on Human Factors in Computing Systems (CHI'20), 2020</p>
-          <p style="color:red;">[23% Acceptance Rate]</p>
-          <p style="color:red;">[Honorable Mention: Top 5%]</p>
-          <p><a href="https://dl.acm.org/doi/abs/10.1145/3313831.3376513" target="_blank" class="w3-button w3-light-grey w3-block"></i> Read Paper</a></p>
-          <p><a href="https://www.youtube.com/watch?v=wcd1_HpeStA" target="_blank" class="w3-button w3-light-grey w3-block"><i class="fa fa-youtube-play"></i> See Demo Video</a></p>
-      </div>
-    </div> 
-  </div>
-</div>
-  <div class="w3-row-padding" style="margin-top:64px"></div>
+    <div class="w3-row-padding" style="margin-top:64px"></div>
     <div class="w3-col l3 m6 w3-margin-bottom">
       <div class="w3-card">
         <img src="images/circuitstyle_thumb.png" alt="CircuitStyle" style="width:100%">
@@ -224,8 +317,12 @@ hr {
           <p><b>Josh Urban Davis</b>*, Jun Gong*, Yunxin Sun, Parmit Chilana, & Xing-Dong Yang (*co-primary).</p>
           <p>Proceedings of ACM Symposium on User Interface Software and Technology (UIST'19), 2019</p>
           <p style="color:red;">[20.6% Acceptance Rate]</p>
-          <p><a href="https://dl.acm.org/citation.cfm?id=3332165.3347920" target="_blank" class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i> Read Paper</a></p>
-          <p><a href="https://www.youtube.com/watch?v=zUsr06QR1mM" target="_blank" class="w3-button w3-light-grey w3-block"><i class="fa fa-youtube-play"></i> See Demo Video</a></p>
+          <p><a href="files/circuitstyle_uist19.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i
+                class="fa fa-book"></i> Read Paper</a></p>
+          <p><a href="https://dl.acm.org/citation.cfm?id=3332165.3347920" target="_blank"
+              class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i> Abstract/Cite This</a></p>
+          <p><a href="https://www.youtube.com/watch?v=zUsr06QR1mM" target="_blank"
+              class="w3-button w3-light-grey w3-block"><i class="fa fa-youtube-play"></i> See Demo Video</a></p>
         </div>
       </div>
     </div>
@@ -238,12 +335,14 @@ hr {
           <p><b>Josh Urban Davis</b></p>
           <p>Proceedings of the International Conference on New Interfaces for Musical Expression (NIME'19), 2019</p>
           <p style="color:red;">[31% Acceptance Rate]</p>
-          <p><a href="files/IllumiWear_final_corrected.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i> Read Paper</a></p>
-          <p><a href="https://www.youtube.com/watch?v=1tNn6CTtTFs" target="_blank" class="w3-button w3-light-grey w3-block"><i class="fa fa-youtube-play"></i> See Demo Video</a></p>
+          <p><a href="files/IllumiWear_final_corrected.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i
+                class="fa fa-book"></i> Read Paper</a></p>
+          <p><a href="https://www.youtube.com/watch?v=1tNn6CTtTFs" target="_blank"
+              class="w3-button w3-light-grey w3-block"><i class="fa fa-youtube-play"></i> See Demo Video</a></p>
         </div>
       </div>
     </div>
-	    <div class="w3-col l3 m6 w3-margin-bottom">
+    <div class="w3-col l3 m6 w3-margin-bottom">
       <div class="w3-card">
         <img src="images/indutivo_thumb.png" alt="Indutivo" style="width:100%">
         <div class="w3-container">
@@ -252,18 +351,20 @@ hr {
           <p> Jun Gong, Xin Yang, Teddy Seyed, <b>Josh Urban Davis</b>, & Xing-Dong Yang. </p>
           <p>Proceedings of ACM Symposium on User Interface Software and Technology (UIST'18), 2018</p>
           <p style="color:red;">[21% Acceptance Rate]</p>
-          <p><a href="https://dl.acm.org/citation.cfm?id=3242662" target="_blank" class="w3-button w3-light-grey w3-block"></i> Read Paper</a></p>
-          <p><a href="https://www.youtube.com/watch?v=XLmVo2tELM4" target="_blank" class="w3-button w3-light-grey w3-block"><i class="fa fa-youtube-play"></i> See Demo Video</a></p>
+          <p><a href="https://dl.acm.org/citation.cfm?id=3242662" target="_blank"
+              class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i> Read Paper</a></p>
+          <p><a href="https://www.youtube.com/watch?v=XLmVo2tELM4" target="_blank"
+              class="w3-button w3-light-grey w3-block"><i class="fa fa-youtube-play"></i> See Demo Video</a></p>
         </div>
       </div>
     </div>
   </div>
 
-<!--    <div class="w3-row-padding" style="margin-top:64px"> -->
-    
+  <!--    <div class="w3-row-padding" style="margin-top:64px"> -->
 
 
-<!--
+
+  <!--
     <div class="w3-col l3 m6 w3-margin-bottom">
       <div class="w3-card">
         <img src="images/gendergenerator_thumb.png" alt="Gender Generator" style="width:100%">
@@ -280,10 +381,10 @@ hr {
     </div>
 -->
   </div>
-</div>
+  </div>
 
-<!-- Promo Section "Statistics" -->
-<!--<div class="w3-container w3-row w3-center w3-dark-grey w3-padding-64">
+  <!-- Promo Section "Statistics" -->
+  <!--<div class="w3-container w3-row w3-center w3-dark-grey w3-padding-64">
   <div class="w3-quarter">
     <span class="w3-xxlarge">14+</span>
     <br>Partners
@@ -302,243 +403,334 @@ hr {
   </div>
 </div>-->
 
-<!-- Work Section -->
-<div class="w3-container w3-black" style="padding:35px 16px" id="work">
-  <h2 class="w3-center">PROJECTS</h2>
-  <p class="w3-center w3-large">past and ongoing works</p>
+  <!-- Work Section -->
+  <div class="w3-container w3-black" style="padding:35px 16px" id="work">
+    <h2 class="w3-center">PROJECTS</h2>
+    <p class="w3-center w3-large">past and ongoing works</p>
 
-  <hr>
+    <hr>
 
-  <h3 class="w3-right" style="padding:20px">POSTCARDS FROM THE ELECTRIC VOID</h3>
-      <div class="w3-container w3-black" style="padding:35px 16px" id="about">         
-          <div class="w3-row-padding">
-              <div class="w3-right-align"><p>The following images and animations are generated by artificial intelligence agents called Generative Adversarial Neural Networks trained on a variety of images including colorized photographs of the universe and paintings from art history. The aesthetics of glitch art is the aesthetics of mistakes. This metaphor functions as a healing practice in that it allows us to see fallibility as valuable. Algorithms carry a utilitarian imperviousness — their failures a reflection of their creators shortcomings.</p>
-                <p>Glitch aesthetics offer an opportunity to see this failure as a bizarre healing practice. In Postcards from the Electric Void, artist and engineer Josh Urban Davis trained a neural network on a dataset of colorized space images, and image archives from art history museums. By asking a machine to imagine the composition of our universe, we facilitate a poetic dialogue between the unfathomably large void of space and the infinitesimal void of data. When the machine produces something plausible as an image of our universe, the experience is uncanny. </p>
-                <p>However, when the machine produces glitches and errors, these aesthetics reflect a recognizable shortcoming in the machine's inability to reconcile in unfathomable. In this way, the void-glancing machine is recognizable as fallible, creating a point of empathic connection between human and machine. </p>
-                <p>This project is ongoing with daily posts to Davis' Instagram and Twitter accounts.</p>
-                <p><a href="https://www.instagram.com/kweenofparts/?hl=en" target="_blank" class="w3-button w3-dark-grey"><i class="fa fa-th"> </i> See More </a></p>
-                <p><a href="http://www.aiartonline.com/community/josh-urban-davis/" target="_blank" class="w3-button w3-dark-grey"><i class="fa fa-th"> </i>Publication at NuerIPS Conference</a></p>
-              </div>  
-          </div>
-          <div class="w3-row-padding w3-section">
-              <div class="w3-col l3 m6">
-                <img src="images/collage_5_500_20_48.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Pixel Dripper No. 3">
-              </div>
-              <div class="w3-col l3 m6">
-                <img src="images/frame_01001.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Beyond the Beast's Tongue">
-              </div>
-              <div class="w3-col l3 m6">
-                <img src="images/creature_thumb.JPG" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Wall of Wonders">
-              </div>
-              <div class="w3-col l3 m6">
-                <img src="images/space_gen6.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Postcard from the Electric Void No. 552">
-              </div>
-            </div>
-          <div class="w3-row-padding w3-section">
-              <div class="w3-col l3 m6">
-                  <img src="images/space_grid.jpg"   border-radius: 50% style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Postcards from the Electric Void No. 44522">
-                </div>
-                <div class="w3-col l3 m6">
-                  <img src="images/butterly_epiphany.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Butterfly Epiphany">
-                </div>
-                <div class="w3-col l3 m6">
-                  <img src="images/vertigo.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Self-Portrait as Vertigo">
-                </div>
-                <div class="w3-col l3 m6">
-                  <img src="images/feather_river.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Feather River">
-                </div>
-              </div>
-            <div class="w3-row-padding">
-                <div class="w3-col l3 m6">
-                    <img src="images/piexel_dripper_2.jpg"   border-radius: 50% style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Pixel Dripper No. 7">
-                  </div>
-                  <div class="w3-col l3 m6">
-                    <img src="images/garden.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="A Garden in Perpetual Collapse">
-                  </div>
-                  <div class="w3-col l3 m6">
-                    <img src="images/golden_portrait.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Self Portrait as Scattering Glitter">
-                  </div>
-                  <div class="w3-col l3 m6">
-                    <img src="images/pixel_puddle.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Pixel Dripper No. 9">
-                  </div>
-                </div>
-            </div>
+    <h3 class="w3-right" style="padding:20px">POSTCARDS FROM THE ELECTRIC VOID</h3>
+    <div class="w3-container w3-black" style="padding:35px 16px" id="about">
+      <div class="w3-row-padding">
+        <div class="w3-right-align">
+          <p>The following images and animations are generated by artificial intelligence agents called Generative
+            Adversarial Neural Networks trained on a variety of images including colorized photographs of the universe
+            and paintings from art history. The aesthetics of glitch art is the aesthetics of mistakes. This metaphor
+            functions as a healing practice in that it allows us to see fallibility as valuable. Algorithms carry a
+            utilitarian imperviousness — their failures a reflection of their creators shortcomings.</p>
+          <p>Glitch aesthetics offer an opportunity to see this failure as a bizarre healing practice. In Postcards from
+            the Electric Void, artist and engineer Josh Urban Davis trained a neural network on a dataset of colorized
+            space images, and image archives from art history museums. By asking a machine to imagine the composition of
+            our universe, we facilitate a poetic dialogue between the unfathomably large void of space and the
+            infinitesimal void of data. When the machine produces something plausible as an image of our universe, the
+            experience is uncanny. </p>
+          <p>However, when the machine produces glitches and errors, these aesthetics reflect a recognizable shortcoming
+            in the machine's inability to reconcile in unfathomable. In this way, the void-glancing machine is
+            recognizable as fallible, creating a point of empathic connection between human and machine. </p>
+          <p>This project is ongoing with daily posts to Davis' Instagram and Twitter accounts.</p>
+          <p><a href="https://www.instagram.com/kweenofparts/?hl=en" target="_blank" class="w3-button w3-dark-grey"><i
+                class="fa fa-th"> </i> See More </a></p>
+          <p><a href="http://www.aiartonline.com/community/josh-urban-davis/" target="_blank"
+              class="w3-button w3-dark-grey"><i class="fa fa-th"> </i>Publication at NuerIPS Conference</a></p>
+        </div>
+      </div>
+      <div class="w3-row-padding w3-section">
+        <div class="w3-col l3 m6">
+          <img src="images/collage_5_500_20_48.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
+            alt="Pixel Dripper No. 3">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/frame_01001.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
+            alt="Beyond the Beast's Tongue">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/creature_thumb.JPG" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
+            alt="Wall of Wonders">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/space_gen6.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
+            alt="Postcard from the Electric Void No. 552">
+        </div>
+      </div>
+      <div class="w3-row-padding w3-section">
+        <div class="w3-col l3 m6">
+          <img src="images/space_grid.jpg" border-radius: 50% style="width:100%" onclick="onClick(this)"
+            class="w3-hover-opacity" alt="Postcards from the Electric Void No. 44522">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/butterly_epiphany.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
+            alt="Butterfly Epiphany">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/vertigo.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
+            alt="Self-Portrait as Vertigo">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/feather_river.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
+            alt="Feather River">
+        </div>
+      </div>
+      <div class="w3-row-padding">
+        <div class="w3-col l3 m6">
+          <img src="images/piexel_dripper_2.jpg" border-radius: 50% style="width:100%" onclick="onClick(this)"
+            class="w3-hover-opacity" alt="Pixel Dripper No. 7">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/garden.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
+            alt="A Garden in Perpetual Collapse">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/golden_portrait.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
+            alt="Self Portrait as Scattering Glitter">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/pixel_puddle.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
+            alt="Pixel Dripper No. 9">
+        </div>
+      </div>
+    </div>
 
-        
-<hr>
 
-  <h3 class="w3-left" style="padding:20px">SYNAPSTRACTION</h3>
-  <div class="w3-container w3-black" style="padding:35px 16px" id="about">
+    <hr>
+
+    <h3 class="w3-left" style="padding:20px">SYNAPSTRACTION</h3>
+    <div class="w3-container w3-black" style="padding:35px 16px" id="about">
       <div class="w3-row-padding">
         <div class="w3-col m6">
-          <p>Synapstraction is a brain-computer interaction project which allows users to create an abstract painting based on neuro-feedback. The system uses a special headset that measures the electrical activity of a person’s scalp processed by machine learning algorithms to discriminate a stimuli’s effect on the brain.</p>
-            <p>Each visitor is invited to enter the installation and approach one of five “sense” stations, each with an electroencephalography (EEG) headset. We then measure the event related potential (ERP) elicited by the visitor’s brain using the EEG when the visitor receives 1 of 5 stimuli. These 5 stimuli correspond to the 5 senses (sight, touch, taste, sound, smell). In addition, each stimuli is mapped to a specific creative instrument such as a paintbrush, sponge, or marker.</p>
-            <p>Once the visitor has secured their headset, they are presented with a stimulus (e.g. a Chopin Nocturne if at the “sound” station or fresh ground clove for the “scent” station). Our system then uses a machine learning method called linear discriminant analysis to map the activity of the visitor’s brain while experiencing the stimuli to acoustic frequencies which actuate the painting implements. After visiting each of the 5 “sense” stations within the installation, the participant is invited to keep their finished painting. </p>
-            <p>The participant’s brain serves as a conduit, translating the stimulation of each sense into the finished image. In this way, the usual methodology of an artist using their senses to create a media object is inverted; the senses use the artist to create an image. Synapstraction largely takes its aesthetic interests from the abstract expressionists of the 20th century and its conceptual framework from aleatory artists such as John Cage. Unlike Cage, however, Synapstraction maps all senses to image, and renders the consumption of sensual stimuli as an act of image creation. The material of this artwork doesn’t necessarily lie in the paintings themselves, nor the equipment used in the installation, but instead rests in the speculative reconsideration of potential alternative roles for human senses in art making.</p>
-            <p>This project premiered during the Digital Arts Festival at the Black Visual Arts Center in 2017.</p>
-            <p><a href="https://junctionmagazine.com/synapstration" target="_blank" class="w3-button w3-dark-grey"><i class="fa fa-th"> </i> Press </a></p>
+          <p>Synapstraction is a brain-computer interaction project which allows users to create an abstract painting
+            based on neuro-feedback. The system uses a special headset that measures the electrical activity of a
+            person’s scalp processed by machine learning algorithms to discriminate a stimuli’s effect on the brain.</p>
+          <p>Each visitor is invited to enter the installation and approach one of five “sense” stations, each with an
+            electroencephalography (EEG) headset. We then measure the event related potential (ERP) elicited by the
+            visitor’s brain using the EEG when the visitor receives 1 of 5 stimuli. These 5 stimuli correspond to the 5
+            senses (sight, touch, taste, sound, smell). In addition, each stimuli is mapped to a specific creative
+            instrument such as a paintbrush, sponge, or marker.</p>
+          <p>Once the visitor has secured their headset, they are presented with a stimulus (e.g. a Chopin Nocturne if
+            at the “sound” station or fresh ground clove for the “scent” station). Our system then uses a machine
+            learning method called linear discriminant analysis to map the activity of the visitor’s brain while
+            experiencing the stimuli to acoustic frequencies which actuate the painting implements. After visiting each
+            of the 5 “sense” stations within the installation, the participant is invited to keep their finished
+            painting. </p>
+          <p>The participant’s brain serves as a conduit, translating the stimulation of each sense into the finished
+            image. In this way, the usual methodology of an artist using their senses to create a media object is
+            inverted; the senses use the artist to create an image. Synapstraction largely takes its aesthetic interests
+            from the abstract expressionists of the 20th century and its conceptual framework from aleatory artists such
+            as John Cage. Unlike Cage, however, Synapstraction maps all senses to image, and renders the consumption of
+            sensual stimuli as an act of image creation. The material of this artwork doesn’t necessarily lie in the
+            paintings themselves, nor the equipment used in the installation, but instead rests in the speculative
+            reconsideration of potential alternative roles for human senses in art making.</p>
+          <p>This project premiered during the Digital Arts Festival at the Black Visual Arts Center in 2017.</p>
+          <p><a href="https://junctionmagazine.com/synapstration" target="_blank" class="w3-button w3-dark-grey"><i
+                class="fa fa-th"> </i> Press </a></p>
         </div>
         <div class="w3-col m6 ">
           <div class="iframeVideo">
-          <iframe src="https://www.youtube.com/embed/gZUT1KMxpoQ" align="right" allowfullscreen>
-          </iframe>
+            <iframe src="https://www.youtube.com/embed/gZUT1KMxpoQ" align="right" allowfullscreen>
+            </iframe>
           </div>
         </div>
       </div>
     </div>
 
-<hr>
+    <hr>
 
 
     <h3 class="w3-left" style="padding:20px">THIS OBITUARY DOES NOT EXIST DOT COM</h3>
     <div class="w3-container w3-black" style="padding:35px 16px" id="about">
-        <div class="w3-row-padding">
-          <div class="w3-col m6">
-            <p>thisObituaryDoesNotExist comprises a physical and digital collection of obituaries generated by two artificial neural networks. The algorithms (StyleGAN and GPT-2) are shown images and text taken from publicly available online obituaries, and asked to imagine new obituaries. In this way, the system generates infinitely many photographs, death narratives, and life stories for persons who never existed.</p>
-              <p>The physical exhibition consists of a collection of funeral pamphlets containing a selection of the generated obituary text and images, each pamphlet dedicated to the life and death of one generated person. By making these printed materials indistinguishable from funeral pamphlets for physical persons, Davis invites us to consider how these objects differ-from and are similar-to each other. In this way, the line between generated fiction and physical realty becomes blurred, and we are invited to question what constitutes an authentic personal identity in an era of massive data, social media, and creative artificial intelligences.</p>
-              <p>thisObituaryDoesNotExist interrogates how technology affects, distributes, and manipulates human experiences of death and grief. The digital website generates a new obituary each time the page is refreshed.</p>
-              <p>This project premiered at Chandler Center for the Arts in 2019.</p>
-              <p><a href="http://thisobituarydoesnotexist.com/" target="_blank" class="w3-button w3-dark-grey"><i class="fa fa-th"> </i> Visit the Obituary </a></p>
-          </div>
-          <div class="w3-col m6 ">
-              <img class="w3-image w3-round-large" src="images/thisobit_thumb_2.jpg" align="right" alt="Josh Urban Davis profile photo" width="430" height="520">
-            </div>
-        </div>
-      </div>
-
-<hr>
-
-<h3 class="w3-right" style="padding:20px">ORWELLIAN2017</h3>
-  <div class="w3-container w3-black" style="padding:35px 16px" id="about">
-      <div class="w3-row-padding">
-          <div class="w3-col m6 ">
-              <a class="twitter-timeline" data-height="520" data-theme="dark" href="https://twitter.com/Orwellian2017?ref_src=twsrc%5Etfw">Tweets by Orwellian2017</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>          </div>
-        <div class="w3-col m6" align="right">
-          <p>@Orwellian2017 is a contemporary translation of George Orwell's novel 1984.  On November 5th, 2017 the Twitter bot @orwellian went live and tweeted the entirety of George Orwell’s 1984 with key characters and places algorithmically replaced by the Twitter handles of prominent American political figures.</p>
-          <p>The bot will tweeted a single sentence once every four hours beginning on November 5th and reached the story’s completion on November 3rd, 2020, the day of the American presidential election.</p>
-          <p>@Orwellian2017 brings attention to the modern literary potential of social media, and emphasizes the role these technolgies play in disceminating information and shaping political narratives. In this way, @Orwellian2017 shares similar interest with Orwell's novel in their exploration of the role language plays in mitigating our understanding of politics and history. This diaglogue is especially precient during a tumultuous political climate in America, where language and truth mediated by the internet perpetually problematize the machinations of democracy. </p>
-            <p><a href="https://twitter.com/Orwellian2017" target="_blank" class="w3-button w3-dark-grey"><i class="fa fa-th"> </i> Visit Twitter </a></p>
-        </div>
-      </div>
-    </div>
-
-<hr>
-
-<h3 class="w3-left" style="padding:20px">PSYCH-VR</h3>
-  <div class="w3-container w3-black" style="padding:35px 16px" id="about">
       <div class="w3-row-padding">
         <div class="w3-col m6">
-          <p>PsycheVR is a virtual reality and biofeedback project conducted in collaboration with the Space Medicine Labratory at the Geisell School of Medicine and National Aeronautics Space Administration (NASA). </p>
-            <p>The project consists of developing virtual reality content to promote relaxation when the user is confined to small, isolated spaces for long durations of time. The products of this project were used in trial experimentation with NASA astronauts intended for future missions to Mars.</p>
-            <p>We also prototyped biofeedback mechanisms to take in a user’s biometric state as determined by GSR, EEG, facial expression and other stress indicators and subsequently adjust the content of the VR enviornment to assit calming the user.</p>
-            <p>"Three Days and a Year On Top of a Mountain" (featured right) is a VR sunrise-to-sunset timelapse created on top of Gile Mountain. Recorded over the course of a year, the video features scenes from Gile Moutain throughout it's four seasons. The final video assimilates these footages into a single timelapse, allowing the viewer to experience a day and year on top of the mountain simultaneously. </p>
-            <!--<p><a href="https://junctionmagazine.com/synapstration" target="_blank" class="w3-button w3-dark-grey"><i class="fa fa-th"> </i> Press </a></p>-->
+          <p>thisObituaryDoesNotExist comprises a physical and digital collection of obituaries generated by two
+            artificial neural networks. The algorithms (StyleGAN and GPT-2) are shown images and text taken from
+            publicly available online obituaries, and asked to imagine new obituaries. In this way, the system generates
+            infinitely many photographs, death narratives, and life stories for persons who never existed.</p>
+          <p>The physical exhibition consists of a collection of funeral pamphlets containing a selection of the
+            generated obituary text and images, each pamphlet dedicated to the life and death of one generated person.
+            By making these printed materials indistinguishable from funeral pamphlets for physical persons, Davis
+            invites us to consider how these objects differ-from and are similar-to each other. In this way, the line
+            between generated fiction and physical realty becomes blurred, and we are invited to question what
+            constitutes an authentic personal identity in an era of massive data, social media, and creative artificial
+            intelligences.</p>
+          <p>thisObituaryDoesNotExist interrogates how technology affects, distributes, and manipulates human
+            experiences of death and grief. The digital website generates a new obituary each time the page is
+            refreshed.</p>
+          <p>This project premiered at Chandler Center for the Arts in 2019.</p>
+          <p><a href="http://thisobituarydoesnotexist.com/" target="_blank" class="w3-button w3-dark-grey"><i
+                class="fa fa-th"> </i> Visit the Obituary </a></p>
         </div>
         <div class="w3-col m6 ">
-            <div class="iframeVideo">
-                <iframe src="https://www.youtube.com/embed/PTOQoZnPwww" align="right" allowfullscreen>
-          </iframe>
+          <img class="w3-image w3-round-large" src="images/thisobit_thumb_2.jpg" align="right"
+            alt="Josh Urban Davis profile photo" width="430" height="520">
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <h3 class="w3-right" style="padding:20px">ORWELLIAN2017</h3>
+    <div class="w3-container w3-black" style="padding:35px 16px" id="about">
+      <div class="w3-row-padding">
+        <div class="w3-col m6 ">
+          <a class="twitter-timeline" data-height="520" data-theme="dark"
+            href="https://twitter.com/Orwellian2017?ref_src=twsrc%5Etfw">Tweets by Orwellian2017</a>
+          <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        </div>
+        <div class="w3-col m6" align="right">
+          <p>@Orwellian2017 is a contemporary translation of George Orwell's novel 1984. On November 5th, 2017 the
+            Twitter bot @orwellian went live and tweeted the entirety of George Orwell’s 1984 with key characters and
+            places algorithmically replaced by the Twitter handles of prominent American political figures.</p>
+          <p>The bot will tweeted a single sentence once every four hours beginning on November 5th and reached the
+            story’s completion on November 3rd, 2020, the day of the American presidential election.</p>
+          <p>@Orwellian2017 brings attention to the modern literary potential of social media, and emphasizes the role
+            these technolgies play in disceminating information and shaping political narratives. In this way,
+            @Orwellian2017 shares similar interest with Orwell's novel in their exploration of the role language plays
+            in mitigating our understanding of politics and history. This diaglogue is especially precient during a
+            tumultuous political climate in America, where language and truth mediated by the internet perpetually
+            problematize the machinations of democracy. </p>
+          <p><a href="https://twitter.com/Orwellian2017" target="_blank" class="w3-button w3-dark-grey"><i
+                class="fa fa-th"> </i> Visit Twitter </a></p>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <h3 class="w3-left" style="padding:20px">PSYCH-VR</h3>
+    <div class="w3-container w3-black" style="padding:35px 16px" id="about">
+      <div class="w3-row-padding">
+        <div class="w3-col m6">
+          <p>PsycheVR is a virtual reality and biofeedback project conducted in collaboration with the Space Medicine
+            Labratory at the Geisell School of Medicine and National Aeronautics Space Administration (NASA). </p>
+          <p>The project consists of developing virtual reality content to promote relaxation when the user is confined
+            to small, isolated spaces for long durations of time. The products of this project were used in trial
+            experimentation with NASA astronauts intended for future missions to Mars.</p>
+          <p>We also prototyped biofeedback mechanisms to take in a user’s biometric state as determined by GSR, EEG,
+            facial expression and other stress indicators and subsequently adjust the content of the VR enviornment to
+            assit calming the user.</p>
+          <p>"Three Days and a Year On Top of a Mountain" (featured right) is a VR sunrise-to-sunset timelapse created
+            on top of Gile Mountain. Recorded over the course of a year, the video features scenes from Gile Moutain
+            throughout it's four seasons. The final video assimilates these footages into a single timelapse, allowing
+            the viewer to experience a day and year on top of the mountain simultaneously. </p>
+          <!--<p><a href="https://junctionmagazine.com/synapstration" target="_blank" class="w3-button w3-dark-grey"><i class="fa fa-th"> </i> Press </a></p>-->
+        </div>
+        <div class="w3-col m6 ">
+          <div class="iframeVideo">
+            <iframe src="https://www.youtube.com/embed/PTOQoZnPwww" align="right" allowfullscreen>
+            </iframe>
           </div>
         </div>
       </div>
     </div>
 
-<hr>
+    <hr>
 
-<h3 class="w3-right" style="padding:20px">GRAPHIC DESIGN</h3>
-<div class="w3-container w3-black" style="padding:35px 16px" id="about">         
-    <div class="w3-row-padding">
-        <div class="w3-right-align"><p>A portfolio sampling of various graphic design and digital collage projects both past and ongoing. </p>
-          <p><a href="https://www.instagram.com/kweenofparts/?hl=en" target="_blank" class="w3-button w3-dark-grey"><i class="fa fa-th"> </i> See More </a></p>
-        </div>  
+    <h3 class="w3-right" style="padding:20px">GRAPHIC DESIGN</h3>
+    <div class="w3-container w3-black" style="padding:35px 16px" id="about">
+      <div class="w3-row-padding">
+        <div class="w3-right-align">
+          <p>A portfolio sampling of various graphic design and digital collage projects both past and ongoing. </p>
+          <p><a href="https://www.instagram.com/kweenofparts/?hl=en" target="_blank" class="w3-button w3-dark-grey"><i
+                class="fa fa-th"> </i> See More </a></p>
+        </div>
+      </div>
+      <div class="w3-row-padding w3-section">
+        <div class="w3-col l3 m6">
+          <img src="images/PJ_album_art_1vSad_boi.jpg" style="width:100%" onclick="onClick(this)"
+            class="w3-hover-opacity" alt="Sad_Boi">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/PJ_album_art_3v3.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
+            alt="Head Tipper">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/PJ_album_art_2.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
+            alt="Pretty Boi Rain Drain">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/PJ_album_art_4.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
+            alt="Sonic Gooze No. 1">
+        </div>
+      </div>
+      <div class="w3-row-padding w3-section">
+        <div class="w3-col l3 m6">
+          <img src="images/urban_owls.png" border-radius: 50% style="width:100%" onclick="onClick(this)"
+            class="w3-hover-opacity" alt="Urban Owls">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/Octorococo_crystal_no_words.jpg" style="width:100%" onclick="onClick(this)"
+            class="w3-hover-opacity" alt="Empress">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/multi_head.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
+            alt="Hex Plexus">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/violin_ooze.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
+            alt="Sonic Ooze No. 2">
+        </div>
+      </div>
     </div>
-    <div class="w3-row-padding w3-section">
-        <div class="w3-col l3 m6">
-          <img src="images/PJ_album_art_1vSad_boi.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Sad_Boi">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/PJ_album_art_3v3.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Head Tipper">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/PJ_album_art_2.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Pretty Boi Rain Drain">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/PJ_album_art_4.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Sonic Gooze No. 1">
-        </div>
-      </div>
-    <div class="w3-row-padding w3-section">
-        <div class="w3-col l3 m6">
-            <img src="images/urban_owls.png"   border-radius: 50% style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Urban Owls">
-          </div>
-          <div class="w3-col l3 m6">
-            <img src="images/Octorococo_crystal_no_words.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Empress">
-          </div>
-          <div class="w3-col l3 m6">
-            <img src="images/multi_head.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Hex Plexus">
-          </div>
-          <div class="w3-col l3 m6">
-            <img src="images/violin_ooze.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity" alt="Sonic Ooze No. 2">
-          </div>
-        </div>
-      </div>
 
-  
-<hr>
 
-<h3 class="w3-left" style="padding:20px">ANIMATION</h3>
-  <div class="w3-container w3-black" style="padding:35px 16px" id="about">
+    <hr>
+
+    <h3 class="w3-left" style="padding:20px">ANIMATION</h3>
+    <div class="w3-container w3-black" style="padding:35px 16px" id="about">
       <div class="w3-row-padding">
         <div class="w3-col m6">
           <p>A collection of ongoing experiments in animation begun in 2017.</p>
-          <p>These films incorporate writings by living/contemporary poets and are meant to visually and sonically accompany the aesthetic narrative of the literature. </p>
-         <hr>
+          <p>These films incorporate writings by living/contemporary poets and are meant to visually and sonically
+            accompany the aesthetic narrative of the literature. </p>
+          <hr>
           <p>
-          <br><i>Extinction</i>
-          <br>Words by Elizabeth Lyons. </p>
+            <br><i>Extinction</i>
+            <br>Words by Elizabeth Lyons.
+          </p>
           <!--<p><a href="https://junctionmagazine.com/synapstration" target="_blank" class="w3-button w3-dark-grey"><i class="fa fa-th"> </i> Press </a></p>-->
         </div>
         <div class="w3-col m6 ">
           <br>
-            <div class="iframeVideo">
-                <iframe src="https://www.youtube.com/embed/2hFV_rQct-k" align="right" allowfullscreen>
-          </iframe>
+          <div class="iframeVideo">
+            <iframe src="https://www.youtube.com/embed/2hFV_rQct-k" align="right" allowfullscreen>
+            </iframe>
           </div>
         </div>
         <div class="w3-col m6">
-            <p>
+          <p>
             <br><br><i>The Wild Iris</i>
             <br>Words by Louis Gluck
-            <br>Inspired by Burn by Darcy Rosenburger</p>
-            <!--<p><a href="https://junctionmagazine.com/synapstration" target="_blank" class="w3-button w3-dark-grey"><i class="fa fa-th"> </i> Press </a></p>-->
-          </div>
+            <br>Inspired by Burn by Darcy Rosenburger
+          </p>
+          <!--<p><a href="https://junctionmagazine.com/synapstration" target="_blank" class="w3-button w3-dark-grey"><i class="fa fa-th"> </i> Press </a></p>-->
+        </div>
         <div class="w3-col m6 ">
           <br>
-            <div class="iframeVideo">
-                <iframe src="https://www.youtube.com/embed/xMLsnjvVQ5E" align="right" allowfullscreen>
-          </iframe>
-          <br>
+          <div class="iframeVideo">
+            <iframe src="https://www.youtube.com/embed/xMLsnjvVQ5E" align="right" allowfullscreen>
+            </iframe>
+            <br>
           </div>
         </div>
       </div>
     </div>
 
-<hr>
+    <hr>
 
 
-      <!--the div below closes the project/work section-->
+    <!--the div below closes the project/work section-->
   </div>
 
-<!-- Modal for full size images on click-->
-<div id="modal01" class="w3-modal w3-black" onclick="this.style.display='none'">
-  <span class="w3-button w3-xxlarge w3-black w3-padding-large w3-display-topright" title="Close Modal Image">×</span>
-  <div class="w3-modal-content w3-animate-zoom w3-center w3-transparent w3-padding-64">
-    <img id="img01" class="w3-image">
-    <p id="caption" class="w3-opacity w3-large"></p>
+  <!-- Modal for full size images on click-->
+  <div id="modal01" class="w3-modal w3-black" onclick="this.style.display='none'">
+    <span class="w3-button w3-xxlarge w3-black w3-padding-large w3-display-topright" title="Close Modal Image">×</span>
+    <div class="w3-modal-content w3-animate-zoom w3-center w3-transparent w3-padding-64">
+      <img id="img01" class="w3-image">
+      <p id="caption" class="w3-opacity w3-large"></p>
+    </div>
   </div>
-</div>
 
-<!-- Skills Section -->
-<!--<div class="w3-container w3-light-grey w3-padding-64">
+  <!-- Skills Section -->
+  <!--<div class="w3-container w3-light-grey w3-padding-64">
   <div class="w3-row-padding">
     <div class="w3-col m6">
       <h3>Our Skills.</h3>
@@ -564,8 +756,8 @@ hr {
   </div>
 </div>-->
 
-<!-- Pricing Section -->
-<!--<div class="w3-container w3-center w3-dark-grey" style="padding:128px 16px" id="pricing">
+  <!-- Pricing Section -->
+  <!--<div class="w3-container w3-center w3-dark-grey" style="padding:128px 16px" id="pricing">
   <h3>PRICING</h3>
   <p class="w3-large">Choose a pricing plan that fits your needs.</p>
   <div class="w3-row-padding" style="margin-top:64px">
@@ -620,16 +812,16 @@ hr {
   </div>
 </div>-->
 
-<!-- Contact Section -->
-<div class="w3-container w3-light-grey" style="padding:58px 16px" id="contact">
-  <h3 class="w3-center">CONTACT</h3>
-  <p class="w3-center w3-large">Lets get in touch. Send me a message:</p>
-  <div style="margin-top:48px">
-    <p><i class="fa fa-map-marker fa-fw w3-xxlarge w3-margin-right"></i> Hanover, NH</p>
-    <!--<p><i class="fa fa-phone fa-fw w3-xxlarge w3-margin-right"></i> Phone: +00 151515</p>-->
-    <p><i class="fa fa-envelope fa-fw w3-xxlarge w3-margin-right"> </i> Email: joshurbandavis@gmail.com</p>
-    <br>
-    <!--<form action="action_page.php" target="_blank" method="POST">
+  <!-- Contact Section -->
+  <div class="w3-container w3-light-grey" style="padding:58px 16px" id="contact">
+    <h3 class="w3-center">CONTACT</h3>
+    <p class="w3-center w3-large">Lets get in touch. Send me a message:</p>
+    <div style="margin-top:48px">
+      <p><i class="fa fa-map-marker fa-fw w3-xxlarge w3-margin-right"></i> Hanover, NH</p>
+      <!--<p><i class="fa fa-phone fa-fw w3-xxlarge w3-margin-right"></i> Phone: +00 151515</p>-->
+      <p><i class="fa fa-envelope fa-fw w3-xxlarge w3-margin-right"> </i> Email: joshurbandavis@gmail.com</p>
+      <br>
+      <!--<form action="action_page.php" target="_blank" method="POST">
       <p><input class="w3-input w3-border" type="text" placeholder="Name" required name="Name"></p>
       <p><input class="w3-input w3-border" type="text" placeholder="Email" required name="Email"></p>
       <p><input class="w3-input w3-border" type="text" placeholder="Subject" required name="Subject"></p>
@@ -640,51 +832,55 @@ hr {
         </button>
       </p>
     </form>-->
-    <!-- Image of location/map -->
-    <!--<img src="/w3images/map.jpg" class="w3-image w3-greyscale" style="width:100%;margin-top:48px">-->
+      <!-- Image of location/map -->
+      <!--<img src="/w3images/map.jpg" class="w3-image w3-greyscale" style="width:100%;margin-top:48px">-->
+    </div>
   </div>
-</div>
 
-<!-- Footer -->
-<footer class="w3-center w3-black w3-padding-64">
-  <a href="#home" class="w3-button w3-light-grey"><i class="fa fa-arrow-up w3-margin-right"></i>To the top</a>
-  <div class="w3-xlarge w3-section">
-    <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank"><i class="fa fa-google w3-hover-opacity"></i></a>
-    <a href="https://www.instagram.com/kweenofparts/?hl=en" target="_blank"><i class="fa fa-instagram w3-hover-opacity"></i></a>
-    <!--<i class="fa fa-snapchat w3-hover-opacity"></i>-->
-    <!--<i class="fa fa-pinterest-p w3-hover-opacity"></i>-->
-    <a href="https://twitter.com/kweenofparts" target="_blank"><i class="fa fa-twitter w3-hover-opacity"></i></a>
-    <a href="https://www.linkedin.com/in/josh-urban-davis-54212749/" target="_blank"><i class="fa fa-linkedin w3-hover-opacity"></i></a>
-  </div>
-  <!-- <p>Powered by <a href="https://www.w3schools.com/w3css/default.asp" title="W3.CSS" target="_blank" class="w3-hover-text-green">w3.css</a></p>-->
-</footer>
- 
-<script>
-// Modal Image Gallery
-function onClick(element) {
-  document.getElementById("img01").src = element.src;
-  document.getElementById("modal01").style.display = "block";
-  var captionText = document.getElementById("caption");
-  captionText.innerHTML = element.alt;
-}
+  <!-- Footer -->
+  <footer class="w3-center w3-black w3-padding-64">
+    <a href="#home" class="w3-button w3-light-grey"><i class="fa fa-arrow-up w3-margin-right"></i>To the top</a>
+    <div class="w3-xlarge w3-section">
+      <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank"><i
+          class="fa fa-google w3-hover-opacity"></i></a>
+      <a href="https://www.instagram.com/kweenofparts/?hl=en" target="_blank"><i
+          class="fa fa-instagram w3-hover-opacity"></i></a>
+      <!--<i class="fa fa-snapchat w3-hover-opacity"></i>-->
+      <!--<i class="fa fa-pinterest-p w3-hover-opacity"></i>-->
+      <a href="https://twitter.com/kweenofparts" target="_blank"><i class="fa fa-twitter w3-hover-opacity"></i></a>
+      <a href="https://www.linkedin.com/in/josh-urban-davis-54212749/" target="_blank"><i
+          class="fa fa-linkedin w3-hover-opacity"></i></a>
+    </div>
+    <!-- <p>Powered by <a href="https://www.w3schools.com/w3css/default.asp" title="W3.CSS" target="_blank" class="w3-hover-text-green">w3.css</a></p>-->
+  </footer>
+
+  <script>
+    // Modal Image Gallery
+    function onClick(element) {
+      document.getElementById("img01").src = element.src;
+      document.getElementById("modal01").style.display = "block";
+      var captionText = document.getElementById("caption");
+      captionText.innerHTML = element.alt;
+    }
 
 
-// Toggle between showing and hiding the sidebar when clicking the menu icon
-var mySidebar = document.getElementById("mySidebar");
+    // Toggle between showing and hiding the sidebar when clicking the menu icon
+    var mySidebar = document.getElementById("mySidebar");
 
-function w3_open() {
-  if (mySidebar.style.display === 'block') {
-    mySidebar.style.display = 'none';
-  } else {
-    mySidebar.style.display = 'block';
-  }
-}
+    function w3_open() {
+      if (mySidebar.style.display === 'block') {
+        mySidebar.style.display = 'none';
+      } else {
+        mySidebar.style.display = 'block';
+      }
+    }
 
-// Close the sidebar with the close button
-function w3_close() {
-    mySidebar.style.display = "none";
-}
-</script>
+    // Close the sidebar with the close button
+    function w3_close() {
+      mySidebar.style.display = "none";
+    }
+  </script>
 
 </body>
+
 </html>
