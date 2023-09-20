@@ -6,8 +6,7 @@ function setup() {
 
 let _minW;
 let _maxW;
-let _palette0 =
-["af3e4d","2e86ab","758e4f","002a32","f6ae2d","fac9b8"];
+let _palette0 = ["af3e4d","2e86ab","758e4f","002a32","f6ae2d","fac9b8"];
 let _count;
 let _aryRing = [];
 let _aryRotate = [];
@@ -20,9 +19,9 @@ function setObject() {
   ellipseMode(RADIUS);
   noFill();
   stroke(0, 60, 90);
-  strokeWeight(_minW / 600 * pixelDensity());//600 * pixelDensity());
+  strokeWeight(_minW / 600 * pixelDensity());
 
-  let numRing = 600;
+  let numRing = 450;
   let posR = _minW / 2.9;//3.1;//3.5;
   let posAngNoiseInit_0 = [random(10000), random(10000), random(10000)];
   let rNoiseInit_0 = [random(10000), random(10000), random(10000)];
@@ -129,7 +128,7 @@ class Ring {
 
 function draw() {
   ortho(-width/2, width/2, -height/2, height/2, -_maxW*2, _maxW*4);
-  background(90 / 100 * 255);
+  background(229.5);
 
   rotateX(_aryRotate[0][0] + _aryRotate[0][1] * frameCount);
   rotateY(_aryRotate[1][0] + _aryRotate[1][1] * frameCount);
