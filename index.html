@@ -158,11 +158,15 @@
         class="fa fa-linkedin w3-hover-opacity"></i></a>
     </div>
 
+    <!-- This section creates the canvas for the javascript and webGL animation -->
     <div id="canvas"></div>
     <script src="files/mySketch.js" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.7.0/lib/p5.js" type="text/javascript"></script>
+    <!--
+    <script src="displace/mySketch.js" type="text/javascript"></script><script src="displace/displace.js" type="text/javascript"></script><script src="displace/snoise3D.js" type="text/javascript"></script><script src="displace/snoise3DImage.js" type="text/javascript"></script><script src="displace/gradient.js" type="text/javascript"></script><script src="displace/Palette.js" type="text/javascript"></script><script src="displace/extendMode.js" type="text/javascript"></script><script src="displace/frag.js" type="text/javascript"></script><script src="displace/vert.js" type="text/javascript"></script><script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js" type="text/javascript"></script>
+    -->
   
-    
+    <!-- The tab below closes the header section -->
   </header>
 
   <!--Research Project Section-->
@@ -447,23 +451,92 @@
   <div class="w3-container w3-black" style="padding:35px 16px" id="work">
     <h2 class="w3-center">PROJECTS</h2>
     <p class="w3-center w3-large">past and ongoing works</p>
-
-    <hr>
-
-    <h3 class="w3-right" style="padding:20px">A SUDDEN RUSH OF BLOOD TO THE SKIN</h3>
+<!--
+    <h3 class="w3-right" style="padding:20px">DELETED WORLD TAROT</h3>
     <div class="w3-container w3-black" style="padding:35px 16px" id="about">
       <div class="w3-row-padding">
         <div class="w3-right-align">
+          <p>Deleted World Tarot (DWT) is an illustration project 
+          </p>
+
+          <p><a href="https://www.instagram.com/joshurbandavis/?hl=en" target="_blank" class="w3-button w3-dark-grey"><i
+                class="fa fa-th"> </i> See More </a></p>
+        </div>
+      </div>
+      <div class="w3-row-padding w3-section">
+        <div class="w3-col l3 m6">
+          <img src="images/aSuddenRush/vanitas_2_2v2_final.png" style="width:100%" onclick="onClick(this)"
+            class="w3-hover-opacity" alt="a sudden rush of blood to the skin">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/aSuddenRush/gold.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
+            alt="the space between two bodies is a body too">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/aSuddenRush/wave.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
+            alt="i just wish we could kiss somewhere that isn't melting">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/aSuddenRush/wave_detail.png" style="width:100%" onclick="onClick(this)"
+            class="w3-hover-opacity" alt="i just wish we could kiss somewhere that isn't melting (detail)">
+        </div>
+      </div>
+      <div class="w3-row-padding w3-section">
+        <div class="w3-col l3 m6">
+          <img src="images/aSuddenRush/vanitas_3_2.png" border-radius: 50% style="width:100%" onclick="onClick(this)"
+            class="w3-hover-opacity" alt="i am skinless in a limo">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/aSuddenRush/jan_large_2.png" style="width:100%" onclick="onClick(this)"
+            class="w3-hover-opacity" alt="violence">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/aSuddenRush/fruit_2_vert.png" style="width:100%" onclick="onClick(this)"
+            class="w3-hover-opacity" alt="break me into bigger pieces so some of me is home with you">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/aSuddenRush/slitScan.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
+            alt="roses are roses">
+        </div>
+      </div>
+      <div class="w3-row-padding">
+        <div class="w3-col l3 m6">
+          <img src="images/aSuddenRush/roses_2.png" border-radius: 50% style="width:100%" onclick="onClick(this)"
+            class="w3-hover-opacity" alt="mysterious forces at play | myserious forces at work">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/aSuddenRush/randomPurple.png" style="width:100%" onclick="onClick(this)"
+            class="w3-hover-opacity" alt="purple shifted">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/aSuddenRush/sampleScan.png" style="width:100%" onclick="onClick(this)"
+            class="w3-hover-opacity" alt="sample and replicate No. 15">
+        </div>
+        <div class="w3-col l3 m6">
+          <img src="images/aSuddenRush/random_blur.png" style="width:100%" onclick="onClick(this)"
+            class="w3-hover-opacity" alt="random walk on a rose">
+        </div>
+      </div>
+    </div>
+-->
+    <hr>
+
+    <h3 class="w3-left" style="padding:20px">A SUDDEN RUSH OF BLOOD TO THE SKIN</h3>
+    <div class="w3-container w3-black" style="padding:35px 16px" id="about">
+      <div class="w3-row-padding">
+        <div class="w3-left-align">
           <p>The following are a selection of images and videos created between February 2021 and March 2022 as part of
             an ongoing
             series of experiments in photomanipulation and shader rendering using javascript.
           </p>
           <p>Source code for these experiments can be found on github and more images and videos can be seen on
             instagram.</p>
+            
           <p><a href="https://www.instagram.com/joshurbandavis/?hl=en" target="_blank" class="w3-button w3-dark-grey"><i
                 class="fa fa-th"> </i> See More </a></p>
         </div>
       </div>
+      <hr>
       <div class="w3-row-padding w3-section">
         <div class="w3-col l3 m6">
           <img src="images/aSuddenRush/vanitas_2_2v2_final.png" style="width:100%" onclick="onClick(this)"
