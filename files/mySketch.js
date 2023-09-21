@@ -21,7 +21,7 @@ function setObject() {
   stroke(0, 60, 90);
   strokeWeight(_minW / 600 * pixelDensity());
 
-  let numRing = 450;
+  let numRing = 600;
   let posR = _minW / 2.9;//3.1;//3.5;
   let posAngNoiseInit_0 = [random(10000), random(10000), random(10000)];
   let rNoiseInit_0 = [random(10000), random(10000), random(10000)];
