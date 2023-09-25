@@ -1,9 +1,4 @@
 
-function setup() {
-  createCanvas(windowWidth, windowHeight, WEBGL);
-  setObject();
-}
-
 let _minW;
 let _maxW;
 let _palette0 = ["af3e4d","2e86ab","758e4f","002a32","f6ae2d","fac9b8"];
@@ -11,15 +6,23 @@ let _count;
 let _aryRing = [];
 let _aryRotate = [];
 
-function setObject() {
-  _count = 0;
+function setup() {
+  createCanvas(windowWidth, windowHeight, WEBGL);
   _minW = min(width, height) * 1;
   _maxW = max(width, height);
+  frameRate(45);
+
   rectMode(CENTER);
   ellipseMode(RADIUS);
   noFill();
   stroke(0, 60, 90);
-  strokeWeight(_minW / 600 * pixelDensity());
+  strokeWeight(_minW / 600 * pixelDensity());//600 * pixelDensity());
+
+  setObject();
+}
+
+function setObject() {
+  _count = 0;
 
   let numRing = 600;
   let posR = _minW / 2.9;//3.1;//3.5;
@@ -128,7 +131,7 @@ class Ring {
 
 function draw() {
   ortho(-width/2, width/2, -height/2, height/2, -_maxW*2, _maxW*4);
-  background(229.5);
+  background(90 / 100 * 255);
 
   rotateX(_aryRotate[0][0] + _aryRotate[0][1] * frameCount);
   rotateY(_aryRotate[1][0] + _aryRotate[1][1] * frameCount);
