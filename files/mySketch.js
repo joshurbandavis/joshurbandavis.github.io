@@ -1,14 +1,18 @@
+
 let _minW;
 let _maxW;
-let _palette0 = ["af3e4d","2e86ab","758e4f","002a32","f6ae2d","fac9b8"];
+let _palette0 = ["af3e4d", "2e86ab", "758e4f", "002a32", "f6ae2d", "fac9b8"];
 let _count;
 let _aryRing = [];
 let _aryRotate = [];
+let numRing;
+
+const TWO_PI = 2 * Math.PI;
 
 function setup() {
-  p5.disableFriendlyErrors = true
+  p5.disableFriendlyErrors = true;
   createCanvas(windowWidth, windowHeight, WEBGL);
-  _minW = min(width, height) * 1;
+  _minW = min(width, height);
   _maxW = max(width, height);
   frameRate(45);
 
@@ -16,9 +20,10 @@ function setup() {
   ellipseMode(RADIUS);
   noFill();
   stroke(0, 60, 90);
-  strokeWeight(_minW / 600 * pixelDensity());//600 * pixelDensity());
+  strokeWeight((_minW / 600) * pixelDensity());
 
   setObject();
+  numRing = _aryRing.length;
 }
 
 function setObject() {
@@ -29,9 +34,9 @@ function setObject() {
   let posAngNoiseInit_0 = [random(10000), random(10000), random(10000)];
   let rNoiseInit_0 = [random(10000), random(10000), random(10000)];
   let posRNoiseInit_0 = [random(10000), random(10000), random(10000)];
-  let posAngNoiseThetaInit = random(2*PI);
-  let rNoiseThetaInit = random(2*PI);
-  let posRNoiseThetaInit = random(2*PI);
+  let posAngNoiseThetaInit = random(2 * PI);
+  let rNoiseThetaInit = random(2 * PI);
+  let posRNoiseThetaInit = random(2 * PI);
   let posAngNoiseStep = 0.15;
   let rNoiseStep = 0.3;//0.2;
   let posRNoiseStep = 0.3;//0.2;
@@ -41,7 +46,7 @@ function setObject() {
   shuffle(_palette0, true);
   _aryRing = [];
   for (let i = 0; i < numRing; i++) {
-    let posAngInit = 2*PI / numRing * i;
+    let posAngInit = 2 * PI / numRing * i;
     let posAngNoiseInit = [posAngNoiseInit_0[0] + posAngNoiseStep * cos(posAngInit), posAngNoiseInit_0[1] + posAngNoiseStep * sin(posAngInit), posAngNoiseInit_0[2]];
     let rNoiseInit = [rNoiseInit_0[0] + rNoiseStep * cos(posAngInit), rNoiseInit_0[1] + rNoiseStep * sin(posAngInit), rNoiseInit_0[2]];
     let posRNoiseInit = [posRNoiseInit_0[0] + posRNoiseStep * cos(posAngInit), posRNoiseInit_0[1] + posRNoiseStep * sin(posAngInit), posRNoiseInit_0[2]];
@@ -49,7 +54,7 @@ function setObject() {
     _aryRing[i] = new Ring(posR, posAngInit, posAngNoiseInit, posAngNoiseThetaInit, posAngNoiseSpeed, rNoiseInit, rNoiseThetaInit, rNoiseSpeed, posRNoiseInit, posRNoiseThetaInit, posRNoiseSpeed, _palette0);
   }
 
-  _aryRotate = [[random(2*PI), random(0.01)], [random(2*PI), random(0.01)], [random(2*PI), random(0.01)]];
+  _aryRotate = [[random(2 * PI), random(0.01)], [random(2 * PI), random(0.01)], [random(2 * PI), random(0.01)]];
 }
 
 class Ring {
@@ -62,13 +67,13 @@ class Ring {
     this.rNoiseThetaInit = rNoiseThetaInit;
     this.posRNoiseInit = posRNoiseInit;
     this.posRNoiseThetaInit = posRNoiseThetaInit;
-    
+
     this.posAngNoiseSpeed = posAngNoiseSpeed;
-    this.posAngMax = 2*PI / 8/1.65;
+    this.posAngMax = 2 * PI / 8 / 1.65;
     this.posAngMin = -this.posAngMax;
     this.posAngGap = this.posAngMax - this.posAngMin;
     this.posAngNoiseFreq = 4;
-    
+
     this.rNoiseSpeed = rNoiseSpeed;
     this.rMax = this.posR / 2;
     this.rMin = this.rMax / 10;
@@ -83,7 +88,7 @@ class Ring {
 
     this.colNoiseFreq = 3;
 
-    this.rotZ = random(2*PI);
+    this.rotZ = random(2 * PI);
 
     this.palette = palette;
     this.aryCol = [];
@@ -92,24 +97,31 @@ class Ring {
     }
 
     this.numCol = 5;
-
     this.count = 0;
+    this.TWO_PI_FOUR = 2 * Math.PI * 4;
+    this.TWO_PI_POS_ANG_FREQ = TWO_PI * this.posAngNoiseFreq;
+    this.TWO_PI_R_FREQ = TWO_PI * this.rNoiseFreq;
+    this.TWO_PI_POS_R_FREQ = TWO_PI * this.posRNoiseFreq;
   }
 
   draw() {
-    let posAngNoiseVal = sin(this.posAngNoiseThetaInit + 2*PI * this.posAngNoiseFreq * 
-      noise(this.posAngNoiseInit[0], this.posAngNoiseInit[1] + this.posAngNoiseSpeed * this.count, this.posAngNoiseInit[2] + this.posAngNoiseSpeed * this.count)) * 0.5 + 0.5;
+    // Pre-calculate frequently used values
+    let noiseOffset = this.posAngNoiseSpeed * this.count;
+
+    let posAngNoiseVal = sin(this.posAngNoiseThetaInit + this.TWO_PI_POS_ANG_FREQ *
+      noise(this.posAngNoiseInit[0], this.posAngNoiseInit[1] + noiseOffset, this.posAngNoiseInit[2] + noiseOffset)) * 0.5 + 0.5;
+
     let posAng = this.posAngInit + this.posAngMin + this.posAngGap * posAngNoiseVal;
 
-    let rNoiseVal = sin(this.rNoiseThetaInit + 2*PI * this.rNoiseFreq * 
+    let rNoiseVal = sin(this.rNoiseThetaInit + 2 * PI * this.rNoiseFreq *
       noise(this.rNoiseInit[0], this.rNoiseInit[1] + this.rNoiseSpeed * this.count, this.rNoiseInit[2] + this.rNoiseSpeed * this.count)) * 0.5 + 0.5;
     let r = this.rMin + this.rGap * rNoiseVal;
 
-    let posRNoiseVal = sin(this.posRNoiseThetaInit + 2*PI * this.posRNoiseFreq * 
+    let posRNoiseVal = sin(this.posRNoiseThetaInit + 2 * PI * this.posRNoiseFreq *
       noise(this.posRNoiseInit[0], this.posRNoiseInit[1] + this.posRNoiseSpeed * this.count, this.posRNoiseInit[2] + this.posRNoiseSpeed * this.count)) * 0.5 + 0.5;
     let posRNew = this.posRMin + this.posRGap * posRNoiseVal;
 
-    let colNoiseVal = sin(this.posRNoiseThetaInit + 2*PI * this.colNoiseFreq * 
+    let colNoiseVal = sin(this.posRNoiseThetaInit + 2 * PI * this.colNoiseFreq *
       noise(this.posRNoiseInit[0] + 1000, this.posRNoiseInit[1] + this.posRNoiseSpeed * this.count + 1000, this.posRNoiseInit[2] + this.posRNoiseSpeed * this.count) + 1000) * 0.5 + 0.5;
     let col_i1 = int(colNoiseVal * this.numCol);
     let col_i2 = (col_i1 + 1) % this.numCol;
@@ -118,7 +130,7 @@ class Ring {
 
     push();
     stroke(col);
-    rotateX(PI/2);
+    rotateX(PI / 2);
     rotateY(posAng);
     translate(posRNew, 0, 0);
     rotateZ(this.rotZ);
@@ -130,16 +142,16 @@ class Ring {
 }
 
 function draw() {
-  ortho(-width/2, width/2, -height/2, height/2, -_maxW*2, _maxW*4);
+  ortho(-width / 2, width / 2, -height / 2, height / 2, -_maxW * 2, _maxW * 4);
   background(90 / 100 * 255);
 
   rotateX(_aryRotate[0][0] + _aryRotate[0][1] * frameCount);
   rotateY(_aryRotate[1][0] + _aryRotate[1][1] * frameCount);
   rotateZ(_aryRotate[2][0] + _aryRotate[2][1] * frameCount);
-  
-  rotateX(PI/4);
+  rotateX(PI / 4);
 
-  for (let i = 0; i < _aryRing.length; i++) {
+  for (let i = 0; i < numRing; i++) {
     _aryRing[i].draw();
   }
 }
+
