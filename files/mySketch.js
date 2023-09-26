@@ -1,12 +1,6 @@
-
-let _minW;
-let _maxW;
+let _minW, _maxW, _count;
 let _palette0 = ["af3e4d", "2e86ab", "758e4f", "002a32", "f6ae2d", "fac9b8"];
-let _count;
-let _aryRing = [];
-let _aryRotate = [];
-let numRing;
-
+let _aryRing = [], _aryRotate = [], numRing;
 const TWO_PI = 2 * Math.PI;
 
 function setup() {
@@ -43,18 +37,21 @@ function setObject() {
   let posAngNoiseSpeed = 0.004 * random([-1, 1]);
   let rNoiseSpeed = 0.004 * random([-1, 1]);
   let posRNoiseSpeed = 0.004 * random([-1, 1]);
+
   shuffle(_palette0, true);
+
   _aryRing = [];
+  let posAngInit, posAngNoiseInit, rNoiseInit, posRNoiseInit;
   for (let i = 0; i < numRing; i++) {
-    let posAngInit = 2 * PI / numRing * i;
-    let posAngNoiseInit = [posAngNoiseInit_0[0] + posAngNoiseStep * cos(posAngInit), posAngNoiseInit_0[1] + posAngNoiseStep * sin(posAngInit), posAngNoiseInit_0[2]];
-    let rNoiseInit = [rNoiseInit_0[0] + rNoiseStep * cos(posAngInit), rNoiseInit_0[1] + rNoiseStep * sin(posAngInit), rNoiseInit_0[2]];
-    let posRNoiseInit = [posRNoiseInit_0[0] + posRNoiseStep * cos(posAngInit), posRNoiseInit_0[1] + posRNoiseStep * sin(posAngInit), posRNoiseInit_0[2]];
+    posAngInit = TWO_PI / numRing * i;
+    posAngNoiseInit = [posAngNoiseInit_0[0] + posAngNoiseStep * cos(posAngInit), posAngNoiseInit_0[1] + posAngNoiseStep * sin(posAngInit), posAngNoiseInit_0[2]];
+    rNoiseInit = [rNoiseInit_0[0] + rNoiseStep * cos(posAngInit), rNoiseInit_0[1] + rNoiseStep * sin(posAngInit), rNoiseInit_0[2]];
+    posRNoiseInit = [posRNoiseInit_0[0] + posRNoiseStep * cos(posAngInit), posRNoiseInit_0[1] + posRNoiseStep * sin(posAngInit), posRNoiseInit_0[2]];
 
     _aryRing[i] = new Ring(posR, posAngInit, posAngNoiseInit, posAngNoiseThetaInit, posAngNoiseSpeed, rNoiseInit, rNoiseThetaInit, rNoiseSpeed, posRNoiseInit, posRNoiseThetaInit, posRNoiseSpeed, _palette0);
   }
 
-  _aryRotate = [[random(2 * PI), random(0.01)], [random(2 * PI), random(0.01)], [random(2 * PI), random(0.01)]];
+  _aryRotate = [[random(TWO_PI), random(0.01)], [random(TWO_PI), random(0.01)], [random(TWO_PI), random(0.01)]];
 }
 
 class Ring {
@@ -98,7 +95,7 @@ class Ring {
 
     this.numCol = 5;
     this.count = 0;
-    this.TWO_PI_FOUR = 2 * Math.PI * 4;
+    this.TWO_PI_FOUR = TWO_PI * 4;
     this.TWO_PI_POS_ANG_FREQ = TWO_PI * this.posAngNoiseFreq;
     this.TWO_PI_R_FREQ = TWO_PI * this.rNoiseFreq;
     this.TWO_PI_POS_R_FREQ = TWO_PI * this.posRNoiseFreq;
@@ -128,9 +125,10 @@ class Ring {
     let colAmp = (colNoiseVal - col_i1 / this.numCol) * this.numCol;
     let col = lerpColor(this.aryCol[col_i1], this.aryCol[col_i2], colAmp);
 
+    let tmpRotate = PI / 2;
     push();
     stroke(col);
-    rotateX(PI / 2);
+    rotateX(tmpRotate);
     rotateY(posAng);
     translate(posRNew, 0, 0);
     rotateZ(this.rotZ);
@@ -150,7 +148,7 @@ function draw() {
   rotateZ(_aryRotate[2][0] + _aryRotate[2][1] * frameCount);
   rotateX(PI / 4);
 
-  for (let i = 0; i < numRing; i++) {
+  for (let i = 0, len = numRing; i < len; i++) { // Cached length
     _aryRing[i].draw();
   }
 }
