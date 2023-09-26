@@ -1,4 +1,3 @@
-
 let _minW;
 let _maxW;
 let _palette0 = ["af3e4d","2e86ab","758e4f","002a32","f6ae2d","fac9b8"];
@@ -7,6 +6,7 @@ let _aryRing = [];
 let _aryRotate = [];
 
 function setup() {
+  p5.disableFriendlyErrors = true
   createCanvas(windowWidth, windowHeight, WEBGL);
   _minW = min(width, height) * 1;
   _maxW = max(width, height);
