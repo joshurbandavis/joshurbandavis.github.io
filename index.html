@@ -1,1161 +1,1244 @@
 <!DOCTYPE html>
-<html>
-<title>Josh Urban Davis Personal Webpage</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
+<html lang="en">
 <head>
-  <link rel="apple-touch-icon" sizes="180x180" href="logo_personalweb_favicon_io/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="logo_personalweb_favicon_io/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="logo_personalweb_favicon_io/favicon-16x16.png">
-  <link rel="manifest" href="logo_personalweb_favicon_io/site.webmanifest">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Josh Urban Davis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ========== CUSTOM PROPERTIES ========== */
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111111;
+      --bg-card: #1a1a1a;
+      --bg-card-hover: #222222;
+      --text-primary: #f0f0f0;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666666;
+      --accent: #f6ae2d;
+      --accent-dim: rgba(246, 174, 45, 0.15);
+      --border: rgba(255,255,255,0.08);
+      --border-light: rgba(255,255,255,0.15);
+      --nav-bg: rgba(10,10,10,0.85);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --max-width: 1280px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: 'Raleway', system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+      font-weight: 400;
+      overflow-x: hidden;
+    }
+
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: var(--accent); text-decoration: none; transition: opacity var(--transition); }
+    a:hover { opacity: 0.8; }
+
+    /* ========== TYPOGRAPHY ========== */
+    h1, h2, h3, h4 { font-weight: 600; line-height: 1.3; }
+    h1 { font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: -0.02em; }
+    h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); letter-spacing: -0.01em; }
+    h3 { font-size: clamp(1.1rem, 2vw, 1.4rem); }
+    p { color: var(--text-secondary); margin-bottom: 1rem; }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-weight: 700;
+      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    }
+    .section-subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 3rem;
+      font-size: 1rem;
+      font-weight: 300;
+    }
+
+    /* ========== NAV ========== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: var(--nav-bg);
+      backdrop-filter: blur(20px) saturate(1.5);
+      -webkit-backdrop-filter: blur(20px) saturate(1.5);
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition);
+    }
+    .nav-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      height: 60px;
+    }
+    .nav-brand {
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.15em;
+      color: var(--text-primary);
+      text-transform: uppercase;
+    }
+    .nav-links { display: flex; gap: 0.25rem; }
+    .nav-links a {
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.5rem 0.9rem;
+      border-radius: 6px;
+      transition: all var(--transition);
+    }
+    .nav-links a:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); opacity: 1; }
+
+    .nav-toggle {
+      display: none;
+      background: none; border: none; color: var(--text-primary);
+      cursor: pointer; padding: 0.5rem;
+    }
+    .nav-toggle svg { width: 24px; height: 24px; }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        position: fixed; top: 60px; left: 0; right: 0;
+        background: var(--nav-bg);
+        backdrop-filter: blur(20px);
+        flex-direction: column;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+        transform: translateY(-120%);
+        transition: transform var(--transition);
+      }
+      .nav-links.open { transform: translateY(0); }
+      .nav-links a { padding: 0.75rem 1rem; font-size: 0.85rem; }
+      .nav-toggle { display: block; }
+    }
+
+    /* ========== HERO ========== */
+    .hero {
+      position: relative;
+      height: 100vh;
+      min-height: 600px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .hero canvas {
+      position: absolute; top: 0; left: 0;
+      width: 100% !important; height: 100% !important;
+    }
+    .hero-overlay {
+      position: relative; z-index: 2;
+      text-align: center;
+      pointer-events: none;
+    }
+    .hero-social {
+      position: relative; z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.25rem 1rem;
+      background: rgba(0, 0, 0, 0.88);
+      border: 1px solid var(--border-light);
+      border-radius: 50px / 20px;
+      pointer-events: all;
+      backdrop-filter: blur(10px);
+    }
+    .hero-social a {
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-primary);
+      transition: all var(--transition);
+      border-radius: 50%;
+    }
+    .hero-social a:hover {
+      color: var(--accent);
+      opacity: 1;
+      transform: scale(1.15);
+    }
+    .hero-social svg { width: 22px; height: 22px; }
+
+    /* ========== SECTIONS ========== */
+    section {
+      padding: clamp(4rem, 8vw, 8rem) 1.5rem;
+    }
+    .section-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+    section:nth-child(even) { background: var(--bg-secondary); }
+
+    /* ========== ABOUT ========== */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+    .about-text p { font-size: 1.02rem; }
+    .about-image img {
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 420px;
+      margin-left: auto;
+      object-fit: cover;
+      border: 1px solid var(--border);
+    }
+    .about-social { display: flex; gap: 1rem; margin: 1.5rem 0; }
+    .about-social a {
+      color: var(--text-secondary);
+      transition: color var(--transition);
+    }
+    .about-social a:hover { color: var(--accent); opacity: 1; }
+    .about-social svg { width: 20px; height: 20px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.4rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      transition: all var(--transition);
+      border: 1px solid var(--border-light);
+      color: var(--text-primary);
+      background: transparent;
+      cursor: pointer;
+    }
+    .btn:hover { background: rgba(255,255,255,0.08); opacity: 1; }
+    .btn-accent {
+      background: var(--accent);
+      color: var(--bg-primary);
+      border-color: var(--accent);
+    }
+    .btn-accent:hover { background: #e5a029; }
+
+    .btn-row { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+
+    @media (max-width: 768px) {
+      .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .about-image { order: -1; }
+      .about-image img { margin: 0 auto; }
+    }
+
+    /* ========== PUBLICATIONS ========== */
+    .pub-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .pub-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: all var(--transition);
+      display: flex;
+      flex-direction: column;
+    }
+    .pub-card:hover {
+      border-color: var(--border-light);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    }
+    .pub-card img {
+      width: 100%;
+      aspect-ratio: 16/10;
+      object-fit: cover;
+    }
+    .pub-card-body {
+      padding: 1.25rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .pub-card-body h3 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      line-height: 1.4;
+    }
+    .pub-card-body .authors {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    .pub-card-body .venue {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      flex: 1;
+    }
+    .pub-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      margin-right: 0.4rem;
+      margin-bottom: 0.5rem;
+    }
+    .badge-rate { background: rgba(246,174,45,0.15); color: var(--accent); }
+    .badge-award { background: rgba(220,60,60,0.15); color: #ef6b6b; }
+    .pub-links { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: auto; }
+    .pub-links a {
+      font-size: 0.78rem;
+      padding: 0.35rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      transition: all var(--transition);
+      font-weight: 500;
+    }
+    .pub-links a:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
+
+    /* ========== PROJECTS ========== */
+    .project-block {
+      margin-bottom: 4rem;
+      padding-bottom: 4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .project-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+    .project-header {
+      margin-bottom: 2rem;
+    }
+    .project-header h3 {
+      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .project-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+    .project-split.reverse > :first-child { order: 2; }
+    .project-split.reverse > :last-child { order: 1; }
+
+    @media (max-width: 768px) {
+      .project-split { grid-template-columns: 1fr; gap: 1.5rem; }
+      .project-split.reverse > :first-child { order: 0; }
+      .project-split.reverse > :last-child { order: 0; }
+    }
+
+    .project-media img,
+    .project-media iframe {
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      width: 100%;
+    }
+    .video-wrap {
+      position: relative;
+      padding-bottom: 56.25%;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .video-wrap iframe {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: none; border-radius: 0;
+    }
+
+    /* ========== IMAGE GALLERY ========== */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: 220px;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+    .gallery img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition);
+      border: 1px solid var(--border);
+    }
+    .gallery img:hover {
+      transform: scale(1.02);
+      border-color: var(--border-light);
+      z-index: 1;
+    }
+    .gallery img.span-wide { grid-column: span 2; }
+    .gallery img.span-tall { grid-row: span 2; }
+    .gallery img.span-big { grid-column: span 2; grid-row: span 2; }
+
+    @media (max-width: 768px) {
+      .gallery {
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: 180px;
+      }
+      .gallery img.span-wide,
+      .gallery img.span-big { grid-column: span 2; }
+      .gallery img.span-tall { grid-row: span 2; }
+      .gallery img.span-big { grid-row: span 1; }
+    }
+
+    /* ========== LIGHTBOX ========== */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(0,0,0,0.92);
+      backdrop-filter: blur(10px);
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      cursor: pointer;
+      padding: 2rem;
+    }
+    .lightbox.active { display: flex; }
+    .lightbox img {
+      max-width: 90vw;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: var(--radius);
+    }
+    .lightbox-caption {
+      margin-top: 1rem;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 1.5rem; right: 1.5rem;
+      background: none; border: none;
+      color: var(--text-primary);
+      font-size: 2rem;
+      cursor: pointer;
+      width: 44px; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      transition: background var(--transition);
+    }
+    .lightbox-close:hover { background: rgba(255,255,255,0.1); }
+
+    /* ========== CONTACT ========== */
+    .contact-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .contact-headline {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 2.5rem;
+      background: linear-gradient(135deg, var(--accent) 0%, #fac9b8 40%, #2e86ab 70%, #758e4f 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .contact-line {
+      width: 60px;
+      height: 1px;
+      background: var(--border-light);
+      margin: 0 auto 2.5rem;
+    }
+    .contact-links {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .contact-links a {
+      color: var(--text-muted);
+      font-size: 1rem;
+      font-weight: 400;
+      letter-spacing: 0.03em;
+      transition: color var(--transition);
+    }
+    .contact-links a:hover { color: var(--text-primary); opacity: 1; }
+    .contact-links .contact-loc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ========== FOOTER ========== */
+    footer {
+      text-align: center;
+      padding: 3rem 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .footer-social { display: flex; gap: 1rem; justify-content: center; margin-top: 1rem; }
+    .footer-social a {
+      color: var(--text-muted);
+      transition: color var(--transition);
+    }
+    .footer-social a:hover { color: var(--accent); opacity: 1; }
+    .footer-social svg { width: 20px; height: 20px; }
+
+    /* ========== SCROLL REVEAL ========== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
 </head>
-<style>
-  body,
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: "Raleway", sans-serif
-  }
-
-  body,
-  html {
-    height: 100%;
-    line-height: 1.8;
-  }
-
-  hr {
-    display: block;
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-    margin-left: auto;
-    margin-right: auto;
-    border-style: inset;
-    border-width: 1px;
-  }
-
-  /* Full height image header */
-  .bgimg-1 {
-    background-position: 65% 35%;
-    background-size: cover;
-    background-image: url("images/octorococo.jpg");
-    min-height: 100%;
-    z-index: -3;
-  }
-
-  .iframeVideo {
-    height: 0px;
-    padding-top: 25px;
-    padding-bottom: 56.2%;
-    position: relative;
-  }
-
-  .iframeVideo iframe {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-  }
-
-  .w3-bar .w3-button {
-    padding: 16px;
-  }
-
-  .container {
-    position: relative;
-    font-family: Arial;
-  }
-
-  .text-block {
-    position: absolute;
-    bottom: 20%;
-    left: 60%;
-    right: 1%;
-    max-width: 50%;
-    min-width: 30%;
-    background-color: black;
-    color: white;
-    padding-left: 200px;
-    padding-right: 300px;
-  }
-
-  canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-  }
-</style>
-
 <body>
 
-  <!-- Navbar (sit on top) -->
+<!-- ========== NAV ========== -->
+<nav>
+  <div class="nav-inner">
+    <a href="#home" class="nav-brand">Josh Urban Davis</a>
+    <div class="nav-links" id="navLinks">
+      <a href="#about" onclick="closeNav()">About</a>
+      <a href="#publications" onclick="closeNav()">Publications</a>
+              <a href="#design" onclick="closeNav()">Design</a>
+      <a href="http://73f7b8-3.myshopify.com" target="_blank">Shop</a>
+      <a href="#contact" onclick="closeNav()">Contact</a>
+    </div>
+    <button class="nav-toggle" onclick="toggleNav()" aria-label="Toggle navigation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
 
-  <div class="w3-top">
-    <div class="w3-bar w3-black w3-card" id="myNavbar">
-      <a href="#home" class="w3-bar-item w3-button w3-wide">JOSH URBAN DAVIS</a>
-      <!-- Right-sided navbar links -->
-      <div class="w3-right w3-hide-small">
-        <a href="#about" class="w3-bar-item w3-button">ABOUT</a>
-        <a href="#publications" class="w3-bar-item w3-button"><i class="fa fa-book"></i>PUBLICATIONS</a>
-        <a href="#work" class="w3-bar-item w3-button"><i class="fa fa-th"></i>PROJECTS</a>
-        <a href="http://73f7b8-3.myshopify.com" target="_blank" class="w3-bar-item w3-button"><i class="fa fa-eye"></i>SHOP</a>
-        <a href="#contact" class="w3-bar-item w3-button"><i class="fa fa-envelope"></i>CONTACT</a>
-      </div>
-      <!-- Hide right-floated links on small screens and replace them with a menu icon -->
-
-      <a href="javascript:void(0)" class="w3-bar-item w3-button w3-right w3-hide-large w3-hide-medium"
-        onclick="w3_open()">
-        <i class="fa fa-bars"></i>
+<!-- ========== HERO ========== -->
+<section class="hero" id="home">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-overlay">
+    <div class="hero-social">
+      <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank" aria-label="Google Scholar">
+        <svg viewBox="0 0 256 256" fill="currentColor"><path d="M128 0L0 80l48 28v72l80 48 80-48v-72l16-9.3V176h16V72L128 0zM128 180l-64-38.4V120l64 38 64-38v21.6L128 180z"/></svg>
+      </a>
+      <a href="https://www.instagram.com/joshurbandavis" target="_blank" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>
+      </a>
+      <a href="https://github.com/joshurbandavis" target="_blank" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      </a>
+      <a href="https://twitter.com/joshurbandavis" target="_blank" aria-label="Twitter">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+      <a href="https://www.linkedin.com/in/joshurbandavis/" target="_blank" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
       </a>
     </div>
   </div>
+</section>
 
-  <!-- Sidebar on small screens when clicking the menu icon -->
-  <nav class="w3-sidebar w3-bar-block w3-black w3-card w3-animate-left w3-hide-medium w3-hide-large"
-    style="display:none" id="mySidebar">
-    <a href="javascript:void(0)" onclick="w3_close()" class="fa fa-circle-o w3-bar-item w3-button w3-large w3-padding-16">Close ×</a>
-    <a href="#about" onclick="w3_close()" class="w3-bar-item w3-button">ABOUT</a>
-    <a href="#publications" onclick="w3_close()" class="w3-bar-item w3-button">PUBLICATIONS</a>
-    <a href="#work" onclick="w3_close()" class="w3-bar-item w3-button">PROJECTS</a>
-    <a href= "http://73f7b8-3.myshopify.com" onclick="w3_close()" target="http://73f7b8-3.myshopify.com" class="w3-bar-item w3-button">SHOP</a>
-    <a href="#contact" onclick="w3_close()" class="w3-bar-item w3-button">CONTACT</a>
-  </nav>
-
-  <!-- Header with full-height image -->
-  <header class="w3-display-container " style="height:100%;" id="home">
-    <div class="w3-display-left w3-text-white" style="padding:48px">
-    </div>
-
-    <!-- this is all this links in the club -->
-    <div class="w3-display-middle w3-card-2 w3-border w3-text-white w3-black w3-xxlarge" id="obelisk"
-      style="padding:20px 30px; border-radius: 50px / 15px; z-index: 3;">
-      <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank"><i
-          class="fa fa-google w3-hover-opacity"></i></a> <br>
-      <a href="https://www.instagram.com/joshurbandavis" target="_blank"><i
-          class="fa fa-instagram w3-hover-opacity"></i></a> <br>
-      <a href="https://github.com/joshurbandavis" target="_blank"><i class="fa fa-github w3-hover-opacity"></i></a> <br>
-      <a href="https://twitter.com/joshurbandavis" target="_blank"><i class="fa fa-twitter w3-hover-opacity"></i></a>
-      <br>
-      <a href="https://www.linkedin.com/in/joshurbandavis/" target="_blank"><i
-          class="fa fa-linkedin w3-hover-opacity"></i></a>
-    </div>
-
-    <!-- this is a background image to display while loading canvas -->
-    <img style="width:100%; height:100%; position: cover; top:0; left:0; z-index: -1;" src="images/bg3.png">
-
-    <!-- This section creates the canvas for the javascript and webGL animation -->
-    <div id="canvas"></div>
-    <script src="files/mySketch.js" type="text/javascript"></script>
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.7.0/lib/p5.js" type="text/javascript"></script>
-
-    <!-- The tab below closes the header section -->
-  </header>
-
-  <!--Research Project Section-->
-
-  <div class="w3-container w3-black" style="padding:128px 16px" id="about">
-    <div class="w3-row-padding">
-      <div class="w3-col m6">
-        <h3>About</h3>
+<!-- ========== ABOUT ========== -->
+<section id="about">
+  <div class="section-inner">
+    <div class="about-grid reveal">
+      <div class="about-text">
+        <h2 style="margin-bottom: 1.5rem;">About</h2>
         <p>Josh Urban Davis is a designer and engineer whose work sits at the intersection of machine learning, computer vision, and human-computer interaction. Based in San Francisco, he builds multimodal systems that push on questions of creativity, communication, and who gets to participate in both.</p>
-
         <p>His research has received best paper awards at C&C and ASSETS, honorable mentions at CHI, and recognition from the Neukom Institute for outstanding research. His creative practice has been supported by a grant from the Queer Arts Council and featured in the <em>Queer Futures Journal</em> by 3oC. Selected work has been exhibited at Grey Area Foundation for the Arts, D!iverseWorks, Synaps Projects, the Blaffer Art Museum, and the Chandler Center for the Arts, and featured in collaboration with the New School as part of the Venice Architecture Biennale in 2021.</p>
-
-        <p>He lives with his two cats, Jynx and Nyx.</p>
-
-        <h4>Find me here: <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank"><i
-              class="fa fa-google w3-hover-opacity"></i></a>
-          <a href="https://www.instagram.com/joshurbandavis" target="_blank"><i
-              class="fa fa-instagram w3-hover-opacity"></i></a>
-          <!--<i class="fa fa-snapchat w3-hover-opacity"></i>-->
-          <!--<i class="fa fa-pinterest-p w3-hover-opacity"></i>-->
-          <a href="https://twitter.com/joshurbandavis" target="_blank"><i
-              class="fa fa-twitter w3-hover-opacity"></i></a>
-          <a href="https://github.com/joshurbandavis" target="_blank"><i class="fa fa-github w3-hover-opacity"></i></a>
-          <a href="https://www.linkedin.com/in/joshurbandavis/" target="_blank"><i
-              class="fa fa-linkedin w3-hover-opacity"></i></a>
-        </h4>
-        <p><a href="files/Josh_cv_2025_condensed.pdf" target="_blank" class="w3-button w3-white"><i
-              class="fa fa-address-card"> </i> Download CV (long)</a></p>
-        <p><a href="files/davis_joshua_resume_short.pdf" target="_blank" class="w3-button w3-white"><i class="fa fa-at"> </i>
-            Download Resume (short)</a></p>
-
+        <p style="color: var(--text-primary);">He lives with his two cats, Jynx and Nyx.</p>
+        <div class="about-social">
+          <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank" aria-label="Google Scholar"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M128 0L0 80l48 28v72l80 48 80-48v-72l16-9.3V176h16V72L128 0zM128 180l-64-38.4V120l64 38 64-38v21.6L128 180z"/></svg></a>
+          <a href="https://www.instagram.com/joshurbandavis" target="_blank" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/></svg></a>
+          <a href="https://twitter.com/joshurbandavis" target="_blank" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="https://github.com/joshurbandavis" target="_blank" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg></a>
+          <a href="https://www.linkedin.com/in/joshurbandavis/" target="_blank" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        </div>
+        <div class="btn-row">
+          <a href="files/Josh_cv_2025_condensed.pdf" target="_blank" class="btn">Download CV</a>
+          <a href="files/davis_joshua_resume_short.pdf" target="_blank" class="btn">Download Resume</a>
+        </div>
       </div>
-      <div class="w3-col m6 ">
-        <img class="w3-image w3-round-large" src="images/josh_recon.PNG" align="right"
-          alt="Josh Urban Davis profile photo" width="430" height="520">
+      <div class="about-image">
+        <img src="images/josh_recon.PNG" alt="Josh Urban Davis profile photo">
       </div>
     </div>
   </div>
+</section>
 
-
-  <!-- <div class="parallax1"></div>-->
-
-
-  <!-- Publications Section -->
-  <div class="w3-container" style="padding:58px 16px" id="publications">
-    <h3 class="w3-center">PEER-REVIEWED PUBLICATIONS</h3>
-    <!-- <p class="w3-center w3-large">the one that runs the company</p> -->
-    <div class="w3-col l3 m6 w3-margin-bottom">
-      <div class="w3-card">
-        <img src="images/imwut23.png" alt="CLIO prototype" style="width:100%">
-        <div class="w3-container">
-          <h3>"It's Not an Issue of Malice, but of Ignorance": Towards Inclusive Video Conferencing for Presenters Who
-            are d/Deaf or Hard of Hearing</h3>
-          <p><u>Josh Urban Davis</u> , Hongwei Wang, Parmit K. Chilana, Xing-Dong Yang</p>
-          <p>In Proceedings of the ACM on Interactive, Mobile, Wearable and Ubiquitous Technologies (IMWUT/UbiComp'23)
-            Volume 7 Issue 3Article No.: 92pp 1–31</p>
-          <p style="color:red;">[23.2% Acceptance Rate]</p>
-          <p><a href="files/davis_imwut23.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i
-                class="fa fa-book"></i> Read Paper</a></p>
-          <p><a href="https://dl.acm.org/doi/10.1145/3610901" target="_blank"
-              class="w3-button w3-light-grey w3-block"><i class="fa fa-key"></i> Abstract/Cite This</a></p>
-        </div>
-      </div>
+<!-- ========== PUBLICATIONS ========== -->
+<section id="publications">
+  <div class="section-inner">
+    <h2 class="section-title reveal">Peer-Reviewed Publications</h2>
+    <div class="pub-grid" id="pubGrid">
+      <!-- Publications injected by JS for cleanliness -->
     </div>
-    <div class="w3-col l3 m6 w3-margin-bottom">
-      <div class="w3-card">
-        <img src="images/making_blurred_docSym.jpg" alt="CLIO prototype" style="width:100%">
-        <div class="w3-container">
-          <h3>Multimodal Direction Manipulation in Video Conferencing: Challenges and Opportunities</h3>
-          <p><u>Josh Urban Davis</u> , Paul Asente, Xing-Dong Yang</p>
-          <p>In Proceedings of ACM Conference on Designing Interactive Systems (DIS ’23), July 10-14, 2023, Pittsburg,
-            PA. USA</p>
-          <p style="color:red;">[24.6% Acceptance Rate]</p>
-          <p><a href="files/DIS23_Multimodal_Direct_Manipulation.pdf" target="_blank"
-              class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i> Read Paper</a></p>
-          <p><a href="https://dl.acm.org/doi/10.1145/3563657.3596099" target="_blank"
-              class="w3-button w3-light-grey w3-block"><i class="fa fa-key"></i> Abstract/Cite This</a></p>
-          <p><a href="https://youtu.be/kmUDDjTNRCw" target="_blank" class="w3-button w3-light-grey w3-block"><i
-                class="fa fa-youtube-play"></i> 30 Second Demo</a></p>
-        </div>
-      </div>
-    </div>
-    <div class="w3-col l3 m6 w3-margin-bottom">
-      <div class="w3-card">
-        <img src="images/altText_thumb.png" alt="Alt text Alt CHI" style="width:100%">
-        <div class="w3-container">
-          <h3>Exploring AltNarrative in HCI Imagery and Comics</h3>
-          <p>Makayla Lewis, Miriam Sturdee, John Miers, Thuong Hoang, <u>Josh Urban Davis</u></p>
-          <p>In Proceedings of Conference on Human Factors in Computing Systems (CHI’22), April 29–May 05, 2022, New
-            Orleans, LA, USA. ACM, New York, NY, USA, 13 pages.
-            https://doi.org/10.1145/3491101.3516394</p>
-          <p style="color:red;">[21% Acceptance Rate]</p>
-          <p><a href="files/altText.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i
-                class="fa fa-book"></i> Read Paper</a></p>
-          <p><a href="https://dl.acm.org/doi/10.1145/3491101.3516394" target="_blank"
-              class="w3-button w3-light-grey w3-block"><i class="fa fa-key"></i> Abstract/Cite This</a></p>
-        </div>
-      </div>
-    </div>
-    <div class="w3-col l3 m6 w3-margin-bottom">
-      <div class="w3-card">
-        <img src="images/pokerface_thumb3.png" alt="PokerFace" style="width:100%">
-        <div class="w3-container">
-          <h3>PokerFace</h3>
-          <p class="w3-opacity"> Exploring Augmenting Masks through an Interactive, Mixed-Reality Prototype</p>
-          <p> <u>Josh Urban Davis</u> , John Tang, Edward Cutrell, Teddy Seyed</p>
-          <p> In Proceedings of the 55th Hawaii International Conference on System Sciences (HICSS'22)
-            https://doi.org/10.24251/HICSS.2022.398</p>
-          <p><a href="files/pokerface.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i
-                class="fa fa-book"></i> Read Paper</a></p>
-          <p><a href="https://hdl.handle.net/10125/79732" target="_blank" class="w3-button w3-light-grey w3-block"><i
-                class="fa fa-key"></i> Abstract/Cite This</a></p>
-          <p><a href="https://youtu.be/i3ebUKSHNuc" target="_blank" class="w3-button w3-light-grey w3-block"><i
-                class="fa fa-youtube-play"></i> See 10 Min Talk</a></p>
-        </div>
-      </div>
-    </div>
-
-
-
-    <div class="w3-row-padding" style="margin-top:64px">
-      <div class="w3-col l3 m6 w3-margin-bottom">
-        <div class="w3-card">
-          <img src="images/Fig2_05_v3.png" alt="Calliope" style="width:100%">
-          <div class="w3-container">
-            <h3>Designing Co-Creative AI in Virtual Enviornments</h3>
-            <p><u>Josh Urban Davis</u> , Fraser Anderson, Merten Stroetzel, Tovi Grossman, George Fitzmaurice.</p>
-            <p>In Proceedings of ACM Symposium on Creativity and Cognition (C&C ’21). June 22 - 23, 2021, Virtual Event,
-              Italy. ACM, New York, NY, USA, 11 pages.
-              https://doi.org/10.1145/3450741.3465260</p>
-            <p style="color:red;">[23.1% Acceptance Rate]</p>
-            <p><a href="files/calliope.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i
-                  class="fa fa-book"></i> Read Paper</a></p>
-            <p><a href="https://dl.acm.org/doi/10.1145/3450741.3465260" target="_blank"
-                class="w3-button w3-light-grey w3-block"><i class="fa fa-key"></i>Abstract/Cite This</a></p>
-            <p><a href="https://youtu.be/J8WJhj35_5E" target="_blank" class="w3-button w3-light-grey w3-block"><i
-                  class="fa fa-youtube-play"></i> See 5 Min Talk</a></p>
-          </div>
-        </div>
-      </div>
-      <div class="w3-col l3 m6 w3-margin-bottom">
-        <div class="w3-card">
-          <img src="images/hidout-triangle.jpg" alt="A Plurality of Practices" style="width:100%">
-          <div class="w3-container">
-            <h3>A Plurality of Practices</h3>
-            <p class="w3-opacity">Artistic Narratives in HCI Research</p>
-            <p><u>Josh Urban Davis</u> , Miriam Sturdee, Makayla Lewis, Angelika Strohmayer, Katta Spiel, Nantia
-              Koulidou, Sarah Fdili Alaoui</p>
-            <p>In Proceedings of ACM Symposium on Creativity and Cognition (C&C'21), 2021</p>
-            <p style="color:red;">[31% Acceptance Rate]</p>
-            <p style="color:red;"><i class="fa fa-trophy"></i> Best Paper: Top 1%</p>
-            <p><a href="files/Art_HCI_CR.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i
-                  class="fa fa-book"></i> Read
-                Paper</a></p>
-            <p><a href="https://dl.acm.org/doi/10.1145/3450741.3466771" target="_blank"
-                class="w3-button w3-light-grey w3-block"><i class="fa fa-key"></i> Abstract/Cite This</a></p>
-            <p><a href="https://youtu.be/ycWEKL6HnHg" target="_blank" class="w3-button w3-light-grey w3-block"><i
-                  class="fa fa-youtube-play"></i> See Demo Video</a></p>
-          </div>
-        </div>
-      </div>
-      <div class="w3-col l3 m6 w3-margin-bottom">
-        <div class="w3-card">
-          <img src="images/gofont.JPG" alt="goFontYourself" style="width:100%">
-          <div class="w3-container">
-            <h3>Font Your Friends and Loved Ones</h3>
-            <p class="w3-opacity">On the Utility of Ugly Interfaces.</p>
-            <p> <u>Josh Urban Davis</u>, & Johann Wentzel. </p>
-            <p>In Proceedings of ACM Conference on Human Factors in Computing Systems (CHI'21), 2021</p>
-            <p style="color:red;">[21% Acceptance Rate]</p>
-            <p><a href="files/font_your_friends_preprint.pdf" target="_blank"
-                class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i> Read Paper</a></p>
-            <p><a href="https://dl.acm.org/doi/10.1145/3411763.3450371" target="_blank"
-                class="w3-button w3-light-grey w3-block"><i class="fa fa-key"></i> Abstract/Cite This</a></p>
-            <p><a href="http://gofontyourself.xyz/" target="_blank" class="w3-button w3-light-grey w3-block"><i
-                  class="fa fa-external-link"></i> Try It</a></p>
-          </div>
-        </div>
-      </div>
-      <div class="w3-col l3 m6 w3-margin-bottom">
-        <div class="w3-card">
-          <img src="images/MSR_v2.png" alt="Assets Paper" style="width:100%">
-          <div class="w3-container">
-            <h3>Mixed abilities and varied experiences: a group auto-ethnography of a virtual summer internship</h3>
-            <p>Kelly Mack, Maitraye Das, Dhruv Jain, Danielle Bragg, John Tang, Andrew Begel, Erin Beneteau, <u>Josh
-                Urban
-                Davis</u> , Abraham Glasser, Joon Sung Park, Venkatesh Potluri</p>
-            <p>In Proceedings of ACM Symposium on Accessible Computing (ASSETS ’21), October 18–22, 2021, Virtual Event,
-              USA</p>
-            <p style="color:red;">[23.2% Acceptance Rate]</p>
-            <p style="color:red;"><i class="fa fa-trophy"></i> Best Paper: Top 5%</p>
-            <p><a href="files/assets_21_final.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i
-                  class="fa fa-book"></i> Read Paper</a></p>
-            <p><a href="https://dl.acm.org/doi/10.1145/3441852.3471199" target="_blank"
-                class="w3-button w3-light-grey w3-block"><i class="fa fa-key"></i> Abstract/Cite This</a></p>
-          </div>
-        </div>
-      </div>
-
-
-
-      <div class="w3-row-padding" style="margin-top:64px"></div>
-      <div class="w3-col l3 m6 w3-margin-bottom">
-        <div class="w3-card">
-          <img src="images/tangiblecircuits_header_images.png" alt="TangibleCircuits" style="width:100%">
-          <div class="w3-container">
-            <h3>TangibleCircuits</h3>
-            <p class="w3-opacity">An Interactive 3D Printed Circuit Education Tool for People with Visual Impairments.
-            </p>
-            <p> <u>Josh Urban Davis</u> , Te-Yen Wu, Bo Shi, Hanyi Lui, Athina Panotopoulou, Emily Whiting, & Xing-Dong
-              Yang. </p>
-            <p>In Proceedings of ACM Conference on Human Factors in Computing Systems (CHI'20), 2020.</p>
-            <p style="color:red;">[23% Acceptance Rate]</p>
-            <p style="color:red;"><i class="fa fa-trophy"></i> Honorable Mention: Top 5% </p>
-            <p><a href="files/tangiblecircuits_CHI20.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i
-                  class="fa fa-book"></i>
-                Read Paper</a></p>
-            <p><a href="https://dl.acm.org/doi/abs/10.1145/3313831.3376513" target="_blank"
-                class="w3-button w3-light-grey w3-block"><i class="fa fa-key"></i> Abstract/Cite This</a></p>
-            <p><a href="https://www.youtube.com/watch?v=wcd1_HpeStA" target="_blank"
-                class="w3-button w3-light-grey w3-block"><i class="fa fa-youtube-play"></i> See Demo Video</a></p>
-          </div>
-        </div>
-      </div>
-      <div class="w3-col l3 m6 w3-margin-bottom">
-        <div class="w3-card">
-          <img src="images/circuitstyle_thumb.png" alt="CircuitStyle" style="width:100%">
-          <div class="w3-container">
-            <h3>CircuitStyle</h3>
-            <p class="w3-opacity">A System for Peripherally Reinforcing Best Practices in Hardware Computing</p>
-            <p><u>Josh Urban Davis</u> , Jun Gong, Yunxin Sun, Parmit Chilana, & Xing-Dong Yang</p>
-            <p>Proceedings of ACM Symposium on User Interface Software and Technology (UIST'19), 2019.</p>
-            <p style="color:red;">[20.6% Acceptance Rate]</p>
-            <p><a href="files/circuitstyle_uist19.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i
-                  class="fa fa-book"></i> Read Paper</a></p>
-            <p><a href="https://dl.acm.org/citation.cfm?id=3332165.3347920" target="_blank"
-                class="w3-button w3-light-grey w3-block"><i class="fa fa-key"></i> Abstract/Cite This</a></p>
-            <p><a href="https://www.youtube.com/watch?v=zUsr06QR1mM" target="_blank"
-                class="w3-button w3-light-grey w3-block"><i class="fa fa-youtube-play"></i> See Demo Video</a></p>
-          </div>
-        </div>
-      </div>
-      <div class="w3-col l3 m6 w3-margin-bottom">
-        <div class="w3-card">
-          <img src="images/illumiwear_thumb.png" alt="IllumiWear" style="width:100%">
-          <div class="w3-container">
-            <h3>IllumiWear</h3>
-            <p class="w3-opacity">A Fiber-Optic eTextile for MultiMedia Interactions</p>
-            <p><u>Josh Urban Davis</u></p>
-            <p>Proceedings of the International Conference on New Interfaces for Musical Expression (NIME'19), 2019.</p>
-            <p style="color:red;">[31% Acceptance Rate]</p>
-            <p><a href="files/IllumiWear_final_corrected.pdf" target="_blank"
-                class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i> Read Paper</a></p>
-            <p><a href="https://www.youtube.com/watch?v=1tNn6CTtTFs" target="_blank"
-                class="w3-button w3-light-grey w3-block"><i class="fa fa-youtube-play"></i> See Demo Video</a></p>
-          </div>
-        </div>
-      </div>
-      <div class="w3-col l3 m6 w3-margin-bottom">
-        <div class="w3-card">
-          <img src="images/indutivo_thumb.png" alt="Indutivo" style="width:100%">
-          <div class="w3-container">
-            <h3>Indutivo</h3>
-            <p class="w3-opacity">Contact-Based, Object-Driven Interactions with Inductive Sensing.</p>
-            <p> Jun Gong, Xin Yang, Teddy Seyed, <u>Josh Urban Davis</u>, & Xing-Dong Yang. </p>
-            <p>Proceedings of ACM Symposium on User Interface Software and Technology (UIST'18), 2018.</p>
-            <p style="color:red;">[21% Acceptance Rate]</p>
-            <p><a href="files/indutivo.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i
-                  class="fa fa-book"></i> Read Paper</a></p>
-            <p><a href="https://dl.acm.org/citation.cfm?id=3332165.3347920" target="_blank"
-                class="w3-button w3-light-grey w3-block"><i class="fa fa-key"></i> Abstract/Cite This</a></p>
-            <p><a href="https://www.youtube.com/watch?v=XLmVo2tELM4" target="_blank"
-                class="w3-button w3-light-grey w3-block"><i class="fa fa-youtube-play"></i> See Demo Video</a></p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!--
-    <div class="w3-col l3 m6 w3-margin-bottom">
-      <div class="w3-card">
-        <img src="images/gendergenerator_thumb.png" alt="Gender Generator" style="width:100%">
-        <div class="w3-container">
-          <h3>The Gender Generator</h3>
-          <p class="w3-opacity">Towards a Brain-Computer Interaction to Evoke Gender Dysphoria</p>
-          <p><b>Josh Urban Davis</b></p>
-          <p>Extended Abstracts of ACM Conference on Human Factors in Computing Systems (CHI'18)</p>
-          <p style="color:red;">[25.7% Acceptance Rate]</p>
-          <p><a href="https://artisticbci.files.wordpress.com/2018/04/josh-davis.pdf" target="_blank" class="w3-button w3-light-grey w3-block"><i class="fa fa-book"></i> Read Paper</a></p>
-          <p><a href="https://www.youtube.com/watch?v=OYn1JB4NNsY" target="_blank" class="w3-button w3-light-grey w3-block"><i class="fa fa-youtube-play"></i> See Demo Video</a></p>
-        </div>
-      </div>
-    </div>
--->
   </div>
+</section>
+
+<!-- ========== PROJECTS ========== -->
+<section id="design">
+  <div class="section-inner">
+    <h2 class="section-title reveal">Design</h2>
+    <p class="section-subtitle reveal">past and ongoing works</p>
+
+    <!-- Unified Gallery -->
+    <div class="project-block reveal">
+      <div class="project-header"><h3>Selected Works</h3></div>
+      <p>Experiments in photomanipulation, shader rendering, generative neural networks, and digital collage — spanning ongoing series including <em>A Sudden Rush of Blood to the Skin</em>, <em>Hideouts</em>, and <em>Postcards from the Electric Void</em>. Source code on GitHub, more images and videos on Instagram.</p>
+      <div class="btn-row" style="margin-bottom:1.5rem;">
+        <a href="https://www.instagram.com/joshurbandavis/?hl=en" target="_blank" class="btn">See More</a>
+        <a href="https://dl.acm.org/doi/10.1145/3450741.3466771" target="_blank" class="btn">Publication at C&C</a>
+        <a href="http://www.aiartonline.com/community/josh-urban-davis/" target="_blank" class="btn">Publication at NeurIPS</a>
+      </div>
+      <div class="gallery">
+        <img src="images/aSuddenRush/vanitas_2_2v2_final.png" class="span-big" alt="a sudden rush of blood to the skin" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_4.JPG" alt="Pixel Dripper No. 3" onclick="openLightbox(this)">
+        <img src="images/collage_5_500_20_48.png" alt="Collage" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/gold.png" alt="the space between two bodies is a body too" onclick="openLightbox(this)">
+        <img src="images/space_gen6.png" alt="Postcard from the Electric Void" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_6805.JPG" class="span-wide" alt="Wall of Wonders" onclick="openLightbox(this)">
+        <img src="images/garden.png" alt="A Garden in Perpetual Collapse" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/wave.png" alt="i just wish we could kiss somewhere that isn't melting" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_0812.png" class="span-tall" alt="Postcards from the Electric Void No. 44522" onclick="openLightbox(this)">
+        <img src="images/frame_01001.png" alt="Generated landscape" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/vanitas_3_2.png" alt="i am skinless in a limo" onclick="openLightbox(this)">
+        <img src="images/creature_thumb.JPG" alt="Creature" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_2.JPG" class="span-wide" alt="Beyond the Beast's Tongue" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/jan_large_2.png" alt="violence" onclick="openLightbox(this)">
+        <img src="images/butterly_epiphany.jpg" alt="Butterfly Epiphany" onclick="openLightbox(this)">
+        <img src="images/vertigo.png" class="span-tall" alt="Self-Portrait as Vertigo" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_1.JPG" alt="Butterfly Epiphany" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/fruit_2_vert.png" alt="break me into bigger pieces so some of me is home with you" onclick="openLightbox(this)">
+        <img src="images/space_grid.jpg" class="span-wide" alt="Postcards grid" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_0525.png" alt="Self-Portrait as Vertigo" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/slitScan.png" alt="roses are roses" onclick="openLightbox(this)">
+        <img src="images/feather_river.png" alt="Feather River" onclick="openLightbox(this)">
+        <img src="images/piexel_dripper_2.jpg" alt="Pixel Dripper No. 7" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_0477.png" class="span-big" alt="Feather River" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/roses_2.png" alt="mysterious forces at play" onclick="openLightbox(this)">
+        <img src="images/golden_portrait.jpg" alt="Self Portrait as Scattering Glitter" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_6403.jpg" alt="Pixel Dripper No. 7" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/randomPurple.png" alt="purple shifted" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_0818.png" class="span-wide" alt="A Garden in Perpetual Collapse" onclick="openLightbox(this)">
+        <img src="images/pixel_puddle.jpg" alt="Pixel Dripper No. 9" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/wave_detail.png" alt="i just wish we could kiss somewhere that isn't melting (detail)" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_0663.png" alt="Self Portrait as Scattering Glitter" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/sampleScan.png" alt="sample and replicate No. 15" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_0417.jpg" alt="Pixel Dripper No. 9" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/random_blur.png" alt="random walk on a rose" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_3.JPG" alt="Postcard from the Electric Void No. 552" onclick="openLightbox(this)">
+      </div>
+    </div>
+
+    <!-- Deleted World Tarot -->
+    <div class="project-block reveal">
+      <div class="project-header"><h3>Deleted World Tarot</h3></div>
+      <div class="project-split">
+        <div>
+          <p>Deleted World Tarot is an illustration project begun in 2020. Many influences went into this deck, from emerging technologies and internet cultures, to occult histories and tarot illustrations past.</p>
+          <p>The early days of the internet seemed to offer a utopian promise of unlimited connection and community. Yet these visions of better worlds have faded into our current disinformation era of cyber superstitions and data-driven oppression. In both of these failed utopian visions — religious and digital — something was lost along the way. A choice was made. A world was deleted.</p>
+          <p>The Deleted World Tarot is a tool for healing the rift between the choices of the past and the consequential loss of alternative futures. A tool and a story told out of order and out of time, it's a hope that illuminates the worlds we lose by the choices we make every day, and a call to consider what is worth saving. What is not saved will be lost.</p>
+          <div class="btn-row">
+            <a href="https://73f7b8-3.myshopify.com/" target="_blank" class="btn btn-accent">Purchase the Deck</a>
+            <a href="https://www.instagram.com/joshurbandavis/?hl=en" target="_blank" class="btn">See More</a>
+          </div>
+        </div>
+        <div class="project-media">
+          <img src="images/octorococo.jpg" alt="Deleted World Tarot card illustration">
+        </div>
+      </div>
+    </div>
+
+    <!-- if you go_say hello -->
+    <div class="project-block reveal">
+      <div class="project-header"><h3>if you go_say hello</h3></div>
+      <div class="project-split">
+        <div>
+          <p>if you go_say hello was conceived as a memorial project in collaboration with The New School Center for Policy in Space for the 2021 Venice Architecture Biennale.</p>
+          <p>The project comprises an AI trained on the collected writing of a recently deceased poet which was attached to a commercial satellite and sent into space. Twice a day, visitors to a web portal received transmissions from the satellite of writings produced by the AI circling the planet. Over time the small computer housing the AI slowly corrupted due to electromagnetic radiation. The twice-daily transmissions slowly shifted from legible text to strange sentences, to random characters and eventually, total cessation of communication.</p>
+          <p>The collected writings including the corrupted transmissions were bound and distributed as a memento mori at the funeral of the poet. if you go_say hello is a meditation on loss, the physics of death, and the transformation of data across space and time.</p>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">The name of the deceased and the subsequent writing have remained private out of respect for the family's wishes. Sponsored by The New School Center for Space Policy for the Venice Architecture Biennale 2021.</p>
+        </div>
+        <div class="project-media">
+          <img src="images/venice.png" alt="Venice Biennale 2021 exhibition listing">
+        </div>
+      </div>
+    </div>
+
+    <!-- Night Air -->
+    <div class="project-block reveal">
+      <div class="project-header"><h3>The Night Air: COVID Poetry Project</h3></div>
+      <div class="project-split">
+        <div>
+          <p>The Night Air is a collaborative poem composed by visitors to thenightair.com during the COVID-19 lockdown of 2020.</p>
+          <p>Miasma, a now disbanded medical term originating in the middle ages, was once thought to be the root cause of plagues. Also known as "the night air," Miasma suggested that bad air spread illness. COVID-19, ironically, is a disease spread through the air.</p>
+          <p>The Night Air is a place to record personal experiences during this pandemic through a single collective poem, revealing our shifting moods and varying perspectives across the world.</p>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Sponsored by a grant from the Houston Arts Alliance.</p>
+        </div>
+        <div class="project-media">
+          <img src="images/nightair.png" alt="The Night Air logo">
+        </div>
+      </div>
+    </div>
+
+    <!-- This Obituary Does Not Exist -->
+    <div class="project-block reveal">
+      <div class="project-header"><h3>thisObituaryDoesNotExist.com</h3></div>
+      <div class="project-split">
+        <div>
+          <p>thisObituaryDoesNotExist comprises a physical and digital collection of obituaries generated by two artificial neural networks. StyleGAN and GPT-2 are shown images and text from publicly available online obituaries, then asked to imagine new ones — generating infinitely many photographs, death narratives, and life stories for persons who never existed.</p>
+          <p>The physical exhibition consists of funeral pamphlets indistinguishable from those for physical persons. The digital website generates a new obituary each time the page is refreshed.</p>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Premiered at Chandler Center for the Arts, 2019.</p>
+          <div class="btn-row">
+            <a href="http://thisobituarydoesnotexist.com/" target="_blank" class="btn btn-accent">Visit the Obituary</a>
+          </div>
+        </div>
+        <div class="project-media">
+          <img src="images/thisobit_thumb_2.jpg" alt="thisObituaryDoesNotExist installation">
+        </div>
+      </div>
+    </div>
+
+    <!-- PsycheVR -->
+    <div class="project-block reveal">
+      <div class="project-header"><h3>Psych-VR</h3></div>
+      <div class="project-split reverse">
+        <div>
+          <p>PsycheVR is a virtual reality and biofeedback project conducted in collaboration with the Space Medicine Laboratory at the Geisel School of Medicine and NASA. The project develops VR content to promote relaxation in small, isolated spaces for long durations — products used in trial experimentation with NASA astronauts intended for future Mars missions.</p>
+          <p>"Three Days and a Year On Top of a Mountain" is a VR sunrise-to-sunset timelapse recorded over a year on Gile Mountain, allowing the viewer to experience a day and year simultaneously.</p>
+        </div>
+        <div class="project-media">
+          <div class="video-wrap">
+            <iframe src="https://www.youtube.com/embed/PTOQoZnPwww" allowfullscreen loading="lazy"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Animation -->
+    <div class="project-block reveal">
+      <div class="project-header"><h3>Animation</h3></div>
+      <p>A series of ongoing animation experiments initiated in 2017, blending visual documentation of abandoned sculptures, time-lapse sequences from laboratory experiments, and visual programming explorations. Each animation is integrated with writings from contemporary authors, with soundscapes crafted using SuperCollider.</p>
+
+      <div class="project-split" style="margin-top: 2rem;">
+        <div>
+          <h4 style="margin-bottom: 0.5rem;">{i keep my frankenstein in a jar}</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">2020 — A perpetual code and sound animation. Commissioned for Tele Magazine.</p>
+          <div class="btn-row"><a href="https://joshurbandavis.github.io/pages/frank.html" target="_blank" class="btn">Watch Live</a></div>
+        </div>
+        <div class="project-media">
+          <div class="video-wrap"><iframe src="https://www.youtube.com/embed/hHA1MAiMG8I" allowfullscreen loading="lazy"></iframe></div>
+        </div>
+      </div>
+      <div class="project-split" style="margin-top: 2.5rem;">
+        <div>
+          <h4 style="margin-bottom: 0.5rem;">Extinction</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">2018 — Words by Elizabeth Lyons.</p>
+        </div>
+        <div class="project-media">
+          <div class="video-wrap"><iframe src="https://www.youtube.com/embed/2hFV_rQct-k" allowfullscreen loading="lazy"></iframe></div>
+        </div>
+      </div>
+      <div class="project-split" style="margin-top: 2.5rem;">
+        <div>
+          <h4 style="margin-bottom: 0.5rem;">The Wild Iris</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">2017 — Words by Louise Glück. Inspired by <em>Burn</em> by Darcy Rosenburger.</p>
+        </div>
+        <div class="project-media">
+          <div class="video-wrap"><iframe src="https://www.youtube.com/embed/xMLsnjvVQ5E" allowfullscreen loading="lazy"></iframe></div>
+        </div>
+      </div>
+    </div>
+
   </div>
+</section>
 
-
-  <!-- Artwork Section -->
-  <div class="w3-container w3-black" style="padding:35px 16px" id="work">
-    <h2 class="w3-center">PROJECTS</h2>
-    <p class="w3-center w3-large">past and ongoing works</p>
-    <!--
-    <h3 class="w3-right" style="padding:20px">DELETED WORLD TAROT</h3>
-    <div class="w3-container w3-black" style="padding:35px 16px" id="about">
-      <div class="w3-row-padding">
-        <div class="w3-right-align">
-          <p>Deleted World Tarot (DWT) is an illustration project begun in 2020. Many influences went into this deck, from emerging technologies and internet cultures, to occult histories and tarot illustrations past. Admittedly, tarot and internet technologies don’t seem like the most intuitive pairing. Yet this deck explores a common thread: the promise of a better world that never takes material form. </p>
-
-          <p>Like many of you, I was raised in a religious home and grew up believing in the utopian vision promised to me each Sunday. Yet l also knew that salvation could never be mine - I was too queer, too strange, an outcast. </p>
-            
-            <p>Likewise, the early days of the internet seemed to offer a similar utopian promise of unlimited connection and community. Yet these visions of better worlds have faded into our current dis-information era of cyber superstitions and data-driven oppression.</p>
-            
-            <p> In both of these failed utopian visions, something was lost along the way. A choice was made. A world was deleted.  </p>
-            
-            <p>The Deleted World Tarot is a tool for healing the rift between the choices of the past and the consequential loss of alternative futures. A tool and a story told out of order and out of time, it's a hope that illuminates the worlds we lose by the choices we make every day, and a call to consider what is worth saving. What is not saved will be lost.
-          </p>
-
-          <p><a href="https://www.instagram.com/joshurbandavis/?hl=en" target="_blank" class="w3-button w3-dark-grey"><i
-                class="fa fa-th"> </i> See More </a></p>
-          <p><a href="https://73f7b8-3.myshopify.com/" target="_blank" class="w3-button w3-dark-grey"><i
-                  class="fa fa-th"> </i> Pre-Order Here </a></p>      
-        </div>
-      </div>
-      <div class="w3-row-padding w3-section">
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/vanitas_2_2v2_final.png" style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="a sudden rush of blood to the skin">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/gold.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="the space between two bodies is a body too">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/wave.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="i just wish we could kiss somewhere that isn't melting">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/wave_detail.png" style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="i just wish we could kiss somewhere that isn't melting (detail)">
-        </div>
-      </div>
-      <div class="w3-row-padding w3-section">
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/vanitas_3_2.png" border-radius: 50% style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="i am skinless in a limo">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/jan_large_2.png" style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="violence">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/fruit_2_vert.png" style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="break me into bigger pieces so some of me is home with you">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/slitScan.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="roses are roses">
-        </div>
-      </div>
-      <div class="w3-row-padding">
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/roses_2.png" border-radius: 50% style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="mysterious forces at play | myserious forces at work">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/randomPurple.png" style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="purple shifted">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/sampleScan.png" style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="sample and replicate No. 15">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/random_blur.png" style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="random walk on a rose">
-        </div>
-      </div>
-    </div>
-
-    <hr>
-    -->
-    
-    <h3 class="w3-left" style="padding:20px">A SUDDEN RUSH OF BLOOD TO THE SKIN</h3>
-    <div class="w3-container w3-black" style="padding:35px 16px" id="about">
-      <div class="w3-row-padding">
-        <div class="w3-left-align">
-          <p>The following are a selection of images and videos created between February 2021 and March 2022 as part of
-            an ongoing
-            series of experiments in photomanipulation and shader rendering using javascript.
-          </p>
-          <p>Source code for these experiments can be found on github and more images and videos can be seen on
-            instagram.</p>
-
-          <p><a href="https://www.instagram.com/joshurbandavis/?hl=en" target="_blank" class="w3-button w3-dark-grey"><i
-                class="fa fa-th"> </i> See More </a></p>
-        </div>
-      </div>
-      <hr>
-      <div class="w3-row-padding w3-section">
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/vanitas_2_2v2_final.png" style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="a sudden rush of blood to the skin">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/gold.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="the space between two bodies is a body too">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/wave.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="i just wish we could kiss somewhere that isn't melting">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/wave_detail.png" style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="i just wish we could kiss somewhere that isn't melting (detail)">
-        </div>
-      </div>
-      <div class="w3-row-padding w3-section">
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/vanitas_3_2.png" border-radius: 50% style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="i am skinless in a limo">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/jan_large_2.png" style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="violence">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/fruit_2_vert.png" style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="break me into bigger pieces so some of me is home with you">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/slitScan.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="roses are roses">
-        </div>
-      </div>
-      <div class="w3-row-padding">
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/roses_2.png" border-radius: 50% style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="mysterious forces at play | myserious forces at work">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/randomPurple.png" style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="purple shifted">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/sampleScan.png" style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="sample and replicate No. 15">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/aSuddenRush/random_blur.png" style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="random walk on a rose">
-        </div>
-      </div>
-    </div>
-
-
-    <hr>
-
-    <h3 class="w3-left" style="padding:20px">if you go_say hello</h3>
-    <div class="w3-container w3-black" style="padding:35px 16px" id="about">
-      <div class="w3-row-padding">
-        <div class="w3-col m6">
-          <p>if you go_say hello was conceived as a memorial project in collaboration with The New School Center for
-            Policy in Space for the 2021 Venice Architecture Biennale. </p>
-
-          <p>
-            The project comprises an AI trained on the collected writing of a recently deceased poet which was attached
-            to a commercial satellite and sent into space.
-            Twice a day, visitors to a web portal were able to receive transmissions from the satellite of writings
-            produced by the AI circeling the planet. While the original AI model was able to generate
-            convincing poems in the style of the deceased poet, over time the small computer attached to the rocket
-            housing the AI slowly corrupted due to the electromagnetic radiation of space. The twice
-            daily transmissions of writing slowly shifted from legible text to strange sentences, to random characters
-            and eventually, the total cessation of communication as the computer housing the AI slowly
-            degraded from radiation. The collected writings including the corrupted transmissions were bound and
-            distributed as a memento mori at the funeral of the poet. if you go_say hello is a meditation on loss, the
-            physics of death, and the transformation of data across space and time. </p>
-          <p>The name of the deceased and the subsequent writing have remained private out of respect for the family's
-            wishes.
-            This project sponsored by The New School Center for Space Policy for the Venice Architecture Bienalle 2021
-          </p>
-        </div>
-        <div class="w3-col m6 ">
-          <img class="w3-image w3-round-large" src="images/venice.png" align="left"
-            alt="Names of artists exhibing at Venice Bienalle 2021">
-        </div>
-      </div>
-    </div>
-
-    <hr>
-
-    <h3 class="w3-right" style="padding:20px">HIDEOUTS</h3>
-    <div class="w3-container w3-black" style="padding:35px 16px" id="about">
-      <div class="w3-row-padding">
-        <div class="w3-right-align">
-          <p>When a piece of architecture is emptied of people, it
-            lurches towards being ruins. These works were made
-            during covid lockdown when our own buildings and cities
-            had fallen quiet. Often I use machines and algorithms as
-            an innate part of my practice [7], and during quarantine
-            it occurred to me how vital these technologies were to
-            communication. Our entire lives are mitigated by zeros
-            and ones, “likes” and comment threads and endless feeds.
-            I wanted to use these same means of communication,
-            these tools of connection, to talk about our division. If
-            nothing else, they made me feel less lonely and gave me
-            a place to escape to.</p>
-          <p>The plague highlighted this dependency on our tools,
-            since almost all social interaction, communication, and
-            labor became mediated by our machines. Our tools and
-            technologies became not only our means of surviving
-            during the plague, but essential means of escaping the
-            isolation it imposed. In this way, our machines became
-            our principal companions in the physical world, mediating
-            our connection to others through the virtual world. The
-            Hideouts series serves as an aesthetic representation
-            and active practice of exploring this tension between the
-            physical world of viruses and the virtual world of machines,
-            a place to hide while waiting for the world to finish ending.</p>
-          <p><a href="https://www.instagram.com/joshurbandavis/?hl=en" target="_blank" class="w3-button w3-dark-grey"><i
-                class="fa fa-th"> </i> See More </a></p>
-          <p><a href="https://dl.acm.org/doi/10.1145/3450741.3466771" target="_blank" class="w3-button w3-dark-grey"><i
-                class="fa fa-th"> </i>Read More in Publication at C&C </a></p>
-        </div>
-      </div>
-      <div class="w3-row-padding w3-section">
-        <div class="w3-col l3 m6">
-          <img src="images/hideouts/IMG_4.JPG" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Pixel Dripper No. 3">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/hideouts/IMG_2.JPG" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Beyond the Beast's Tongue">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/hideouts/IMG_6805.JPG" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Wall of Wonders">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/hideouts/IMG_3.JPG" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Postcard from the Electric Void No. 552">
-        </div>
-      </div>
-      <div class="w3-row-padding w3-section">
-        <div class="w3-col l3 m6">
-          <img src="images/hideouts/IMG_0812.png" border-radius: 50% style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="Postcards from the Electric Void No. 44522">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/hideouts/IMG_1.JPG" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Butterfly Epiphany">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/hideouts/IMG_0525.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Self-Portrait as Vertigo">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/hideouts/IMG_0477.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Feather River">
-        </div>
-      </div>
-      <div class="w3-row-padding">
-        <div class="w3-col l3 m6">
-          <img src="images/hideouts/IMG_6403.jpg" border-radius: 50% style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="Pixel Dripper No. 7">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/hideouts/IMG_0818.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="A Garden in Perpetual Collapse">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/hideouts/IMG_0663.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Self Portrait as Scattering Glitter">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/hideouts/IMG_0417.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Pixel Dripper No. 9">
-        </div>
-      </div>
-    </div>
-
-
-    <hr>
-
-    <h3 class="w3-left" style="padding:20px">THE NIGHT AIR: COVID POETRY PROJECT</h3>
-    <div class="w3-container w3-black" style="padding:35px 16px" id="about">
-      <div class="w3-row-padding">
-        <div class="w3-col m6">
-          <p>The Night Air is a collabortaive poem composed by visitors to thenightair.com website during the COVID-19
-            lockdown of 2020. </p>
-          <p>Miasma, a now disbanded medical term originating in the middle ages, was once thought to be the root cause
-            of former plagues and the spread of disease. Also known as "the night air", Miasma suggested that bad air or
-            pollution spread illness. While many previous plagues were spread by animals, water, or infected food,
-            COVID-19, ironically, is a disease spread through the air.
-            Unlike many previous plagues, we know how to slow and alter its spread. The spread of information, of
-            support and compassion is one way we can heal and find and redefine the future for ourselves.
-            the night air, is a place to record our personal experiences during this pandemic through a single
-            collective poem, which over time will reveal our shifting moods and varying perspectives across the world.
-            Unlike the pandemics that preceded this one, technology has served as not only a way to receive information
-            but to connect and share information informally, personally with anyone, anywhere.
-            We invite you to reflect on the last few months, not only the struggles but the sweet triumphs, the new
-            connections, things you've discovered about yourself and others, your idea of happiness,
-            the right way forward, what you are leaving behind to make space for something new and more fulfilling and
-            how you are coping and preparing for more.</p>
-          <p>This project sponsored by a grant from the Houston Arts Alliance</p>
-        </div>
-        <div class="w3-col m6 ">
-          <img class="w3-image w3-round-large" src="images/nightair.png" align="right" alt="the night air logo"
-            width="430" height="520">
-        </div>
-      </div>
-    </div>
-
-    <hr>
-
-    <h3 class="w3-right" style="padding:20px">POSTCARDS FROM THE ELECTRIC VOID</h3>
-    <div class="w3-container w3-black" style="padding:35px 16px" id="about">
-      <div class="w3-row-padding">
-        <div class="w3-right-align">
-          <p>The following images and animations are generated by artificial intelligence agents called Generative
-            Adversarial Neural Networks trained on a variety of images including colorized photographs of the universe
-            and paintings from art history. The aesthetics of glitch art is the aesthetics of mistakes. This metaphor
-            functions as a healing practice in that it allows us to see fallibility as valuable. Algorithms carry a
-            utilitarian imperviousness — their failures a reflection of their creators shortcomings.</p>
-          <p>Glitch aesthetics offer an opportunity to see this failure as a bizarre healing practice. In Postcards from
-            the Electric Void, artist and engineer Josh Urban Davis trained a neural network on a dataset of colorized
-            space images, and image archives from art history museums. By asking a machine to imagine the composition of
-            our universe, we facilitate a poetic dialogue between the unfathomably large void of space and the
-            infinitesimal void of data. When the machine produces something plausible as an image of our universe, the
-            experience is uncanny. </p>
-          <p>However, when the machine produces glitches and errors, these aesthetics reflect a recognizable shortcoming
-            in the machine's inability to reconcile in unfathomable. In this way, the void-glancing machine is
-            recognizable as fallible, creating a point of empathic connection between human and machine. </p>
-
-          <p><a href="https://www.instagram.com/kweenofparts/?hl=en" target="_blank" class="w3-button w3-dark-grey"><i
-                class="fa fa-th"> </i> See More </a></p>
-          <p><a href="http://www.aiartonline.com/community/josh-urban-davis/" target="_blank"
-              class="w3-button w3-dark-grey"><i class="fa fa-th"> </i>Publication at NuerIPS Conference</a></p>
-        </div>
-      </div>
-      <div class="w3-row-padding w3-section">
-        <div class="w3-col l3 m6">
-          <img src="images/collage_5_500_20_48.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Pixel Dripper No. 3">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/frame_01001.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Beyond the Beast's Tongue">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/creature_thumb.JPG" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Wall of Wonders">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/space_gen6.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Postcard from the Electric Void No. 552">
-        </div>
-      </div>
-      <div class="w3-row-padding w3-section">
-        <div class="w3-col l3 m6">
-          <img src="images/space_grid.jpg" border-radius: 50% style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="Postcards from the Electric Void No. 44522">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/butterly_epiphany.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Butterfly Epiphany">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/vertigo.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Self-Portrait as Vertigo">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/feather_river.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Feather River">
-        </div>
-      </div>
-      <div class="w3-row-padding">
-        <div class="w3-col l3 m6">
-          <img src="images/piexel_dripper_2.jpg" border-radius: 50% style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="Pixel Dripper No. 7">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/garden.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="A Garden in Perpetual Collapse">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/golden_portrait.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Self Portrait as Scattering Glitter">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/pixel_puddle.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Pixel Dripper No. 9">
-        </div>
-      </div>
-    </div>
-
-
-    <hr>
-
-    <h3 class="w3-left" style="padding:20px">SYNAPSTRACTION</h3>
-    <div class="w3-container w3-black" style="padding:35px 16px" id="about">
-      <div class="w3-row-padding">
-        <div class="w3-col m6">
-          <p>Synapstraction is a brain-computer interaction project which allows users to create an abstract painting
-            based on neuro-feedback. The system uses a special headset that measures the electrical activity of a
-            person’s scalp processed by machine learning algorithms to discriminate a stimuli’s effect on the brain.</p>
-          <p>Each visitor is invited to enter the installation and approach one of five “sense” stations, each with an
-            electroencephalography (EEG) headset. We then measure the event related potential (ERP) elicited by the
-            visitor’s brain using the EEG when the visitor receives 1 of 5 stimuli. These 5 stimuli correspond to the 5
-            senses (sight, touch, taste, sound, smell). In addition, each stimuli is mapped to a specific creative
-            instrument such as a paintbrush, sponge, or marker.</p>
-          <p>Once the visitor has secured their headset, they are presented with a stimulus (e.g. a Chopin Nocturne if
-            at the “sound” station or fresh ground clove for the “scent” station). Our system then uses a machine
-            learning method called linear discriminant analysis to map the activity of the visitor’s brain while
-            experiencing the stimuli to acoustic frequencies which actuate the painting implements. After visiting each
-            of the 5 “sense” stations within the installation, the participant is invited to keep their finished
-            painting. </p>
-          <p>The participant’s brain serves as a conduit, translating the stimulation of each sense into the finished
-            image. In this way, the usual methodology of an artist using their senses to create a media object is
-            inverted; the senses use the artist to create an image. Synapstraction largely takes its aesthetic interests
-            from the abstract expressionists of the 20th century and its conceptual framework from aleatory artists such
-            as John Cage. Unlike Cage, however, Synapstraction maps all senses to image, and renders the consumption of
-            sensual stimuli as an act of image creation. The material of this artwork doesn’t necessarily lie in the
-            paintings themselves, nor the equipment used in the installation, but instead rests in the speculative
-            reconsideration of potential alternative roles for human senses in art making.</p>
-          <p>This project premiered during the Digital Arts Festival at the Black Visual Arts Center in 2017.</p>
-          <p><a href="https://junctionmagazine.com/synapstration" target="_blank" class="w3-button w3-dark-grey"><i
-                class="fa fa-th"> </i> Press </a></p>
-        </div>
-        <div class="w3-col m6 ">
-          <div class="iframeVideo">
-            <iframe src="https://www.youtube.com/embed/gZUT1KMxpoQ" align="right" allowfullscreen>
-            </iframe>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <hr>
-
-
-    <h3 class="w3-left" style="padding:20px">THIS OBITUARY DOES NOT EXIST DOT COM</h3>
-    <div class="w3-container w3-black" style="padding:35px 16px" id="about">
-      <div class="w3-row-padding">
-        <div class="w3-col m6">
-          <p>thisObituaryDoesNotExist comprises a physical and digital collection of obituaries generated by two
-            artificial neural networks. The algorithms (StyleGAN and GPT-2) are shown images and text taken from
-            publicly available online obituaries, and asked to imagine new obituaries. In this way, the system generates
-            infinitely many photographs, death narratives, and life stories for persons who never existed.</p>
-          <p>The physical exhibition consists of a collection of funeral pamphlets containing a selection of the
-            generated obituary text and images, each pamphlet dedicated to the life and death of one generated person.
-            By making these printed materials indistinguishable from funeral pamphlets for physical persons, Davis
-            invites us to consider how these objects differ-from and are similar-to each other. In this way, the line
-            between generated fiction and physical realty becomes blurred, and we are invited to question what
-            constitutes an authentic personal identity in an era of massive data, social media, and creative artificial
-            intelligences.</p>
-          <p>thisObituaryDoesNotExist interrogates how technology affects, distributes, and manipulates human
-            experiences of death and grief. The digital website generates a new obituary each time the page is
-            refreshed.</p>
-          <p>This project premiered at Chandler Center for the Arts in 2019.</p>
-          <p><a href="http://thisobituarydoesnotexist.com/" target="_blank" class="w3-button w3-dark-grey"><i
-                class="fa fa-th"> </i> Visit the Obituary </a></p>
-        </div>
-        <div class="w3-col m6 ">
-          <img class="w3-image w3-round-large" src="images/thisobit_thumb_2.jpg" align="right"
-            alt="Josh Urban Davis profile photo" width="430" height="520">
-        </div>
-      </div>
-    </div>
-
-    <hr>
-
-    <h3 class="w3-left" style="padding:20px">PSYCH-VR</h3>
-    <div class="w3-container w3-black" style="padding:35px 16px" id="about">
-      <div class="w3-row-padding">
-        <div class="w3-col m6">
-          <p>PsycheVR is a virtual reality and biofeedback project conducted in collaboration with the Space Medicine
-            Labratory at the Geisell School of Medicine and National Aeronautics Space Administration (NASA). </p>
-          <p>The project consists of developing virtual reality content to promote relaxation when the user is confined
-            to small, isolated spaces for long durations of time. The products of this project were used in trial
-            experimentation with NASA astronauts intended for future missions to Mars.</p>
-          <p>We also prototyped biofeedback mechanisms to take in a user’s biometric state as determined by GSR, EEG,
-            facial expression and other stress indicators and subsequently adjust the content of the VR enviornment to
-            assit calming the user.</p>
-          <p>"Three Days and a Year On Top of a Mountain" (featured right) is a VR sunrise-to-sunset timelapse created
-            on top of Gile Mountain. Recorded over the course of a year, the video features scenes from Gile Moutain
-            throughout it's four seasons. The final video assimilates these footages into a single timelapse, allowing
-            the viewer to experience a day and year on top of the mountain simultaneously. </p>
-          <!--<p><a href="https://junctionmagazine.com/synapstration" target="_blank" class="w3-button w3-dark-grey"><i class="fa fa-th"> </i> Press </a></p>-->
-        </div>
-        <div class="w3-col m6 ">
-          <div class="iframeVideo">
-            <iframe src="https://www.youtube.com/embed/PTOQoZnPwww" align="right" allowfullscreen>
-            </iframe>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <hr>
-
-    <h3 class="w3-right" style="padding:20px">GRAPHIC DESIGN</h3>
-    <div class="w3-container w3-black" style="padding:35px 16px" id="about">
-      <div class="w3-row-padding">
-        <div class="w3-right-align">
-          <p>A portfolio sampling of various graphic design and digital collage projects both past and ongoing. </p>
-          <p><a href="https://www.instagram.com/kweenofparts/?hl=en" target="_blank" class="w3-button w3-dark-grey"><i
-                class="fa fa-th"> </i> See More </a></p>
-        </div>
-      </div>
-      <div class="w3-row-padding w3-section">
-        <div class="w3-col l3 m6">
-          <img src="images/PJ_album_art_1vSad_boi.jpg" style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="Sad_Boi">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/PJ_album_art_3v3.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Head Tipper">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/PJ_album_art_2.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Pretty Boi Rain Drain">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/PJ_album_art_4.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Sonic Gooze No. 1">
-        </div>
-      </div>
-      <div class="w3-row-padding w3-section">
-        <div class="w3-col l3 m6">
-          <img src="images/urban_owls.png" border-radius: 50% style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="Urban Owls">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/Octorococo_crystal_no_words.jpg" style="width:100%" onclick="onClick(this)"
-            class="w3-hover-opacity" alt="Empress">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/multi_head.jpg" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Hex Plexus">
-        </div>
-        <div class="w3-col l3 m6">
-          <img src="images/violin_ooze.png" style="width:100%" onclick="onClick(this)" class="w3-hover-opacity"
-            alt="Sonic Ooze No. 2">
-        </div>
-      </div>
-    </div>
-
-    <hr>
-
-    <h3 class="w3-left" style="padding:20px">ANIMATION</h3>
-    <div class="w3-container w3-black" style="padding:35px 16px" id="about">
-      <div class="w3-row-padding">
-        <p>This compilation showcases a series of ongoing animation experiments initiated in 2017. 
-          The films blend various mediums, including visual documentation of abandoned sculptures, 
-          time-lapse sequences from laboratory experiments, and visual programming explorations, among others.</p>
-        <p>Each animation is integrated with writings from contemporary authors, aiming to visually 
-          and audibly enhance the aesthetic narrative of the accompanying literature. Credits for individual authors 
-          are provided within each film. The soundscapes are crafted using SuperCollider, adding an otherwordly auditory 
-          acompanyment to the visuals.  </p>
-        <p>
-        <div class="w3-col m6">
-          <p>
-            <br><br><i>{i keep my frankenstein in a jar} (2020) </i>
-            <br>A perpetual code and sound animation
-            <br>Comissioned for Tele Magazine
-          </p>
-          <p><a href="https://joshurbandavis.github.io/pages/frank.html" target="_blank"
-              class="w3-button w3-dark-grey"><i class="fa fa-eye"> </i> Watch Live </a></p>
-        </div>
-        <div class="w3-col m6 ">
-          <br>
-          <div class="iframeVideo">
-            <iframe src="https://www.youtube.com/embed/hHA1MAiMG8I" align="right" allowfullscreen>
-            </iframe>
-            <br>
-          </div>
-        </div>
-        <br>
-        <div class="w3-col m6">
-
-          <br><i>Extinction (2018) </i>
-          <br>Words by Elizabeth Lyons.
-          </p>
-          <!--<p><a href="https://junctionmagazine.com/synapstration" target="_blank" class="w3-button w3-dark-grey"><i class="fa fa-th"> </i> Press </a></p>-->
-        </div>
-        <div class="w3-col m6 ">
-          <br>
-          <div class="iframeVideo">
-            <iframe src="https://www.youtube.com/embed/2hFV_rQct-k" align="right" allowfullscreen>
-            </iframe>
-          </div>
-        </div>
-      </div>
-      <div class="w3-col m6">
-
-        <p>
-
-          <br><br><i>The Wild Iris (2017)</i>
-          <br>Words by Louis Gluck
-          <br>Inspired by Burn by Darcy Rosenburger
-        </p>
-      </div>
-      <div class="w3-col m6 ">
-        <br>
-        <div class="iframeVideo">
-          <iframe src="https://www.youtube.com/embed/xMLsnjvVQ5E" align="right" allowfullscreen>
-          </iframe>
-          <br>
-        </div>
+<!-- ========== CONTACT ========== -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="contact-inner reveal">
+      <h2 class="contact-headline">Let's build<br>something strange</h2>
+      <div class="contact-line"></div>
+      <div class="contact-links">
+        <span class="contact-loc">San Francisco, CA</span>
+        <a href="mailto:hello@joshurbandavis.com">hello@joshurbandavis.com</a>
       </div>
     </div>
   </div>
+</section>
 
-  <hr>
-
-
-  <!--the div below closes the project/work section-->
+<!-- ========== FOOTER ========== -->
+<footer>
+  <a href="#home" class="btn" style="margin-bottom:1.5rem;">Back to top</a>
+  <div class="footer-social">
+    <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank" aria-label="Google Scholar"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M128 0L0 80l48 28v72l80 48 80-48v-72l16-9.3V176h16V72L128 0zM128 180l-64-38.4V120l64 38 64-38v21.6L128 180z"/></svg></a>
+    <a href="https://www.instagram.com/joshurbandavis/" target="_blank" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/></svg></a>
+    <a href="https://github.com/joshurbandavis" target="_blank" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg></a>
+    <a href="https://twitter.com/joshurbandavis" target="_blank" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <a href="https://www.linkedin.com/in/joshurbandavis/" target="_blank" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
   </div>
+</footer>
 
-  <!-- Modal for full size images on click-->
-  <div id="modal01" class="w3-modal w3-black" onclick="this.style.display='none'">
-    <span class="w3-button w3-xxlarge w3-black w3-padding-large w3-display-topright" title="Close Modal Image">×</span>
-    <div class="w3-modal-content w3-animate-zoom w3-center w3-transparent w3-padding-64">
-      <img id="img01" class="w3-image">
-      <p id="caption" class="w3-opacity w3-large"></p>
-    </div>
-  </div>
+<!-- ========== LIGHTBOX ========== -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" aria-label="Close">&times;</button>
+  <img id="lightboxImg" src="" alt="">
+  <p class="lightbox-caption" id="lightboxCaption"></p>
+</div>
 
+<script>
+// ========== NAV ==========
+function toggleNav() {
+  document.getElementById('navLinks').classList.toggle('open');
+}
+function closeNav() {
+  document.getElementById('navLinks').classList.remove('open');
+}
 
-  <!-- Contact Section -->
-  <div class="w3-container w3-light-grey" style="padding:58px 16px" id="contact">
-    <h3 class="w3-center">CONTACT</h3>
-    <p class="w3-center w3-large">Lets get in touch. Send me a message:</p>
-    <div style="margin-top:48px">
-      <p><i class="fa fa-map-marker fa-fw w3-xxlarge w3-margin-right"></i> San Francisco, CA</p>
-      <!--<p><i class="fa fa-phone fa-fw w3-xxlarge w3-margin-right"></i> Phone: +00 151515</p>-->
-      <p><i class="fa fa-envelope fa-fw w3-xxlarge w3-margin-right"> </i> Email: hello (at) joshurbandavis.com</p>
-      <br>
-      <!--<form action="action_page.php" target="_blank" method="POST">
-      <p><input class="w3-input w3-border" type="text" placeholder="Name" required name="Name"></p>
-      <p><input class="w3-input w3-border" type="text" placeholder="Email" required name="Email"></p>
-      <p><input class="w3-input w3-border" type="text" placeholder="Subject" required name="Subject"></p>
-      <p><input class="w3-input w3-border" type="text" placeholder="Message" required name="Message"></p>
-      <p>
-        <button class="w3-button w3-black" type="submit">
-          <i class="fa fa-paper-plane"></i> SEND MESSAGE
-        </button>
-      </p>
-    </form>-->
-      <!-- Image of location/map -->
-      <!--<img src="/w3images/map.jpg" class="w3-image w3-greyscale" style="width:100%;margin-top:48px">-->
-    </div>
-  </div>
+// ========== LIGHTBOX ==========
+function openLightbox(el) {
+  var lb = document.getElementById('lightbox');
+  document.getElementById('lightboxImg').src = el.src;
+  document.getElementById('lightboxCaption').textContent = el.alt;
+  lb.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeLightbox();
+});
 
-  <!-- Footer -->
-  <footer class="w3-center w3-black w3-padding-64">
-    <a href="#home" class="w3-button w3-light-grey"><i class="fa fa-arrow-up w3-margin-right"></i>To the top</a>
-    <div class="w3-xlarge w3-section">
-      <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank"><i
-          class="fa fa-google w3-hover-opacity"></i></a>
-      <a href="https://www.instagram.com/joshurbandavis/" target="_blank"><i
-          class="fa fa-instagram w3-hover-opacity"></i></a>
-      <a href="https://github.com/joshurbandavis" target="_blank"><i class="fa fa-github w3-hover-opacity"></i></a>
-      <!--<i class="fa fa-snapchat w3-hover-opacity"></i>-->
-      <!--<i class="fa fa-pinterest-p w3-hover-opacity"></i>-->
-      <a href="https://twitter.com/joshurbandavis" target="_blank"><i class="fa fa-twitter w3-hover-opacity"></i></a>
-      <a href="https://www.linkedin.com/in/joshurbandavis/" target="_blank"><i
-          class="fa fa-linkedin w3-hover-opacity"></i></a>
-    </div>
-  </footer>
+// ========== SCROLL REVEAL ==========
+var reveals = document.querySelectorAll('.reveal');
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+reveals.forEach(function(el) { observer.observe(el); });
 
-  <script>
-    // Modal Image Gallery
-    function onClick(element) {
-      document.getElementById("img01").src = element.src;
-      document.getElementById("modal01").style.display = "block";
-      var captionText = document.getElementById("caption");
-      captionText.innerHTML = element.alt;
+// ========== PUBLICATIONS DATA ==========
+var pubs = [
+  {
+    img: "images/imwut23.png",
+    title: "\"It's Not an Issue of Malice, but of Ignorance\": Towards Inclusive Video Conferencing for Presenters Who are d/Deaf or Hard of Hearing",
+    authors: "<u>Josh Urban Davis</u>, Hongwei Wang, Parmit K. Chilana, Xing-Dong Yang",
+    venue: "IMWUT/UbiComp '23",
+    rate: "23.2%",
+    links: [
+      { label: "Paper", href: "files/davis_imwut23.pdf" },
+      { label: "ACM", href: "https://dl.acm.org/doi/10.1145/3610901" }
+    ]
+  },
+  {
+    img: "images/making_blurred_docSym.jpg",
+    title: "Multimodal Direction Manipulation in Video Conferencing: Challenges and Opportunities",
+    authors: "<u>Josh Urban Davis</u>, Paul Asente, Xing-Dong Yang",
+    venue: "DIS '23",
+    rate: "24.6%",
+    links: [
+      { label: "Paper", href: "files/DIS23_Multimodal_Direct_Manipulation.pdf" },
+      { label: "ACM", href: "https://dl.acm.org/doi/10.1145/3563657.3596099" },
+      { label: "Demo", href: "https://youtu.be/kmUDDjTNRCw" }
+    ]
+  },
+  {
+    img: "images/altText_thumb.png",
+    title: "Exploring AltNarrative in HCI Imagery and Comics",
+    authors: "Makayla Lewis, Miriam Sturdee, John Miers, Thuong Hoang, <u>Josh Urban Davis</u>",
+    venue: "CHI '22",
+    rate: "21%",
+    links: [
+      { label: "Paper", href: "files/altText.pdf" },
+      { label: "ACM", href: "https://dl.acm.org/doi/10.1145/3491101.3516394" }
+    ]
+  },
+  {
+    img: "images/pokerface_thumb3.png",
+    title: "PokerFace: Exploring Augmenting Masks through an Interactive, Mixed-Reality Prototype",
+    authors: "<u>Josh Urban Davis</u>, John Tang, Edward Cutrell, Teddy Seyed",
+    venue: "HICSS '22",
+    links: [
+      { label: "Paper", href: "files/pokerface.pdf" },
+      { label: "ACM", href: "https://hdl.handle.net/10125/79732" },
+      { label: "Talk", href: "https://youtu.be/i3ebUKSHNuc" }
+    ]
+  },
+  {
+    img: "images/Fig2_05_v3.png",
+    title: "Designing Co-Creative AI in Virtual Environments",
+    authors: "<u>Josh Urban Davis</u>, Fraser Anderson, Merten Stroetzel, Tovi Grossman, George Fitzmaurice",
+    venue: "C&C '21",
+    rate: "23.1%",
+    links: [
+      { label: "Paper", href: "files/calliope.pdf" },
+      { label: "ACM", href: "https://dl.acm.org/doi/10.1145/3450741.3465260" },
+      { label: "Talk", href: "https://youtu.be/J8WJhj35_5E" }
+    ]
+  },
+  {
+    img: "images/hidout-triangle.jpg",
+    title: "A Plurality of Practices: Artistic Narratives in HCI Research",
+    authors: "<u>Josh Urban Davis</u>, Miriam Sturdee, Makayla Lewis, Angelika Strohmayer, Katta Spiel, Nantia Koulidou, Sarah Fdili Alaoui",
+    venue: "C&C '21",
+    rate: "31%",
+    award: "Best Paper: Top 1%",
+    links: [
+      { label: "Paper", href: "files/Art_HCI_CR.pdf" },
+      { label: "ACM", href: "https://dl.acm.org/doi/10.1145/3450741.3466771" },
+      { label: "Demo", href: "https://youtu.be/ycWEKL6HnHg" }
+    ]
+  },
+  {
+    img: "images/gofont.JPG",
+    title: "Font Your Friends and Loved Ones: On the Utility of Ugly Interfaces",
+    authors: "<u>Josh Urban Davis</u> & Johann Wentzel",
+    venue: "CHI '21",
+    rate: "21%",
+    links: [
+      { label: "Paper", href: "files/font_your_friends_preprint.pdf" },
+      { label: "ACM", href: "https://dl.acm.org/doi/10.1145/3411763.3450371" },
+      { label: "Try It", href: "http://gofontyourself.xyz/" }
+    ]
+  },
+  {
+    img: "images/MSR_v2.png",
+    title: "Mixed Abilities and Varied Experiences: A Group Auto-ethnography of a Virtual Summer Internship",
+    authors: "Kelly Mack, Maitraye Das, Dhruv Jain, Danielle Bragg, John Tang, Andrew Begel, Erin Beneteau, <u>Josh Urban Davis</u>, Abraham Glasser, Joon Sung Park, Venkatesh Potluri",
+    venue: "ASSETS '21",
+    rate: "23.2%",
+    award: "Best Paper: Top 5%",
+    links: [
+      { label: "Paper", href: "files/assets_21_final.pdf" },
+      { label: "ACM", href: "https://dl.acm.org/doi/10.1145/3441852.3471199" }
+    ]
+  },
+  {
+    img: "images/tangiblecircuits_header_images.png",
+    title: "TangibleCircuits: An Interactive 3D Printed Circuit Education Tool for People with Visual Impairments",
+    authors: "<u>Josh Urban Davis</u>, Te-Yen Wu, Bo Shi, Hanyi Lui, Athina Panotopoulou, Emily Whiting, Xing-Dong Yang",
+    venue: "CHI '20",
+    rate: "23%",
+    award: "Honorable Mention: Top 5%",
+    links: [
+      { label: "Paper", href: "files/tangiblecircuits_CHI20.pdf" },
+      { label: "ACM", href: "https://dl.acm.org/doi/abs/10.1145/3313831.3376513" },
+      { label: "Demo", href: "https://www.youtube.com/watch?v=wcd1_HpeStA" }
+    ]
+  },
+  {
+    img: "images/circuitstyle_thumb.png",
+    title: "CircuitStyle: A System for Peripherally Reinforcing Best Practices in Hardware Computing",
+    authors: "<u>Josh Urban Davis</u>, Jun Gong, Yunxin Sun, Parmit Chilana, Xing-Dong Yang",
+    venue: "UIST '19",
+    rate: "20.6%",
+    links: [
+      { label: "Paper", href: "files/circuitstyle_uist19.pdf" },
+      { label: "ACM", href: "https://dl.acm.org/citation.cfm?id=3332165.3347920" },
+      { label: "Demo", href: "https://www.youtube.com/watch?v=zUsr06QR1mM" }
+    ]
+  },
+  {
+    img: "images/illumiwear_thumb.png",
+    title: "IllumiWear: A Fiber-Optic eTextile for MultiMedia Interactions",
+    authors: "<u>Josh Urban Davis</u>",
+    venue: "NIME '19",
+    rate: "31%",
+    links: [
+      { label: "Paper", href: "files/IllumiWear_final_corrected.pdf" },
+      { label: "Demo", href: "https://www.youtube.com/watch?v=1tNn6CTtTFs" }
+    ]
+  },
+  {
+    img: "images/indutivo_thumb.png",
+    title: "Indutivo: Contact-Based, Object-Driven Interactions with Inductive Sensing",
+    authors: "Jun Gong, Xin Yang, Teddy Seyed, <u>Josh Urban Davis</u>, Xing-Dong Yang",
+    venue: "UIST '18",
+    rate: "21%",
+    links: [
+      { label: "Paper", href: "files/indutivo.pdf" },
+      { label: "ACM", href: "https://dl.acm.org/citation.cfm?id=3332165.3347920" },
+      { label: "Demo", href: "https://www.youtube.com/watch?v=XLmVo2tELM4" }
+    ]
+  }
+];
+
+var grid = document.getElementById('pubGrid');
+pubs.forEach(function(p) {
+  var badges = '';
+  if (p.rate) badges += '<span class="pub-badge badge-rate">' + p.rate + ' accept</span>';
+  if (p.award) badges += '<span class="pub-badge badge-award">' + p.award + '</span>';
+  var links = p.links.map(function(l) {
+    return '<a href="' + l.href + '" target="_blank">' + l.label + '</a>';
+  }).join('');
+  grid.innerHTML += '<div class="pub-card reveal"><img src="' + p.img + '" alt="' + p.title + '" loading="lazy"><div class="pub-card-body"><h3>' + p.title + '</h3><p class="authors">' + p.authors + '</p><p class="venue">' + p.venue + '</p>' + badges + '<div class="pub-links">' + links + '</div></div></div>';
+});
+
+// Re-observe new reveal elements
+document.querySelectorAll('.pub-card.reveal').forEach(function(el) { observer.observe(el); });
+
+// ========== HERO CANVAS ANIMATION ==========
+// Faithful Canvas 2D port of the p5.js WEBGL ring-torus sketch.
+// Properly projects 3D circles through rotation matrices with ortho projection.
+(function() {
+  var canvas = document.getElementById('heroCanvas');
+  var ctx = canvas.getContext('2d');
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var w, h, minW, maxW;
+  var rings, numRings;
+  var globalRot = [];
+
+  var palette = [
+    [175, 62, 77], [46, 134, 171], [117, 142, 79],
+    [0, 42, 50], [246, 174, 45], [250, 201, 184]
+  ];
+
+  // ---- Perlin noise ----
+  var perm = new Uint8Array(512);
+  (function() {
+    var p = new Uint8Array(256);
+    for (var i = 0; i < 256; i++) p[i] = i;
+    for (var i = 255; i > 0; i--) {
+      var j = (Math.random() * (i + 1)) | 0;
+      var t = p[i]; p[i] = p[j]; p[j] = t;
+    }
+    for (var i = 0; i < 512; i++) perm[i] = p[i & 255];
+  })();
+  function fade(t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+  function nlerp(a, b, t) { return a + t * (b - a); }
+  function grad3(hash, x, y, z) {
+    var h = hash & 15, u = h < 8 ? x : y, v = h < 4 ? y : (h === 12 || h === 14 ? x : z);
+    return ((h & 1) ? -u : u) + ((h & 2) ? -v : v);
+  }
+  function noise3(x, y, z) {
+    var X = Math.floor(x) & 255, Y = Math.floor(y) & 255, Z = Math.floor(z) & 255;
+    x -= Math.floor(x); y -= Math.floor(y); z -= Math.floor(z);
+    var u = fade(x), v = fade(y), ww = fade(z);
+    var A = perm[X] + Y, AA = perm[A] + Z, AB = perm[A + 1] + Z;
+    var B = perm[X + 1] + Y, BA = perm[B] + Z, BB = perm[B + 1] + Z;
+    // Return in [0,1] range like p5.js noise()
+    return (nlerp(
+      nlerp(nlerp(grad3(perm[AA], x, y, z), grad3(perm[BA], x-1, y, z), u),
+            nlerp(grad3(perm[AB], x, y-1, z), grad3(perm[BB], x-1, y-1, z), u), v),
+      nlerp(nlerp(grad3(perm[AA+1], x, y, z-1), grad3(perm[BA+1], x-1, y, z-1), u),
+            nlerp(grad3(perm[AB+1], x, y-1, z-1), grad3(perm[BB+1], x-1, y-1, z-1), u), v), ww)
+    ) * 0.5 + 0.5;
+  }
+
+  var TWO_PI = Math.PI * 2, HALF_PI = Math.PI / 2;
+  var SEG = 24;
+
+  // Precompute unit circle
+  var cCos = new Float64Array(SEG + 1);
+  var cSin = new Float64Array(SEG + 1);
+  for (var i = 0; i <= SEG; i++) {
+    cCos[i] = Math.cos(TWO_PI * i / SEG);
+    cSin[i] = Math.sin(TWO_PI * i / SEG);
+  }
+
+  // 3x3 matrix ops (flat 9-element arrays)
+  function mm(a, b) {
+    return [
+      a[0]*b[0]+a[1]*b[3]+a[2]*b[6], a[0]*b[1]+a[1]*b[4]+a[2]*b[7], a[0]*b[2]+a[1]*b[5]+a[2]*b[8],
+      a[3]*b[0]+a[4]*b[3]+a[5]*b[6], a[3]*b[1]+a[4]*b[4]+a[5]*b[7], a[3]*b[2]+a[4]*b[5]+a[5]*b[8],
+      a[6]*b[0]+a[7]*b[3]+a[8]*b[6], a[6]*b[1]+a[7]*b[4]+a[8]*b[7], a[6]*b[2]+a[7]*b[5]+a[8]*b[8]
+    ];
+  }
+  function rx(a) { var c = Math.cos(a), s = Math.sin(a); return [1,0,0, 0,c,-s, 0,s,c]; }
+  function ry(a) { var c = Math.cos(a), s = Math.sin(a); return [c,0,s, 0,1,0, -s,0,c]; }
+  function rz(a) { var c = Math.cos(a), s = Math.sin(a); return [c,-s,0, s,c,0, 0,0,1]; }
+
+  function resize() {
+    w = canvas.clientWidth; h = canvas.clientHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    minW = Math.min(w, h); maxW = Math.max(w, h);
+  }
+
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = (Math.random() * (i + 1)) | 0;
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+  }
+
+  function init() {
+    resize();
+    shuffle(palette);
+
+    var isMobile = w < 768;
+    numRings = isMobile ? 500 : 1200;
+    var posR = maxW / 2.4;
+
+    var paNoiseBase = [Math.random()*1e4, Math.random()*1e4, Math.random()*1e4];
+    var rNoiseBase  = [Math.random()*1e4, Math.random()*1e4, Math.random()*1e4];
+    var prNoiseBase = [Math.random()*1e4, Math.random()*1e4, Math.random()*1e4];
+    var paNoiseThetaInit = Math.random() * TWO_PI;
+    var rNoiseThetaInit  = Math.random() * TWO_PI;
+    var prNoiseThetaInit = Math.random() * TWO_PI;
+    var paNoiseSpeed = 0.0015 * (Math.random() < 0.5 ? -1 : 1);
+    var rNoiseSpeed  = 0.0015 * (Math.random() < 0.5 ? -1 : 1);
+    var prNoiseSpeed = 0.0015 * (Math.random() < 0.5 ? -1 : 1);
+
+    rings = new Array(numRings);
+    for (var i = 0; i < numRings; i++) {
+      var angInit = TWO_PI / numRings * i;
+      var cosA = Math.cos(angInit), sinA = Math.sin(angInit);
+      rings[i] = {
+        angInit: angInit,
+        paN: [paNoiseBase[0] + 0.15*cosA, paNoiseBase[1] + 0.15*sinA, paNoiseBase[2]],
+        rN:  [rNoiseBase[0]  + 0.3*cosA,  rNoiseBase[1]  + 0.3*sinA,  rNoiseBase[2]],
+        prN: [prNoiseBase[0] + 0.3*cosA,  prNoiseBase[1] + 0.3*sinA,  prNoiseBase[2]],
+        paTI: paNoiseThetaInit, rTI: rNoiseThetaInit, prTI: prNoiseThetaInit,
+        paSpd: paNoiseSpeed, rSpd: rNoiseSpeed, prSpd: prNoiseSpeed,
+        posAngMax: TWO_PI / 8 / 1.65,
+        rMax: posR / 2, rMin: posR / 20,
+        posRMax: posR, posRMin: posR * 0.75,
+        rotZ: Math.random() * TWO_PI,
+        count: 0
+      };
     }
 
+    globalRot = [
+      [Math.random() * TWO_PI, Math.random() * 0.003],
+      [Math.random() * TWO_PI, Math.random() * 0.003],
+      [Math.random() * TWO_PI, Math.random() * 0.003]
+    ];
+  }
 
-    // Toggle between showing and hiding the sidebar when clicking the menu icon
-    var mySidebar = document.getElementById("mySidebar");
+  var fc = 0;
 
-    function w3_open() {
-      if (mySidebar.style.display === 'block') {
-        mySidebar.style.display = 'none';
-      } else {
-        mySidebar.style.display = 'block';
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#e6e6e6';
+    ctx.fillRect(0, 0, w, h);
+
+    // Global rotation matrix: Rx(gRX) * Ry(gRY) * Rz(gRZ) * Rx(PI/4)
+    // Then per ring adds: Rx(HALF_PI) * Ry(posAng) [for center] and * Rz(rotZ) [for circle axes]
+    var gRX = globalRot[0][0] + globalRot[0][1] * fc;
+    var gRY = globalRot[1][0] + globalRot[1][1] * fc;
+    var gRZ = globalRot[2][0] + globalRot[2][1] * fc;
+
+    var gMat = mm(mm(mm(rx(gRX), ry(gRY)), rz(gRZ)), rx(Math.PI / 4));
+    // Pre-multiply global * Rx(HALF_PI) since that's shared by all rings
+    var gMatH = mm(gMat, rx(HALF_PI));
+
+    var lineW = Math.max(1, minW / 600 * dpr) / dpr;
+    ctx.lineWidth = lineW;
+
+    var hw = w / 2, hh = h / 2;
+    var items = new Array(numRings);
+
+    for (var i = 0; i < numRings; i++) {
+      var ring = rings[i];
+      var cnt = ring.count;
+      var paOff = ring.paSpd * cnt;
+      var rOff  = ring.rSpd * cnt;
+      var prOff = ring.prSpd * cnt;
+
+      var paN = noise3(ring.paN[0], ring.paN[1] + paOff, ring.paN[2] + paOff);
+      var paVal = Math.sin(ring.paTI + TWO_PI * 4 * paN) * 0.5 + 0.5;
+      var posAng = ring.angInit + (-ring.posAngMax + 2 * ring.posAngMax * paVal);
+
+      var rN = noise3(ring.rN[0], ring.rN[1] + rOff, ring.rN[2] + rOff);
+      var rVal = Math.sin(ring.rTI + TWO_PI * 4 * rN) * 0.5 + 0.5;
+      var r = ring.rMin + (ring.rMax - ring.rMin) * rVal;
+
+      var prN = noise3(ring.prN[0], ring.prN[1] + prOff, ring.prN[2] + prOff);
+      var prVal = Math.sin(ring.prTI + TWO_PI * 4 * prN) * 0.5 + 0.5;
+      var posRNew = ring.posRMin + (ring.posRMax - ring.posRMin) * prVal;
+
+      // Color
+      var colN = noise3(ring.prN[0]+1000, ring.prN[1]+prOff+1000, ring.prN[2]+prOff);
+      var colVal = Math.sin(ring.prTI + TWO_PI * 3 * colN + 1000) * 0.5 + 0.5;
+      var ci1 = (colVal * 5) | 0; if (ci1 > 4) ci1 = 4;
+      var ci2 = (ci1 + 1) % 5;
+      var ct = (colVal - ci1 / 5) * 5;
+      var c1 = palette[ci1], c2 = palette[ci2];
+      var cr = (c1[0] + (c2[0]-c1[0]) * ct) | 0;
+      var cg = (c1[1] + (c2[1]-c1[1]) * ct) | 0;
+      var cb = (c1[2] + (c2[2]-c1[2]) * ct) | 0;
+
+      // Per-ring matrix: gMatH * Ry(posAng)
+      var mat1 = mm(gMatH, ry(posAng));
+
+      // Ring center = mat1 * (posRNew, 0, 0)
+      var cx = mat1[0] * posRNew;
+      var cy = mat1[3] * posRNew;
+      var cz = mat1[6] * posRNew;
+
+      // Full matrix for circle axes: mat1 * Rz(ring.rotZ)
+      var mat2 = mm(mat1, rz(ring.rotZ));
+
+      // Circle axis U (screen xy) = mat2 column 0: [mat2[0], mat2[3]]
+      // Circle axis V (screen xy) = mat2 column 1: [mat2[1], mat2[4]]
+      items[i] = {
+        cx: cx + hw, cy: cy + hh, cz: cz,
+        ux: mat2[0], uy: mat2[3],
+        vx: mat2[1], vy: mat2[4],
+        r: r, cr: cr, cg: cg, cb: cb
+      };
+      ring.count++;
+    }
+
+    // Depth sort back to front
+    items.sort(function(a, b) { return a.cz - b.cz; });
+
+    // Draw projected circles
+    var depthRange = maxW * 1.5;
+    for (var i = 0; i < numRings; i++) {
+      var it = items[i];
+      var dep = 0.15 + 0.85 * ((it.cz + depthRange) / (depthRange * 2));
+      if (dep < 0.06) dep = 0.06; if (dep > 1) dep = 1;
+
+      ctx.strokeStyle = 'rgba(' + it.cr + ',' + it.cg + ',' + it.cb + ',' + dep.toFixed(2) + ')';
+      ctx.beginPath();
+
+      var r = it.r, oxr = it.cx, oyr = it.cy;
+      var ux = it.ux * r, uy = it.uy * r;
+      var vx = it.vx * r, vy = it.vy * r;
+
+      ctx.moveTo(oxr + cCos[0] * ux + cSin[0] * vx, oyr + cCos[0] * uy + cSin[0] * vy);
+      for (var j = 1; j <= SEG; j++) {
+        ctx.lineTo(oxr + cCos[j] * ux + cSin[j] * vx, oyr + cCos[j] * uy + cSin[j] * vy);
       }
+      ctx.stroke();
     }
 
-    // Close the sidebar with the close button
-    function w3_close() {
-      mySidebar.style.display = "none";
-    }
-  </script>
+    fc++;
+    requestAnimationFrame(draw);
+  }
+
+  init();
+  window.addEventListener('resize', function() { resize(); });
+  requestAnimationFrame(draw);
+})();
+</script>
 
 </body>
-
 </html>
