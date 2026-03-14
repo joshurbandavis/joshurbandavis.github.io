@@ -31,7 +31,7 @@ function setup() {
 }
 
 function setObject() {
-  let numRing = 600;
+  let numRing = 400;
   let posR = _minW / 2.9;
   let posAngNoiseInit_0 = [random(10000), random(10000), random(10000)];
   let rNoiseInit_0 = [random(10000), random(10000), random(10000)];
