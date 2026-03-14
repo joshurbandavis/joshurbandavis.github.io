@@ -1137,8 +1137,21 @@ document.querySelectorAll('.pub-card.reveal').forEach(function(el) { observer.ob
   }
 
   var fc = 0;
+  var lastTime = 0;
+  var TARGET_FPS = 45; // Match original sketch's frameRate(45)
+  var timePerFrame = 1000 / TARGET_FPS;
 
-  function draw() {
+  function draw(timestamp) {
+    if (!timestamp) timestamp = performance.now();
+    if (!lastTime) lastTime = timestamp;
+    var delta = timestamp - lastTime;
+    if (delta > 200) delta = 200; // Cap to prevent huge jumps on tab switch
+    lastTime = timestamp;
+
+    // Accumulate time in frame-equivalent units so speed is consistent
+    // regardless of actual monitor refresh rate
+    var frameAdvance = delta / timePerFrame;
+    fc += frameAdvance;
     ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = '#e6e6e6';
     ctx.fillRect(0, 0, w, h);
@@ -1208,7 +1221,7 @@ document.querySelectorAll('.pub-card.reveal').forEach(function(el) { observer.ob
         vx: mat2[1], vy: mat2[4],
         r: r, cr: cr, cg: cg, cb: cb
       };
-      ring.count++;
+      ring.count += frameAdvance;
     }
 
     // Depth sort back to front
@@ -1235,7 +1248,6 @@ document.querySelectorAll('.pub-card.reveal').forEach(function(el) { observer.ob
       ctx.stroke();
     }
 
-    fc++;
     requestAnimationFrame(draw);
   }
 
