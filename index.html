@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Josh Urban Davis</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="logo_personalweb_favicon_io/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="logo_personalweb_favicon_io/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="logo_personalweb_favicon_io/favicon-16x16.png">
+  <link rel="manifest" href="logo_personalweb_favicon_io/site.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -805,18 +809,34 @@ document.querySelectorAll('.pub-card.reveal').forEach(function(el) { observer.ob
     items.sort(function(a,b){return a.cz-b.cz});
     var depthRange=maxW*1.5;
 
+    // Quantize colors and batch stroke() calls for Firefox perf
+    // Instead of 1000 individual stroke() calls, batch rings sharing
+    // the same quantized color into single beginPath/stroke pairs
+    var lastStyle = '';
+    var hasPath = false;
     for (var i=0;i<numRings;i++) {
       var it=items[i];
       var dep=0.15+0.85*((it.cz+depthRange)/(depthRange*2));
       if(dep<0.06)dep=0.06; if(dep>1)dep=1;
-      ctx.strokeStyle='rgba('+it.cr+','+it.cg+','+it.cb+','+dep.toFixed(2)+')';
-      ctx.beginPath();
+      // Quantize: round RGB to nearest 4, opacity to nearest 0.04
+      var qr=(it.cr+2>>2)<<2, qg=(it.cg+2>>2)<<2, qb=(it.cb+2>>2)<<2;
+      var qd=(Math.round(dep*25)/25).toFixed(2);
+      var style='rgba('+qr+','+qg+','+qb+','+qd+')';
+
+      if (style!==lastStyle) {
+        if (hasPath) ctx.stroke();
+        ctx.strokeStyle=style;
+        ctx.beginPath();
+        lastStyle=style;
+        hasPath=true;
+      }
+
       var r=it.r, ox=it.cx, oy=it.cy;
       var ux=it.ux*r, uy=it.uy*r, vx=it.vx*r, vy=it.vy*r;
       ctx.moveTo(ox+cCos[0]*ux+cSin[0]*vx, oy+cCos[0]*uy+cSin[0]*vy);
       for (var j=1;j<=SEG;j++) ctx.lineTo(ox+cCos[j]*ux+cSin[j]*vx, oy+cCos[j]*uy+cSin[j]*vy);
-      ctx.stroke();
     }
+    if (hasPath) ctx.stroke();
     requestAnimationFrame(draw);
   }
 
