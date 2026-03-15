@@ -112,11 +112,11 @@ section{padding:8rem 3rem}
 .iframe-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
 
 .gallery{display:columns;columns:4;column-gap:8px;margin-top:2rem}
-.gallery img{width:100%;margin-bottom:8px;border-radius:4px;cursor:pointer;transition:all .5s;filter:grayscale(.15);break-inside:avoid}
+.gallery img{width:100%;margin-bottom:8px;border-radius:4px;cursor:pointer;transition:all .5s;filter:grayscale(.15);break-inside:avoid;max-height:300px;object-fit:cover}
 .gallery img:hover{filter:grayscale(0);transform:scale(1.01)}
 
 /* TAROT GRID — bespoke layout for card imagery */
-.tarot-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(120px,280px);gap:8px;margin-top:2rem}
+.tarot-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:180px;gap:8px;margin-top:2rem}
 .tarot-grid img{width:100%;height:100%;object-fit:cover;border-radius:4px;cursor:pointer;transition:all .5s;filter:grayscale(.1)}
 .tarot-grid img:hover{filter:grayscale(0);transform:scale(1.02)}
 .tarot-grid .tg-1{grid-column:1/3;grid-row:1/3}
@@ -127,14 +127,13 @@ section{padding:8rem 3rem}
 .tarot-grid .tg-6{grid-column:1/3;grid-row:3/4}
 .tarot-grid .tg-7{grid-column:3/5;grid-row:3/4}
 @media(max-width:600px){
-  .tarot-grid{grid-template-columns:1fr 1fr;grid-auto-rows:minmax(100px,220px)}
-  .tarot-grid .tg-1{grid-column:1/3}
+  .tarot-grid{grid-template-columns:1fr 1fr;grid-auto-rows:150px}
   .tarot-grid img{grid-column:auto!important;grid-row:auto!important}
   .tarot-grid .tg-1{grid-column:1/3!important}
 }
 
 /* WORKS GRID — editorial mosaic with prominence hierarchy */
-.works-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:2rem}
+.works-grid{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:160px;gap:6px;margin-top:2rem}
 .works-grid img{width:100%;height:100%;object-fit:cover;border-radius:4px;cursor:pointer;transition:all .5s;filter:grayscale(.12)}
 .works-grid img:hover{filter:grayscale(0);transform:scale(1.015)}
 /* Row 1: Rush hero (4 cols) + Hideout tall (2 cols, spans 2 rows) */
@@ -319,18 +318,20 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
   <span class="section-num reveal">02 &mdash; Research</span>
   <h2 class="section-head reveal reveal-delay-1">Peer-reviewed<br><em>publications</em></h2>
   <div class="pub-list">
-    <div class="pub-item reveal" onclick="window.open('files/davis_imwut23.pdf','_blank')"><span class="pub-num">01</span><div class="pub-body"><h3>"It's Not an Issue of Malice, but of Ignorance": Towards Inclusive Video Conferencing</h3><div class="meta"><span>Josh Urban Davis, H. Wang, P. Chilana, X-D. Yang</span><span>IMWUT / UbiComp '23</span><span>23.2% acceptance</span></div></div><div class="pub-actions"><a href="files/davis_imwut23.pdf" target="_blank" class="pub-act" title="Paper" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://dl.acm.org/doi/10.1145/3610901" target="_blank" class="pub-act" title="ACM DL" onclick="event.stopPropagation()"><i class="fa fa-key"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">02</span><div class="pub-body"><h3>Multimodal Direction Manipulation in Video Conferencing</h3><div class="meta"><span>Josh Urban Davis, P. Asente, X-D. Yang</span><span>DIS '23</span><span>24.6% acceptance</span></div></div><div class="pub-actions"><a href="files/DIS23_Multimodal_Direct_Manipulation.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/kmUDDjTNRCw" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">03</span><div class="pub-body"><h3>Exploring AltNarrative in HCI Imagery and Comics</h3><div class="meta"><span>M. Lewis, M. Sturdee, J. Miers, T. Hoang, Josh Urban Davis</span><span>CHI '22</span><span>21% acceptance</span></div></div><div class="pub-actions"><a href="files/altText.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">04</span><div class="pub-body"><h3>PokerFace: Exploring Augmenting Masks through Mixed-Reality</h3><div class="meta"><span>Josh Urban Davis, J. Tang, E. Cutrell, T. Seyed</span><span>HICSS '22</span></div></div><div class="pub-actions"><a href="files/pokerface.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/i3ebUKSHNuc" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">05</span><div class="pub-body"><h3>Designing Co-Creative AI in Virtual Environments</h3><div class="meta"><span>Josh Urban Davis, F. Anderson, M. Stroetzel, T. Grossman, G. Fitzmaurice</span><span>C&amp;C '21</span><span>23.1% acceptance</span></div></div><div class="pub-actions"><a href="files/calliope.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/J8WJhj35_5E" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">06</span><div class="pub-body"><h3>A Plurality of Practices: Artistic Narratives in HCI Research</h3><div class="meta"><span>Josh Urban Davis, M. Sturdee, M. Lewis, A. Strohmayer, K. Spiel, N. Koulidou, S. Fdili Alaoui</span><span>C&amp;C '21</span><span class="award-tag"><i class="fa fa-trophy"></i> Best Paper &mdash; Top 1%</span></div></div><div class="pub-actions"><a href="files/Art_HCI_CR.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/ycWEKL6HnHg" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">07</span><div class="pub-body"><h3>Font Your Friends and Loved Ones: On the Utility of Ugly Interfaces</h3><div class="meta"><span>Josh Urban Davis &amp; J. Wentzel</span><span>CHI '21</span><span>21% acceptance</span></div></div><div class="pub-actions"><a href="files/font_your_friends_preprint.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="http://gofontyourself.xyz/" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-external-link"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">08</span><div class="pub-body"><h3>Mixed Abilities and Varied Experiences: A Group Auto-Ethnography</h3><div class="meta"><span>K. Mack, M. Das, D. Jain, D. Bragg, J. Tang, A. Begel, E. Beneteau, Josh Urban Davis, et al.</span><span>ASSETS '21</span><span class="award-tag"><i class="fa fa-trophy"></i> Best Paper &mdash; Top 5%</span></div></div><div class="pub-actions"><a href="files/assets_21_final.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">09</span><div class="pub-body"><h3>TangibleCircuits: An Interactive 3D Printed Circuit Education Tool for People with Visual Impairments</h3><div class="meta"><span>Josh Urban Davis, T-Y. Wu, B. Shi, H. Lui, A. Panotopoulou, E. Whiting, X-D. Yang</span><span>CHI '20</span><span class="award-tag"><i class="fa fa-trophy"></i> Honorable Mention &mdash; Top 5%</span></div></div><div class="pub-actions"><a href="files/tangiblecircuits_CHI20.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=wcd1_HpeStA" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">10</span><div class="pub-body"><h3>CircuitStyle: Peripherally Reinforcing Best Practices in Hardware Computing</h3><div class="meta"><span>Josh Urban Davis, J. Gong, Y. Sun, P. Chilana, X-D. Yang</span><span>UIST '19</span><span>20.6% acceptance</span></div></div><div class="pub-actions"><a href="files/circuitstyle_uist19.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=zUsr06QR1mM" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">11</span><div class="pub-body"><h3>IllumiWear: A Fiber-Optic eTextile for MultiMedia Interactions</h3><div class="meta"><span>Josh Urban Davis</span><span>NIME '19</span></div></div><div class="pub-actions"><a href="files/IllumiWear_final_corrected.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=1tNn6CTtTFs" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">12</span><div class="pub-body"><h3>Indutivo: Contact-Based, Object-Driven Interactions with Inductive Sensing</h3><div class="meta"><span>J. Gong, X. Yang, T. Seyed, Josh Urban Davis, X-D. Yang</span><span>UIST '18</span></div></div><div class="pub-actions"><a href="files/indutivo.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=XLmVo2tELM4" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal" onclick="window.open('https://arxiv.org/abs/2509.18390','_blank')"><span class="pub-num">01</span><div class="pub-body"><h3>Improving the Color Accuracy of Lighting Estimation Models</h3><div class="meta"><span>Z. Zhang, Josh Urban Davis, J. P. A. Vu, J. Kuang, J-F. Lalonde</span><span>CVPR '25</span></div></div><div class="pub-actions"><a href="https://arxiv.org/abs/2509.18390" target="_blank" class="pub-act" title="Paper" onclick="event.stopPropagation()"><i class="fa fa-file-alt"></i></a></div></div>
+    <div class="pub-item reveal" onclick="window.open('https://dl.acm.org/doi/full/10.1145/3681756.3697928','_blank')"><span class="pub-num">02</span><div class="pub-body"><h3>Bridging Reality and the Virtual Environment: Perceptual Consistency and Visual Adaptation</h3><div class="meta"><span>J. Miao, A. Shin, J. Vu, T. Miki, G. Rong, Josh Urban Davis, Z. Li, W. Wang, J. Gao, J. Kuang</span><span>SIGGRAPH '24</span></div></div><div class="pub-actions"><a href="https://dl.acm.org/doi/full/10.1145/3681756.3697928" target="_blank" class="pub-act" title="ACM DL" onclick="event.stopPropagation()"><i class="fa fa-key"></i></a></div></div>
+    <div class="pub-item reveal" onclick="window.open('files/davis_imwut23.pdf','_blank')"><span class="pub-num">03</span><div class="pub-body"><h3>"It's Not an Issue of Malice, but of Ignorance": Towards Inclusive Video Conferencing</h3><div class="meta"><span>Josh Urban Davis, H. Wang, P. Chilana, X-D. Yang</span><span>IMWUT / UbiComp '23</span><span>23.2% acceptance</span></div></div><div class="pub-actions"><a href="files/davis_imwut23.pdf" target="_blank" class="pub-act" title="Paper" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://dl.acm.org/doi/10.1145/3610901" target="_blank" class="pub-act" title="ACM DL" onclick="event.stopPropagation()"><i class="fa fa-key"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">04</span><div class="pub-body"><h3>Multimodal Direction Manipulation in Video Conferencing</h3><div class="meta"><span>Josh Urban Davis, P. Asente, X-D. Yang</span><span>DIS '23</span><span>24.6% acceptance</span></div></div><div class="pub-actions"><a href="files/DIS23_Multimodal_Direct_Manipulation.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/kmUDDjTNRCw" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">05</span><div class="pub-body"><h3>Exploring AltNarrative in HCI Imagery and Comics</h3><div class="meta"><span>M. Lewis, M. Sturdee, J. Miers, T. Hoang, Josh Urban Davis</span><span>CHI '22</span><span>21% acceptance</span></div></div><div class="pub-actions"><a href="files/altText.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">06</span><div class="pub-body"><h3>PokerFace: Exploring Augmenting Masks through Mixed-Reality</h3><div class="meta"><span>Josh Urban Davis, J. Tang, E. Cutrell, T. Seyed</span><span>HICSS '22</span></div></div><div class="pub-actions"><a href="files/pokerface.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/i3ebUKSHNuc" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">07</span><div class="pub-body"><h3>Designing Co-Creative AI in Virtual Environments</h3><div class="meta"><span>Josh Urban Davis, F. Anderson, M. Stroetzel, T. Grossman, G. Fitzmaurice</span><span>C&amp;C '21</span><span>23.1% acceptance</span></div></div><div class="pub-actions"><a href="files/calliope.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/J8WJhj35_5E" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">08</span><div class="pub-body"><h3>A Plurality of Practices: Artistic Narratives in HCI Research</h3><div class="meta"><span>Josh Urban Davis, M. Sturdee, M. Lewis, A. Strohmayer, K. Spiel, N. Koulidou, S. Fdili Alaoui</span><span>C&amp;C '21</span><span class="award-tag"><i class="fa fa-trophy"></i> Best Paper &mdash; Top 1%</span></div></div><div class="pub-actions"><a href="files/Art_HCI_CR.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/ycWEKL6HnHg" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">09</span><div class="pub-body"><h3>Font Your Friends and Loved Ones: On the Utility of Ugly Interfaces</h3><div class="meta"><span>Josh Urban Davis &amp; J. Wentzel</span><span>CHI '21</span><span>21% acceptance</span></div></div><div class="pub-actions"><a href="files/font_your_friends_preprint.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="http://gofontyourself.xyz/" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-external-link"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">10</span><div class="pub-body"><h3>Mixed Abilities and Varied Experiences: A Group Auto-Ethnography</h3><div class="meta"><span>K. Mack, M. Das, D. Jain, D. Bragg, J. Tang, A. Begel, E. Beneteau, Josh Urban Davis, et al.</span><span>ASSETS '21</span><span class="award-tag"><i class="fa fa-trophy"></i> Best Paper &mdash; Top 5%</span></div></div><div class="pub-actions"><a href="files/assets_21_final.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">11</span><div class="pub-body"><h3>TangibleCircuits: An Interactive 3D Printed Circuit Education Tool for People with Visual Impairments</h3><div class="meta"><span>Josh Urban Davis, T-Y. Wu, B. Shi, H. Lui, A. Panotopoulou, E. Whiting, X-D. Yang</span><span>CHI '20</span><span class="award-tag"><i class="fa fa-trophy"></i> Honorable Mention &mdash; Top 5%</span></div></div><div class="pub-actions"><a href="files/tangiblecircuits_CHI20.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=wcd1_HpeStA" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">12</span><div class="pub-body"><h3>CircuitStyle: Peripherally Reinforcing Best Practices in Hardware Computing</h3><div class="meta"><span>Josh Urban Davis, J. Gong, Y. Sun, P. Chilana, X-D. Yang</span><span>UIST '19</span><span>20.6% acceptance</span></div></div><div class="pub-actions"><a href="files/circuitstyle_uist19.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=zUsr06QR1mM" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">13</span><div class="pub-body"><h3>IllumiWear: A Fiber-Optic eTextile for MultiMedia Interactions</h3><div class="meta"><span>Josh Urban Davis</span><span>NIME '19</span></div></div><div class="pub-actions"><a href="files/IllumiWear_final_corrected.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=1tNn6CTtTFs" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">14</span><div class="pub-body"><h3>Indutivo: Contact-Based, Object-Driven Interactions with Inductive Sensing</h3><div class="meta"><span>J. Gong, X. Yang, T. Seyed, Josh Urban Davis, X-D. Yang</span><span>UIST '18</span></div></div><div class="pub-actions"><a href="files/indutivo.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=XLmVo2tELM4" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
   </div>
 </section>
 
@@ -338,7 +339,7 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
   <span class="section-num reveal">03 &mdash; Design</span>
   <h2 class="section-head reveal reveal-delay-1">Past &amp; ongoing <em>works</em></h2>
 
-  <!-- Deleted World Tarot -->
+  <!-- 01: Deleted World Tarot -->
   <div class="proj-block">
     <div class="proj-hero reveal">
       <div>
@@ -359,71 +360,18 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
       <img src="images/IMG_3413.jpg" alt="Deleted World Tarot — The Composer, Ambition, The Shapeshifter" class="tg-1" onclick="openM(this)">
       <img src="images/IMG_8772.JPG" alt="Deleted World Tarot — Between Pixels and Prophecy" class="tg-2" onclick="openM(this)">
       <img src="images/IMG_8793.JPG" alt="Deleted World Tarot — Box interior" class="tg-3" onclick="openM(this)">
-      <img src="images/IMG_87975.JPG" alt="Deleted World Tarot — Atlas of Deleted Worlds" class="tg-4" onclick="openM(this)">
+      <img src="images/IMG_8775.JPG" alt="Deleted World Tarot — Atlas of Deleted Worlds" class="tg-4" onclick="openM(this)">
       <img src="images/IMG_8785.JPG" alt="Deleted World Tarot — The Moon" class="tg-5" onclick="openM(this)">
       <img src="images/IMG_8789.JPG" alt="Deleted World Tarot — First Printing spread" class="tg-6" onclick="openM(this)">
       <img src="images/IMG_8773.JPG" alt="Deleted World Tarot — What is not saved will be lost" class="tg-7" onclick="openM(this)">
     </div>
   </div>
 
-  <!-- Selected Works -->
+  <!-- 02: if you go_say hello -->
   <div class="proj-block">
     <div class="proj-hero flip reveal">
       <div>
         <div class="proj-num">02</div>
-        <h3 class="proj-title">Selected <em>Works</em></h3>
-        <div class="proj-desc">
-          <p>Experiments in photomanipulation, shader rendering, generative neural networks, and digital collage — spanning ongoing series including <em style="color:var(--fg)">A Sudden Rush of Blood to the Skin</em>, <em style="color:var(--fg)">Hideouts</em>, and <em style="color:var(--fg)">Postcards from the Electric Void</em>.</p>
-          <p>These projects explore the tension between physical and virtual worlds: bodies dissolving under algorithmic pressure, architecture emptied of people lurching towards ruin, and machine hallucinations of space that flicker between the plausible and the uncanny. When the glitch arrives, it's the most human thing in the frame.</p>
-          <div style="display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1rem">
-            <a href="https://www.instagram.com/joshurbandavis/?hl=en" target="_blank" class="pill"><i class="fa fa-instagram"></i> See more</a>
-            <a href="https://dl.acm.org/doi/10.1145/3450741.3466771" target="_blank" class="pill"><i class="fa fa-book"></i> C&amp;C</a>
-            <a href="http://www.aiartonline.com/community/josh-urban-davis/" target="_blank" class="pill"><i class="fa fa-file-text-o"></i> NeurIPS</a>
-          </div>
-        </div>
-      </div>
-      <div></div>
-    </div>
-    <div class="works-grid reveal">
-      <!-- Row 1: Rush hero + Hideout -->
-      <img src="images/aSuddenRush/vanitas_2_2v2_final.png" alt="a sudden rush of blood to the skin" class="wg-a" onclick="openM(this)">
-      <img src="images/hideouts/IMG_0812.png" alt="Postcards from the Electric Void No. 44522" class="wg-b" onclick="openM(this)">
-      <!-- Row 2: Rush + Void pair -->
-      <img src="images/aSuddenRush/gold.png" alt="the space between two bodies is a body too" class="wg-c" onclick="openM(this)">
-      <img src="images/space_gen6.png" alt="Postcard from the Electric Void" class="wg-d" onclick="openM(this)">
-      <img src="images/aSuddenRush/wave.png" alt="i just wish we could kiss somewhere that isn't melting" class="wg-e" onclick="openM(this)">
-      <!-- Row 3: Hideouts strip -->
-      <img src="images/hideouts/IMG_6805.JPG" alt="Wall of Wonders" class="wg-f" onclick="openM(this)">
-      <img src="images/hideouts/IMG_4.JPG" alt="Pixel Dripper No. 3" class="wg-g" onclick="openM(this)">
-      <img src="images/collage_5_500_20_48.png" alt="Collage" class="wg-h" onclick="openM(this)">
-      <!-- Row 4: Rush big + small stack -->
-      <img src="images/aSuddenRush/vanitas_3_2.png" alt="i am skinless in a limo" class="wg-i" onclick="openM(this)">
-      <img src="images/hideouts/IMG_0477.png" alt="Feather River" class="wg-j" onclick="openM(this)">
-      <img src="images/aSuddenRush/fruit_2_vert.png" alt="break me into bigger pieces so some of me is home with you" class="wg-k" onclick="openM(this)">
-      <!-- Row 5: Mixed strip -->
-      <img src="images/garden.png" alt="A Garden in Perpetual Collapse" class="wg-l" onclick="openM(this)">
-      <img src="images/aSuddenRush/jan_large_2.png" alt="violence" class="wg-m" onclick="openM(this)">
-      <img src="images/hideouts/IMG_2.JPG" alt="Beyond the Beast's Tongue" class="wg-n" onclick="openM(this)">
-      <img src="images/aSuddenRush/slitScan.png" alt="roses are roses" class="wg-o" onclick="openM(this)">
-      <!-- Row 6: Void + Rush -->
-      <img src="images/creature_thumb.JPG" alt="Creature" class="wg-p" onclick="openM(this)">
-      <img src="images/aSuddenRush/roses_2.png" alt="mysterious forces at play" class="wg-q" onclick="openM(this)">
-      <img src="images/hideouts/IMG_0525.png" alt="Self-Portrait as Vertigo" class="wg-r" onclick="openM(this)">
-      <!-- Row 7: Final strip -->
-      <img src="images/aSuddenRush/wave_detail.png" alt="i just wish we could kiss somewhere that isn't melting (detail)" class="wg-s" onclick="openM(this)">
-      <img src="images/vertigo.png" alt="Self-Portrait as Vertigo" class="wg-t" onclick="openM(this)">
-      <img src="images/hideouts/IMG_6403.jpg" alt="Pixel Dripper No. 7" class="wg-u" onclick="openM(this)">
-      <img src="images/aSuddenRush/randomPurple.png" alt="purple shifted" class="wg-v" onclick="openM(this)">
-      <img src="images/space_grid.jpg" alt="Postcards grid" class="wg-w" onclick="openM(this)">
-      <img src="images/aSuddenRush/random_blur.png" alt="random walk on a rose" class="wg-x" onclick="openM(this)">
-    </div>
-  </div>
-
-  <!-- if you go -->
-  <div class="proj-block">
-    <div class="proj-hero reveal">
-      <div>
-        <div class="proj-num">03</div>
         <h3 class="proj-title">if you go_<em>say hello</em></h3>
         <div class="proj-desc">
           <p>A memorial: an AI trained on a deceased poet's writing, attached to a satellite, sent into orbit. Twice daily, visitors received transmissions. Over months, cosmic radiation corrupted the computer — poems degraded to noise, then silence. The collected writings were bound as a memento mori.</p>
@@ -434,11 +382,72 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
     </div>
   </div>
 
-  <!-- Synapstraction -->
+  <!-- 03: The Night Air -->
+  <div class="proj-block">
+    <div class="proj-hero reveal">
+      <div>
+        <div class="proj-num">03</div>
+        <h3 class="proj-title">The <em>Night Air</em></h3>
+        <div class="proj-desc">
+          <p>A collaborative poem composed by visitors during COVID-19 lockdown, inspired by miasma — the medieval belief that bad air spread plague. Ironically, COVID is airborne. Technology as connection, language as survival.</p>
+          <p style="font-family:var(--mono);font-size:.65rem;color:var(--dim)">Houston Arts Alliance grant.</p>
+        </div>
+      </div>
+      <div class="proj-media"><img src="images/nightair.png" alt="The Night Air"></div>
+    </div>
+  </div>
+
+  <!-- 04: Selected Works -->
   <div class="proj-block">
     <div class="proj-hero flip reveal">
       <div>
         <div class="proj-num">04</div>
+        <h3 class="proj-title">Selected <em>Works</em></h3>
+        <div class="proj-desc">
+          <p>Experiments in photomanipulation, shader rendering, generative neural networks, and digital collage — spanning ongoing series including <em style="color:var(--fg)">A Sudden Rush of Blood to the Skin</em>, <em style="color:var(--fg)">Hideouts</em>, and <em style="color:var(--fg)">Postcards from the Electric Void</em>.</p>
+          <p>These projects explore the tension between physical and virtual worlds: bodies dissolving under algorithmic pressure, architecture emptied of people lurching towards ruin, and machine hallucinations of space that flicker between the plausible and the uncanny. When the glitch arrives, it's the most human thing in the frame.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1rem">
+            <a href="https://www.instagram.com/joshurbandavis/?hl=en" target="_blank" class="pill"><i class="fa fa-instagram"></i> See more</a>
+            <a href="https://dl.acm.org/doi/10.1145/3450741.3466771" target="_blank" class="pill"><i class="fa fa-book"></i> C&amp;C</a>
+            <a href="http://www.aiartonline.com/community/josh-urban-davis/" target="_blank" class="pill"><i class="fa fa-file-alt"></i> NeurIPS</a>
+          </div>
+        </div>
+      </div>
+      <div></div>
+    </div>
+    <div class="works-grid reveal">
+      <img src="images/aSuddenRush/vanitas_2_2v2_final.png" alt="a sudden rush of blood to the skin" class="wg-a" onclick="openM(this)">
+      <img src="images/hideouts/IMG_0812.png" alt="Postcards from the Electric Void No. 44522" class="wg-b" onclick="openM(this)">
+      <img src="images/aSuddenRush/gold.png" alt="the space between two bodies is a body too" class="wg-c" onclick="openM(this)">
+      <img src="images/space_gen6.png" alt="Postcard from the Electric Void" class="wg-d" onclick="openM(this)">
+      <img src="images/aSuddenRush/wave.png" alt="i just wish we could kiss somewhere that isn't melting" class="wg-e" onclick="openM(this)">
+      <img src="images/hideouts/IMG_6805.JPG" alt="Wall of Wonders" class="wg-f" onclick="openM(this)">
+      <img src="images/hideouts/IMG_4.JPG" alt="Pixel Dripper No. 3" class="wg-g" onclick="openM(this)">
+      <img src="images/collage_5_500_20_48.png" alt="Collage" class="wg-h" onclick="openM(this)">
+      <img src="images/aSuddenRush/vanitas_3_2.png" alt="i am skinless in a limo" class="wg-i" onclick="openM(this)">
+      <img src="images/hideouts/IMG_0477.png" alt="Feather River" class="wg-j" onclick="openM(this)">
+      <img src="images/aSuddenRush/fruit_2_vert.png" alt="break me into bigger pieces so some of me is home with you" class="wg-k" onclick="openM(this)">
+      <img src="images/garden.png" alt="A Garden in Perpetual Collapse" class="wg-l" onclick="openM(this)">
+      <img src="images/aSuddenRush/jan_large_2.png" alt="violence" class="wg-m" onclick="openM(this)">
+      <img src="images/hideouts/IMG_2.JPG" alt="Beyond the Beast's Tongue" class="wg-n" onclick="openM(this)">
+      <img src="images/aSuddenRush/slitScan.png" alt="roses are roses" class="wg-o" onclick="openM(this)">
+      <img src="images/creature_thumb.JPG" alt="Creature" class="wg-p" onclick="openM(this)">
+      <img src="images/aSuddenRush/roses_2.png" alt="mysterious forces at play" class="wg-q" onclick="openM(this)">
+      <img src="images/hideouts/IMG_0525.png" alt="Self-Portrait as Vertigo" class="wg-r" onclick="openM(this)">
+      <img src="images/aSuddenRush/wave_detail.png" alt="i just wish we could kiss somewhere that isn't melting (detail)" class="wg-s" onclick="openM(this)">
+      <img src="images/vertigo.png" alt="Self-Portrait as Vertigo" class="wg-t" onclick="openM(this)">
+      <img src="images/hideouts/IMG_6403.jpg" alt="Pixel Dripper No. 7" class="wg-u" onclick="openM(this)">
+      <img src="images/aSuddenRush/randomPurple.png" alt="purple shifted" class="wg-v" onclick="openM(this)">
+      <img src="images/space_grid.jpg" alt="Postcards grid" class="wg-w" onclick="openM(this)">
+      <img src="images/aSuddenRush/random_blur.png" alt="random walk on a rose" class="wg-x" onclick="openM(this)">
+    </div>
+  </div>
+
+  <!-- 05: Synapstraction -->
+  <div class="proj-block">
+    <div class="proj-hero reveal">
+      <div>
+        <div class="proj-num">05</div>
         <h3 class="proj-title"><em>Synapstraction</em></h3>
         <div class="proj-desc">
           <p>A brain-computer installation: EEG headsets measure your neural response to five stimuli — one per sense — each mapped to a painting implement through machine learning. Your brain serves as conduit. The senses use the artist to create an image.</p>
@@ -451,37 +460,22 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
     </div>
   </div>
 
-  <!-- thisObituaryDoesNotExist -->
+  <!-- 06: thisObituaryDoesNotExist -->
   <div class="proj-block">
-    <div class="proj-hero reveal">
+    <div class="proj-hero flip reveal">
       <div>
-        <div class="proj-num">05</div>
+        <div class="proj-num">06</div>
         <h3 class="proj-title">thisObituary<em>DoesNot</em>Exist</h3>
         <div class="proj-desc">
           <p>StyleGAN and GPT-2 imagine photographs, death narratives, and life stories for people who never existed. Printed as funeral pamphlets indistinguishable from real ones. The website generates a new obituary on each refresh.</p>
-          <a href="http://thisobituarydoesnotexist.com/" target="_blank" class="pill"><i class="fa fa-external-link"></i> Visit</a>
+          <a href="http://thisobituarydoesnotexist.com/" target="_blank" class="pill"><i class="fa fa-external-link-alt"></i> Visit</a>
         </div>
       </div>
       <div class="proj-media"><img src="images/thisobit_thumb_2.jpg" alt="thisObituaryDoesNotExist"></div>
     </div>
   </div>
 
-  <!-- Night Air -->
-  <div class="proj-block">
-    <div class="proj-hero flip reveal">
-      <div>
-        <div class="proj-num">06</div>
-        <h3 class="proj-title">The <em>Night Air</em></h3>
-        <div class="proj-desc">
-          <p>A collaborative poem composed by visitors during COVID-19 lockdown, inspired by miasma — the medieval belief that bad air spread plague. Ironically, COVID is airborne. Technology as connection, language as survival.</p>
-          <p style="font-family:var(--mono);font-size:.65rem;color:var(--dim)">Houston Arts Alliance grant.</p>
-        </div>
-      </div>
-      <div class="proj-media"><img src="images/nightair.png" alt="The Night Air"></div>
-    </div>
-  </div>
-
-  <!-- Psych-VR -->
+  <!-- 07: Psych-VR -->
   <div class="proj-block">
     <div class="proj-hero reveal">
       <div>
@@ -497,7 +491,7 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
     </div>
   </div>
 
-  <!-- Animation -->
+  <!-- 08: Animation -->
   <div class="proj-block">
     <div class="proj-hero flip reveal">
       <div>
@@ -509,9 +503,9 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
         </div>
       </div>
       <div class="proj-media">
-        <div class="iframe-wrap"><iframe src="https://www.youtube.com/embed/hHA1MAiMG8I" allowfullscreen loading="lazy"></iframe></div>
+        <div class="iframe-wrap"><iframe src="https://www.youtube.com/embed/2hFV_rQct-k" allowfullscreen loading="lazy"></iframe></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
-          <div class="iframe-wrap"><iframe src="https://www.youtube.com/embed/2hFV_rQct-k" allowfullscreen loading="lazy"></iframe></div>
+          <div class="iframe-wrap"><iframe src="https://www.youtube.com/embed/hHA1MAiMG8I" allowfullscreen loading="lazy"></iframe></div>
           <div class="iframe-wrap"><iframe src="https://www.youtube.com/embed/xMLsnjvVQ5E" allowfullscreen loading="lazy"></iframe></div>
         </div>
       </div>
