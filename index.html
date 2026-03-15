@@ -195,12 +195,28 @@
       display: inline-flex; align-items: center; gap: 0.5rem;
       padding: 0.65rem 1.4rem; border-radius: var(--radius-sm);
       font-size: 0.85rem; font-weight: 600; letter-spacing: 0.05em;
-      transition: all var(--transition); border: 1px solid var(--border-light);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid var(--border-light);
       color: var(--text-primary); background: transparent; cursor: pointer;
     }
-    .btn:hover { background: rgba(255,255,255,0.08); opacity: 1; }
+    .btn:hover {
+      border-color: var(--accent); color: var(--text-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      border-width: 2px; padding: calc(0.65rem - 1px) calc(1.4rem - 1px);
+      opacity: 1;
+    }
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
     .btn-accent { background: var(--accent); color: var(--bg-primary); border-color: var(--accent); }
-    .btn-accent:hover { background: #e5a029; }
+    .btn-accent:hover {
+      background: #e5a029; border-color: #e5a029;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(246,174,45,0.25);
+    }
+    .btn-accent:active { transform: translateY(0); box-shadow: none; }
     .btn-row { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
     @media (max-width: 768px) {
       .about-grid { grid-template-columns: 1fr; gap: 2rem; }
@@ -234,9 +250,19 @@
     .pub-links a {
       font-size: 0.78rem; padding: 0.35rem 0.75rem;
       border: 1px solid var(--border); border-radius: 6px;
-      color: var(--text-secondary); transition: all var(--transition); font-weight: 500;
+      color: var(--text-secondary); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-weight: 500;
     }
-    .pub-links a:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
+    .pub-links a:hover {
+      border-color: var(--accent); color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+      border-width: 2px; padding: calc(0.35rem - 1px) calc(0.75rem - 1px);
+      opacity: 1;
+    }
+    .pub-links a:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
 
     /* PROJECTS */
     .project-block { margin-bottom: 4rem; padding-bottom: 4rem; border-bottom: 1px solid var(--border); }
