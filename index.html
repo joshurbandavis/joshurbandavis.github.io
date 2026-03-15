@@ -115,20 +115,69 @@ section{padding:8rem 3rem}
 .gallery img:hover{filter:grayscale(0);transform:scale(1.01)}
 
 /* TAROT GRID — bespoke layout for card imagery */
-.tarot-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:auto auto;gap:8px;margin-top:2rem}
+.tarot-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(120px,280px);gap:8px;margin-top:2rem}
 .tarot-grid img{width:100%;height:100%;object-fit:cover;border-radius:4px;cursor:pointer;transition:all .5s;filter:grayscale(.1)}
 .tarot-grid img:hover{filter:grayscale(0);transform:scale(1.02)}
-.tarot-grid .tarot-hero{grid-column:1/3;grid-row:1/3}
-.tarot-grid img:nth-child(2){grid-column:3/4;grid-row:1/2}
-.tarot-grid img:nth-child(3){grid-column:4/5;grid-row:1/2}
-.tarot-grid img:nth-child(4){grid-column:3/4;grid-row:2/3}
-.tarot-grid img:nth-child(5){grid-column:4/5;grid-row:2/3}
-.tarot-grid img:nth-child(6){grid-column:1/2;grid-row:3/4}
-.tarot-grid img:nth-child(7){grid-column:2/3;grid-row:3/4}
+.tarot-grid .tg-1{grid-column:1/3;grid-row:1/3}
+.tarot-grid .tg-2{grid-column:3/4;grid-row:1/2}
+.tarot-grid .tg-3{grid-column:4/5;grid-row:1/2}
+.tarot-grid .tg-4{grid-column:3/4;grid-row:2/3}
+.tarot-grid .tg-5{grid-column:4/5;grid-row:2/3}
+.tarot-grid .tg-6{grid-column:1/3;grid-row:3/4}
+.tarot-grid .tg-7{grid-column:3/5;grid-row:3/4}
 @media(max-width:600px){
-  .tarot-grid{grid-template-columns:1fr 1fr}
-  .tarot-grid .tarot-hero{grid-column:1/3;grid-row:auto}
-  .tarot-grid img:nth-child(n){grid-column:auto;grid-row:auto}
+  .tarot-grid{grid-template-columns:1fr 1fr;grid-auto-rows:minmax(100px,220px)}
+  .tarot-grid .tg-1{grid-column:1/3}
+  .tarot-grid img{grid-column:auto!important;grid-row:auto!important}
+  .tarot-grid .tg-1{grid-column:1/3!important}
+}
+
+/* WORKS GRID — editorial mosaic with prominence hierarchy */
+.works-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:2rem}
+.works-grid img{width:100%;height:100%;object-fit:cover;border-radius:4px;cursor:pointer;transition:all .5s;filter:grayscale(.12)}
+.works-grid img:hover{filter:grayscale(0);transform:scale(1.015)}
+/* Row 1: Rush hero (4 cols) + Hideout tall (2 cols, spans 2 rows) */
+.works-grid .wg-a{grid-column:1/5;grid-row:1/2}
+.works-grid .wg-b{grid-column:5/7;grid-row:1/3}
+/* Row 2: Rush + Void + Rush (filling under hero) */
+.works-grid .wg-c{grid-column:1/3;grid-row:2/3}
+.works-grid .wg-d{grid-column:3/4;grid-row:2/3}
+.works-grid .wg-e{grid-column:4/5;grid-row:2/3}
+/* Row 3: Hideout wide + Hideout + Void */
+.works-grid .wg-f{grid-column:1/4;grid-row:3/4}
+.works-grid .wg-g{grid-column:4/5;grid-row:3/4}
+.works-grid .wg-h{grid-column:5/7;grid-row:3/4}
+/* Row 4: Rush tall (2 cols, 2 rows) + Hideout + Rush */
+.works-grid .wg-i{grid-column:1/3;grid-row:4/6}
+.works-grid .wg-j{grid-column:3/5;grid-row:4/5}
+.works-grid .wg-k{grid-column:5/7;grid-row:4/5}
+/* Row 5: Void + Rush + Hideout */
+.works-grid .wg-l{grid-column:3/4;grid-row:5/6}
+.works-grid .wg-m{grid-column:4/6;grid-row:5/6}
+.works-grid .wg-n{grid-column:6/7;grid-row:5/6}
+/* Row 6: Rush + Void + Hideout + Rush */
+.works-grid .wg-o{grid-column:1/3;grid-row:6/7}
+.works-grid .wg-p{grid-column:3/4;grid-row:6/7}
+.works-grid .wg-q{grid-column:4/6;grid-row:6/7}
+.works-grid .wg-r{grid-column:6/7;grid-row:6/7}
+/* Row 7: Rush wide + Void + Hideout + Rush + Void + Rush */
+.works-grid .wg-s{grid-column:1/3;grid-row:7/8}
+.works-grid .wg-t{grid-column:3/4;grid-row:7/8}
+.works-grid .wg-u{grid-column:4/5;grid-row:7/8}
+.works-grid .wg-v{grid-column:5/6;grid-row:7/8}
+.works-grid .wg-w{grid-column:6/7;grid-row:7/8}
+.works-grid .wg-x{grid-column:1/4;grid-row:8/9}
+@media(max-width:900px){
+  .works-grid{grid-template-columns:repeat(3,1fr)}
+  .works-grid img{grid-column:auto!important;grid-row:auto!important}
+  .works-grid .wg-a{grid-column:1/4!important}
+  .works-grid .wg-f{grid-column:1/3!important}
+  .works-grid .wg-i{grid-column:1/2!important;grid-row:auto!important}
+}
+@media(max-width:600px){
+  .works-grid{grid-template-columns:1fr 1fr}
+  .works-grid img{grid-column:auto!important;grid-row:auto!important}
+  .works-grid .wg-a{grid-column:1/3!important}
 }
 
 .contact{text-align:center;padding:10rem 3rem;position:relative}
@@ -305,42 +354,66 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
       <div></div>
     </div>
     <div class="tarot-grid reveal">
-      <img src="images/IMG_3413.jpg" alt="Deleted World Tarot" class="tarot-hero" onclick="openM(this)">
-      <img src="images/IMG_8772.jpg" alt="Deleted World Tarot" onclick="openM(this)">
-      <img src="images/IMG_8793.jpg" alt="Deleted World Tarot" onclick="openM(this)">
-      <img src="images/IMG_87975.jpg" alt="Deleted World Tarot" onclick="openM(this)">
-      <img src="images/IMG_8785.jpg" alt="Deleted World Tarot" onclick="openM(this)">
-      <img src="images/IMG_8789.jpg" alt="Deleted World Tarot" onclick="openM(this)">
-      <img src="images/IMG_8773.jpg" alt="Deleted World Tarot" onclick="openM(this)">
+      <img src="images/IMG_3413.jpg" alt="Deleted World Tarot — The Composer, Ambition, The Shapeshifter" class="tg-1" onclick="openM(this)">
+      <img src="images/IMG_8772.jpg" alt="Deleted World Tarot — Between Pixels and Prophecy" class="tg-2" onclick="openM(this)">
+      <img src="images/IMG_8793.jpg" alt="Deleted World Tarot — Box interior" class="tg-3" onclick="openM(this)">
+      <img src="images/IMG_87975.jpg" alt="Deleted World Tarot — Atlas of Deleted Worlds" class="tg-4" onclick="openM(this)">
+      <img src="images/IMG_8785.jpg" alt="Deleted World Tarot — The Moon" class="tg-5" onclick="openM(this)">
+      <img src="images/IMG_8789.jpg" alt="Deleted World Tarot — First Printing spread" class="tg-6" onclick="openM(this)">
+      <img src="images/IMG_8773.jpg" alt="Deleted World Tarot — What is not saved will be lost" class="tg-7" onclick="openM(this)">
     </div>
   </div>
 
-  <!-- A Sudden Rush -->
+  <!-- Selected Works -->
   <div class="proj-block">
     <div class="proj-hero flip reveal">
       <div>
         <div class="proj-num">02</div>
-        <h3 class="proj-title">A Sudden Rush of<br>Blood to the <em>Skin</em></h3>
+        <h3 class="proj-title">Selected <em>Works</em></h3>
         <div class="proj-desc">
-          <p>Experiments in photomanipulation and shader rendering using JavaScript, 2021–2022. Source code on GitHub; more images and video on Instagram.</p>
-          <a href="https://www.instagram.com/joshurbandavis/?hl=en" target="_blank" class="pill"><i class="fa fa-instagram"></i> See more</a>
+          <p>Experiments in photomanipulation, shader rendering, generative neural networks, and digital collage — spanning ongoing series including <em style="color:var(--fg)">A Sudden Rush of Blood to the Skin</em>, <em style="color:var(--fg)">Hideouts</em>, and <em style="color:var(--fg)">Postcards from the Electric Void</em>.</p>
+          <p>These projects explore the tension between physical and virtual worlds: bodies dissolving under algorithmic pressure, architecture emptied of people lurching towards ruin, and machine hallucinations of space that flicker between the plausible and the uncanny. When the glitch arrives, it's the most human thing in the frame.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1rem">
+            <a href="https://www.instagram.com/joshurbandavis/?hl=en" target="_blank" class="pill"><i class="fa fa-instagram"></i> See more</a>
+            <a href="https://dl.acm.org/doi/10.1145/3450741.3466771" target="_blank" class="pill"><i class="fa fa-book"></i> C&amp;C</a>
+            <a href="http://www.aiartonline.com/community/josh-urban-davis/" target="_blank" class="pill"><i class="fa fa-file-text-o"></i> NeurIPS</a>
+          </div>
         </div>
       </div>
       <div></div>
     </div>
-    <div class="gallery reveal">
-      <img src="images/aSuddenRush/vanitas_2_2v2_final.png" alt="a sudden rush of blood to the skin" onclick="openM(this)">
-      <img src="images/aSuddenRush/gold.png" alt="the space between two bodies is a body too" onclick="openM(this)">
-      <img src="images/aSuddenRush/wave.png" alt="i just wish we could kiss somewhere that isn't melting" onclick="openM(this)">
-      <img src="images/aSuddenRush/wave_detail.png" alt="detail" onclick="openM(this)">
-      <img src="images/aSuddenRush/vanitas_3_2.png" alt="i am skinless in a limo" onclick="openM(this)">
-      <img src="images/aSuddenRush/jan_large_2.png" alt="violence" onclick="openM(this)">
-      <img src="images/aSuddenRush/fruit_2_vert.png" alt="break me into bigger pieces" onclick="openM(this)">
-      <img src="images/aSuddenRush/slitScan.png" alt="roses are roses" onclick="openM(this)">
-      <img src="images/aSuddenRush/roses_2.png" alt="mysterious forces at play" onclick="openM(this)">
-      <img src="images/aSuddenRush/randomPurple.png" alt="purple shifted" onclick="openM(this)">
-      <img src="images/aSuddenRush/sampleScan.png" alt="sample and replicate No. 15" onclick="openM(this)">
-      <img src="images/aSuddenRush/random_blur.png" alt="random walk on a rose" onclick="openM(this)">
+    <div class="works-grid reveal">
+      <!-- Row 1: Rush hero + Hideout -->
+      <img src="images/aSuddenRush/vanitas_2_2v2_final.png" alt="a sudden rush of blood to the skin" class="wg-a" onclick="openM(this)">
+      <img src="images/hideouts/IMG_0812.png" alt="Postcards from the Electric Void No. 44522" class="wg-b" onclick="openM(this)">
+      <!-- Row 2: Rush + Void pair -->
+      <img src="images/aSuddenRush/gold.png" alt="the space between two bodies is a body too" class="wg-c" onclick="openM(this)">
+      <img src="images/space_gen6.png" alt="Postcard from the Electric Void" class="wg-d" onclick="openM(this)">
+      <img src="images/aSuddenRush/wave.png" alt="i just wish we could kiss somewhere that isn't melting" class="wg-e" onclick="openM(this)">
+      <!-- Row 3: Hideouts strip -->
+      <img src="images/hideouts/IMG_6805.JPG" alt="Wall of Wonders" class="wg-f" onclick="openM(this)">
+      <img src="images/hideouts/IMG_4.JPG" alt="Pixel Dripper No. 3" class="wg-g" onclick="openM(this)">
+      <img src="images/collage_5_500_20_48.png" alt="Collage" class="wg-h" onclick="openM(this)">
+      <!-- Row 4: Rush big + small stack -->
+      <img src="images/aSuddenRush/vanitas_3_2.png" alt="i am skinless in a limo" class="wg-i" onclick="openM(this)">
+      <img src="images/hideouts/IMG_0477.png" alt="Feather River" class="wg-j" onclick="openM(this)">
+      <img src="images/aSuddenRush/fruit_2_vert.png" alt="break me into bigger pieces so some of me is home with you" class="wg-k" onclick="openM(this)">
+      <!-- Row 5: Mixed strip -->
+      <img src="images/garden.png" alt="A Garden in Perpetual Collapse" class="wg-l" onclick="openM(this)">
+      <img src="images/aSuddenRush/jan_large_2.png" alt="violence" class="wg-m" onclick="openM(this)">
+      <img src="images/hideouts/IMG_2.JPG" alt="Beyond the Beast's Tongue" class="wg-n" onclick="openM(this)">
+      <img src="images/aSuddenRush/slitScan.png" alt="roses are roses" class="wg-o" onclick="openM(this)">
+      <!-- Row 6: Void + Rush -->
+      <img src="images/creature_thumb.JPG" alt="Creature" class="wg-p" onclick="openM(this)">
+      <img src="images/aSuddenRush/roses_2.png" alt="mysterious forces at play" class="wg-q" onclick="openM(this)">
+      <img src="images/hideouts/IMG_0525.png" alt="Self-Portrait as Vertigo" class="wg-r" onclick="openM(this)">
+      <!-- Row 7: Final strip -->
+      <img src="images/aSuddenRush/wave_detail.png" alt="i just wish we could kiss somewhere that isn't melting (detail)" class="wg-s" onclick="openM(this)">
+      <img src="images/vertigo.png" alt="Self-Portrait as Vertigo" class="wg-t" onclick="openM(this)">
+      <img src="images/hideouts/IMG_6403.jpg" alt="Pixel Dripper No. 7" class="wg-u" onclick="openM(this)">
+      <img src="images/aSuddenRush/randomPurple.png" alt="purple shifted" class="wg-v" onclick="openM(this)">
+      <img src="images/space_grid.jpg" alt="Postcards grid" class="wg-w" onclick="openM(this)">
+      <img src="images/aSuddenRush/random_blur.png" alt="random walk on a rose" class="wg-x" onclick="openM(this)">
     </div>
   </div>
 
@@ -359,69 +432,11 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
     </div>
   </div>
 
-  <!-- Hideouts -->
-  <div class="proj-block">
-    <div class="proj-hero flip reveal">
-      <div>
-        <div class="proj-num">04</div>
-        <h3 class="proj-title"><em>Hideouts</em></h3>
-        <div class="proj-desc">
-          <p>When architecture is emptied of people, it lurches towards ruin. Made during COVID lockdown — a place to hide while waiting for the world to finish ending.</p>
-          <a href="https://dl.acm.org/doi/10.1145/3450741.3466771" target="_blank" class="pill"><i class="fa fa-book"></i> C&amp;C Publication</a>
-        </div>
-      </div>
-      <div></div>
-    </div>
-    <div class="gallery reveal">
-      <img src="images/hideouts/IMG_4.JPG" alt="Pixel Dripper No. 3" onclick="openM(this)">
-      <img src="images/hideouts/IMG_2.JPG" alt="Beyond the Beast's Tongue" onclick="openM(this)">
-      <img src="images/hideouts/IMG_6805.JPG" alt="Wall of Wonders" onclick="openM(this)">
-      <img src="images/hideouts/IMG_3.JPG" alt="Postcard No. 552" onclick="openM(this)">
-      <img src="images/hideouts/IMG_0812.png" alt="Postcards No. 44522" onclick="openM(this)">
-      <img src="images/hideouts/IMG_1.JPG" alt="Butterfly Epiphany" onclick="openM(this)">
-      <img src="images/hideouts/IMG_0525.png" alt="Self-Portrait as Vertigo" onclick="openM(this)">
-      <img src="images/hideouts/IMG_0477.png" alt="Feather River" onclick="openM(this)">
-      <img src="images/hideouts/IMG_6403.jpg" alt="Pixel Dripper No. 7" onclick="openM(this)">
-      <img src="images/hideouts/IMG_0818.png" alt="A Garden in Perpetual Collapse" onclick="openM(this)">
-      <img src="images/hideouts/IMG_0663.png" alt="Self Portrait as Scattering Glitter" onclick="openM(this)">
-      <img src="images/hideouts/IMG_0417.jpg" alt="Pixel Dripper No. 9" onclick="openM(this)">
-    </div>
-  </div>
-
-  <!-- Postcards -->
-  <div class="proj-block">
-    <div class="proj-hero reveal">
-      <div>
-        <div class="proj-num">05</div>
-        <h3 class="proj-title">Postcards from the<br><em>Electric Void</em></h3>
-        <div class="proj-desc">
-          <p>GANs trained on colorized space imagery and art-historical paintings. When the machine imagines something plausible as our universe, the experience is uncanny. When it glitches, we see a recognizable fallibility — a point of empathic connection between human and machine.</p>
-          <a href="http://www.aiartonline.com/community/josh-urban-davis/" target="_blank" class="pill"><i class="fa fa-file-text-o"></i> NeurIPS Publication</a>
-        </div>
-      </div>
-      <div></div>
-    </div>
-    <div class="gallery reveal">
-      <img src="images/collage_5_500_20_48.png" alt="collage" onclick="openM(this)">
-      <img src="images/frame_01001.png" alt="frame" onclick="openM(this)">
-      <img src="images/creature_thumb.JPG" alt="creature" onclick="openM(this)">
-      <img src="images/space_gen6.png" alt="space generation" onclick="openM(this)">
-      <img src="images/space_grid.jpg" alt="space grid" onclick="openM(this)">
-      <img src="images/butterly_epiphany.jpg" alt="Butterfly Epiphany" onclick="openM(this)">
-      <img src="images/vertigo.png" alt="Self-Portrait as Vertigo" onclick="openM(this)">
-      <img src="images/feather_river.png" alt="Feather River" onclick="openM(this)">
-      <img src="images/piexel_dripper_2.jpg" alt="Pixel Dripper No. 7" onclick="openM(this)">
-      <img src="images/garden.png" alt="A Garden in Perpetual Collapse" onclick="openM(this)">
-      <img src="images/golden_portrait.jpg" alt="Self Portrait as Scattering Glitter" onclick="openM(this)">
-      <img src="images/pixel_puddle.jpg" alt="Pixel Dripper No. 9" onclick="openM(this)">
-    </div>
-  </div>
-
   <!-- Synapstraction -->
   <div class="proj-block">
     <div class="proj-hero flip reveal">
       <div>
-        <div class="proj-num">06</div>
+        <div class="proj-num">04</div>
         <h3 class="proj-title"><em>Synapstraction</em></h3>
         <div class="proj-desc">
           <p>A brain-computer installation: EEG headsets measure your neural response to five stimuli — one per sense — each mapped to a painting implement through machine learning. Your brain serves as conduit. The senses use the artist to create an image.</p>
@@ -438,7 +453,7 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
   <div class="proj-block">
     <div class="proj-hero reveal">
       <div>
-        <div class="proj-num">07</div>
+        <div class="proj-num">05</div>
         <h3 class="proj-title">thisObituary<em>DoesNot</em>Exist</h3>
         <div class="proj-desc">
           <p>StyleGAN and GPT-2 imagine photographs, death narratives, and life stories for people who never existed. Printed as funeral pamphlets indistinguishable from real ones. The website generates a new obituary on each refresh.</p>
@@ -453,7 +468,7 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
   <div class="proj-block">
     <div class="proj-hero flip reveal">
       <div>
-        <div class="proj-num">08</div>
+        <div class="proj-num">06</div>
         <h3 class="proj-title">The <em>Night Air</em></h3>
         <div class="proj-desc">
           <p>A collaborative poem composed by visitors during COVID-19 lockdown, inspired by miasma — the medieval belief that bad air spread plague. Ironically, COVID is airborne. Technology as connection, language as survival.</p>
@@ -468,7 +483,7 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
   <div class="proj-block">
     <div class="proj-hero reveal">
       <div>
-        <div class="proj-num">09</div>
+        <div class="proj-num">07</div>
         <h3 class="proj-title"><em>Psych</em>-VR</h3>
         <div class="proj-desc">
           <p>VR relaxation content for astronauts in isolated spaces, developed with NASA and the Geisel School of Medicine. "Three Days and a Year On Top of a Mountain" compresses a year of timelapse footage from Gile Mountain into a single sunrise-to-sunset experience.</p>
@@ -484,7 +499,7 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
   <div class="proj-block">
     <div class="proj-hero flip reveal">
       <div>
-        <div class="proj-num">10</div>
+        <div class="proj-num">08</div>
         <h3 class="proj-title"><em>Animation</em></h3>
         <div class="proj-desc">
           <p>Ongoing experiments since 2017: abandoned sculptures, lab timelapse, visual programming. Each film paired with contemporary literature, soundscaped in SuperCollider.</p>
