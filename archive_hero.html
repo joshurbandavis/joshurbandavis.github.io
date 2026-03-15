@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Josh Urban Davis</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="logo_personalweb_favicon_io/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="logo_personalweb_favicon_io/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="logo_personalweb_favicon_io/favicon-16x16.png">
+  <link rel="manifest" href="logo_personalweb_favicon_io/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111111;
+      --bg-card: #1a1a1a;
+      --text-primary: #f0f0f0;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666666;
+      --accent: #f6ae2d;
+      --accent-dim: rgba(246, 174, 45, 0.15);
+      --border: rgba(255,255,255,0.08);
+      --border-light: rgba(255,255,255,0.15);
+      --nav-bg: rgba(10,10,10,0.85);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --max-width: 1280px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'Raleway', system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+      font-weight: 400;
+      overflow-x: hidden;
+    }
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: var(--accent); text-decoration: none; transition: opacity var(--transition); }
+    a:hover { opacity: 0.8; }
+    h1, h2, h3, h4 { font-weight: 600; line-height: 1.3; }
+    h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); letter-spacing: -0.01em; }
+    h3 { font-size: clamp(1.1rem, 2vw, 1.4rem); }
+    p { color: var(--text-secondary); margin-bottom: 1rem; }
+    .section-title {
+      text-align: center; margin-bottom: 1rem;
+      text-transform: uppercase; letter-spacing: 0.15em;
+      font-weight: 700; font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    }
+    .section-subtitle {
+      text-align: center; color: var(--text-muted);
+      margin-bottom: 3rem; font-size: 1rem; font-weight: 300;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: var(--nav-bg);
+      backdrop-filter: blur(20px) saturate(1.5);
+      -webkit-backdrop-filter: blur(20px) saturate(1.5);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: var(--max-width); margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.5rem; height: 60px;
+    }
+    .nav-brand {
+      font-weight: 700; font-size: 0.9rem; letter-spacing: 0.15em;
+      color: var(--text-primary); text-transform: uppercase;
+    }
+    .nav-links { display: flex; gap: 0.25rem; }
+    .nav-links a {
+      color: var(--text-secondary); font-size: 0.78rem; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.5rem 0.9rem; border-radius: 6px; transition: all var(--transition);
+    }
+    .nav-links a:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); opacity: 1; }
+    .nav-toggle {
+      display: none; background: none; border: none; color: var(--text-primary);
+      cursor: pointer; padding: 0.5rem;
+    }
+    .nav-toggle svg { width: 24px; height: 24px; }
+    @media (max-width: 768px) {
+      .nav-links {
+        position: fixed; top: 60px; left: 0; right: 0;
+        background: var(--nav-bg); backdrop-filter: blur(20px);
+        flex-direction: column; padding: 1rem;
+        border-bottom: 1px solid var(--border);
+        transform: translateY(-120%); transition: transform var(--transition);
+      }
+      .nav-links.open { transform: translateY(0); }
+      .nav-links a { padding: 0.75rem 1rem; font-size: 0.85rem; }
+      .nav-toggle { display: block; }
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      height: 100vh;
+      min-height: 600px;
+      overflow: hidden;
+    }
+    .hero canvas {
+      position: absolute; top: 0; left: 0;
+      width: 100% !important; height: 100% !important;
+    }
+    .hero-overlay {
+      position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    }
+    .hero-top-line {
+      position: absolute;
+      top: clamp(5rem, 12vh, 10rem);
+      left: clamp(2rem, 6vw, 6rem);
+      right: clamp(2rem, 6vw, 6rem);
+      font-size: clamp(3rem, 9vw, 8.5rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      line-height: 0.9;
+      text-align: left;
+      color: var(--text-primary);
+    }
+    .hero-top-line .thin {
+      font-weight: 200;
+      letter-spacing: 0.1em;
+      color: rgba(240, 240, 240, 0.5);
+    }
+    .hero-bottom-row {
+      position: absolute;
+      bottom: clamp(3rem, 8vh, 7rem);
+      left: clamp(2rem, 6vw, 6rem);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      pointer-events: all;
+    }
+    .hero-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+    .hero-tag {
+      font-size: clamp(0.65rem, 0.9vw, 0.82rem);
+      font-weight: 400;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #555;
+      margin-right: 1rem;
+    }
+    .hero-divider {
+      width: 1px; height: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      margin-right: 0.5rem;
+      flex-shrink: 0;
+    }
+    .hero-social {
+      display: flex; gap: 1rem;
+    }
+    .hero-social a {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(0, 0, 0, 0.35);
+      border-radius: 50%;
+      transition: all var(--transition);
+    }
+    .hero-social a:hover { color: var(--accent); opacity: 1; transform: scale(1.1); }
+    .hero-social svg { width: 19px; height: 19px; }
+    @media (max-width: 768px) {
+      .hero-bottom-row { flex-wrap: wrap; }
+    }
+
+    /* SECTIONS */
+    section { padding: clamp(4rem, 8vw, 8rem) 1.5rem; }
+    .section-inner { max-width: var(--max-width); margin: 0 auto; }
+    section:nth-child(even) { background: var(--bg-secondary); }
+
+    /* ABOUT */
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+    .about-text p { font-size: 1.02rem; }
+    .about-image img {
+      border-radius: var(--radius); width: 100%; max-width: 420px;
+      margin-left: auto; object-fit: cover; border: 1px solid var(--border);
+    }
+    .about-social { display: flex; gap: 1rem; margin: 1.5rem 0; }
+    .about-social a { color: var(--text-secondary); transition: color var(--transition); }
+    .about-social a:hover { color: var(--accent); opacity: 1; }
+    .about-social svg { width: 20px; height: 20px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.65rem 1.4rem; border-radius: var(--radius-sm);
+      font-size: 0.85rem; font-weight: 600; letter-spacing: 0.05em;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid var(--border-light);
+      color: var(--text-primary); background: transparent; cursor: pointer;
+    }
+    .btn:hover {
+      border-color: var(--accent); color: var(--text-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      border-width: 2px; padding: calc(0.65rem - 1px) calc(1.4rem - 1px);
+      opacity: 1;
+    }
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .btn-accent { background: var(--accent); color: var(--bg-primary); border-color: var(--accent); }
+    .btn-accent:hover {
+      background: #e5a029; border-color: #e5a029;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(246,174,45,0.25);
+    }
+    .btn-accent:active { transform: translateY(0); box-shadow: none; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+    @media (max-width: 768px) {
+      .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .about-image { order: -1; }
+      .about-image img { margin: 0 auto; }
+    }
+
+    /* PUBLICATIONS */
+    .pub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+    .pub-card {
+      background: var(--bg-card); border-radius: var(--radius);
+      border: 1px solid var(--border); overflow: hidden;
+      transition: all var(--transition); display: flex; flex-direction: column;
+    }
+    .pub-card:hover {
+      border-color: var(--border-light); transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    }
+    .pub-card img { width: 100%; aspect-ratio: 16/10; object-fit: cover; }
+    .pub-card-body { padding: 1.25rem; flex: 1; display: flex; flex-direction: column; }
+    .pub-card-body h3 { font-size: 1rem; margin-bottom: 0.5rem; line-height: 1.4; }
+    .pub-card-body .authors { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .pub-card-body .venue { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem; flex: 1; }
+    .pub-badge {
+      display: inline-block; font-size: 0.72rem; font-weight: 600;
+      padding: 0.2rem 0.6rem; border-radius: 4px; margin-right: 0.4rem; margin-bottom: 0.5rem;
+    }
+    .badge-rate { background: rgba(246,174,45,0.15); color: var(--accent); }
+    .badge-award { background: rgba(220,60,60,0.15); color: #ef6b6b; }
+    .pub-links { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: auto; }
+    .pub-links a {
+      font-size: 0.78rem; padding: 0.35rem 0.75rem;
+      border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text-secondary); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-weight: 500;
+    }
+    .pub-links a:hover {
+      border-color: var(--accent); color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+      border-width: 2px; padding: calc(0.35rem - 1px) calc(0.75rem - 1px);
+      opacity: 1;
+    }
+    .pub-links a:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    /* PROJECTS */
+    .project-block { margin-bottom: 4rem; padding-bottom: 4rem; border-bottom: 1px solid var(--border); }
+    .project-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .project-header { margin-bottom: 2rem; }
+    .project-header h3 {
+      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+      text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;
+    }
+    .project-split { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+    .project-split.reverse > :first-child { order: 2; }
+    .project-split.reverse > :last-child { order: 1; }
+    @media (max-width: 768px) {
+      .project-split { grid-template-columns: 1fr; gap: 1.5rem; }
+      .project-split.reverse > :first-child { order: 0; }
+      .project-split.reverse > :last-child { order: 0; }
+    }
+    .project-media img, .project-media iframe {
+      border-radius: var(--radius); border: 1px solid var(--border); width: 100%;
+    }
+    .video-wrap {
+      position: relative; padding-bottom: 56.25%;
+      border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border);
+    }
+    .video-wrap iframe {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%; border: none; border-radius: 0;
+    }
+
+    /* GALLERY */
+    .gallery {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: 220px; grid-auto-flow: dense; gap: 0.5rem; margin-top: 1.5rem;
+    }
+    .gallery img {
+      width: 100%; height: 100%; object-fit: cover;
+      border-radius: var(--radius-sm); cursor: pointer;
+      transition: all var(--transition); border: 1px solid var(--border);
+    }
+    .gallery img:hover { transform: scale(1.02); border-color: var(--border-light); z-index: 1; }
+    .gallery img.span-wide { grid-column: span 2; }
+    .gallery img.span-tall { grid-row: span 2; }
+    .gallery img.span-big { grid-column: span 2; grid-row: span 2; }
+    @media (max-width: 768px) {
+      .gallery { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 180px; }
+      .gallery img.span-wide, .gallery img.span-big { grid-column: span 2; }
+      .gallery img.span-tall { grid-row: span 2; }
+      .gallery img.span-big { grid-row: span 1; }
+    }
+
+    /* LIGHTBOX */
+    .lightbox {
+      display: none; position: fixed; inset: 0; z-index: 2000;
+      background: rgba(0,0,0,0.92); backdrop-filter: blur(10px);
+      justify-content: center; align-items: center; flex-direction: column;
+      cursor: pointer; padding: 2rem;
+    }
+    .lightbox.active { display: flex; }
+    .lightbox img { max-width: 90vw; max-height: 80vh; object-fit: contain; border-radius: var(--radius); }
+    .lightbox-caption { margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem; font-style: italic; }
+    .lightbox-close {
+      position: absolute; top: 1.5rem; right: 1.5rem;
+      background: none; border: none; color: var(--text-primary);
+      font-size: 2rem; cursor: pointer; width: 44px; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; transition: background var(--transition);
+    }
+    .lightbox-close:hover { background: rgba(255,255,255,0.1); }
+
+    /* CONTACT */
+    .contact-inner { max-width: 800px; margin: 0 auto; text-align: center; }
+    .contact-headline {
+      font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 700;
+      letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 2.5rem;
+      background: linear-gradient(135deg, var(--accent) 0%, #fac9b8 40%, #2e86ab 70%, #758e4f 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .contact-line { width: 60px; height: 1px; background: var(--border-light); margin: 0 auto 2.5rem; }
+    .contact-links { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; }
+    .contact-links a {
+      color: var(--text-muted); font-size: 1rem; font-weight: 400;
+      letter-spacing: 0.03em; transition: color var(--transition);
+    }
+    .contact-links a:hover { color: var(--text-primary); opacity: 1; }
+    .contact-links .contact-loc { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem; }
+
+    /* FOOTER */
+    footer { text-align: center; padding: 3rem 1.5rem; border-top: 1px solid var(--border); }
+    .footer-social { display: flex; gap: 1rem; justify-content: center; margin-top: 1rem; }
+    .footer-social a { color: var(--text-muted); transition: color var(--transition); }
+    .footer-social a:hover { color: var(--accent); opacity: 1; }
+    .footer-social svg { width: 20px; height: 20px; }
+
+    /* SCROLL REVEAL */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#home" class="nav-brand">Josh Urban Davis</a>
+    <div class="nav-links" id="navLinks">
+      <a href="#about" onclick="closeNav()">About</a>
+      <a href="#publications" onclick="closeNav()">Publications</a>
+      <a href="#design" onclick="closeNav()">Design</a>
+      <a href="http://73f7b8-3.myshopify.com" target="_blank">Shop</a>
+      <a href="#contact" onclick="closeNav()">Contact</a>
+    </div>
+    <button class="nav-toggle" onclick="toggleNav()" aria-label="Toggle navigation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO — C Inline layout -->
+<div class="hero" id="home">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-overlay">
+    <div class="hero-top-line"><span class="thin">Josh</span><br>Urban Davis</div>
+    <div class="hero-bottom-row">
+      <div class="hero-dot"></div>
+      <div class="hero-tag">Researcher, Designer, Maker</div>
+      <div class="hero-divider"></div>
+      <div class="hero-social">
+        <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank" aria-label="Google Scholar">
+          <svg viewBox="0 0 256 256" fill="currentColor"><path d="M128 0L0 80l48 28v72l80 48 80-48v-72l16-9.3V176h16V72L128 0zM128 180l-64-38.4V120l64 38 64-38v21.6L128 180z"/></svg>
+        </a>
+        <a href="https://www.instagram.com/joshurbandavis" target="_blank" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="https://github.com/joshurbandavis" target="_blank" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+        <a href="https://twitter.com/joshurbandavis" target="_blank" aria-label="Twitter">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="https://www.linkedin.com/in/joshurbandavis/" target="_blank" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-inner">
+    <div class="about-grid reveal">
+      <div class="about-text">
+        <h2 style="margin-bottom: 1.5rem;">About</h2>
+        <p>I'm a designer and engineer working at the intersection of machine learning, computer vision, and human-computer interaction. Based in San Francisco, I build multimodal systems that push on questions of creativity, communication, and who gets to participate in both.</p>
+        <p>My research has received best paper awards at C&C and ASSETS, honorable mentions at CHI, and recognition from the Neukom Institute for outstanding research. My creative practice has been supported by a grant from the Queer Arts Council and featured in the <em>Queer Futures Journal</em> by 3oC. Selected work has been exhibited at Grey Area Foundation for the Arts, D!iverseWorks, Synaps Projects, the Blaffer Art Museum, and the Chandler Center for the Arts, and featured in collaboration with the New School as part of the Venice Architecture Biennale in 2021.</p>
+        <p style="color: var(--text-primary);">I live with my two cats, Jynx and Nyx.</p>
+        <div class="about-social">
+          <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank" aria-label="Google Scholar"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M128 0L0 80l48 28v72l80 48 80-48v-72l16-9.3V176h16V72L128 0zM128 180l-64-38.4V120l64 38 64-38v21.6L128 180z"/></svg></a>
+          <a href="https://www.instagram.com/joshurbandavis" target="_blank" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/></svg></a>
+          <a href="https://twitter.com/joshurbandavis" target="_blank" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="https://github.com/joshurbandavis" target="_blank" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg></a>
+          <a href="https://www.linkedin.com/in/joshurbandavis/" target="_blank" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        </div>
+        <div class="btn-row">
+          <a href="files/Josh_cv_2025_condensed.pdf" target="_blank" class="btn">Download CV</a>
+          <a href="files/joshua_resume_short.pdf" target="_blank" class="btn">Download Resume</a>
+        </div>
+      </div>
+      <div class="about-image">
+        <img src="images/josh_recon.PNG" alt="Josh Urban Davis profile photo">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PUBLICATIONS -->
+<section id="publications">
+  <div class="section-inner">
+    <h2 class="section-title reveal">Peer-Reviewed Publications</h2>
+    <div class="pub-grid" id="pubGrid"></div>
+  </div>
+</section>
+
+<!-- DESIGN -->
+<section id="design">
+  <div class="section-inner">
+    <h2 class="section-title reveal">Design</h2>
+    <p class="section-subtitle reveal">past and ongoing works</p>
+
+    <div class="project-block reveal">
+      <div class="project-header"><h3>Selected Works</h3></div>
+      <p>Experiments in photomanipulation, shader rendering, generative neural networks, and digital collage — spanning ongoing series including <em>A Sudden Rush of Blood to the Skin</em>, <em>Hideouts</em>, and <em>Postcards from the Electric Void</em>. Source code on GitHub, more images and videos on Instagram.</p>
+      <div class="btn-row" style="margin-bottom:1.5rem;">
+        <a href="https://www.instagram.com/joshurbandavis/?hl=en" target="_blank" class="btn">See More</a>
+        <a href="https://dl.acm.org/doi/10.1145/3450741.3466771" target="_blank" class="btn">Publication at C&C</a>
+        <a href="http://www.aiartonline.com/community/josh-urban-davis/" target="_blank" class="btn">Publication at NeurIPS</a>
+      </div>
+      <div class="gallery">
+        <img src="images/aSuddenRush/vanitas_2_2v2_final.png" class="span-big" alt="a sudden rush of blood to the skin" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_4.JPG" alt="Pixel Dripper No. 3" onclick="openLightbox(this)">
+        <img src="images/collage_5_500_20_48.png" alt="Collage" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/gold.png" alt="the space between two bodies is a body too" onclick="openLightbox(this)">
+        <img src="images/space_gen6.png" alt="Postcard from the Electric Void" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_6805.JPG" class="span-wide" alt="Wall of Wonders" onclick="openLightbox(this)">
+        <img src="images/garden.png" alt="A Garden in Perpetual Collapse" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/wave.png" alt="i just wish we could kiss somewhere that isn't melting" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_0812.png" class="span-tall" alt="Postcards from the Electric Void No. 44522" onclick="openLightbox(this)">
+        <img src="images/frame_01001.png" alt="Generated landscape" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/vanitas_3_2.png" alt="i am skinless in a limo" onclick="openLightbox(this)">
+        <img src="images/creature_thumb.JPG" alt="Creature" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_2.JPG" class="span-wide" alt="Beyond the Beast's Tongue" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/jan_large_2.png" alt="violence" onclick="openLightbox(this)">
+        <img src="images/butterly_epiphany.jpg" alt="Butterfly Epiphany" onclick="openLightbox(this)">
+        <img src="images/vertigo.png" class="span-tall" alt="Self-Portrait as Vertigo" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_1.JPG" alt="Butterfly Epiphany" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/fruit_2_vert.png" alt="break me into bigger pieces so some of me is home with you" onclick="openLightbox(this)">
+        <img src="images/space_grid.jpg" class="span-wide" alt="Postcards grid" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_0525.png" alt="Self-Portrait as Vertigo" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/slitScan.png" alt="roses are roses" onclick="openLightbox(this)">
+        <img src="images/feather_river.png" alt="Feather River" onclick="openLightbox(this)">
+        <img src="images/piexel_dripper_2.jpg" alt="Pixel Dripper No. 7" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_0477.png" class="span-big" alt="Feather River" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/roses_2.png" alt="mysterious forces at play" onclick="openLightbox(this)">
+        <img src="images/golden_portrait.jpg" alt="Self Portrait as Scattering Glitter" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_6403.jpg" alt="Pixel Dripper No. 7" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/randomPurple.png" alt="purple shifted" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_0818.png" class="span-wide" alt="A Garden in Perpetual Collapse" onclick="openLightbox(this)">
+        <img src="images/pixel_puddle.jpg" alt="Pixel Dripper No. 9" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/wave_detail.png" alt="i just wish we could kiss somewhere that isn't melting (detail)" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_0663.png" alt="Self Portrait as Scattering Glitter" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/sampleScan.png" alt="sample and replicate No. 15" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_0417.jpg" alt="Pixel Dripper No. 9" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/random_blur.png" class="span-wide" alt="random walk on a rose" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_3.JPG" alt="Postcard from the Electric Void No. 552" onclick="openLightbox(this)">
+      </div>
+    </div>
+
+    <div class="project-block reveal">
+      <div class="project-header"><h3>Deleted World Tarot</h3></div>
+      <div class="project-split">
+        <div>
+          <p>Deleted World Tarot is an illustration project begun in 2020. Many influences went into this deck, from emerging technologies and internet cultures, to occult histories and tarot illustrations past.</p>
+          <p>The early days of the internet seemed to offer a utopian promise of unlimited connection and community. Yet these visions of better worlds have faded into our current disinformation era of cyber superstitions and data-driven oppression. In both of these failed utopian visions — religious and digital — something was lost along the way. A choice was made. A world was deleted.</p>
+          <p>The Deleted World Tarot is a tool for healing the rift between the choices of the past and the consequential loss of alternative futures. A tool and a story told out of order and out of time, it's a hope that illuminates the worlds we lose by the choices we make every day, and a call to consider what is worth saving. What is not saved will be lost.</p>
+          <div class="btn-row">
+            <a href="https://73f7b8-3.myshopify.com/" target="_blank" class="btn btn-accent">Purchase the Deck</a>
+            <a href="https://www.instagram.com/joshurbandavis/?hl=en" target="_blank" class="btn">See More</a>
+          </div>
+        </div>
+        <div class="project-media"><img src="images/octorococo.jpg" alt="Deleted World Tarot card illustration"></div>
+      </div>
+    </div>
+
+    <div class="project-block reveal">
+      <div class="project-header"><h3>if you go_say hello</h3></div>
+      <div class="project-split">
+        <div>
+          <p>if you go_say hello was conceived as a memorial project in collaboration with The New School Center for Policy in Space for the 2021 Venice Architecture Biennale.</p>
+          <p>The project comprises an AI trained on the collected writing of a recently deceased poet which was attached to a commercial satellite and sent into space. Twice a day, visitors to a web portal received transmissions from the satellite of writings produced by the AI circling the planet. Over time the small computer housing the AI slowly corrupted due to electromagnetic radiation. The twice-daily transmissions slowly shifted from legible text to strange sentences, to random characters and eventually, total cessation of communication.</p>
+          <p>The collected writings including the corrupted transmissions were bound and distributed as a memento mori at the funeral of the poet. if you go_say hello is a meditation on loss, the physics of death, and the transformation of data across space and time.</p>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">The name of the deceased and the subsequent writing have remained private out of respect for the family's wishes. Sponsored by The New School Center for Space Policy for the Venice Architecture Biennale 2021.</p>
+        </div>
+        <div class="project-media"><img src="images/venice.png" alt="Venice Biennale 2021 exhibition listing"></div>
+      </div>
+    </div>
+
+    <div class="project-block reveal">
+      <div class="project-header"><h3>The Night Air: COVID Poetry Project</h3></div>
+      <div class="project-split">
+        <div>
+          <p>The Night Air is a collaborative poem composed by visitors to thenightair.com during the COVID-19 lockdown of 2020.</p>
+          <p>Miasma, a now disbanded medical term originating in the middle ages, was once thought to be the root cause of plagues. Also known as "the night air," Miasma suggested that bad air spread illness. COVID-19, ironically, is a disease spread through the air.</p>
+          <p>The Night Air is a place to record personal experiences during this pandemic through a single collective poem, revealing our shifting moods and varying perspectives across the world.</p>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Sponsored by a grant from the Houston Arts Alliance.</p>
+        </div>
+        <div class="project-media"><img src="images/nightair.png" alt="The Night Air logo"></div>
+      </div>
+    </div>
+
+    <div class="project-block reveal">
+      <div class="project-header"><h3>thisObituaryDoesNotExist.com</h3></div>
+      <div class="project-split">
+        <div>
+          <p>thisObituaryDoesNotExist comprises a physical and digital collection of obituaries generated by two artificial neural networks. StyleGAN and GPT-2 are shown images and text from publicly available online obituaries, then asked to imagine new ones — generating infinitely many photographs, death narratives, and life stories for persons who never existed.</p>
+          <p>The physical exhibition consists of funeral pamphlets indistinguishable from those for physical persons. The digital website generates a new obituary each time the page is refreshed.</p>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Premiered at Chandler Center for the Arts, 2019.</p>
+          <div class="btn-row"><a href="http://thisobituarydoesnotexist.com/" target="_blank" class="btn btn-accent">Visit the Obituary</a></div>
+        </div>
+        <div class="project-media"><img src="images/thisobit_thumb_2.jpg" alt="thisObituaryDoesNotExist installation"></div>
+      </div>
+    </div>
+
+    <div class="project-block reveal">
+      <div class="project-header"><h3>Psych-VR</h3></div>
+      <div class="project-split reverse">
+        <div>
+          <p>PsycheVR is a virtual reality and biofeedback project conducted in collaboration with the Space Medicine Laboratory at the Geisel School of Medicine and NASA. The project develops VR content to promote relaxation in small, isolated spaces for long durations — products used in trial experimentation with NASA astronauts intended for future Mars missions.</p>
+          <p>"Three Days and a Year On Top of a Mountain" is a VR sunrise-to-sunset timelapse recorded over a year on Gile Mountain, allowing the viewer to experience a day and year simultaneously.</p>
+        </div>
+        <div class="project-media">
+          <div class="video-wrap"><iframe src="https://www.youtube.com/embed/PTOQoZnPwww" allowfullscreen loading="lazy"></iframe></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-block reveal">
+      <div class="project-header"><h3>Animation</h3></div>
+      <p>A series of ongoing animation experiments initiated in 2017, blending visual documentation of abandoned sculptures, time-lapse sequences from laboratory experiments, and visual programming explorations. Each animation is integrated with writings from contemporary authors, with soundscapes crafted using SuperCollider.</p>
+      <div class="project-split" style="margin-top: 2rem;">
+        <div>
+          <h4 style="margin-bottom: 0.5rem;">{i keep my frankenstein in a jar}</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">2020 — A perpetual code and sound animation. Commissioned for Tele Magazine.</p>
+          <div class="btn-row"><a href="https://joshurbandavis.github.io/pages/frank.html" target="_blank" class="btn">Watch Live</a></div>
+        </div>
+        <div class="project-media">
+          <div class="video-wrap"><iframe src="https://www.youtube.com/embed/hHA1MAiMG8I" allowfullscreen loading="lazy"></iframe></div>
+        </div>
+      </div>
+      <div class="project-split" style="margin-top: 2.5rem;">
+        <div>
+          <h4 style="margin-bottom: 0.5rem;">Extinction</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">2018 — Words by Elizabeth Lyons.</p>
+        </div>
+        <div class="project-media">
+          <div class="video-wrap"><iframe src="https://www.youtube.com/embed/2hFV_rQct-k" allowfullscreen loading="lazy"></iframe></div>
+        </div>
+      </div>
+      <div class="project-split" style="margin-top: 2.5rem;">
+        <div>
+          <h4 style="margin-bottom: 0.5rem;">The Wild Iris</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">2017 — Words by Louise Glück. Inspired by <em>Burn</em> by Darcy Rosenburger.</p>
+        </div>
+        <div class="project-media">
+          <div class="video-wrap"><iframe src="https://www.youtube.com/embed/xMLsnjvVQ5E" allowfullscreen loading="lazy"></iframe></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="contact-inner reveal">
+      <h2 class="contact-headline">Let's build<br>something strange</h2>
+      <div class="contact-line"></div>
+      <div class="contact-links">
+        <span class="contact-loc">San Francisco, CA</span>
+        <a href="mailto:hello@joshurbandavis.com">hello@joshurbandavis.com</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#home" class="btn" style="margin-bottom:1.5rem;">Back to top</a>
+  <div class="footer-social">
+    <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank" aria-label="Google Scholar"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M128 0L0 80l48 28v72l80 48 80-48v-72l16-9.3V176h16V72L128 0zM128 180l-64-38.4V120l64 38 64-38v21.6L128 180z"/></svg></a>
+    <a href="https://www.instagram.com/joshurbandavis/" target="_blank" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/></svg></a>
+    <a href="https://github.com/joshurbandavis" target="_blank" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg></a>
+    <a href="https://twitter.com/joshurbandavis" target="_blank" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <a href="https://www.linkedin.com/in/joshurbandavis/" target="_blank" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+  </div>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" aria-label="Close">&times;</button>
+  <img id="lightboxImg" src="" alt="">
+  <p class="lightbox-caption" id="lightboxCaption"></p>
+</div>
+
+<script>
+function toggleNav() { document.getElementById('navLinks').classList.toggle('open'); }
+function closeNav() { document.getElementById('navLinks').classList.remove('open'); }
+
+function openLightbox(el) {
+  document.getElementById('lightboxImg').src = el.src;
+  document.getElementById('lightboxCaption').textContent = el.alt;
+  document.getElementById('lightbox').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+
+var reveals = document.querySelectorAll('.reveal');
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+  });
+}, { threshold: 0.1 });
+reveals.forEach(function(el) { observer.observe(el); });
+
+var pubs = [
+  { img:"images/imwut23.png", title:"\"It's Not an Issue of Malice, but of Ignorance\": Towards Inclusive Video Conferencing for Presenters Who are d/Deaf or Hard of Hearing", authors:"<u>Josh Urban Davis</u>, Hongwei Wang, Parmit K. Chilana, Xing-Dong Yang", venue:"IMWUT/UbiComp '23", rate:"23.2%", links:[{label:"Paper",href:"files/davis_imwut23.pdf"},{label:"ACM",href:"https://dl.acm.org/doi/10.1145/3610901"}] },
+  { img:"images/making_blurred_docSym.jpg", title:"Multimodal Direction Manipulation in Video Conferencing: Challenges and Opportunities", authors:"<u>Josh Urban Davis</u>, Paul Asente, Xing-Dong Yang", venue:"DIS '23", rate:"24.6%", links:[{label:"Paper",href:"files/DIS23_Multimodal_Direct_Manipulation.pdf"},{label:"ACM",href:"https://dl.acm.org/doi/10.1145/3563657.3596099"},{label:"Demo",href:"https://youtu.be/kmUDDjTNRCw"}] },
+  { img:"images/altText_thumb.png", title:"Exploring AltNarrative in HCI Imagery and Comics", authors:"Makayla Lewis, Miriam Sturdee, John Miers, Thuong Hoang, <u>Josh Urban Davis</u>", venue:"CHI '22", rate:"21%", links:[{label:"Paper",href:"files/altText.pdf"},{label:"ACM",href:"https://dl.acm.org/doi/10.1145/3491101.3516394"}] },
+  { img:"images/pokerface_thumb3.png", title:"PokerFace: Exploring Augmenting Masks through an Interactive, Mixed-Reality Prototype", authors:"<u>Josh Urban Davis</u>, John Tang, Edward Cutrell, Teddy Seyed", venue:"HICSS '22", links:[{label:"Paper",href:"files/pokerface.pdf"},{label:"ACM",href:"https://hdl.handle.net/10125/79732"},{label:"Talk",href:"https://youtu.be/i3ebUKSHNuc"}] },
+  { img:"images/Fig2_05_v3.png", title:"Designing Co-Creative AI in Virtual Environments", authors:"<u>Josh Urban Davis</u>, Fraser Anderson, Merten Stroetzel, Tovi Grossman, George Fitzmaurice", venue:"C&C '21", rate:"23.1%", links:[{label:"Paper",href:"files/calliope.pdf"},{label:"ACM",href:"https://dl.acm.org/doi/10.1145/3450741.3465260"},{label:"Talk",href:"https://youtu.be/J8WJhj35_5E"}] },
+  { img:"images/hidout-triangle.jpg", title:"A Plurality of Practices: Artistic Narratives in HCI Research", authors:"<u>Josh Urban Davis</u>, Miriam Sturdee, Makayla Lewis, Angelika Strohmayer, Katta Spiel, Nantia Koulidou, Sarah Fdili Alaoui", venue:"C&C '21", rate:"31%", award:"Best Paper: Top 1%", links:[{label:"Paper",href:"files/Art_HCI_CR.pdf"},{label:"ACM",href:"https://dl.acm.org/doi/10.1145/3450741.3466771"},{label:"Demo",href:"https://youtu.be/ycWEKL6HnHg"}] },
+  { img:"images/gofont.JPG", title:"Font Your Friends and Loved Ones: On the Utility of Ugly Interfaces", authors:"<u>Josh Urban Davis</u> & Johann Wentzel", venue:"CHI '21", rate:"21%", links:[{label:"Paper",href:"files/font_your_friends_preprint.pdf"},{label:"ACM",href:"https://dl.acm.org/doi/10.1145/3411763.3450371"},{label:"Try It",href:"http://gofontyourself.xyz/"}] },
+  { img:"images/MSR_v2.png", title:"Mixed Abilities and Varied Experiences: A Group Auto-ethnography of a Virtual Summer Internship", authors:"Kelly Mack, Maitraye Das, Dhruv Jain, Danielle Bragg, John Tang, Andrew Begel, Erin Beneteau, <u>Josh Urban Davis</u>, Abraham Glasser, Joon Sung Park, Venkatesh Potluri", venue:"ASSETS '21", rate:"23.2%", award:"Best Paper: Top 5%", links:[{label:"Paper",href:"files/assets_21_final.pdf"},{label:"ACM",href:"https://dl.acm.org/doi/10.1145/3441852.3471199"}] },
+  { img:"images/tangiblecircuits_header_images.png", title:"TangibleCircuits: An Interactive 3D Printed Circuit Education Tool for People with Visual Impairments", authors:"<u>Josh Urban Davis</u>, Te-Yen Wu, Bo Shi, Hanyi Lui, Athina Panotopoulou, Emily Whiting, Xing-Dong Yang", venue:"CHI '20", rate:"23%", award:"Honorable Mention: Top 5%", links:[{label:"Paper",href:"files/tangiblecircuits_CHI20.pdf"},{label:"ACM",href:"https://dl.acm.org/doi/abs/10.1145/3313831.3376513"},{label:"Demo",href:"https://www.youtube.com/watch?v=wcd1_HpeStA"}] },
+  { img:"images/circuitstyle_thumb.png", title:"CircuitStyle: A System for Peripherally Reinforcing Best Practices in Hardware Computing", authors:"<u>Josh Urban Davis</u>, Jun Gong, Yunxin Sun, Parmit Chilana, Xing-Dong Yang", venue:"UIST '19", rate:"20.6%", links:[{label:"Paper",href:"files/circuitstyle_uist19.pdf"},{label:"ACM",href:"https://dl.acm.org/citation.cfm?id=3332165.3347920"},{label:"Demo",href:"https://www.youtube.com/watch?v=zUsr06QR1mM"}] },
+  { img:"images/illumiwear_thumb.png", title:"IllumiWear: A Fiber-Optic eTextile for MultiMedia Interactions", authors:"<u>Josh Urban Davis</u>", venue:"NIME '19", rate:"31%", links:[{label:"Paper",href:"files/IllumiWear_final_corrected.pdf"},{label:"Demo",href:"https://www.youtube.com/watch?v=1tNn6CTtTFs"}] },
+  { img:"images/indutivo_thumb.png", title:"Indutivo: Contact-Based, Object-Driven Interactions with Inductive Sensing", authors:"Jun Gong, Xin Yang, Teddy Seyed, <u>Josh Urban Davis</u>, Xing-Dong Yang", venue:"UIST '18", rate:"21%", links:[{label:"Paper",href:"files/indutivo.pdf"},{label:"ACM",href:"https://dl.acm.org/citation.cfm?id=3332165.3347920"},{label:"Demo",href:"https://www.youtube.com/watch?v=XLmVo2tELM4"}] }
+];
+
+var grid = document.getElementById('pubGrid');
+pubs.forEach(function(p) {
+  var badges = '';
+  if (p.rate) badges += '<span class="pub-badge badge-rate">' + p.rate + ' accept</span>';
+  if (p.award) badges += '<span class="pub-badge badge-award">' + p.award + '</span>';
+  var links = p.links.map(function(l) { return '<a href="'+l.href+'" target="_blank">'+l.label+'</a>'; }).join('');
+  grid.innerHTML += '<div class="pub-card reveal"><img src="'+p.img+'" alt="'+p.title+'" loading="lazy"><div class="pub-card-body"><h3>'+p.title+'</h3><p class="authors">'+p.authors+'</p><p class="venue">'+p.venue+'</p>'+badges+'<div class="pub-links">'+links+'</div></div></div>';
+});
+document.querySelectorAll('.pub-card.reveal').forEach(function(el) { observer.observe(el); });
+
+// HERO CANVAS — identical to experiment, scale 0.55
+(function(){
+  var canvas = document.getElementById('heroCanvas');
+  var ctx = canvas.getContext('2d');
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var w, h, minW, maxW;
+  var rings, numRings;
+  var globalRot = [];
+  var palette = [[175,62,77],[46,134,171],[117,142,79],[0,42,50],[246,174,45],[250,201,184]];
+
+  var perm = new Uint8Array(512);
+  (function(){
+    var p = new Uint8Array(256);
+    for (var i = 0; i < 256; i++) p[i] = i;
+    for (var i = 255; i > 0; i--) {
+      var j = (Math.random() * (i + 1)) | 0;
+      var t = p[i]; p[i] = p[j]; p[j] = t;
+    }
+    for (var i = 0; i < 512; i++) perm[i] = p[i & 255];
+  })();
+
+  function fade(t) { return t*t*t*(t*(t*6-15)+10); }
+  function nlerp(a, b, t) { return a+t*(b-a); }
+  function grad3(hash, x, y, z) {
+    var h = hash & 15, u = h < 8 ? x : y, v = h < 4 ? y : (h===12||h===14 ? x : z);
+    return ((h&1)?-u:u)+((h&2)?-v:v);
+  }
+  function noise3(x, y, z) {
+    var X=Math.floor(x)&255, Y=Math.floor(y)&255, Z=Math.floor(z)&255;
+    x-=Math.floor(x); y-=Math.floor(y); z-=Math.floor(z);
+    var u=fade(x), v=fade(y), ww=fade(z);
+    var A=perm[X]+Y, AA=perm[A]+Z, AB=perm[A+1]+Z;
+    var B=perm[X+1]+Y, BA=perm[B]+Z, BB=perm[B+1]+Z;
+    return(nlerp(nlerp(nlerp(grad3(perm[AA],x,y,z),grad3(perm[BA],x-1,y,z),u),nlerp(grad3(perm[AB],x,y-1,z),grad3(perm[BB],x-1,y-1,z),u),v),nlerp(nlerp(grad3(perm[AA+1],x,y,z-1),grad3(perm[BA+1],x-1,y,z-1),u),nlerp(grad3(perm[AB+1],x,y-1,z-1),grad3(perm[BB+1],x-1,y-1,z-1),u),v),ww))*0.5+0.5;
+  }
+
+  var TWO_PI=Math.PI*2, HALF_PI=Math.PI/2, SEG=24;
+  var cCos=new Float64Array(SEG+1), cSin=new Float64Array(SEG+1);
+  for (var i=0;i<=SEG;i++) { cCos[i]=Math.cos(TWO_PI*i/SEG); cSin[i]=Math.sin(TWO_PI*i/SEG); }
+
+  function mm(a,b) {
+    return [
+      a[0]*b[0]+a[1]*b[3]+a[2]*b[6], a[0]*b[1]+a[1]*b[4]+a[2]*b[7], a[0]*b[2]+a[1]*b[5]+a[2]*b[8],
+      a[3]*b[0]+a[4]*b[3]+a[5]*b[6], a[3]*b[1]+a[4]*b[4]+a[5]*b[7], a[3]*b[2]+a[4]*b[5]+a[5]*b[8],
+      a[6]*b[0]+a[7]*b[3]+a[8]*b[6], a[6]*b[1]+a[7]*b[4]+a[8]*b[7], a[6]*b[2]+a[7]*b[5]+a[8]*b[8]
+    ];
+  }
+  function rx(a) { var c=Math.cos(a),s=Math.sin(a); return [1,0,0,0,c,-s,0,s,c]; }
+  function ry(a) { var c=Math.cos(a),s=Math.sin(a); return [c,0,s,0,1,0,-s,0,c]; }
+  function rz(a) { var c=Math.cos(a),s=Math.sin(a); return [c,-s,0,s,c,0,0,0,1]; }
+
+  function resize() {
+    w=canvas.clientWidth; h=canvas.clientHeight;
+    canvas.width=w*dpr; canvas.height=h*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    minW=Math.min(w,h); maxW=Math.max(w,h);
+  }
+
+  function shuffle(a) {
+    for (var i=a.length-1;i>0;i--) {
+      var j=(Math.random()*(i+1))|0;
+      var t=a[i]; a[i]=a[j]; a[j]=t;
+    }
+  }
+
+  function init() {
+    resize(); shuffle(palette);
+    var isMobile = w < 768;
+    numRings = isMobile ? 400 : 1000;
+    var posR = Math.min(w, h) * 0.55;
+    var paNoiseBase=[Math.random()*1e4,Math.random()*1e4,Math.random()*1e4];
+    var rNoiseBase=[Math.random()*1e4,Math.random()*1e4,Math.random()*1e4];
+    var prNoiseBase=[Math.random()*1e4,Math.random()*1e4,Math.random()*1e4];
+    var paNTI=Math.random()*TWO_PI, rNTI=Math.random()*TWO_PI, prNTI=Math.random()*TWO_PI;
+    var paSpd=0.0015*(Math.random()<0.5?-1:1);
+    var rSpd=0.0015*(Math.random()<0.5?-1:1);
+    var prSpd=0.0015*(Math.random()<0.5?-1:1);
+
+    rings = new Array(numRings);
+    for (var i=0;i<numRings;i++) {
+      var ang=TWO_PI/numRings*i, cosA=Math.cos(ang), sinA=Math.sin(ang);
+      rings[i] = {
+        angInit:ang,
+        paN:[paNoiseBase[0]+0.15*cosA,paNoiseBase[1]+0.15*sinA,paNoiseBase[2]],
+        rN:[rNoiseBase[0]+0.3*cosA,rNoiseBase[1]+0.3*sinA,rNoiseBase[2]],
+        prN:[prNoiseBase[0]+0.3*cosA,prNoiseBase[1]+0.3*sinA,prNoiseBase[2]],
+        paTI:paNTI, rTI:rNTI, prTI:prNTI,
+        paSpd:paSpd, rSpd:rSpd, prSpd:prSpd,
+        posAngMax:TWO_PI/8/1.65,
+        rMax:posR/2, rMin:posR/20,
+        posRMax:posR, posRMin:posR*0.75,
+        rotZ:Math.random()*TWO_PI, count:0
+      };
+    }
+    globalRot = [
+      [Math.random()*TWO_PI, Math.random()*0.003],
+      [Math.random()*TWO_PI, Math.random()*0.003],
+      [Math.random()*TWO_PI, Math.random()*0.003]
+    ];
+  }
+
+  var fc=0, lastTime=0, tpf=1000/45;
+
+  function draw(ts) {
+    if (!ts) ts=performance.now();
+    if (!lastTime) lastTime=ts;
+    var delta=ts-lastTime; if (delta>200) delta=200; lastTime=ts;
+    var fa=delta/tpf; fc+=fa;
+
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#e6e6e6';
+    ctx.fillRect(0,0,w,h);
+
+    var gRX=globalRot[0][0]+globalRot[0][1]*fc;
+    var gRY=globalRot[1][0]+globalRot[1][1]*fc;
+    var gRZ=globalRot[2][0]+globalRot[2][1]*fc;
+    var gMat=mm(mm(mm(rx(gRX),ry(gRY)),rz(gRZ)),rx(Math.PI/4));
+    var gMatH=mm(gMat,rx(HALF_PI));
+    ctx.lineWidth=Math.max(1,minW/600*dpr)/dpr;
+    var hw=w/2, hh=h/2;
+    var items=new Array(numRings);
+
+    for (var i=0;i<numRings;i++) {
+      var ring=rings[i], cnt=ring.count;
+      var paOff=ring.paSpd*cnt, rOff=ring.rSpd*cnt, prOff=ring.prSpd*cnt;
+      var paN=noise3(ring.paN[0],ring.paN[1]+paOff,ring.paN[2]+paOff);
+      var paVal=Math.sin(ring.paTI+TWO_PI*4*paN)*0.5+0.5;
+      var posAng=ring.angInit+(-ring.posAngMax+2*ring.posAngMax*paVal);
+      var rN=noise3(ring.rN[0],ring.rN[1]+rOff,ring.rN[2]+rOff);
+      var rVal=Math.sin(ring.rTI+TWO_PI*4*rN)*0.5+0.5;
+      var r=ring.rMin+(ring.rMax-ring.rMin)*rVal;
+      var prN=noise3(ring.prN[0],ring.prN[1]+prOff,ring.prN[2]+prOff);
+      var prVal=Math.sin(ring.prTI+TWO_PI*4*prN)*0.5+0.5;
+      var posRNew=ring.posRMin+(ring.posRMax-ring.posRMin)*prVal;
+      var colN=noise3(ring.prN[0]+1000,ring.prN[1]+prOff+1000,ring.prN[2]+prOff);
+      var colVal=Math.sin(ring.prTI+TWO_PI*3*colN+1000)*0.5+0.5;
+      var ci1=(colVal*5)|0; if(ci1>4)ci1=4;
+      var ci2=(ci1+1)%5, ct=(colVal-ci1/5)*5;
+      var c1=palette[ci1], c2=palette[ci2];
+      var cr=(c1[0]+(c2[0]-c1[0])*ct)|0, cg=(c1[1]+(c2[1]-c1[1])*ct)|0, cb=(c1[2]+(c2[2]-c1[2])*ct)|0;
+      var mat1=mm(gMatH,ry(posAng));
+      var cx=mat1[0]*posRNew, cy=mat1[3]*posRNew, cz=mat1[6]*posRNew;
+      var mat2=mm(mat1,rz(ring.rotZ));
+      items[i]={cx:cx+hw,cy:cy+hh,cz:cz,ux:mat2[0],uy:mat2[3],vx:mat2[1],vy:mat2[4],r:r,cr:cr,cg:cg,cb:cb};
+      ring.count+=fa;
+    }
+
+    items.sort(function(a,b){return a.cz-b.cz});
+    var depthRange=maxW*1.5;
+
+    // Quantize colors and batch stroke() calls for Firefox perf
+    // Instead of 1000 individual stroke() calls, batch rings sharing
+    // the same quantized color into single beginPath/stroke pairs
+    var lastStyle = '';
+    var hasPath = false;
+    for (var i=0;i<numRings;i++) {
+      var it=items[i];
+      var dep=0.15+0.85*((it.cz+depthRange)/(depthRange*2));
+      if(dep<0.06)dep=0.06; if(dep>1)dep=1;
+      // Quantize: round RGB to nearest 4, opacity to nearest 0.04
+      var qr=(it.cr+2>>2)<<2, qg=(it.cg+2>>2)<<2, qb=(it.cb+2>>2)<<2;
+      var qd=(Math.round(dep*25)/25).toFixed(2);
+      var style='rgba('+qr+','+qg+','+qb+','+qd+')';
+
+      if (style!==lastStyle) {
+        if (hasPath) ctx.stroke();
+        ctx.strokeStyle=style;
+        ctx.beginPath();
+        lastStyle=style;
+        hasPath=true;
+      }
+
+      var r=it.r, ox=it.cx, oy=it.cy;
+      var ux=it.ux*r, uy=it.uy*r, vx=it.vx*r, vy=it.vy*r;
+      ctx.moveTo(ox+cCos[0]*ux+cSin[0]*vx, oy+cCos[0]*uy+cSin[0]*vy);
+      for (var j=1;j<=SEG;j++) ctx.lineTo(ox+cCos[j]*ux+cSin[j]*vx, oy+cCos[j]*uy+cSin[j]*vy);
+    }
+    if (hasPath) ctx.stroke();
+    requestAnimationFrame(draw);
+  }
+
+  init();
+  window.addEventListener('resize', function(){ resize(); init(); });
+  requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Josh Urban Davis</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="logo_personalweb_favicon_io/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="logo_personalweb_favicon_io/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="logo_personalweb_favicon_io/favicon-16x16.png">
+  <link rel="manifest" href="logo_personalweb_favicon_io/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111111;
+      --bg-card: #1a1a1a;
+      --text-primary: #f0f0f0;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666666;
+      --accent: #f6ae2d;
+      --accent-dim: rgba(246, 174, 45, 0.15);
+      --border: rgba(255,255,255,0.08);
+      --border-light: rgba(255,255,255,0.15);
+      --nav-bg: rgba(10,10,10,0.85);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --max-width: 1280px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'Raleway', system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+      font-weight: 400;
+      overflow-x: hidden;
+    }
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: var(--accent); text-decoration: none; transition: opacity var(--transition); }
+    a:hover { opacity: 0.8; }
+    h1, h2, h3, h4 { font-weight: 600; line-height: 1.3; }
+    h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); letter-spacing: -0.01em; }
+    h3 { font-size: clamp(1.1rem, 2vw, 1.4rem); }
+    p { color: var(--text-secondary); margin-bottom: 1rem; }
+    .section-title {
+      text-align: center; margin-bottom: 1rem;
+      text-transform: uppercase; letter-spacing: 0.15em;
+      font-weight: 700; font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    }
+    .section-subtitle {
+      text-align: center; color: var(--text-muted);
+      margin-bottom: 3rem; font-size: 1rem; font-weight: 300;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: var(--nav-bg);
+      backdrop-filter: blur(20px) saturate(1.5);
+      -webkit-backdrop-filter: blur(20px) saturate(1.5);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: var(--max-width); margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.5rem; height: 60px;
+    }
+    .nav-brand {
+      font-weight: 700; font-size: 0.9rem; letter-spacing: 0.15em;
+      color: var(--text-primary); text-transform: uppercase;
+    }
+    .nav-links { display: flex; gap: 0.25rem; }
+    .nav-links a {
+      color: var(--text-secondary); font-size: 0.78rem; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.5rem 0.9rem; border-radius: 6px; transition: all var(--transition);
+    }
+    .nav-links a:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); opacity: 1; }
+    .nav-toggle {
+      display: none; background: none; border: none; color: var(--text-primary);
+      cursor: pointer; padding: 0.5rem;
+    }
+    .nav-toggle svg { width: 24px; height: 24px; }
+    @media (max-width: 768px) {
+      .nav-links {
+        position: fixed; top: 60px; left: 0; right: 0;
+        background: var(--nav-bg); backdrop-filter: blur(20px);
+        flex-direction: column; padding: 1rem;
+        border-bottom: 1px solid var(--border);
+        transform: translateY(-120%); transition: transform var(--transition);
+      }
+      .nav-links.open { transform: translateY(0); }
+      .nav-links a { padding: 0.75rem 1rem; font-size: 0.85rem; }
+      .nav-toggle { display: block; }
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      height: 100vh;
+      min-height: 600px;
+      overflow: hidden;
+    }
+    .hero canvas {
+      position: absolute; top: 0; left: 0;
+      width: 100% !important; height: 100% !important;
+    }
+    .hero-overlay {
+      position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    }
+    .hero-top-line {
+      position: absolute;
+      top: clamp(5rem, 12vh, 10rem);
+      left: clamp(2rem, 6vw, 6rem);
+      right: clamp(2rem, 6vw, 6rem);
+      font-size: clamp(3rem, 9vw, 8.5rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      line-height: 0.9;
+      text-align: left;
+      color: var(--text-primary);
+    }
+    .hero-top-line .thin {
+      font-weight: 200;
+      letter-spacing: 0.1em;
+      color: rgba(240, 240, 240, 0.5);
+    }
+    .hero-bottom-row {
+      position: absolute;
+      bottom: clamp(3rem, 8vh, 7rem);
+      left: clamp(2rem, 6vw, 6rem);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      pointer-events: all;
+    }
+    .hero-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+    .hero-tag {
+      font-size: clamp(0.65rem, 0.9vw, 0.82rem);
+      font-weight: 400;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #555;
+      margin-right: 1rem;
+    }
+    .hero-divider {
+      width: 1px; height: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      margin-right: 0.5rem;
+      flex-shrink: 0;
+    }
+    .hero-social {
+      display: flex; gap: 1rem;
+    }
+    .hero-social a {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(0, 0, 0, 0.35);
+      border-radius: 50%;
+      transition: all var(--transition);
+    }
+    .hero-social a:hover { color: var(--accent); opacity: 1; transform: scale(1.1); }
+    .hero-social svg { width: 19px; height: 19px; }
+    @media (max-width: 768px) {
+      .hero-bottom-row { flex-wrap: wrap; }
+    }
+
+    /* SECTIONS */
+    section { padding: clamp(4rem, 8vw, 8rem) 1.5rem; }
+    .section-inner { max-width: var(--max-width); margin: 0 auto; }
+    section:nth-child(even) { background: var(--bg-secondary); }
+
+    /* ABOUT */
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+    .about-text p { font-size: 1.02rem; }
+    .about-image img {
+      border-radius: var(--radius); width: 100%; max-width: 420px;
+      margin-left: auto; object-fit: cover; border: 1px solid var(--border);
+    }
+    .about-social { display: flex; gap: 1rem; margin: 1.5rem 0; }
+    .about-social a { color: var(--text-secondary); transition: color var(--transition); }
+    .about-social a:hover { color: var(--accent); opacity: 1; }
+    .about-social svg { width: 20px; height: 20px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.65rem 1.4rem; border-radius: var(--radius-sm);
+      font-size: 0.85rem; font-weight: 600; letter-spacing: 0.05em;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid var(--border-light);
+      color: var(--text-primary); background: transparent; cursor: pointer;
+    }
+    .btn:hover {
+      border-color: var(--accent); color: var(--text-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      border-width: 2px; padding: calc(0.65rem - 1px) calc(1.4rem - 1px);
+      opacity: 1;
+    }
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .btn-accent { background: var(--accent); color: var(--bg-primary); border-color: var(--accent); }
+    .btn-accent:hover {
+      background: #e5a029; border-color: #e5a029;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(246,174,45,0.25);
+    }
+    .btn-accent:active { transform: translateY(0); box-shadow: none; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+    @media (max-width: 768px) {
+      .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .about-image { order: -1; }
+      .about-image img { margin: 0 auto; }
+    }
+
+    /* PUBLICATIONS */
+    .pub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+    .pub-card {
+      background: var(--bg-card); border-radius: var(--radius);
+      border: 1px solid var(--border); overflow: hidden;
+      transition: all var(--transition); display: flex; flex-direction: column;
+    }
+    .pub-card:hover {
+      border-color: var(--border-light); transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    }
+    .pub-card img { width: 100%; aspect-ratio: 16/10; object-fit: cover; }
+    .pub-card-body { padding: 1.25rem; flex: 1; display: flex; flex-direction: column; }
+    .pub-card-body h3 { font-size: 1rem; margin-bottom: 0.5rem; line-height: 1.4; }
+    .pub-card-body .authors { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .pub-card-body .venue { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem; flex: 1; }
+    .pub-badge {
+      display: inline-block; font-size: 0.72rem; font-weight: 600;
+      padding: 0.2rem 0.6rem; border-radius: 4px; margin-right: 0.4rem; margin-bottom: 0.5rem;
+    }
+    .badge-rate { background: rgba(246,174,45,0.15); color: var(--accent); }
+    .badge-award { background: rgba(220,60,60,0.15); color: #ef6b6b; }
+    .pub-links { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: auto; }
+    .pub-links a {
+      font-size: 0.78rem; padding: 0.35rem 0.75rem;
+      border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text-secondary); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-weight: 500;
+    }
+    .pub-links a:hover {
+      border-color: var(--accent); color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+      border-width: 2px; padding: calc(0.35rem - 1px) calc(0.75rem - 1px);
+      opacity: 1;
+    }
+    .pub-links a:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    /* PROJECTS */
+    .project-block { margin-bottom: 4rem; padding-bottom: 4rem; border-bottom: 1px solid var(--border); }
+    .project-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .project-header { margin-bottom: 2rem; }
+    .project-header h3 {
+      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+      text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;
+    }
+    .project-split { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+    .project-split.reverse > :first-child { order: 2; }
+    .project-split.reverse > :last-child { order: 1; }
+    @media (max-width: 768px) {
+      .project-split { grid-template-columns: 1fr; gap: 1.5rem; }
+      .project-split.reverse > :first-child { order: 0; }
+      .project-split.reverse > :last-child { order: 0; }
+    }
+    .project-media img, .project-media iframe {
+      border-radius: var(--radius); border: 1px solid var(--border); width: 100%;
+    }
+    .video-wrap {
+      position: relative; padding-bottom: 56.25%;
+      border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border);
+    }
+    .video-wrap iframe {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%; border: none; border-radius: 0;
+    }
+
+    /* GALLERY */
+    .gallery {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: 220px; grid-auto-flow: dense; gap: 0.5rem; margin-top: 1.5rem;
+    }
+    .gallery img {
+      width: 100%; height: 100%; object-fit: cover;
+      border-radius: var(--radius-sm); cursor: pointer;
+      transition: all var(--transition); border: 1px solid var(--border);
+    }
+    .gallery img:hover { transform: scale(1.02); border-color: var(--border-light); z-index: 1; }
+    .gallery img.span-wide { grid-column: span 2; }
+    .gallery img.span-tall { grid-row: span 2; }
+    .gallery img.span-big { grid-column: span 2; grid-row: span 2; }
+    @media (max-width: 768px) {
+      .gallery { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 180px; }
+      .gallery img.span-wide, .gallery img.span-big { grid-column: span 2; }
+      .gallery img.span-tall { grid-row: span 2; }
+      .gallery img.span-big { grid-row: span 1; }
+    }
+
+    /* LIGHTBOX */
+    .lightbox {
+      display: none; position: fixed; inset: 0; z-index: 2000;
+      background: rgba(0,0,0,0.92); backdrop-filter: blur(10px);
+      justify-content: center; align-items: center; flex-direction: column;
+      cursor: pointer; padding: 2rem;
+    }
+    .lightbox.active { display: flex; }
+    .lightbox img { max-width: 90vw; max-height: 80vh; object-fit: contain; border-radius: var(--radius); }
+    .lightbox-caption { margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem; font-style: italic; }
+    .lightbox-close {
+      position: absolute; top: 1.5rem; right: 1.5rem;
+      background: none; border: none; color: var(--text-primary);
+      font-size: 2rem; cursor: pointer; width: 44px; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; transition: background var(--transition);
+    }
+    .lightbox-close:hover { background: rgba(255,255,255,0.1); }
+
+    /* CONTACT */
+    .contact-inner { max-width: 800px; margin: 0 auto; text-align: center; }
+    .contact-headline {
+      font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 700;
+      letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 2.5rem;
+      background: linear-gradient(135deg, var(--accent) 0%, #fac9b8 40%, #2e86ab 70%, #758e4f 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .contact-line { width: 60px; height: 1px; background: var(--border-light); margin: 0 auto 2.5rem; }
+    .contact-links { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; }
+    .contact-links a {
+      color: var(--text-muted); font-size: 1rem; font-weight: 400;
+      letter-spacing: 0.03em; transition: color var(--transition);
+    }
+    .contact-links a:hover { color: var(--text-primary); opacity: 1; }
+    .contact-links .contact-loc { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem; }
+
+    /* FOOTER */
+    footer { text-align: center; padding: 3rem 1.5rem; border-top: 1px solid var(--border); }
+    .footer-social { display: flex; gap: 1rem; justify-content: center; margin-top: 1rem; }
+    .footer-social a { color: var(--text-muted); transition: color var(--transition); }
+    .footer-social a:hover { color: var(--accent); opacity: 1; }
+    .footer-social svg { width: 20px; height: 20px; }
+
+    /* SCROLL REVEAL */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#home" class="nav-brand">Josh Urban Davis</a>
+    <div class="nav-links" id="navLinks">
+      <a href="#about" onclick="closeNav()">About</a>
+      <a href="#publications" onclick="closeNav()">Publications</a>
+      <a href="#design" onclick="closeNav()">Design</a>
+      <a href="http://73f7b8-3.myshopify.com" target="_blank">Shop</a>
+      <a href="#contact" onclick="closeNav()">Contact</a>
+    </div>
+    <button class="nav-toggle" onclick="toggleNav()" aria-label="Toggle navigation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO — C Inline layout -->
+<div class="hero" id="home">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-overlay">
+    <div class="hero-top-line"><span class="thin">Josh</span><br>Urban Davis</div>
+    <div class="hero-bottom-row">
+      <div class="hero-dot"></div>
+      <div class="hero-tag">Researcher, Designer, Maker</div>
+      <div class="hero-divider"></div>
+      <div class="hero-social">
+        <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank" aria-label="Google Scholar">
+          <svg viewBox="0 0 256 256" fill="currentColor"><path d="M128 0L0 80l48 28v72l80 48 80-48v-72l16-9.3V176h16V72L128 0zM128 180l-64-38.4V120l64 38 64-38v21.6L128 180z"/></svg>
+        </a>
+        <a href="https://www.instagram.com/joshurbandavis" target="_blank" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="https://github.com/joshurbandavis" target="_blank" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+        <a href="https://twitter.com/joshurbandavis" target="_blank" aria-label="Twitter">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="https://www.linkedin.com/in/joshurbandavis/" target="_blank" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-inner">
+    <div class="about-grid reveal">
+      <div class="about-text">
+        <h2 style="margin-bottom: 1.5rem;">About</h2>
+        <p>I'm a designer and engineer working at the intersection of machine learning, computer vision, and human-computer interaction. Based in San Francisco, I build multimodal systems that push on questions of creativity, communication, and who gets to participate in both.</p>
+        <p>My research has received best paper awards at C&C and ASSETS, honorable mentions at CHI, and recognition from the Neukom Institute for outstanding research. My creative practice has been supported by a grant from the Queer Arts Council and featured in the <em>Queer Futures Journal</em> by 3oC. Selected work has been exhibited at Grey Area Foundation for the Arts, D!iverseWorks, Synaps Projects, the Blaffer Art Museum, and the Chandler Center for the Arts, and featured in collaboration with the New School as part of the Venice Architecture Biennale in 2021.</p>
+        <p style="color: var(--text-primary);">I live with my two cats, Jynx and Nyx.</p>
+        <div class="about-social">
+          <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank" aria-label="Google Scholar"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M128 0L0 80l48 28v72l80 48 80-48v-72l16-9.3V176h16V72L128 0zM128 180l-64-38.4V120l64 38 64-38v21.6L128 180z"/></svg></a>
+          <a href="https://www.instagram.com/joshurbandavis" target="_blank" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/></svg></a>
+          <a href="https://twitter.com/joshurbandavis" target="_blank" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="https://github.com/joshurbandavis" target="_blank" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg></a>
+          <a href="https://www.linkedin.com/in/joshurbandavis/" target="_blank" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        </div>
+        <div class="btn-row">
+          <a href="files/Josh_cv_2025_condensed.pdf" target="_blank" class="btn">Download CV</a>
+          <a href="files/joshua_resume_short.pdf" target="_blank" class="btn">Download Resume</a>
+        </div>
+      </div>
+      <div class="about-image">
+        <img src="images/josh_recon.PNG" alt="Josh Urban Davis profile photo">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PUBLICATIONS -->
+<section id="publications">
+  <div class="section-inner">
+    <h2 class="section-title reveal">Peer-Reviewed Publications</h2>
+    <div class="pub-grid" id="pubGrid"></div>
+  </div>
+</section>
+
+<!-- DESIGN -->
+<section id="design">
+  <div class="section-inner">
+    <h2 class="section-title reveal">Design</h2>
+    <p class="section-subtitle reveal">past and ongoing works</p>
+
+    <div class="project-block reveal">
+      <div class="project-header"><h3>Selected Works</h3></div>
+      <p>Experiments in photomanipulation, shader rendering, generative neural networks, and digital collage — spanning ongoing series including <em>A Sudden Rush of Blood to the Skin</em>, <em>Hideouts</em>, and <em>Postcards from the Electric Void</em>. Source code on GitHub, more images and videos on Instagram.</p>
+      <div class="btn-row" style="margin-bottom:1.5rem;">
+        <a href="https://www.instagram.com/joshurbandavis/?hl=en" target="_blank" class="btn">See More</a>
+        <a href="https://dl.acm.org/doi/10.1145/3450741.3466771" target="_blank" class="btn">Publication at C&C</a>
+        <a href="http://www.aiartonline.com/community/josh-urban-davis/" target="_blank" class="btn">Publication at NeurIPS</a>
+      </div>
+      <div class="gallery">
+        <img src="images/aSuddenRush/vanitas_2_2v2_final.png" class="span-big" alt="a sudden rush of blood to the skin" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_4.JPG" alt="Pixel Dripper No. 3" onclick="openLightbox(this)">
+        <img src="images/collage_5_500_20_48.png" alt="Collage" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/gold.png" alt="the space between two bodies is a body too" onclick="openLightbox(this)">
+        <img src="images/space_gen6.png" alt="Postcard from the Electric Void" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_6805.JPG" class="span-wide" alt="Wall of Wonders" onclick="openLightbox(this)">
+        <img src="images/garden.png" alt="A Garden in Perpetual Collapse" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/wave.png" alt="i just wish we could kiss somewhere that isn't melting" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_0812.png" class="span-tall" alt="Postcards from the Electric Void No. 44522" onclick="openLightbox(this)">
+        <img src="images/frame_01001.png" alt="Generated landscape" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/vanitas_3_2.png" alt="i am skinless in a limo" onclick="openLightbox(this)">
+        <img src="images/creature_thumb.JPG" alt="Creature" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_2.JPG" class="span-wide" alt="Beyond the Beast's Tongue" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/jan_large_2.png" alt="violence" onclick="openLightbox(this)">
+        <img src="images/butterly_epiphany.jpg" alt="Butterfly Epiphany" onclick="openLightbox(this)">
+        <img src="images/vertigo.png" class="span-tall" alt="Self-Portrait as Vertigo" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_1.JPG" alt="Butterfly Epiphany" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/fruit_2_vert.png" alt="break me into bigger pieces so some of me is home with you" onclick="openLightbox(this)">
+        <img src="images/space_grid.jpg" class="span-wide" alt="Postcards grid" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_0525.png" alt="Self-Portrait as Vertigo" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/slitScan.png" alt="roses are roses" onclick="openLightbox(this)">
+        <img src="images/feather_river.png" alt="Feather River" onclick="openLightbox(this)">
+        <img src="images/piexel_dripper_2.jpg" alt="Pixel Dripper No. 7" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_0477.png" class="span-big" alt="Feather River" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/roses_2.png" alt="mysterious forces at play" onclick="openLightbox(this)">
+        <img src="images/golden_portrait.jpg" alt="Self Portrait as Scattering Glitter" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_6403.jpg" alt="Pixel Dripper No. 7" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/randomPurple.png" alt="purple shifted" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_0818.png" class="span-wide" alt="A Garden in Perpetual Collapse" onclick="openLightbox(this)">
+        <img src="images/pixel_puddle.jpg" alt="Pixel Dripper No. 9" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/wave_detail.png" alt="i just wish we could kiss somewhere that isn't melting (detail)" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_0663.png" alt="Self Portrait as Scattering Glitter" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/sampleScan.png" alt="sample and replicate No. 15" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_0417.jpg" alt="Pixel Dripper No. 9" onclick="openLightbox(this)">
+        <img src="images/aSuddenRush/random_blur.png" class="span-wide" alt="random walk on a rose" onclick="openLightbox(this)">
+        <img src="images/hideouts/IMG_3.JPG" alt="Postcard from the Electric Void No. 552" onclick="openLightbox(this)">
+      </div>
+    </div>
+
+    <div class="project-block reveal">
+      <div class="project-header"><h3>Deleted World Tarot</h3></div>
+      <div class="project-split">
+        <div>
+          <p>Deleted World Tarot is an illustration project begun in 2020. Many influences went into this deck, from emerging technologies and internet cultures, to occult histories and tarot illustrations past.</p>
+          <p>The early days of the internet seemed to offer a utopian promise of unlimited connection and community. Yet these visions of better worlds have faded into our current disinformation era of cyber superstitions and data-driven oppression. In both of these failed utopian visions — religious and digital — something was lost along the way. A choice was made. A world was deleted.</p>
+          <p>The Deleted World Tarot is a tool for healing the rift between the choices of the past and the consequential loss of alternative futures. A tool and a story told out of order and out of time, it's a hope that illuminates the worlds we lose by the choices we make every day, and a call to consider what is worth saving. What is not saved will be lost.</p>
+          <div class="btn-row">
+            <a href="https://73f7b8-3.myshopify.com/" target="_blank" class="btn btn-accent">Purchase the Deck</a>
+            <a href="https://www.instagram.com/joshurbandavis/?hl=en" target="_blank" class="btn">See More</a>
+          </div>
+        </div>
+        <div class="project-media"><img src="images/octorococo.jpg" alt="Deleted World Tarot card illustration"></div>
+      </div>
+    </div>
+
+    <div class="project-block reveal">
+      <div class="project-header"><h3>if you go_say hello</h3></div>
+      <div class="project-split">
+        <div>
+          <p>if you go_say hello was conceived as a memorial project in collaboration with The New School Center for Policy in Space for the 2021 Venice Architecture Biennale.</p>
+          <p>The project comprises an AI trained on the collected writing of a recently deceased poet which was attached to a commercial satellite and sent into space. Twice a day, visitors to a web portal received transmissions from the satellite of writings produced by the AI circling the planet. Over time the small computer housing the AI slowly corrupted due to electromagnetic radiation. The twice-daily transmissions slowly shifted from legible text to strange sentences, to random characters and eventually, total cessation of communication.</p>
+          <p>The collected writings including the corrupted transmissions were bound and distributed as a memento mori at the funeral of the poet. if you go_say hello is a meditation on loss, the physics of death, and the transformation of data across space and time.</p>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">The name of the deceased and the subsequent writing have remained private out of respect for the family's wishes. Sponsored by The New School Center for Space Policy for the Venice Architecture Biennale 2021.</p>
+        </div>
+        <div class="project-media"><img src="images/venice.png" alt="Venice Biennale 2021 exhibition listing"></div>
+      </div>
+    </div>
+
+    <div class="project-block reveal">
+      <div class="project-header"><h3>The Night Air: COVID Poetry Project</h3></div>
+      <div class="project-split">
+        <div>
+          <p>The Night Air is a collaborative poem composed by visitors to thenightair.com during the COVID-19 lockdown of 2020.</p>
+          <p>Miasma, a now disbanded medical term originating in the middle ages, was once thought to be the root cause of plagues. Also known as "the night air," Miasma suggested that bad air spread illness. COVID-19, ironically, is a disease spread through the air.</p>
+          <p>The Night Air is a place to record personal experiences during this pandemic through a single collective poem, revealing our shifting moods and varying perspectives across the world.</p>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Sponsored by a grant from the Houston Arts Alliance.</p>
+        </div>
+        <div class="project-media"><img src="images/nightair.png" alt="The Night Air logo"></div>
+      </div>
+    </div>
+
+    <div class="project-block reveal">
+      <div class="project-header"><h3>thisObituaryDoesNotExist.com</h3></div>
+      <div class="project-split">
+        <div>
+          <p>thisObituaryDoesNotExist comprises a physical and digital collection of obituaries generated by two artificial neural networks. StyleGAN and GPT-2 are shown images and text from publicly available online obituaries, then asked to imagine new ones — generating infinitely many photographs, death narratives, and life stories for persons who never existed.</p>
+          <p>The physical exhibition consists of funeral pamphlets indistinguishable from those for physical persons. The digital website generates a new obituary each time the page is refreshed.</p>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Premiered at Chandler Center for the Arts, 2019.</p>
+          <div class="btn-row"><a href="http://thisobituarydoesnotexist.com/" target="_blank" class="btn btn-accent">Visit the Obituary</a></div>
+        </div>
+        <div class="project-media"><img src="images/thisobit_thumb_2.jpg" alt="thisObituaryDoesNotExist installation"></div>
+      </div>
+    </div>
+
+    <div class="project-block reveal">
+      <div class="project-header"><h3>Psych-VR</h3></div>
+      <div class="project-split reverse">
+        <div>
+          <p>PsycheVR is a virtual reality and biofeedback project conducted in collaboration with the Space Medicine Laboratory at the Geisel School of Medicine and NASA. The project develops VR content to promote relaxation in small, isolated spaces for long durations — products used in trial experimentation with NASA astronauts intended for future Mars missions.</p>
+          <p>"Three Days and a Year On Top of a Mountain" is a VR sunrise-to-sunset timelapse recorded over a year on Gile Mountain, allowing the viewer to experience a day and year simultaneously.</p>
+        </div>
+        <div class="project-media">
+          <div class="video-wrap"><iframe src="https://www.youtube.com/embed/PTOQoZnPwww" allowfullscreen loading="lazy"></iframe></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-block reveal">
+      <div class="project-header"><h3>Animation</h3></div>
+      <p>A series of ongoing animation experiments initiated in 2017, blending visual documentation of abandoned sculptures, time-lapse sequences from laboratory experiments, and visual programming explorations. Each animation is integrated with writings from contemporary authors, with soundscapes crafted using SuperCollider.</p>
+      <div class="project-split" style="margin-top: 2rem;">
+        <div>
+          <h4 style="margin-bottom: 0.5rem;">{i keep my frankenstein in a jar}</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">2020 — A perpetual code and sound animation. Commissioned for Tele Magazine.</p>
+          <div class="btn-row"><a href="https://joshurbandavis.github.io/pages/frank.html" target="_blank" class="btn">Watch Live</a></div>
+        </div>
+        <div class="project-media">
+          <div class="video-wrap"><iframe src="https://www.youtube.com/embed/hHA1MAiMG8I" allowfullscreen loading="lazy"></iframe></div>
+        </div>
+      </div>
+      <div class="project-split" style="margin-top: 2.5rem;">
+        <div>
+          <h4 style="margin-bottom: 0.5rem;">Extinction</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">2018 — Words by Elizabeth Lyons.</p>
+        </div>
+        <div class="project-media">
+          <div class="video-wrap"><iframe src="https://www.youtube.com/embed/2hFV_rQct-k" allowfullscreen loading="lazy"></iframe></div>
+        </div>
+      </div>
+      <div class="project-split" style="margin-top: 2.5rem;">
+        <div>
+          <h4 style="margin-bottom: 0.5rem;">The Wild Iris</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">2017 — Words by Louise Glück. Inspired by <em>Burn</em> by Darcy Rosenburger.</p>
+        </div>
+        <div class="project-media">
+          <div class="video-wrap"><iframe src="https://www.youtube.com/embed/xMLsnjvVQ5E" allowfullscreen loading="lazy"></iframe></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="contact-inner reveal">
+      <h2 class="contact-headline">Let's build<br>something strange</h2>
+      <div class="contact-line"></div>
+      <div class="contact-links">
+        <span class="contact-loc">San Francisco, CA</span>
+        <a href="mailto:hello@joshurbandavis.com">hello@joshurbandavis.com</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#home" class="btn" style="margin-bottom:1.5rem;">Back to top</a>
+  <div class="footer-social">
+    <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank" aria-label="Google Scholar"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M128 0L0 80l48 28v72l80 48 80-48v-72l16-9.3V176h16V72L128 0zM128 180l-64-38.4V120l64 38 64-38v21.6L128 180z"/></svg></a>
+    <a href="https://www.instagram.com/joshurbandavis/" target="_blank" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/></svg></a>
+    <a href="https://github.com/joshurbandavis" target="_blank" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg></a>
+    <a href="https://twitter.com/joshurbandavis" target="_blank" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <a href="https://www.linkedin.com/in/joshurbandavis/" target="_blank" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+  </div>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" aria-label="Close">&times;</button>
+  <img id="lightboxImg" src="" alt="">
+  <p class="lightbox-caption" id="lightboxCaption"></p>
+</div>
+
+<script>
+function toggleNav() { document.getElementById('navLinks').classList.toggle('open'); }
+function closeNav() { document.getElementById('navLinks').classList.remove('open'); }
+
+function openLightbox(el) {
+  document.getElementById('lightboxImg').src = el.src;
+  document.getElementById('lightboxCaption').textContent = el.alt;
+  document.getElementById('lightbox').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+
+var reveals = document.querySelectorAll('.reveal');
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+  });
+}, { threshold: 0.1 });
+reveals.forEach(function(el) { observer.observe(el); });
+
+var pubs = [
+  { img:"images/imwut23.png", title:"\"It's Not an Issue of Malice, but of Ignorance\": Towards Inclusive Video Conferencing for Presenters Who are d/Deaf or Hard of Hearing", authors:"<u>Josh Urban Davis</u>, Hongwei Wang, Parmit K. Chilana, Xing-Dong Yang", venue:"IMWUT/UbiComp '23", rate:"23.2%", links:[{label:"Paper",href:"files/davis_imwut23.pdf"},{label:"ACM",href:"https://dl.acm.org/doi/10.1145/3610901"}] },
+  { img:"images/making_blurred_docSym.jpg", title:"Multimodal Direction Manipulation in Video Conferencing: Challenges and Opportunities", authors:"<u>Josh Urban Davis</u>, Paul Asente, Xing-Dong Yang", venue:"DIS '23", rate:"24.6%", links:[{label:"Paper",href:"files/DIS23_Multimodal_Direct_Manipulation.pdf"},{label:"ACM",href:"https://dl.acm.org/doi/10.1145/3563657.3596099"},{label:"Demo",href:"https://youtu.be/kmUDDjTNRCw"}] },
+  { img:"images/altText_thumb.png", title:"Exploring AltNarrative in HCI Imagery and Comics", authors:"Makayla Lewis, Miriam Sturdee, John Miers, Thuong Hoang, <u>Josh Urban Davis</u>", venue:"CHI '22", rate:"21%", links:[{label:"Paper",href:"files/altText.pdf"},{label:"ACM",href:"https://dl.acm.org/doi/10.1145/3491101.3516394"}] },
+  { img:"images/pokerface_thumb3.png", title:"PokerFace: Exploring Augmenting Masks through an Interactive, Mixed-Reality Prototype", authors:"<u>Josh Urban Davis</u>, John Tang, Edward Cutrell, Teddy Seyed", venue:"HICSS '22", links:[{label:"Paper",href:"files/pokerface.pdf"},{label:"ACM",href:"https://hdl.handle.net/10125/79732"},{label:"Talk",href:"https://youtu.be/i3ebUKSHNuc"}] },
+  { img:"images/Fig2_05_v3.png", title:"Designing Co-Creative AI in Virtual Environments", authors:"<u>Josh Urban Davis</u>, Fraser Anderson, Merten Stroetzel, Tovi Grossman, George Fitzmaurice", venue:"C&C '21", rate:"23.1%", links:[{label:"Paper",href:"files/calliope.pdf"},{label:"ACM",href:"https://dl.acm.org/doi/10.1145/3450741.3465260"},{label:"Talk",href:"https://youtu.be/J8WJhj35_5E"}] },
+  { img:"images/hidout-triangle.jpg", title:"A Plurality of Practices: Artistic Narratives in HCI Research", authors:"<u>Josh Urban Davis</u>, Miriam Sturdee, Makayla Lewis, Angelika Strohmayer, Katta Spiel, Nantia Koulidou, Sarah Fdili Alaoui", venue:"C&C '21", rate:"31%", award:"Best Paper: Top 1%", links:[{label:"Paper",href:"files/Art_HCI_CR.pdf"},{label:"ACM",href:"https://dl.acm.org/doi/10.1145/3450741.3466771"},{label:"Demo",href:"https://youtu.be/ycWEKL6HnHg"}] },
+  { img:"images/gofont.JPG", title:"Font Your Friends and Loved Ones: On the Utility of Ugly Interfaces", authors:"<u>Josh Urban Davis</u> & Johann Wentzel", venue:"CHI '21", rate:"21%", links:[{label:"Paper",href:"files/font_your_friends_preprint.pdf"},{label:"ACM",href:"https://dl.acm.org/doi/10.1145/3411763.3450371"},{label:"Try It",href:"http://gofontyourself.xyz/"}] },
+  { img:"images/MSR_v2.png", title:"Mixed Abilities and Varied Experiences: A Group Auto-ethnography of a Virtual Summer Internship", authors:"Kelly Mack, Maitraye Das, Dhruv Jain, Danielle Bragg, John Tang, Andrew Begel, Erin Beneteau, <u>Josh Urban Davis</u>, Abraham Glasser, Joon Sung Park, Venkatesh Potluri", venue:"ASSETS '21", rate:"23.2%", award:"Best Paper: Top 5%", links:[{label:"Paper",href:"files/assets_21_final.pdf"},{label:"ACM",href:"https://dl.acm.org/doi/10.1145/3441852.3471199"}] },
+  { img:"images/tangiblecircuits_header_images.png", title:"TangibleCircuits: An Interactive 3D Printed Circuit Education Tool for People with Visual Impairments", authors:"<u>Josh Urban Davis</u>, Te-Yen Wu, Bo Shi, Hanyi Lui, Athina Panotopoulou, Emily Whiting, Xing-Dong Yang", venue:"CHI '20", rate:"23%", award:"Honorable Mention: Top 5%", links:[{label:"Paper",href:"files/tangiblecircuits_CHI20.pdf"},{label:"ACM",href:"https://dl.acm.org/doi/abs/10.1145/3313831.3376513"},{label:"Demo",href:"https://www.youtube.com/watch?v=wcd1_HpeStA"}] },
+  { img:"images/circuitstyle_thumb.png", title:"CircuitStyle: A System for Peripherally Reinforcing Best Practices in Hardware Computing", authors:"<u>Josh Urban Davis</u>, Jun Gong, Yunxin Sun, Parmit Chilana, Xing-Dong Yang", venue:"UIST '19", rate:"20.6%", links:[{label:"Paper",href:"files/circuitstyle_uist19.pdf"},{label:"ACM",href:"https://dl.acm.org/citation.cfm?id=3332165.3347920"},{label:"Demo",href:"https://www.youtube.com/watch?v=zUsr06QR1mM"}] },
+  { img:"images/illumiwear_thumb.png", title:"IllumiWear: A Fiber-Optic eTextile for MultiMedia Interactions", authors:"<u>Josh Urban Davis</u>", venue:"NIME '19", rate:"31%", links:[{label:"Paper",href:"files/IllumiWear_final_corrected.pdf"},{label:"Demo",href:"https://www.youtube.com/watch?v=1tNn6CTtTFs"}] },
+  { img:"images/indutivo_thumb.png", title:"Indutivo: Contact-Based, Object-Driven Interactions with Inductive Sensing", authors:"Jun Gong, Xin Yang, Teddy Seyed, <u>Josh Urban Davis</u>, Xing-Dong Yang", venue:"UIST '18", rate:"21%", links:[{label:"Paper",href:"files/indutivo.pdf"},{label:"ACM",href:"https://dl.acm.org/citation.cfm?id=3332165.3347920"},{label:"Demo",href:"https://www.youtube.com/watch?v=XLmVo2tELM4"}] }
+];
+
+var grid = document.getElementById('pubGrid');
+pubs.forEach(function(p) {
+  var badges = '';
+  if (p.rate) badges += '<span class="pub-badge badge-rate">' + p.rate + ' accept</span>';
+  if (p.award) badges += '<span class="pub-badge badge-award">' + p.award + '</span>';
+  var links = p.links.map(function(l) { return '<a href="'+l.href+'" target="_blank">'+l.label+'</a>'; }).join('');
+  grid.innerHTML += '<div class="pub-card reveal"><img src="'+p.img+'" alt="'+p.title+'" loading="lazy"><div class="pub-card-body"><h3>'+p.title+'</h3><p class="authors">'+p.authors+'</p><p class="venue">'+p.venue+'</p>'+badges+'<div class="pub-links">'+links+'</div></div></div>';
+});
+document.querySelectorAll('.pub-card.reveal').forEach(function(el) { observer.observe(el); });
+
+// HERO CANVAS — identical to experiment, scale 0.55
+(function(){
+  var canvas = document.getElementById('heroCanvas');
+  var ctx = canvas.getContext('2d');
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var w, h, minW, maxW;
+  var rings, numRings;
+  var globalRot = [];
+  var palette = [[175,62,77],[46,134,171],[117,142,79],[0,42,50],[246,174,45],[250,201,184]];
+
+  var perm = new Uint8Array(512);
+  (function(){
+    var p = new Uint8Array(256);
+    for (var i = 0; i < 256; i++) p[i] = i;
+    for (var i = 255; i > 0; i--) {
+      var j = (Math.random() * (i + 1)) | 0;
+      var t = p[i]; p[i] = p[j]; p[j] = t;
+    }
+    for (var i = 0; i < 512; i++) perm[i] = p[i & 255];
+  })();
+
+  function fade(t) { return t*t*t*(t*(t*6-15)+10); }
+  function nlerp(a, b, t) { return a+t*(b-a); }
+  function grad3(hash, x, y, z) {
+    var h = hash & 15, u = h < 8 ? x : y, v = h < 4 ? y : (h===12||h===14 ? x : z);
+    return ((h&1)?-u:u)+((h&2)?-v:v);
+  }
+  function noise3(x, y, z) {
+    var X=Math.floor(x)&255, Y=Math.floor(y)&255, Z=Math.floor(z)&255;
+    x-=Math.floor(x); y-=Math.floor(y); z-=Math.floor(z);
+    var u=fade(x), v=fade(y), ww=fade(z);
+    var A=perm[X]+Y, AA=perm[A]+Z, AB=perm[A+1]+Z;
+    var B=perm[X+1]+Y, BA=perm[B]+Z, BB=perm[B+1]+Z;
+    return(nlerp(nlerp(nlerp(grad3(perm[AA],x,y,z),grad3(perm[BA],x-1,y,z),u),nlerp(grad3(perm[AB],x,y-1,z),grad3(perm[BB],x-1,y-1,z),u),v),nlerp(nlerp(grad3(perm[AA+1],x,y,z-1),grad3(perm[BA+1],x-1,y,z-1),u),nlerp(grad3(perm[AB+1],x,y-1,z-1),grad3(perm[BB+1],x-1,y-1,z-1),u),v),ww))*0.5+0.5;
+  }
+
+  var TWO_PI=Math.PI*2, HALF_PI=Math.PI/2, SEG=24;
+  var cCos=new Float64Array(SEG+1), cSin=new Float64Array(SEG+1);
+  for (var i=0;i<=SEG;i++) { cCos[i]=Math.cos(TWO_PI*i/SEG); cSin[i]=Math.sin(TWO_PI*i/SEG); }
+
+  function mm(a,b) {
+    return [
+      a[0]*b[0]+a[1]*b[3]+a[2]*b[6], a[0]*b[1]+a[1]*b[4]+a[2]*b[7], a[0]*b[2]+a[1]*b[5]+a[2]*b[8],
+      a[3]*b[0]+a[4]*b[3]+a[5]*b[6], a[3]*b[1]+a[4]*b[4]+a[5]*b[7], a[3]*b[2]+a[4]*b[5]+a[5]*b[8],
+      a[6]*b[0]+a[7]*b[3]+a[8]*b[6], a[6]*b[1]+a[7]*b[4]+a[8]*b[7], a[6]*b[2]+a[7]*b[5]+a[8]*b[8]
+    ];
+  }
+  function rx(a) { var c=Math.cos(a),s=Math.sin(a); return [1,0,0,0,c,-s,0,s,c]; }
+  function ry(a) { var c=Math.cos(a),s=Math.sin(a); return [c,0,s,0,1,0,-s,0,c]; }
+  function rz(a) { var c=Math.cos(a),s=Math.sin(a); return [c,-s,0,s,c,0,0,0,1]; }
+
+  function resize() {
+    w=canvas.clientWidth; h=canvas.clientHeight;
+    canvas.width=w*dpr; canvas.height=h*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    minW=Math.min(w,h); maxW=Math.max(w,h);
+  }
+
+  function shuffle(a) {
+    for (var i=a.length-1;i>0;i--) {
+      var j=(Math.random()*(i+1))|0;
+      var t=a[i]; a[i]=a[j]; a[j]=t;
+    }
+  }
+
+  function init() {
+    resize(); shuffle(palette);
+    var isMobile = w < 768;
+    numRings = isMobile ? 400 : 1000;
+    var posR = Math.min(w, h) * 0.55;
+    var paNoiseBase=[Math.random()*1e4,Math.random()*1e4,Math.random()*1e4];
+    var rNoiseBase=[Math.random()*1e4,Math.random()*1e4,Math.random()*1e4];
+    var prNoiseBase=[Math.random()*1e4,Math.random()*1e4,Math.random()*1e4];
+    var paNTI=Math.random()*TWO_PI, rNTI=Math.random()*TWO_PI, prNTI=Math.random()*TWO_PI;
+    var paSpd=0.0015*(Math.random()<0.5?-1:1);
+    var rSpd=0.0015*(Math.random()<0.5?-1:1);
+    var prSpd=0.0015*(Math.random()<0.5?-1:1);
+
+    rings = new Array(numRings);
+    for (var i=0;i<numRings;i++) {
+      var ang=TWO_PI/numRings*i, cosA=Math.cos(ang), sinA=Math.sin(ang);
+      rings[i] = {
+        angInit:ang,
+        paN:[paNoiseBase[0]+0.15*cosA,paNoiseBase[1]+0.15*sinA,paNoiseBase[2]],
+        rN:[rNoiseBase[0]+0.3*cosA,rNoiseBase[1]+0.3*sinA,rNoiseBase[2]],
+        prN:[prNoiseBase[0]+0.3*cosA,prNoiseBase[1]+0.3*sinA,prNoiseBase[2]],
+        paTI:paNTI, rTI:rNTI, prTI:prNTI,
+        paSpd:paSpd, rSpd:rSpd, prSpd:prSpd,
+        posAngMax:TWO_PI/8/1.65,
+        rMax:posR/2, rMin:posR/20,
+        posRMax:posR, posRMin:posR*0.75,
+        rotZ:Math.random()*TWO_PI, count:0
+      };
+    }
+    globalRot = [
+      [Math.random()*TWO_PI, Math.random()*0.003],
+      [Math.random()*TWO_PI, Math.random()*0.003],
+      [Math.random()*TWO_PI, Math.random()*0.003]
+    ];
+  }
+
+  var fc=0, lastTime=0, tpf=1000/45;
+
+  function draw(ts) {
+    if (!ts) ts=performance.now();
+    if (!lastTime) lastTime=ts;
+    var delta=ts-lastTime; if (delta>200) delta=200; lastTime=ts;
+    var fa=delta/tpf; fc+=fa;
+
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#e6e6e6';
+    ctx.fillRect(0,0,w,h);
+
+    var gRX=globalRot[0][0]+globalRot[0][1]*fc;
+    var gRY=globalRot[1][0]+globalRot[1][1]*fc;
+    var gRZ=globalRot[2][0]+globalRot[2][1]*fc;
+    var gMat=mm(mm(mm(rx(gRX),ry(gRY)),rz(gRZ)),rx(Math.PI/4));
+    var gMatH=mm(gMat,rx(HALF_PI));
+    ctx.lineWidth=Math.max(1,minW/600*dpr)/dpr;
+    var hw=w/2, hh=h/2;
+    var items=new Array(numRings);
+
+    for (var i=0;i<numRings;i++) {
+      var ring=rings[i], cnt=ring.count;
+      var paOff=ring.paSpd*cnt, rOff=ring.rSpd*cnt, prOff=ring.prSpd*cnt;
+      var paN=noise3(ring.paN[0],ring.paN[1]+paOff,ring.paN[2]+paOff);
+      var paVal=Math.sin(ring.paTI+TWO_PI*4*paN)*0.5+0.5;
+      var posAng=ring.angInit+(-ring.posAngMax+2*ring.posAngMax*paVal);
+      var rN=noise3(ring.rN[0],ring.rN[1]+rOff,ring.rN[2]+rOff);
+      var rVal=Math.sin(ring.rTI+TWO_PI*4*rN)*0.5+0.5;
+      var r=ring.rMin+(ring.rMax-ring.rMin)*rVal;
+      var prN=noise3(ring.prN[0],ring.prN[1]+prOff,ring.prN[2]+prOff);
+      var prVal=Math.sin(ring.prTI+TWO_PI*4*prN)*0.5+0.5;
+      var posRNew=ring.posRMin+(ring.posRMax-ring.posRMin)*prVal;
+      var colN=noise3(ring.prN[0]+1000,ring.prN[1]+prOff+1000,ring.prN[2]+prOff);
+      var colVal=Math.sin(ring.prTI+TWO_PI*3*colN+1000)*0.5+0.5;
+      var ci1=(colVal*5)|0; if(ci1>4)ci1=4;
+      var ci2=(ci1+1)%5, ct=(colVal-ci1/5)*5;
+      var c1=palette[ci1], c2=palette[ci2];
+      var cr=(c1[0]+(c2[0]-c1[0])*ct)|0, cg=(c1[1]+(c2[1]-c1[1])*ct)|0, cb=(c1[2]+(c2[2]-c1[2])*ct)|0;
+      var mat1=mm(gMatH,ry(posAng));
+      var cx=mat1[0]*posRNew, cy=mat1[3]*posRNew, cz=mat1[6]*posRNew;
+      var mat2=mm(mat1,rz(ring.rotZ));
+      items[i]={cx:cx+hw,cy:cy+hh,cz:cz,ux:mat2[0],uy:mat2[3],vx:mat2[1],vy:mat2[4],r:r,cr:cr,cg:cg,cb:cb};
+      ring.count+=fa;
+    }
+
+    items.sort(function(a,b){return a.cz-b.cz});
+    var depthRange=maxW*1.5;
+
+    // Quantize colors and batch stroke() calls for Firefox perf
+    // Instead of 1000 individual stroke() calls, batch rings sharing
+    // the same quantized color into single beginPath/stroke pairs
+    var lastStyle = '';
+    var hasPath = false;
+    for (var i=0;i<numRings;i++) {
+      var it=items[i];
+      var dep=0.15+0.85*((it.cz+depthRange)/(depthRange*2));
+      if(dep<0.06)dep=0.06; if(dep>1)dep=1;
+      // Quantize: round RGB to nearest 4, opacity to nearest 0.04
+      var qr=(it.cr+2>>2)<<2, qg=(it.cg+2>>2)<<2, qb=(it.cb+2>>2)<<2;
+      var qd=(Math.round(dep*25)/25).toFixed(2);
+      var style='rgba('+qr+','+qg+','+qb+','+qd+')';
+
+      if (style!==lastStyle) {
+        if (hasPath) ctx.stroke();
+        ctx.strokeStyle=style;
+        ctx.beginPath();
+        lastStyle=style;
+        hasPath=true;
+      }
+
+      var r=it.r, ox=it.cx, oy=it.cy;
+      var ux=it.ux*r, uy=it.uy*r, vx=it.vx*r, vy=it.vy*r;
+      ctx.moveTo(ox+cCos[0]*ux+cSin[0]*vx, oy+cCos[0]*uy+cSin[0]*vy);
+      for (var j=1;j<=SEG;j++) ctx.lineTo(ox+cCos[j]*ux+cSin[j]*vx, oy+cCos[j]*uy+cSin[j]*vy);
+    }
+    if (hasPath) ctx.stroke();
+    requestAnimationFrame(draw);
+  }
+
+  init();
+  window.addEventListener('resize', function(){ resize(); init(); });
+  requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>
