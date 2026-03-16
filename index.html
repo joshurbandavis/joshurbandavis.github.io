@@ -1,52 +1,755 @@
-<!-- 
-  Find & replace each line in your .works-grid section.
-  Only changed lines are listed — the aSuddenRush images were already correct.
--->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Josh Urban Davis</title>
+<link rel="apple-touch-icon" sizes="180x180" href="logo_personalweb_favicon_io/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="logo_personalweb_favicon_io/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="logo_personalweb_favicon_io/favicon-16x16.png">
+<link rel="manifest" href="logo_personalweb_favicon_io/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#050505;--fg:#ddd8d0;--dim:#5a564f;--accent:#c8ff2e;--accent2:#ff5e5b;--accent3:#d4a843;
+--serif:'Instrument Serif',Georgia,serif;
+--mono:'Space Mono',monospace;
+--sans:'Inter',system-ui,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);overflow-x:hidden;cursor:crosshair}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+::selection{background:var(--accent);color:var(--bg)}
 
-<!-- WAS: alt="Wall of Wonders" -->
-<img src="images/hideouts/IMG_6805.JPG" alt="Hideout No. 37" onclick="openM(this)">
+body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 
-<!-- WAS: alt="Postcards from the Electric Void No. 44522" -->
-<img src="images/hideouts/IMG_0812.png" alt="Hideout No. 114" onclick="openM(this)">
+.cursor-glow{position:fixed;width:300px;height:300px;border-radius:50%;pointer-events:none;z-index:1;background:radial-gradient(circle,rgba(200,255,46,.07),transparent 70%);transform:translate(-50%,-50%);transition:opacity .3s}
 
-<!-- WAS: alt="Pixel Dripper No. 3" -->
-<img src="images/hideouts/IMG_4.JPG" alt="Hideout No. 8" onclick="openM(this)">
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.5rem 3rem;display:flex;align-items:center;justify-content:space-between;transition:transform .3s}
+nav .logo{font-family:var(--mono);font-size:.8rem;letter-spacing:.2em;text-transform:uppercase}
+nav .nav-links{display:flex;gap:2.5rem}
+nav .nav-links a{font-family:var(--mono);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--fg);opacity:.5;transition:opacity .4s}
+nav .nav-links a:hover{opacity:1}
+.menu-btn{display:none;background:none;border:none;color:var(--fg);font-size:1.2rem;cursor:pointer}
 
-<!-- WAS: alt="Butterfly Epiphany" (duplicate) -->
-<img src="images/hideouts/IMG_1.JPG" alt="Holographic Fishing Net" onclick="openM(this)">
+.hero{position:relative;height:100vh;display:flex;align-items:flex-end;padding:0 3rem 6rem;overflow:hidden}
+.hero-canvas{position:absolute;inset:0;z-index:0}
+.hero-canvas canvas{width:100%!important;height:100%!important}
+.hero-content{position:relative;z-index:2;width:100%}
+.hero-pre{font-family:var(--mono);font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--dim);margin-bottom:1.5rem;opacity:.7}
+.hero-name{font-family:var(--serif);font-weight:400;line-height:.88;letter-spacing:-.03em;margin-bottom:1rem}
+.hero-name .line1{font-size:clamp(4rem,12vw,11rem);display:block}
+.hero-name .line2{font-size:clamp(3rem,9vw,8rem);display:block;font-style:italic;color:var(--accent);margin-left:clamp(2rem,8vw,8rem)}
+.hero-name .line3{font-size:clamp(3.5rem,10vw,9rem);display:block;margin-left:clamp(1rem,3vw,3rem)}
+.hero-bottom{display:flex;justify-content:space-between;align-items:flex-end;margin-top:2rem}
+.hero-bio{max-width:420px;font-size:.95rem;color:var(--fg);line-height:1.7;font-family:var(--sans);opacity:.55}
+.hero-links{display:flex;gap:1.2rem}
+.hero-links a{color:var(--dim);transition:color .3s;display:flex;align-items:center;justify-content:center;width:32px;height:32px}
+.hero-links a:hover{color:var(--accent);text-shadow:0 0 10px rgba(200,255,46,.3)}
+.hero-links svg{width:22px;height:22px}
+.hero-scroll{position:absolute;right:3rem;top:50%;transform:translateY(-50%) rotate(90deg);transform-origin:center;font-family:var(--mono);font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;color:var(--fg);opacity:.4}
 
-<!-- WAS: alt="Beyond the Beast's Tongue" -->
-<img src="images/hideouts/IMG_2.JPG" alt="Hideout No. 53" onclick="openM(this)">
+.marquee{overflow:hidden;padding:2rem 0;border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04);position:relative}
+.marquee-inner{display:flex;gap:3rem;animation:marqueeScroll 45s linear infinite;width:max-content}
+.marquee-inner span{font-family:var(--serif);font-size:1.2rem;font-style:italic;color:var(--dim);white-space:nowrap;animation:marqueeGlitch 8s infinite;position:relative}
+.marquee-inner span a{color:inherit;text-decoration:none;cursor:pointer;transition:color .3s}
+.marquee-inner span a:hover{color:var(--accent)}
+.marquee-inner span .dot{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--accent);margin:0 1.5rem;vertical-align:middle}
+@keyframes marqueeScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes marqueeGlitch{
+  0%,92%,100%{transform:none;opacity:1;text-shadow:none;filter:none}
+  93%{transform:translateX(-2px) skewX(-1deg);opacity:.85;text-shadow:2px 0 var(--accent),-2px 0 var(--accent2);filter:none}
+  94%{transform:translateX(3px) skewX(0.5deg);opacity:.9;text-shadow:-1px 0 var(--accent),1px 0 var(--accent2);filter:blur(0.5px)}
+  95%{transform:translateX(-1px);opacity:.7;text-shadow:3px 0 var(--accent),-3px 0 var(--accent2);filter:none}
+  96%{transform:translateX(1px) skewX(-0.5deg);opacity:.95;text-shadow:1px 0 var(--accent),-1px 0 var(--accent2);filter:blur(0.3px)}
+  97%{transform:none;opacity:1;text-shadow:none;filter:none}
+}
+/* Offset the two spans so they don't glitch in sync */
+.marquee-inner span:nth-child(2){animation-delay:-4s}
 
-<!-- WAS: alt="Collage" -->
-<img src="images/collage_5_500_20_48.png" alt="Pixel Dripper No. 1" onclick="openM(this)">
+section{padding:8rem 3rem}
+.section-num{font-family:var(--mono);font-size:.7rem;letter-spacing:.35em;color:var(--dim);margin-bottom:3rem;display:block}
+.section-head{font-family:var(--serif);font-size:clamp(2.5rem,5vw,4.5rem);font-weight:400;line-height:1.05;margin-bottom:1rem}
+.section-head em{font-style:italic;color:var(--accent)}
 
-<!-- WAS: alt="Feather River" -->
-<img src="images/hideouts/IMG_0477.png" alt="Hideout No. 71" onclick="openM(this)">
+.about-wrap{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:80vh}
+.about-left{padding:6rem 4rem 6rem 3rem;display:flex;flex-direction:column;justify-content:center}
+.about-right{position:relative;overflow:hidden}
+.about-right img{width:100%;height:100%;object-fit:cover;filter:grayscale(.2) contrast(1.05)}
+.about-right::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,var(--bg) 0%,transparent 15%)}
+.about-text{margin-top:2rem}
+.about-text p{color:var(--dim);font-size:.88rem;line-height:1.85;margin-bottom:1.5rem}
+.about-text p:first-child{color:var(--fg);font-size:1rem}
+.about-text p em{color:var(--fg);font-style:normal}
+.about-btns{display:flex;gap:1rem;margin-top:2rem}
+.pill{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.3rem;border-radius:100px;font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(255,255,255,.1);transition:all .3s;cursor:pointer;background:transparent;color:var(--fg);position:relative;overflow:hidden}
+.pill:hover{border-color:var(--accent);color:var(--accent);box-shadow:0 0 10px rgba(200,255,46,.25),0 0 30px rgba(200,255,46,.1),0 0 60px rgba(200,255,46,.05);text-shadow:0 0 8px rgba(200,255,46,.4)}
+.pill:active{box-shadow:0 0 5px rgba(200,255,46,.3);transform:scale(.97)}
+.pill-filled{background:var(--accent);color:var(--bg);border-color:var(--accent);text-shadow:none}
+.pill-filled:hover{background:#d4ff55;box-shadow:0 0 15px rgba(200,255,46,.4),0 0 40px rgba(200,255,46,.15),0 0 80px rgba(200,255,46,.08);text-shadow:none;color:var(--bg)}
 
-<!-- WAS: alt="Self-Portrait as Vertigo" (duplicate) -->
-<img src="images/hideouts/IMG_0525.png" alt="Hideout No. 22" onclick="openM(this)">
+.pub-section{background:var(--bg)}
+.pub-list{margin-top:4rem;border-top:1px solid rgba(255,255,255,.06)}
+.pub-item{display:grid;grid-template-columns:60px 1fr auto;gap:2rem;align-items:baseline;padding:2rem 0;border-bottom:1px solid rgba(255,255,255,.06);transition:all .4s;cursor:pointer;position:relative}
+.pub-item:hover{background:rgba(255,255,255,.015);padding-left:1rem;padding-right:1rem}
+.pub-num{font-family:var(--mono);font-size:.6rem;color:var(--dim);padding-top:.2rem}
+.pub-body h3{font-family:var(--serif);font-size:1.3rem;font-weight:400;line-height:1.3;margin-bottom:.4rem;transition:color .3s}
+.pub-item:hover .pub-body h3{color:var(--accent);text-shadow:0 0 10px rgba(200,255,46,.2)}
+.pub-body .meta{font-family:var(--mono);font-size:.6rem;color:var(--dim);letter-spacing:.05em;display:flex;flex-wrap:wrap;gap:.3rem .8rem;margin-top:.3rem}
+.pub-body .meta .award-tag{color:var(--accent);font-weight:700}
+.pub-actions{display:flex;gap:.6rem;align-items:center;opacity:0;transition:opacity .4s}
+.pub-item:hover .pub-actions{opacity:1}
+.pub-act{width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--dim);transition:all .3s}
+.pub-act:hover{border-color:var(--accent);color:var(--accent);box-shadow:0 0 10px rgba(200,255,46,.2),0 0 25px rgba(200,255,46,.08)}
 
-<!-- WAS: alt="Pixel Dripper No. 7" (was duplicate) -->
-<img src="images/piexel_dripper_2.jpg" alt="Pixel Dripper No. 2" onclick="openM(this)">
+.proj-section{padding-bottom:0}
+.proj-block{margin-bottom:0;padding:6rem 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.proj-hero{display:grid;grid-template-columns:1.2fr 1fr;gap:4rem;align-items:start}
+.proj-hero.flip{direction:rtl}
+.proj-hero.flip>*{direction:ltr}
+.proj-num{font-family:var(--mono);font-size:6rem;font-weight:700;color:rgba(255,255,255,.03);line-height:1;margin-bottom:-2.5rem;position:relative;z-index:0}
+.proj-title{font-family:var(--serif);font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:400;line-height:1.1;margin-bottom:1.5rem}
+.proj-title em{font-style:italic;color:var(--accent3)}
+.proj-desc{color:var(--dim);font-size:.85rem;line-height:1.85}
+.proj-desc p{margin-bottom:1rem}
+.proj-media{position:relative;border-radius:8px;overflow:hidden}
+.proj-media img{width:100%;border-radius:8px;transition:transform .6s;margin-top:0}
+.proj-media:hover img{transform:scale(1.02)}
+.iframe-wrap{position:relative;padding-bottom:56.25%;border-radius:8px;overflow:hidden}
+.iframe-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
 
-<!-- WAS: alt="Pixel Dripper No. 7" (duplicate) -->
-<img src="images/hideouts/IMG_6403.jpg" alt="Hideout Colony Collapse" onclick="openM(this)">
+.gallery{display:columns;columns:4;column-gap:8px;margin-top:2rem}
+.gallery img{width:100%;margin-bottom:8px;border-radius:4px;cursor:pointer;transition:all .5s;filter:grayscale(.15);break-inside:avoid}
+.gallery img:hover{filter:grayscale(0);transform:scale(1.01)}
 
-<!-- WAS: alt="A Garden in Perpetual Collapse" -->
-<img src="images/hideouts/IMG_0818.png" alt="Hideout No. 96" onclick="openM(this)">
+/* TAROT GRID */
+.tarot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:2rem}
+.tarot-grid img{width:100%;border-radius:4px;cursor:pointer;transition:all .5s;filter:grayscale(.1)}
+.tarot-grid img:hover{filter:grayscale(0);transform:scale(1.02)}
+@media(max-width:600px){
+  .tarot-grid{grid-template-columns:1fr 1fr}
+}
 
-<!-- WAS: alt="Pixel Dripper No. 9" -->
-<img src="images/pixel_puddle.jpg" alt="Pixel Puddle" onclick="openM(this)">
+/* WORKS GALLERY — masonry columns, no cropping */
+.works-grid{columns:4;column-gap:8px;margin-top:2rem}
+.works-grid img{width:100%;margin-bottom:8px;border-radius:4px;cursor:pointer;transition:all .5s;filter:grayscale(.12);break-inside:avoid}
+.works-grid img:hover{filter:grayscale(0);transform:scale(1.015)}
+@media(max-width:900px){
+  .works-grid{columns:3}
+}
+@media(max-width:600px){
+  .works-grid{columns:2}
+}
 
-<!-- WAS: alt="Self Portrait as Scattering Glitter" (duplicate) -->
-<img src="images/hideouts/IMG_0663.png" alt="Hideout No. 45" onclick="openM(this)">
+.contact{text-align:center;padding:10rem 3rem;position:relative}
+.contact-big{font-family:var(--serif);font-size:clamp(2rem,5vw,4rem);font-weight:400;line-height:1.2;margin-bottom:3rem}
+.contact-big em{font-style:italic;color:var(--accent2)}
+.contact-row{display:flex;gap:3rem;justify-content:center;flex-wrap:wrap}
+.contact-item{font-family:var(--mono);font-size:.7rem;color:var(--dim);display:flex;align-items:center;gap:.5rem;letter-spacing:.05em}
+.contact-item i{color:var(--accent)}
+.contact-links{display:flex;gap:1.5rem;justify-content:center;margin-top:3rem}
+.contact-links a{width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;color:var(--dim);transition:all .4s}
+.contact-links a:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-3px);box-shadow:0 0 12px rgba(200,255,46,.25),0 0 35px rgba(200,255,46,.1)}
+.contact-links svg{width:18px;height:18px}
 
-<!-- WAS: alt="Pixel Dripper No. 9" (duplicate) -->
-<img src="images/hideouts/IMG_0417.jpg" alt="Architecture Slouching Toward Ruins" onclick="openM(this)">
+footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,.04);font-family:var(--mono);font-size:.55rem;color:var(--dim);letter-spacing:.1em}
 
-<!-- WAS: alt="Postcard from the Electric Void No. 552" -->
-<img src="images/hideouts/IMG_3.JPG" alt="Hideout No. 61" onclick="openM(this)">
+.modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;backdrop-filter:blur(20px);cursor:zoom-out}
+.modal.open{display:flex}
+.modal img{max-width:92vw;max-height:90vh;object-fit:contain;border-radius:4px}
+.modal .cap{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:.65rem;color:var(--dim);letter-spacing:.1em}
+.modal .x{position:absolute;top:2rem;right:2.5rem;background:none;border:none;color:var(--fg);font-size:1.3rem;cursor:pointer;opacity:.5;transition:opacity .3s}
+.modal .x:hover{opacity:1}
 
-<!-- NEW: Add this to the .works-grid, anywhere among the hideouts -->
-<img src="images/hideout_triangle.jpg" alt="There's a Bridge from Here to There" onclick="openM(this)">
+.mob-nav{position:fixed;inset:0;z-index:150;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;gap:2.5rem}
+.mob-nav.open{display:flex}
+.mob-nav a{font-family:var(--serif);font-size:2.5rem;font-style:italic;color:var(--dim);transition:color .3s}
+.mob-nav a:hover{color:var(--accent);text-shadow:0 0 15px rgba(200,255,46,.3)}
+.mob-nav .x{position:absolute;top:1.5rem;right:2rem;background:none;border:none;color:var(--fg);font-size:1.5rem;cursor:pointer}
+
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.reveal.visible{opacity:1;transform:none}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}
+
+@media(max-width:900px){
+  section{padding:5rem 1.5rem}
+  nav{padding:1.2rem 1.5rem}
+  nav .nav-links{display:none}
+  .menu-btn{display:block}
+  .about-wrap{grid-template-columns:1fr}
+  .about-right{height:50vh;order:-1}
+  .about-right::after{background:linear-gradient(to top,var(--bg) 0%,transparent 30%)}
+  .about-left{padding:2rem 1.5rem}
+  .proj-hero,.proj-hero.flip{grid-template-columns:1fr;direction:ltr;gap:2rem}
+  .gallery{columns:2}
+  .pub-item{grid-template-columns:1fr;gap:.5rem}
+  .pub-num{display:none}
+  .pub-actions{opacity:1;margin-top:.5rem}
+  .hero{padding:0 1.5rem 4rem}
+  .hero-name .line2{margin-left:1rem}
+  .hero-name .line3{margin-left:.5rem}
+  .hero-scroll{display:none}
+  .hero-bottom{flex-direction:column;gap:1.5rem;align-items:flex-start}
+  footer{flex-direction:column;gap:1rem;text-align:center;padding:2rem 1.5rem}
+}
+@media(max-width:600px){
+  .gallery{columns:2}
+  .contact-row{flex-direction:column;align-items:center}
+}
+</style>
+</head>
+<body>
+
+<div class="cursor-glow" id="glow"></div>
+
+<nav>
+  <a href="#home" class="logo">JUD</a>
+  <div class="nav-links">
+    <a href="#about" onmouseover="this.style.color='#c8ff2e';this.style.textShadow='0 0 15px rgba(200,255,46,.4)';this.style.opacity='1'" onmouseout="this.style.color='';this.style.textShadow='';this.style.opacity=''">About</a>
+    <a href="#pubs" onmouseover="this.style.color='#c8ff2e';this.style.textShadow='0 0 15px rgba(200,255,46,.4)';this.style.opacity='1'" onmouseout="this.style.color='';this.style.textShadow='';this.style.opacity=''">Research</a>
+    <a href="#projects" onmouseover="this.style.color='#c8ff2e';this.style.textShadow='0 0 15px rgba(200,255,46,.4)';this.style.opacity='1'" onmouseout="this.style.color='';this.style.textShadow='';this.style.opacity=''">Design</a>
+    <a href="http://73f7b8-3.myshopify.com" target="_blank" onmouseover="this.style.color='#c8ff2e';this.style.textShadow='0 0 15px rgba(200,255,46,.4)';this.style.opacity='1'" onmouseout="this.style.color='';this.style.textShadow='';this.style.opacity=''">Shop</a>
+    <a href="#contact" onmouseover="this.style.color='#c8ff2e';this.style.textShadow='0 0 15px rgba(200,255,46,.4)';this.style.opacity='1'" onmouseout="this.style.color='';this.style.textShadow='';this.style.opacity=''">Contact</a>
+  </div>
+  <button class="menu-btn" onclick="document.querySelector('.mob-nav').classList.add('open')"><i class="fa fa-bars"></i></button>
+</nav>
+
+<div class="mob-nav">
+  <button class="x" onclick="this.parentElement.classList.remove('open')">&times;</button>
+  <a href="#about" onclick="this.parentElement.classList.remove('open')">About</a>
+  <a href="#pubs" onclick="this.parentElement.classList.remove('open')">Research</a>
+  <a href="#projects" onclick="this.parentElement.classList.remove('open')">Design</a>
+  <a href="http://73f7b8-3.myshopify.com" target="_blank" onclick="this.parentElement.classList.remove('open')">Shop</a>
+  <a href="#contact" onclick="this.parentElement.classList.remove('open')">Contact</a>
+</div>
+
+<section class="hero" id="home">
+  <div class="hero-canvas" id="heroCanvas"></div>
+  <div class="hero-content">
+    <p class="hero-pre">Researcher &bull; Engineer &bull; Designer &bull; Maker</p>
+    <h1 class="hero-name">
+      <span class="line1">Josh</span>
+      <span class="line2">Urban</span>
+      <span class="line3">Davis</span>
+    </h1>
+    <div class="hero-bottom">
+      <p class="hero-bio">Multimodal systems at the intersection of machine learning, computer vision, and who gets to participate in creativity.</p>
+      <div class="hero-links">
+        <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank" aria-label="Google Scholar"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M128 0L0 80l48 28v72l80 48 80-48v-72l16-9.3V176h16V72L128 0zM128 180l-64-38.4V120l64 38 64-38v21.6L128 180z"/></svg></a>
+        <a href="https://github.com/joshurbandavis" target="_blank" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        <a href="https://www.instagram.com/joshurbandavis" target="_blank" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg></a>
+        <a href="https://twitter.com/joshurbandavis" target="_blank" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+        <a href="https://www.linkedin.com/in/joshurbandavis/" target="_blank" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+      </div>
+    </div>
+  </div>
+  <span class="hero-scroll">Scroll to explore</span>
+</section>
+
+<div class="marquee">
+  <div class="marquee-inner">
+    <span><a href="http://thisobituarydoesnotexist.com/" target="_blank">StyleGAN</a><span class="dot"></span><a href="#projects">the space between two bodies is a body too</a><span class="dot"></span><a href="https://dl.acm.org/doi/full/10.1145/3681756.3697928" target="_blank">computer vision</a><span class="dot"></span><a href="#projects">roses are roses</a><span class="dot"></span><a href="#projects">EEG</a><span class="dot"></span><a onclick="openMUrl('images/garden.png')">a garden in perpetual collapse</a><span class="dot"></span><a href="#projects">satellite telemetry</a><span class="dot"></span><a href="#projects">mysterious forces at play</a><span class="dot"></span><a href="#projects">shader rendering</a><span class="dot"></span><a href="shop.html">what is not saved will be lost</a><span class="dot"></span><a href="files/calliope.pdf" target="_blank">neural networks</a><span class="dot"></span><a href="#projects">i just wish we could kiss somewhere that isn't melting</a><span class="dot"></span><a href="#projects">SuperCollider</a><span class="dot"></span><a href="#projects">break me into bigger pieces so some of me is home with you</a><span class="dot"></span></span>
+    <span><a href="http://thisobituarydoesnotexist.com/" target="_blank">StyleGAN</a><span class="dot"></span><a href="#projects">the space between two bodies is a body too</a><span class="dot"></span><a href="https://dl.acm.org/doi/full/10.1145/3681756.3697928" target="_blank">computer vision</a><span class="dot"></span><a href="#projects">roses are roses</a><span class="dot"></span><a href="#projects">EEG</a><span class="dot"></span><a onclick="openMUrl('images/garden.png')">a garden in perpetual collapse</a><span class="dot"></span><a href="#projects">satellite telemetry</a><span class="dot"></span><a href="#projects">mysterious forces at play</a><span class="dot"></span><a href="#projects">shader rendering</a><span class="dot"></span><a href="shop.html">what is not saved will be lost</a><span class="dot"></span><a href="files/calliope.pdf" target="_blank">neural networks</a><span class="dot"></span><a href="#projects">i just wish we could kiss somewhere that isn't melting</a><span class="dot"></span><a href="#projects">SuperCollider</a><span class="dot"></span><a href="#projects">break me into bigger pieces so some of me is home with you</a><span class="dot"></span></span>
+  </div>
+</div>
+
+<div class="about-wrap" id="about">
+  <div class="about-left">
+    <span class="section-num reveal">01 &mdash; About</span>
+    <h2 class="section-head reveal reveal-delay-1">Systems for<br>strange <em>futures</em></h2>
+    <div class="about-text reveal reveal-delay-2">
+      <p>I'm a designer and engineer working at the intersection of machine learning, computer vision, and human-computer interaction. Based in San Francisco, I build multimodal systems that push on questions of creativity, communication, and who gets to participate in both.</p>
+      <p>My research has received <em>best paper awards</em> at C&amp;C and ASSETS, honorable mentions at CHI, and recognition from the Neukom Institute. My creative practice has been supported by a grant from the Queer Arts Council and featured in the Queer Futures Journal.</p>
+      <p>Selected work exhibited at <em>Grey Area Foundation for the Arts</em>, D!iverseWorks, Synaps Projects, the Blaffer Art Museum, the Chandler Center for the Arts, and at the <em>Venice Architecture Biennale</em> in 2021.</p>
+      <p style="color:var(--fg)">I live with my two cats, Jynx and Nyx.</p>
+    </div>
+    <div class="about-btns reveal reveal-delay-3">
+      <a href="files/Josh_cv_2025_condensed.pdf" target="_blank" class="pill pill-filled">Download CV</a>
+      <a href="files/davis_joshua_resume_short.pdf" target="_blank" class="pill">Resume</a>
+    </div>
+  </div>
+  <div class="about-right">
+    <img src="images/josh_recon.PNG" alt="Josh Urban Davis">
+  </div>
+</div>
+
+<section class="pub-section" id="pubs">
+  <span class="section-num reveal">02 &mdash; Research</span>
+  <h2 class="section-head reveal reveal-delay-1">Peer-reviewed<br><em>publications</em></h2>
+  <div class="pub-list">
+    <div class="pub-item reveal" onclick="window.open('https://arxiv.org/abs/2509.18390','_blank')"><span class="pub-num">01</span><div class="pub-body"><h3>Improving the Color Accuracy of Lighting Estimation Models</h3><div class="meta"><span>Z. Zhang, Josh Urban Davis, J. P. A. Vu, J. Kuang, J-F. Lalonde</span><span>CVPR '25</span></div></div><div class="pub-actions"><a href="https://arxiv.org/abs/2509.18390" target="_blank" class="pub-act" title="Paper" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div></div>
+    <div class="pub-item reveal" onclick="window.open('https://dl.acm.org/doi/full/10.1145/3681756.3697928','_blank')"><span class="pub-num">02</span><div class="pub-body"><h3>Bridging Reality and the Virtual Environment: Perceptual Consistency and Visual Adaptation</h3><div class="meta"><span>J. Miao, A. Shin, J. Vu, T. Miki, G. Rong, Josh Urban Davis, Z. Li, W. Wang, J. Gao, J. Kuang</span><span>SIGGRAPH '24</span><span>~25% acceptance</span></div></div><div class="pub-actions"><a href="files/3681756.3697928.pdf" target="_blank" class="pub-act" title="Paper" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://dl.acm.org/doi/full/10.1145/3681756.3697928" target="_blank" class="pub-act" title="ACM DL" onclick="event.stopPropagation()"><i class="fa fa-key"></i></a></div></div>
+    <div class="pub-item reveal" onclick="window.open('files/davis_imwut23.pdf','_blank')"><span class="pub-num">03</span><div class="pub-body"><h3>"It's Not an Issue of Malice, but of Ignorance": Towards Inclusive Video Conferencing</h3><div class="meta"><span>Josh Urban Davis, H. Wang, P. Chilana, X-D. Yang</span><span>IMWUT / UbiComp '23</span><span>23.2% acceptance</span></div></div><div class="pub-actions"><a href="files/davis_imwut23.pdf" target="_blank" class="pub-act" title="Paper" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://dl.acm.org/doi/10.1145/3610901" target="_blank" class="pub-act" title="ACM DL" onclick="event.stopPropagation()"><i class="fa fa-key"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">04</span><div class="pub-body"><h3>Multimodal Direction Manipulation in Video Conferencing</h3><div class="meta"><span>Josh Urban Davis, P. Asente, X-D. Yang</span><span>DIS '23</span><span>24.6% acceptance</span></div></div><div class="pub-actions"><a href="files/DIS23_Multimodal_Direct_Manipulation.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/kmUDDjTNRCw" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">05</span><div class="pub-body"><h3>Exploring AltNarrative in HCI Imagery and Comics</h3><div class="meta"><span>M. Lewis, M. Sturdee, J. Miers, T. Hoang, Josh Urban Davis</span><span>CHI '22</span><span>21% acceptance</span></div></div><div class="pub-actions"><a href="files/altText.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">06</span><div class="pub-body"><h3>PokerFace: Exploring Augmenting Masks through Mixed-Reality</h3><div class="meta"><span>Josh Urban Davis, J. Tang, E. Cutrell, T. Seyed</span><span>HICSS '22</span></div></div><div class="pub-actions"><a href="files/pokerface.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/i3ebUKSHNuc" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">07</span><div class="pub-body"><h3>Designing Co-Creative AI in Virtual Environments</h3><div class="meta"><span>Josh Urban Davis, F. Anderson, M. Stroetzel, T. Grossman, G. Fitzmaurice</span><span>C&amp;C '21</span><span>23.1% acceptance</span></div></div><div class="pub-actions"><a href="files/calliope.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/J8WJhj35_5E" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">08</span><div class="pub-body"><h3>A Plurality of Practices: Artistic Narratives in HCI Research</h3><div class="meta"><span>Josh Urban Davis, M. Sturdee, M. Lewis, A. Strohmayer, K. Spiel, N. Koulidou, S. Fdili Alaoui</span><span>C&amp;C '21</span><span class="award-tag"><i class="fa fa-trophy"></i> Best Paper &mdash; Top 1%</span></div></div><div class="pub-actions"><a href="files/Art_HCI_CR.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/ycWEKL6HnHg" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">09</span><div class="pub-body"><h3>Font Your Friends and Loved Ones: On the Utility of Ugly Interfaces</h3><div class="meta"><span>Josh Urban Davis &amp; J. Wentzel</span><span>CHI '21</span><span>21% acceptance</span></div></div><div class="pub-actions"><a href="files/font_your_friends_preprint.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="http://gofontyourself.xyz/" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-external-link"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">10</span><div class="pub-body"><h3>Mixed Abilities and Varied Experiences: A Group Auto-Ethnography</h3><div class="meta"><span>K. Mack, M. Das, D. Jain, D. Bragg, J. Tang, A. Begel, E. Beneteau, Josh Urban Davis, et al.</span><span>ASSETS '21</span><span class="award-tag"><i class="fa fa-trophy"></i> Best Paper &mdash; Top 5%</span></div></div><div class="pub-actions"><a href="files/assets_21_final.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">11</span><div class="pub-body"><h3>TangibleCircuits: An Interactive 3D Printed Circuit Education Tool for People with Visual Impairments</h3><div class="meta"><span>Josh Urban Davis, T-Y. Wu, B. Shi, H. Lui, A. Panotopoulou, E. Whiting, X-D. Yang</span><span>CHI '20</span><span class="award-tag"><i class="fa fa-trophy"></i> Honorable Mention &mdash; Top 5%</span></div></div><div class="pub-actions"><a href="files/tangiblecircuits_CHI20.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=wcd1_HpeStA" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">12</span><div class="pub-body"><h3>CircuitStyle: Peripherally Reinforcing Best Practices in Hardware Computing</h3><div class="meta"><span>Josh Urban Davis, J. Gong, Y. Sun, P. Chilana, X-D. Yang</span><span>UIST '19</span><span>20.6% acceptance</span></div></div><div class="pub-actions"><a href="files/circuitstyle_uist19.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=zUsr06QR1mM" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">13</span><div class="pub-body"><h3>IllumiWear: A Fiber-Optic eTextile for MultiMedia Interactions</h3><div class="meta"><span>Josh Urban Davis</span><span>NIME '19</span></div></div><div class="pub-actions"><a href="files/IllumiWear_final_corrected.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=1tNn6CTtTFs" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal"><span class="pub-num">14</span><div class="pub-body"><h3>Indutivo: Contact-Based, Object-Driven Interactions with Inductive Sensing</h3><div class="meta"><span>J. Gong, X. Yang, T. Seyed, Josh Urban Davis, X-D. Yang</span><span>UIST '18</span></div></div><div class="pub-actions"><a href="files/indutivo.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=XLmVo2tELM4" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+  </div>
+</section>
+
+<section class="proj-section" id="projects">
+  <span class="section-num reveal">03 &mdash; Design</span>
+  <h2 class="section-head reveal reveal-delay-1">Past &amp; ongoing <em>works</em></h2>
+
+  <!-- 01: Deleted World Tarot -->
+  <div class="proj-block">
+    <div class="proj-hero reveal">
+      <div>
+        <div class="proj-num">01</div>
+        <h3 class="proj-title">Deleted World <em>Tarot</em></h3>
+        <div class="proj-desc">
+          <p>A fully illustrated 80-card tarot deck and guidebook. Many influences went into this deck, from emerging technologies and internet cultures to occult histories and tarot illustrations past.</p>
+          <p>The early internet promised unlimited connection; that vision faded into disinformation and data-driven oppression. In both failed utopian visions, religious and digital, something was lost. A choice was made. A world was deleted.</p>
+          <p>The Deleted World Tarot is a tool for healing the rift between the choices of the past and the loss of alternative futures. Includes a hand-illustrated companion book, <em style="color:var(--fg)">Atlas of Deleted Worlds</em>, custom marbled box, and printed ephemera. A story told out of order and out of time. What is not saved will be lost.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1rem">
+            <a href="shop.html" class="pill pill-filled">Purchase the Deck</a>
+            <a href="https://www.instagram.com/joshurbandavis/?hl=en" target="_blank" class="pill"><i class="fa fa-instagram"></i> See more</a>
+            <a href="https://notrealart.com/josh-urban-davis/" target="_blank" class="pill"><i class="fa fa-newspaper-o"></i> Press Feature</a>
+            <a href="https://dl.acm.org/doi/10.1145/3643834.3660735" target="_blank" class="pill"><i class="fa fa-file-text-o"></i> Research Paper</a>
+          </div>
+        </div>
+      </div>
+      <div class="proj-media">
+        <img src="images/IMG_8789.JPG" alt="Deleted World Tarot — First Printing spread" onclick="openM(this)" style="cursor:pointer;max-height:550px;width:auto;border-radius:8px;margin-left:auto;display:block">
+      </div>
+    </div>
+    <div style="columns:6;column-gap:6px;margin-top:1rem">
+      <img src="images/IMG_3413.jpg" alt="Deleted World Tarot — The Composer, Ambition, The Shapeshifter" onclick="openM(this)" style="width:100%;margin-bottom:6px;border-radius:4px;cursor:pointer;break-inside:avoid">
+      <img src="images/IMG_8772.JPG" alt="Deleted World Tarot — Between Pixels and Prophecy" onclick="openM(this)" style="width:100%;margin-bottom:6px;border-radius:4px;cursor:pointer;break-inside:avoid">
+      <img src="images/IMG_8785.JPG" alt="Deleted World Tarot — The Moon" onclick="openM(this)" style="width:100%;margin-bottom:6px;border-radius:4px;cursor:pointer;break-inside:avoid">
+      <img src="images/IMG_8793.JPG" alt="Deleted World Tarot — Box interior" onclick="openM(this)" style="width:100%;margin-bottom:6px;border-radius:4px;cursor:pointer;break-inside:avoid">
+      <img src="images/IMG_8775.JPG" alt="Deleted World Tarot — Atlas of Deleted Worlds" onclick="openM(this)" style="width:100%;margin-bottom:6px;border-radius:4px;cursor:pointer;break-inside:avoid">
+      <img src="images/IMG_8773.JPG" alt="Deleted World Tarot — What is not saved will be lost" onclick="openM(this)" style="width:100%;margin-bottom:6px;border-radius:4px;cursor:pointer;break-inside:avoid">
+    </div>
+  </div>
+
+  <!-- 02: if you go_say hello -->
+  <div class="proj-block">
+    <div class="proj-hero flip reveal">
+      <div>
+        <div class="proj-num">02</div>
+        <h3 class="proj-title">if you go_<em>say hello</em></h3>
+        <div class="proj-desc">
+          <p>A memorial: an AI trained on a deceased poet's writing, attached to a satellite, sent into orbit. Twice daily, visitors received transmissions. Over months, cosmic radiation corrupted the computer. Poems degraded to noise, then silence. The collected writings were bound as a memento mori.</p>
+          <p style="font-family:var(--mono);font-size:.65rem;color:var(--dim)">Venice Architecture Biennale, 2021. The poet's name remains private.</p>
+        </div>
+      </div>
+      <div class="proj-media"><img src="images/venice.png" alt="Venice Biennale 2021"></div>
+    </div>
+  </div>
+
+  <!-- 03: The Night Air -->
+  <div class="proj-block">
+    <div class="proj-hero reveal">
+      <div>
+        <div class="proj-num">03</div>
+        <h3 class="proj-title">The <em>Night Air</em></h3>
+        <div class="proj-desc">
+          <p>A collaborative poem composed by visitors during COVID-19 lockdown, inspired by miasma, the medieval belief that bad air spread plague. Ironically, COVID is airborne. Technology as connection, language as survival.</p>
+          <p style="font-family:var(--mono);font-size:.65rem;color:var(--dim)">Houston Arts Alliance grant.</p>
+        </div>
+      </div>
+      <div class="proj-media"><img src="images/nightair.png" alt="The Night Air"></div>
+    </div>
+  </div>
+
+  <!-- 04: Selected Works -->
+  <div class="proj-block">
+    <div class="proj-hero flip reveal">
+      <div>
+        <div class="proj-num">04</div>
+        <h3 class="proj-title">Selected <em>Works</em></h3>
+        <div class="proj-desc">
+          <p>Experiments in photomanipulation, shader rendering, generative neural networks, and digital collage, spanning ongoing series including <em style="color:var(--fg)">A Sudden Rush of Blood to the Skin</em><span style="color:var(--fg)">,</span> <em style="color:var(--fg)">Hideouts</em><span style="color:var(--fg)">,</span> and <em style="color:var(--fg)">Postcards from the Electric Void</em>.</p>
+          <p>These projects explore the tension between physical and virtual worlds: bodies dissolving under algorithmic pressure, architecture emptied of people lurching towards ruin, and machine hallucinations of space that flicker between the plausible and the uncanny. When the glitch arrives, it's the most human thing in the frame.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1rem">
+            <a href="https://www.instagram.com/joshurbandavis/?hl=en" target="_blank" class="pill"><i class="fa fa-instagram"></i> See more</a>
+            <a href="https://dl.acm.org/doi/10.1145/3450741.3466771" target="_blank" class="pill"><i class="fa fa-book"></i> C&amp;C</a>
+            <a href="http://www.aiartonline.com/community/josh-urban-davis/" target="_blank" class="pill"><i class="fa fa-file-text-o"></i> NeurIPS</a>
+          </div>
+        </div>
+      </div>
+      <div></div>
+    </div>
+    <div class="works-grid reveal">
+      <img src="images/aSuddenRush/vanitas_2_2v2_final.png" alt="a sudden rush of blood to the skin" onclick="openM(this)">
+      <img src="images/hideouts/IMG_6805.JPG" alt="Wall of Wonders" onclick="openM(this)">
+      <img src="images/space_gen6.png" alt="Postcard from the Electric Void" onclick="openM(this)">
+      <img src="images/aSuddenRush/fruit_2_vert.png" alt="break me into bigger pieces so some of me is home with you" onclick="openM(this)">
+      <img src="images/hideouts/IMG_0812.png" alt="Postcards from the Electric Void No. 44522" onclick="openM(this)">
+      <img src="images/butterly_epiphany.jpg" alt="Butterfly Epiphany" onclick="openM(this)">
+      <img src="images/aSuddenRush/gold.png" alt="the space between two bodies is a body too" onclick="openM(this)">
+      <img src="images/creature_thumb.JPG" alt="Creature" onclick="openM(this)">
+      <img src="images/hideouts/IMG_4.JPG" alt="Pixel Dripper No. 3" onclick="openM(this)">
+      <img src="images/aSuddenRush/slitScan.png" alt="roses are roses" onclick="openM(this)">
+      <img src="images/hideouts/IMG_1.JPG" alt="Butterfly Epiphany" onclick="openM(this)">
+      <img src="images/aSuddenRush/vanitas_3_2.png" alt="i am skinless in a limo" onclick="openM(this)">
+      <img src="images/hideouts/IMG_2.JPG" alt="Beyond the Beast's Tongue" onclick="openM(this)">
+      <img src="images/collage_5_500_20_48.png" alt="Collage" onclick="openM(this)">
+      <img src="images/aSuddenRush/roses_2.png" alt="mysterious forces at play" onclick="openM(this)">
+      <img src="images/hideouts/IMG_0477.png" alt="Feather River" onclick="openM(this)">
+      <img src="images/golden_portrait.jpg" alt="Self Portrait as Scattering Glitter" onclick="openM(this)">
+      <img src="images/vertigo.png" alt="Self-Portrait as Vertigo" onclick="openM(this)">
+      <img src="images/aSuddenRush/wave.png" alt="i just wish we could kiss somewhere that isn't melting" onclick="openM(this)">
+      <img src="images/hideouts/IMG_0525.png" alt="Self-Portrait as Vertigo" onclick="openM(this)">
+      <img src="images/piexel_dripper_2.jpg" alt="Pixel Dripper No. 7" onclick="openM(this)">
+      <img src="images/space_grid.jpg" alt="Postcards grid" onclick="openM(this)">
+      <img src="images/aSuddenRush/randomPurple.png" alt="purple shifted" onclick="openM(this)">
+      <img src="images/hideouts/IMG_6403.jpg" alt="Pixel Dripper No. 7" onclick="openM(this)">
+      <img src="images/aSuddenRush/sampleScan.png" alt="sample and replicate No. 15" onclick="openM(this)">
+      <img src="images/hideouts/IMG_0818.png" alt="A Garden in Perpetual Collapse" onclick="openM(this)">
+      <img src="images/aSuddenRush/jan_large_2.png" alt="violence" onclick="openM(this)">
+      <img src="images/pixel_puddle.jpg" alt="Pixel Dripper No. 9" onclick="openM(this)">
+      <img src="images/hideouts/IMG_0663.png" alt="Self Portrait as Scattering Glitter" onclick="openM(this)">
+      <img src="images/aSuddenRush/random_blur.png" alt="random walk on a rose" onclick="openM(this)">
+      <img src="images/hideouts/IMG_0417.jpg" alt="Pixel Dripper No. 9" onclick="openM(this)">
+      <img src="images/aSuddenRush/wave_detail.png" alt="i just wish we could kiss somewhere that isn't melting (detail)" onclick="openM(this)">
+      <img src="images/hideouts/IMG_3.JPG" alt="Postcard from the Electric Void No. 552" onclick="openM(this)">
+    </div>
+  </div>
+
+  <!-- 05: Synapstraction -->
+  <div class="proj-block">
+    <div class="proj-hero reveal">
+      <div>
+        <div class="proj-num">05</div>
+        <h3 class="proj-title"><em>Synapstraction</em></h3>
+        <div class="proj-desc">
+          <p>A brain-computer installation: EEG headsets measure your neural response to five stimuli, one per sense, each mapped to a painting implement through machine learning. Your brain serves as conduit. The senses use the artist to create an image.</p>
+          <p style="font-family:var(--mono);font-size:.65rem;color:var(--dim)">Black Visual Arts Center, 2017.</p>
+        </div>
+      </div>
+      <div class="proj-media">
+        <div class="iframe-wrap"><iframe src="https://www.youtube.com/embed/gZUT1KMxpoQ" allowfullscreen loading="lazy"></iframe></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 06: thisObituaryDoesNotExist -->
+  <div class="proj-block">
+    <div class="proj-hero flip reveal">
+      <div>
+        <div class="proj-num">06</div>
+        <h3 class="proj-title">thisObituary<em>DoesNot</em>Exist</h3>
+        <div class="proj-desc">
+          <p>StyleGAN and GPT-2 imagine photographs, death narratives, and life stories for people who never existed. Printed as funeral pamphlets indistinguishable from real ones. The website generates a new obituary on each refresh.</p>
+          <a href="http://thisobituarydoesnotexist.com/" target="_blank" class="pill"><i class="fa fa-external-link"></i> Visit</a>
+        </div>
+      </div>
+      <div class="proj-media"><img src="images/thisobit_thumb_2.jpg" alt="thisObituaryDoesNotExist"></div>
+    </div>
+  </div>
+
+  <!-- 07: Psych-VR -->
+  <div class="proj-block">
+    <div class="proj-hero reveal">
+      <div>
+        <div class="proj-num">07</div>
+        <h3 class="proj-title"><em>Psych</em>-VR</h3>
+        <div class="proj-desc">
+          <p>VR relaxation content for astronauts in isolated spaces, developed with NASA and the Geisel School of Medicine. "Three Days and a Year On Top of a Mountain" compresses a year of timelapse footage from Gile Mountain into a single sunrise-to-sunset experience.</p>
+        </div>
+      </div>
+      <div class="proj-media">
+        <div class="iframe-wrap"><iframe src="https://www.youtube.com/embed/PTOQoZnPwww" allowfullscreen loading="lazy"></iframe></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 08: Animation -->
+  <div class="proj-block">
+    <div class="proj-hero flip reveal">
+      <div>
+        <div class="proj-num">08</div>
+        <h3 class="proj-title"><em>Animation</em></h3>
+        <div class="proj-desc">
+          <p>Ongoing experiments since 2017: abandoned sculptures, lab timelapse, visual programming. Each film paired with contemporary literature, soundscaped in SuperCollider.</p>
+          <a href="https://joshurbandavis.github.io/pages/frank.html" target="_blank" class="pill"><i class="fa fa-eye"></i> Watch {frankenstein} live</a>
+        </div>
+      </div>
+      <div class="proj-media">
+        <div class="iframe-wrap"><iframe src="https://www.youtube.com/embed/2hFV_rQct-k" allowfullscreen loading="lazy"></iframe></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+          <div class="iframe-wrap"><iframe src="https://www.youtube.com/embed/hHA1MAiMG8I" allowfullscreen loading="lazy"></iframe></div>
+          <div class="iframe-wrap"><iframe src="https://www.youtube.com/embed/xMLsnjvVQ5E" allowfullscreen loading="lazy"></iframe></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <span class="section-num reveal">04 &mdash; Contact</span>
+  <h2 class="contact-big reveal reveal-delay-1">Let's build<br>something <em>strange</em></h2>
+  <div class="contact-row reveal reveal-delay-2">
+    <span class="contact-item"><i class="fa fa-map-marker"></i> San Francisco, CA</span>
+    <a href="mailto:hello@joshurbandavis.com" class="contact-item"><i class="fa fa-envelope"></i> hello@joshurbandavis.com</a>
+  </div>
+  <div class="contact-links reveal reveal-delay-3">
+    <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank" aria-label="Google Scholar"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M128 0L0 80l48 28v72l80 48 80-48v-72l16-9.3V176h16V72L128 0zM128 180l-64-38.4V120l64 38 64-38v21.6L128 180z"/></svg></a>
+    <a href="https://www.instagram.com/joshurbandavis/" target="_blank" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg></a>
+    <a href="https://github.com/joshurbandavis" target="_blank" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg></a>
+    <a href="https://twitter.com/joshurbandavis" target="_blank" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <a href="https://www.linkedin.com/in/joshurbandavis/" target="_blank" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+  </div>
+</section>
+
+<footer>
+  <span>&copy; 2025 Josh Urban Davis</span>
+  <span>Built with obsession</span>
+</footer>
+
+<div class="modal" id="modal" onclick="closeM()">
+  <button class="x">&times;</button>
+  <img id="mImg" src="">
+  <p class="cap" id="mCap"></p>
+</div>
+
+<script>
+var glow = document.getElementById('glow');
+var mx = 0, my = 0, gx = 0, gy = 0;
+document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; });
+(function glowLoop() {
+  gx += (mx - gx) * 0.08;
+  gy += (my - gy) * 0.08;
+  glow.style.left = gx + 'px';
+  glow.style.top = gy + 'px';
+  requestAnimationFrame(glowLoop);
+})();
+
+(function() {
+  var wrap = document.getElementById('heroCanvas');
+  var c = document.createElement('canvas');
+  wrap.appendChild(c);
+  var ctx = c.getContext('2d');
+  var w, h, pts = [], t = 0;
+  function resize() {
+    w = c.width = wrap.offsetWidth;
+    h = c.height = wrap.offsetHeight;
+    pts = [];
+    var count = w > 900 ? 120 : 60;
+    for (var i = 0; i < count; i++) {
+      var depth = Math.random();
+      var speed = 0.1 + depth * 0.3;
+      var size = 0.3 + depth * 2.5;
+      var alpha = 0.06 + depth * 0.14;
+      pts.push({ x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - 0.5) * speed, vy: (Math.random() - 0.5) * speed, r: size, depth: depth, alpha: alpha });
+    }
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  function draw() {
+    t += 0.003;
+    ctx.fillStyle = 'rgba(5,5,5,.12)';
+    ctx.fillRect(0, 0, w, h);
+    for (var i = 0; i < pts.length; i++) {
+      var p = pts[i];
+      p.x += p.vx + Math.sin(t + i * 0.3) * (0.05 + p.depth * 0.15);
+      p.y += p.vy + Math.cos(t + i * 0.2) * (0.05 + p.depth * 0.15);
+      if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+      if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+      for (var j = i + 1; j < pts.length; j++) {
+        var q = pts[j];
+        var dx = p.x - q.x, dy = p.y - q.y;
+        var d = Math.sqrt(dx * dx + dy * dy);
+        if (d < 180) {
+          var a = (1 - d / 180) * 0.06 * (p.depth + q.depth);
+          ctx.strokeStyle = 'rgba(200,255,46,' + a + ')';
+          ctx.lineWidth = 0.5;
+          ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
+        }
+      }
+      ctx.fillStyle = 'rgba(200,255,46,' + (p.alpha + Math.sin(t + i) * 0.04) + ')';
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+    }
+    for (var k = 0; k < pts.length; k++) {
+      var p2 = pts[k];
+      var dx2 = mx - p2.x, dy2 = my - p2.y + window.scrollY;
+      var d2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+      var attraction = 0.1 + p2.depth * 0.3;
+      if (d2 < 250 && d2 > 1) { p2.x += dx2 / d2 * attraction; p2.y += dy2 / d2 * attraction; }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+function openM(el) {
+  document.getElementById('mImg').src = el.src;
+  document.getElementById('mCap').textContent = el.alt;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeM() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeM(); });
+
+var obs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
+
+var lastScroll = 0;
+var navEl = document.querySelector('nav');
+window.addEventListener('scroll', function() {
+  var s = window.scrollY;
+  if (s > 100 && s > lastScroll) { navEl.style.transform = 'translateY(-100%)'; }
+  else { navEl.style.transform = 'translateY(0)'; }
+  lastScroll = s;
+});
+
+// TEXT SCRAMBLE on hover — pills and nav links
+var scrambleChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*';
+var scrambleTimers = {};
+var scrambleId = 0;
+
+function getTextOnly(el) {
+  var text = '';
+  for (var i = 0; i < el.childNodes.length; i++) {
+    if (el.childNodes[i].nodeType === 3) text += el.childNodes[i].textContent;
+  }
+  return text.trim();
+}
+
+function scrambleHover(el) {
+  var id = el.getAttribute('data-scramble-id');
+  if (!id) { id = String(++scrambleId); el.setAttribute('data-scramble-id', id); }
+  if (scrambleTimers[id]) { clearInterval(scrambleTimers[id]); }
+
+  var original = el.getAttribute('data-original-text');
+  if (!original) {
+    original = getTextOnly(el);
+    if (!original) return;
+    el.setAttribute('data-original-text', original);
+  }
+
+  // Find the text node to manipulate
+  var textNode = null;
+  for (var i = el.childNodes.length - 1; i >= 0; i--) {
+    if (el.childNodes[i].nodeType === 3 && el.childNodes[i].textContent.trim()) {
+      textNode = el.childNodes[i];
+      break;
+    }
+  }
+  if (!textNode) return;
+
+  var iterations = 0;
+  var total = original.length * 2;
+  scrambleTimers[id] = setInterval(function() {
+    var result = '';
+    for (var j = 0; j < original.length; j++) {
+      if (original[j] === ' ') { result += ' '; }
+      else if (j < iterations / 2) { result += original[j]; }
+      else { result += scrambleChars[(Math.random() * scrambleChars.length) | 0]; }
+    }
+    textNode.textContent = ' ' + result;
+    iterations++;
+    if (iterations > total) {
+      clearInterval(scrambleTimers[id]);
+      delete scrambleTimers[id];
+      textNode.textContent = ' ' + original;
+    }
+  }, 25);
+}
+
+function scrambleReset(el) {
+  var id = el.getAttribute('data-scramble-id');
+  if (id && scrambleTimers[id]) {
+    clearInterval(scrambleTimers[id]);
+    delete scrambleTimers[id];
+  }
+  var original = el.getAttribute('data-original-text');
+  if (!original) return;
+  var textNode = null;
+  for (var i = el.childNodes.length - 1; i >= 0; i--) {
+    if (el.childNodes[i].nodeType === 3 && el.childNodes[i].textContent.trim()) {
+      textNode = el.childNodes[i];
+      break;
+    }
+  }
+  if (textNode) textNode.textContent = ' ' + original;
+}
+
+// Attach to all pills and nav links
+document.querySelectorAll('.pill, nav .nav-links a, .mob-nav a').forEach(function(el) {
+  el.addEventListener('mouseenter', function() { scrambleHover(el); });
+  el.addEventListener('mouseleave', function() { scrambleReset(el); });
+});
+
+// MARQUEE GLITCH — periodic zalgo text corruption
+(function() {
+  var zalgoUp = ['\u0300','\u0301','\u0302','\u0303','\u0304','\u0305','\u0306','\u0307','\u0308','\u030A','\u030B','\u030C','\u030D','\u030E','\u030F','\u0310','\u0311','\u0312','\u0313','\u0314','\u0315','\u031A','\u033D','\u034A','\u034B','\u034C'];
+  var zalgoMid = ['\u0316','\u0317','\u0318','\u0319','\u031C','\u031D','\u031E','\u031F','\u0320','\u0321','\u0322','\u0323','\u0324','\u0325','\u0326','\u0327','\u0328','\u0329','\u032A','\u032B','\u032C','\u032D','\u032E','\u032F','\u0330','\u0331','\u0332','\u0333','\u0339','\u033A','\u033B','\u033C','\u0345','\u0347','\u0348','\u0349'];
+
+  function zalgoChar(c, intensity) {
+    if (c === ' ') return c;
+    var result = c;
+    var upCount = Math.floor(Math.random() * intensity) + 1;
+    var midCount = Math.floor(Math.random() * intensity);
+    for (var i = 0; i < upCount; i++) result += zalgoUp[(Math.random() * zalgoUp.length) | 0];
+    for (var i = 0; i < midCount; i++) result += zalgoMid[(Math.random() * zalgoMid.length) | 0];
+    return result;
+  }
+
+  function corruptText(str, intensity) {
+    var result = '';
+    for (var i = 0; i < str.length; i++) {
+      if (Math.random() < 0.4) {
+        result += zalgoChar(str[i], intensity);
+      } else {
+        result += str[i];
+      }
+    }
+    return result;
+  }
+
+  var marqueeSpans = document.querySelectorAll('.marquee-inner > span');
+  var originals = [];
+  marqueeSpans.forEach(function(span) {
+    originals.push(span.innerHTML);
+  });
+
+  function glitchCycle() {
+    var spanIdx = (Math.random() * marqueeSpans.length) | 0;
+    var span = marqueeSpans[spanIdx];
+    var orig = originals[spanIdx];
+    var parts = orig.split(/<span class="dot"><\/span>/);
+    var dotHTML = '<span class="dot"></span>';
+
+    setTimeout(function() {
+      span.innerHTML = parts.map(function(p) { return corruptText(p, 2); }).join(dotHTML);
+    }, 0);
+    setTimeout(function() {
+      span.innerHTML = parts.map(function(p) { return corruptText(p, 4); }).join(dotHTML);
+    }, 120);
+    setTimeout(function() {
+      span.innerHTML = parts.map(function(p) { return corruptText(p, 2); }).join(dotHTML);
+    }, 240);
+    setTimeout(function() {
+      span.innerHTML = orig;
+    }, 380);
+
+    setTimeout(glitchCycle, 4000 + Math.random() * 6000);
+  }
+
+  setTimeout(glitchCycle, 2000);
+})();
+</script>
+</body>
+</html>
