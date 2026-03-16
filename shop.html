@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shop — Josh Urban Davis</title>
+<link rel="apple-touch-icon" sizes="180x180" href="logo_personalweb_favicon_io/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="logo_personalweb_favicon_io/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="logo_personalweb_favicon_io/favicon-16x16.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#0a0708;--fg:#e8e0d4;--dim:#6b5e52;
+--gold:#c9a84c;--gold-dim:rgba(201,168,76,.15);--gold-glow:rgba(201,168,76,.35);
+--purple:#9b72cf;--purple-dim:rgba(155,114,207,.12);--purple-glow:rgba(155,114,207,.3);
+--deep:#2a1a3e;
+--serif:'Instrument Serif',Georgia,serif;
+--mono:'Space Mono',monospace;
+--sans:'Inter',system-ui,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);overflow-x:hidden;cursor:crosshair}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+::selection{background:var(--purple);color:#fff}
+
+/* GRAIN */
+body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* CURSOR GLOW — purple/gold blend */
+.cursor-glow{position:fixed;width:350px;height:350px;border-radius:50%;pointer-events:none;z-index:1;background:radial-gradient(circle,rgba(155,114,207,.06),rgba(201,168,76,.03) 50%,transparent 70%);transform:translate(-50%,-50%);transition:opacity .3s}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.5rem 3rem;display:flex;align-items:center;justify-content:space-between;background:rgba(10,7,8,.88);backdrop-filter:blur(12px);border-bottom:1px solid rgba(201,168,76,.06);transition:transform .3s}
+nav .logo{font-family:var(--mono);font-size:1rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+nav .nav-links{display:flex;gap:2.5rem}
+nav .nav-links a{font-family:var(--mono);font-size:.85rem;letter-spacing:.15em;text-transform:uppercase;color:var(--fg);opacity:.5;transition:all .4s}
+nav .back-link{font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);transition:all .3s;display:flex;align-items:center;gap:.5rem}
+nav .back-link:hover{color:var(--gold);text-shadow:0 0 12px var(--gold-glow)}
+.menu-btn{display:none;background:none;border:none;color:var(--fg);font-size:1.2rem;cursor:pointer}
+
+/* HERO */
+.shop-hero{padding:10rem 3rem 6rem;text-align:center;position:relative}
+.shop-hero .label{font-family:var(--mono);font-size:.7rem;letter-spacing:.5em;text-transform:uppercase;color:var(--purple);margin-bottom:1.5rem}
+.shop-hero h1{font-family:var(--serif);font-size:clamp(3rem,8vw,7rem);font-weight:400;line-height:.95;letter-spacing:-.02em}
+.shop-hero h1 em{font-style:italic;color:var(--gold)}
+.shop-hero .subtitle{font-family:var(--sans);font-size:1rem;color:var(--fg);opacity:.45;margin-top:1.5rem;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.7}
+.shop-hero .divider{width:60px;height:1px;background:linear-gradient(to right,transparent,var(--gold),transparent);margin:2rem auto 0;opacity:.4}
+
+/* PRODUCT */
+.product{padding:4rem 3rem 6rem;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;max-width:1300px;margin:0 auto}
+.product-gallery{display:flex;flex-direction:column;gap:8px}
+.product-main{position:relative;border-radius:8px;overflow:hidden;cursor:pointer;border:1px solid rgba(201,168,76,.08)}
+.product-main img{width:100%;border-radius:8px;transition:transform .6s}
+.product-main:hover img{transform:scale(1.02)}
+.product-thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.product-thumbs img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px;cursor:pointer;opacity:.45;transition:all .4s;border:2px solid transparent}
+.product-thumbs img:hover,.product-thumbs img.active{opacity:1;border-color:var(--gold);box-shadow:0 0 10px var(--gold-dim)}
+
+.product-info{padding-top:1rem}
+.product-tag{font-family:var(--mono);font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--purple);margin-bottom:1rem}
+.product-title{font-family:var(--serif);font-size:clamp(2rem,4vw,3.5rem);font-weight:400;line-height:1.05;margin-bottom:1.5rem}
+.product-title em{font-style:italic;color:var(--gold)}
+.product-price{font-family:var(--mono);font-size:1.8rem;color:var(--gold);margin-bottom:.5rem;letter-spacing:.05em}
+.product-shipping{font-family:var(--mono);font-size:.65rem;color:var(--dim);letter-spacing:.1em;margin-bottom:2rem}
+.product-desc{color:var(--dim);font-size:.9rem;line-height:1.85;margin-bottom:2rem}
+.product-desc p{margin-bottom:1rem}
+.product-desc em{color:var(--fg);font-style:normal}
+
+.product-details{border-top:1px solid rgba(201,168,76,.08);padding-top:1.5rem;margin-bottom:2rem}
+.detail-row{display:flex;justify-content:space-between;padding:.6rem 0;border-bottom:1px solid rgba(201,168,76,.06);font-size:.82rem}
+.detail-label{font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.detail-value{color:var(--fg);font-size:.85rem}
+
+/* BUTTONS — golden neon pulse */
+.pill{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.3rem;border-radius:100px;font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(201,168,76,.15);transition:all .3s;cursor:pointer;background:transparent;color:var(--fg);position:relative;overflow:hidden;text-decoration:none}
+.pill:hover{border-color:var(--gold);color:var(--gold);box-shadow:0 0 10px var(--gold-dim),0 0 30px rgba(201,168,76,.08),0 0 60px rgba(201,168,76,.04);text-shadow:0 0 8px var(--gold-glow)}
+.pill:active{box-shadow:0 0 5px var(--gold-glow);transform:scale(.97)}
+
+.btn-buy{display:inline-flex;align-items:center;justify-content:center;gap:.6rem;padding:.85rem 2.5rem;border-radius:100px;font-family:var(--mono);font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;background:var(--gold);color:var(--bg);border:2px solid var(--gold);cursor:pointer;transition:all .3s;text-decoration:none;font-weight:700}
+.btn-buy:hover{background:#d4b85c;box-shadow:0 0 20px var(--gold-glow),0 0 50px rgba(201,168,76,.15),0 0 80px rgba(201,168,76,.08);text-shadow:none}
+.btn-buy:active{transform:scale(.97)}
+
+.btn-secondary{display:inline-flex;align-items:center;justify-content:center;gap:.6rem;padding:.75rem 2rem;border-radius:100px;font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;background:transparent;color:var(--fg);border:1px solid rgba(155,114,207,.2);cursor:pointer;transition:all .3s;text-decoration:none}
+.btn-secondary:hover{border-color:var(--purple);color:var(--purple);box-shadow:0 0 10px var(--purple-dim),0 0 30px rgba(155,114,207,.08);text-shadow:0 0 8px var(--purple-glow)}
+
+.buy-section{display:flex;flex-direction:column;gap:1rem}
+.buy-buttons{display:flex;gap:1rem;flex-wrap:wrap}
+.secure-note{font-family:var(--mono);font-size:.55rem;color:var(--dim);letter-spacing:.1em;display:flex;align-items:center;gap:.4rem;margin-top:.5rem}
+
+/* WHAT'S INCLUDED */
+.includes{padding:6rem 3rem;border-top:1px solid rgba(201,168,76,.06)}
+.includes-inner{max-width:1300px;margin:0 auto}
+.includes h2{font-family:var(--serif);font-size:clamp(2rem,4vw,3rem);font-weight:400;margin-bottom:3rem}
+.includes h2 em{font-style:italic;color:var(--gold)}
+.includes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem}
+.include-card{padding:2rem;border:1px solid rgba(201,168,76,.06);border-radius:8px;transition:all .4s}
+.include-card:hover{border-color:rgba(201,168,76,.2);background:rgba(201,168,76,.02);box-shadow:0 0 25px rgba(201,168,76,.05)}
+.include-icon{font-family:var(--serif);font-size:2.5rem;font-style:italic;color:var(--purple);margin-bottom:1rem;opacity:.7}
+.include-card h3{font-family:var(--mono);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;margin-bottom:.8rem;color:var(--fg)}
+.include-card p{color:var(--dim);font-size:.85rem;line-height:1.7}
+
+/* PRESS */
+.press{padding:6rem 3rem;border-top:1px solid rgba(201,168,76,.06)}
+.press-inner{max-width:1300px;margin:0 auto;text-align:center}
+.press h2{font-family:var(--serif);font-size:clamp(1.5rem,3vw,2.2rem);font-weight:400;margin-bottom:2rem}
+.press h2 em{font-style:italic;color:var(--gold)}
+.press-links{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap}
+.press-link{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);padding:.7rem 1.5rem;border:1px solid rgba(201,168,76,.1);border-radius:100px;transition:all .3s;display:flex;align-items:center;gap:.5rem}
+.press-link:hover{border-color:var(--gold);color:var(--gold);box-shadow:0 0 10px var(--gold-dim),0 0 30px rgba(201,168,76,.08);text-shadow:0 0 8px var(--gold-glow)}
+
+/* FOOTER */
+footer{padding:4rem 3rem 2rem;border-top:1px solid rgba(201,168,76,.06);text-align:center}
+footer .back{font-family:var(--mono);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);transition:all .3s;display:inline-flex;align-items:center;gap:.5rem}
+footer .back:hover{color:var(--gold);text-shadow:0 0 12px var(--gold-glow)}
+footer p{font-family:var(--mono);font-size:.55rem;color:var(--dim);letter-spacing:.1em;margin-top:2rem}
+footer .tagline{font-family:var(--serif);font-style:italic;font-size:.9rem;color:var(--dim);margin-top:1rem;opacity:.5}
+
+/* MODAL */
+.modal{position:fixed;inset:0;z-index:200;background:rgba(10,7,8,.96);display:none;align-items:center;justify-content:center;backdrop-filter:blur(20px);cursor:zoom-out}
+.modal.open{display:flex}
+.modal img{max-width:92vw;max-height:90vh;object-fit:contain;border-radius:4px}
+.modal .x{position:absolute;top:2rem;right:2.5rem;background:none;border:none;color:var(--fg);font-size:1.3rem;cursor:pointer;opacity:.5;transition:opacity .3s}
+.modal .x:hover{opacity:1}
+
+/* MOBILE NAV */
+.mob-nav{position:fixed;inset:0;z-index:150;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;gap:2.5rem}
+.mob-nav.open{display:flex}
+.mob-nav a{font-family:var(--serif);font-size:2.5rem;font-style:italic;color:var(--dim);transition:all .3s}
+.mob-nav a:hover{color:var(--gold);text-shadow:0 0 15px var(--gold-glow)}
+.mob-nav .x{position:absolute;top:1.5rem;right:2rem;background:none;border:none;color:var(--fg);font-size:1.5rem;cursor:pointer}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.reveal.visible{opacity:1;transform:none}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  nav{padding:1.2rem 1.5rem}
+  nav .nav-links{display:none}
+  .menu-btn{display:block}
+  .shop-hero{padding:8rem 1.5rem 4rem}
+  .product{grid-template-columns:1fr;padding:2rem 1.5rem 4rem}
+  .includes,.press{padding:4rem 1.5rem}
+  .includes-grid{grid-template-columns:1fr}
+  footer{padding:3rem 1.5rem 2rem}
+}
+</style>
+</head>
+<body>
+
+<div class="cursor-glow" id="glow"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="back-link"><i class="fa fa-arrow-left"></i> Back</a>
+  <a href="index.html" class="logo">JUD</a>
+  <div class="nav-links">
+    <a href="index.html#about">About</a>
+    <a href="index.html#pubs">Research</a>
+    <a href="index.html#projects">Design</a>
+    <a href="index.html#contact">Contact</a>
+  </div>
+  <button class="menu-btn" onclick="document.querySelector('.mob-nav').classList.add('open')"><i class="fa fa-bars"></i></button>
+</nav>
+
+<div class="mob-nav">
+  <button class="x" onclick="this.parentElement.classList.remove('open')">&times;</button>
+  <a href="index.html" onclick="this.parentElement.classList.remove('open')">Home</a>
+  <a href="index.html#about" onclick="this.parentElement.classList.remove('open')">About</a>
+  <a href="index.html#projects" onclick="this.parentElement.classList.remove('open')">Design</a>
+  <a href="index.html#contact" onclick="this.parentElement.classList.remove('open')">Contact</a>
+</div>
+
+<!-- HERO -->
+<div class="shop-hero reveal">
+  <p class="label">Shop</p>
+  <h1>Deleted World<br><em>Tarot</em></h1>
+  <p class="subtitle">A fully illustrated 80-card tarot deck, companion guidebook, and custom packaging. Between pixels and prophecy.</p>
+  <div class="divider"></div>
+</div>
+
+<!-- PRODUCT -->
+<div class="product">
+  <div class="product-gallery reveal">
+    <div class="product-main" onclick="openM(this.querySelector('img'))">
+      <img src="images/IMG_8789.JPG" alt="Deleted World Tarot" id="mainImg">
+    </div>
+    <div class="product-thumbs">
+      <img src="images/IMG_8789.JPG" alt="Spread" class="active" onclick="swapImg(this)">
+      <img src="images/IMG_3413.jpg" alt="Cards" onclick="swapImg(this)">
+      <img src="images/IMG_8772.JPG" alt="Box" onclick="swapImg(this)">
+      <img src="images/IMG_8785.JPG" alt="The Moon" onclick="swapImg(this)">
+      <img src="images/IMG_8793.JPG" alt="Interior" onclick="swapImg(this)">
+      <img src="images/IMG_8775.JPG" alt="Guidebook" onclick="swapImg(this)">
+      <img src="images/IMG_8773.JPG" alt="Open box" onclick="swapImg(this)">
+      <img src="images/octorococo.jpg" alt="Card detail" onclick="swapImg(this)">
+    </div>
+  </div>
+  <div class="product-info reveal reveal-delay-1">
+    <div class="product-tag">Limited Edition — First Printing</div>
+    <h2 class="product-title">Deleted World <em>Tarot</em></h2>
+    <div class="product-price">$65</div>
+    <div class="product-shipping">Free shipping within the US</div>
+    <div class="product-desc">
+      <p>The Deleted World Tarot is a tool for healing the rift between the choices of the past and the loss of alternative futures. A story told out of order and out of time. What is not saved will be lost.</p>
+      <p>Each deck includes 80 hand-illustrated cards, the <em>Atlas of Deleted Worlds</em> companion guidebook, a custom marbled presentation box, and printed ephemera. Designed, written, and illustrated by Josh Urban Davis.</p>
+    </div>
+    <div class="product-details">
+      <div class="detail-row">
+        <span class="detail-label">Cards</span>
+        <span class="detail-value">80 fully illustrated</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Card stock</span>
+        <span class="detail-value">350gsm premium linen</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Guidebook</span>
+        <span class="detail-value">Atlas of Deleted Worlds, 120 pages</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Packaging</span>
+        <span class="detail-value">Custom marbled box with ephemera</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Edition</span>
+        <span class="detail-value">First printing, numbered</span>
+      </div>
+    </div>
+    <div class="buy-section">
+      <div class="buy-buttons">
+        <a href="http://73f7b8-3.myshopify.com" target="_blank" class="btn-buy"><i class="fa fa-shopping-bag"></i> Purchase Deck</a>
+        <a href="https://www.instagram.com/joshurbandavis/?hl=en" target="_blank" class="btn-secondary"><i class="fa fa-instagram"></i> See more</a>
+      </div>
+      <div class="secure-note"><i class="fa fa-lock"></i> Secure checkout</div>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT'S INCLUDED -->
+<div class="includes reveal">
+  <div class="includes-inner">
+    <h2>What's <em>inside</em></h2>
+    <div class="includes-grid">
+      <div class="include-card reveal reveal-delay-1">
+        <div class="include-icon">I</div>
+        <h3>80 Illustrated Cards</h3>
+        <p>Every card hand-illustrated with original collage artwork blending occult symbolism, internet culture, and art-historical references. Printed on 350gsm premium linen stock with a soft-touch finish.</p>
+      </div>
+      <div class="include-card reveal reveal-delay-2">
+        <div class="include-icon">II</div>
+        <h3>Atlas of Deleted Worlds</h3>
+        <p>A 120-page companion guidebook, written and illustrated. Card meanings, spreads, and the mythology of the Deleted World. Each card's story told through the lens of failed utopias and alternative futures.</p>
+      </div>
+      <div class="include-card reveal reveal-delay-3">
+        <div class="include-icon">III</div>
+        <h3>Presentation Box</h3>
+        <p>Custom marbled box housing the deck and guidebook, with printed ephemera. Designed as an object to keep, not just packaging. "What is not saved will be lost" inscribed on the interior.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRESS -->
+<div class="press reveal">
+  <div class="press-inner">
+    <h2>Featured <em>in</em></h2>
+    <div class="press-links">
+      <a href="https://notrealart.com/josh-urban-davis/" target="_blank" class="press-link"><i class="fa fa-newspaper-o"></i> Press Feature</a>
+      <a href="https://dl.acm.org/doi/10.1145/3643834.3660735" target="_blank" class="press-link"><i class="fa fa-file-text-o"></i> Research Paper</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <a href="index.html" class="back"><i class="fa fa-arrow-left"></i> Back to joshurbandavis.com</a>
+  <p class="tagline">What is not saved will be lost.</p>
+  <p>&copy; 2025 Josh Urban Davis</p>
+</footer>
+
+<!-- MODAL -->
+<div class="modal" id="modal" onclick="closeM()">
+  <button class="x">&times;</button>
+  <img id="mImg" src="">
+</div>
+
+<script>
+// CURSOR GLOW
+var glow = document.getElementById('glow');
+var mx = 0, my = 0, gx = 0, gy = 0;
+document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; });
+(function glowLoop() {
+  gx += (mx - gx) * 0.08;
+  gy += (my - gy) * 0.08;
+  glow.style.left = gx + 'px';
+  glow.style.top = gy + 'px';
+  requestAnimationFrame(glowLoop);
+})();
+
+// IMAGE SWAP
+function swapImg(thumb) {
+  document.getElementById('mainImg').src = thumb.src;
+  document.querySelectorAll('.product-thumbs img').forEach(function(t) { t.classList.remove('active'); });
+  thumb.classList.add('active');
+}
+
+// LIGHTBOX
+function openM(el) {
+  document.getElementById('mImg').src = el.src;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeM() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeM(); });
+
+// SCROLL REVEAL
+var obs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
+
+// NAV SCROLL HIDE
+var lastScroll = 0;
+var navEl = document.querySelector('nav');
+window.addEventListener('scroll', function() {
+  var s = window.scrollY;
+  if (s > 100 && s > lastScroll) { navEl.style.transform = 'translateY(-100%)'; }
+  else { navEl.style.transform = 'translateY(0)'; }
+  lastScroll = s;
+});
+
+// NAV HOVER — gold glow (inline to avoid cascade issues)
+document.querySelectorAll('nav .nav-links a').forEach(function(a) {
+  a.addEventListener('mouseover', function() {
+    this.style.color = '#c9a84c';
+    this.style.textShadow = '0 0 15px rgba(201,168,76,.4)';
+    this.style.opacity = '1';
+  });
+  a.addEventListener('mouseout', function() {
+    this.style.color = '';
+    this.style.textShadow = '';
+    this.style.opacity = '';
+  });
+});
+
+// TEXT SCRAMBLE on hover
+var scrambleChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*';
+var scrambleTimers = {};
+var scrambleId = 0;
+
+function getTextOnly(el) {
+  var text = '';
+  for (var i = 0; i < el.childNodes.length; i++) {
+    if (el.childNodes[i].nodeType === 3) text += el.childNodes[i].textContent;
+  }
+  return text.trim();
+}
+
+function scrambleHover(el) {
+  var id = el.getAttribute('data-scramble-id');
+  if (!id) { id = String(++scrambleId); el.setAttribute('data-scramble-id', id); }
+  if (scrambleTimers[id]) { clearInterval(scrambleTimers[id]); }
+
+  var original = el.getAttribute('data-original-text');
+  if (!original) {
+    original = getTextOnly(el);
+    if (!original) return;
+    el.setAttribute('data-original-text', original);
+  }
+
+  var textNode = null;
+  for (var i = el.childNodes.length - 1; i >= 0; i--) {
+    if (el.childNodes[i].nodeType === 3 && el.childNodes[i].textContent.trim()) {
+      textNode = el.childNodes[i];
+      break;
+    }
+  }
+  if (!textNode) return;
+
+  var iterations = 0;
+  var total = original.length * 2;
+  scrambleTimers[id] = setInterval(function() {
+    var result = '';
+    for (var j = 0; j < original.length; j++) {
+      if (original[j] === ' ') { result += ' '; }
+      else if (j < iterations / 2) { result += original[j]; }
+      else { result += scrambleChars[(Math.random() * scrambleChars.length) | 0]; }
+    }
+    textNode.textContent = ' ' + result;
+    iterations++;
+    if (iterations > total) {
+      clearInterval(scrambleTimers[id]);
+      delete scrambleTimers[id];
+      textNode.textContent = ' ' + original;
+    }
+  }, 25);
+}
+
+function scrambleReset(el) {
+  var id = el.getAttribute('data-scramble-id');
+  if (id && scrambleTimers[id]) {
+    clearInterval(scrambleTimers[id]);
+    delete scrambleTimers[id];
+  }
+  var original = el.getAttribute('data-original-text');
+  if (!original) return;
+  var textNode = null;
+  for (var i = el.childNodes.length - 1; i >= 0; i--) {
+    if (el.childNodes[i].nodeType === 3 && el.childNodes[i].textContent.trim()) {
+      textNode = el.childNodes[i];
+      break;
+    }
+  }
+  if (textNode) textNode.textContent = ' ' + original;
+}
+
+// Attach scramble to all interactive text
+document.querySelectorAll('.pill, .btn-buy, .btn-secondary, .press-link, nav .back-link, nav .nav-links a, footer .back, .mob-nav a').forEach(function(el) {
+  el.addEventListener('mouseenter', function() { scrambleHover(el); });
+  el.addEventListener('mouseleave', function() { scrambleReset(el); });
+});
+</script>
+</body>
+</html>
