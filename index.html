@@ -680,6 +680,65 @@ document.querySelectorAll('.pill, nav .nav-links a, .mob-nav a').forEach(functio
   el.addEventListener('mouseenter', function() { scrambleHover(el); });
   el.addEventListener('mouseleave', function() { scrambleReset(el); });
 });
+
+// MARQUEE GLITCH — periodic zalgo text corruption
+(function() {
+  var zalgoUp = ['\u0300','\u0301','\u0302','\u0303','\u0304','\u0305','\u0306','\u0307','\u0308','\u030A','\u030B','\u030C','\u030D','\u030E','\u030F','\u0310','\u0311','\u0312','\u0313','\u0314','\u0315','\u031A','\u033D','\u034A','\u034B','\u034C'];
+  var zalgoMid = ['\u0316','\u0317','\u0318','\u0319','\u031C','\u031D','\u031E','\u031F','\u0320','\u0321','\u0322','\u0323','\u0324','\u0325','\u0326','\u0327','\u0328','\u0329','\u032A','\u032B','\u032C','\u032D','\u032E','\u032F','\u0330','\u0331','\u0332','\u0333','\u0339','\u033A','\u033B','\u033C','\u0345','\u0347','\u0348','\u0349'];
+
+  function zalgoChar(c, intensity) {
+    if (c === ' ') return c;
+    var result = c;
+    var upCount = Math.floor(Math.random() * intensity) + 1;
+    var midCount = Math.floor(Math.random() * intensity);
+    for (var i = 0; i < upCount; i++) result += zalgoUp[(Math.random() * zalgoUp.length) | 0];
+    for (var i = 0; i < midCount; i++) result += zalgoMid[(Math.random() * zalgoMid.length) | 0];
+    return result;
+  }
+
+  function corruptText(str, intensity) {
+    var result = '';
+    for (var i = 0; i < str.length; i++) {
+      if (Math.random() < 0.4) {
+        result += zalgoChar(str[i], intensity);
+      } else {
+        result += str[i];
+      }
+    }
+    return result;
+  }
+
+  var marqueeSpans = document.querySelectorAll('.marquee-inner > span');
+  var originals = [];
+  marqueeSpans.forEach(function(span) {
+    originals.push(span.innerHTML);
+  });
+
+  function glitchCycle() {
+    var spanIdx = (Math.random() * marqueeSpans.length) | 0;
+    var span = marqueeSpans[spanIdx];
+    var orig = originals[spanIdx];
+    var parts = orig.split(/<span class="dot"><\/span>/);
+    var dotHTML = '<span class="dot"></span>';
+
+    setTimeout(function() {
+      span.innerHTML = parts.map(function(p) { return corruptText(p, 2); }).join(dotHTML);
+    }, 0);
+    setTimeout(function() {
+      span.innerHTML = parts.map(function(p) { return corruptText(p, 4); }).join(dotHTML);
+    }, 120);
+    setTimeout(function() {
+      span.innerHTML = parts.map(function(p) { return corruptText(p, 2); }).join(dotHTML);
+    }, 240);
+    setTimeout(function() {
+      span.innerHTML = orig;
+    }, 380);
+
+    setTimeout(glitchCycle, 4000 + Math.random() * 6000);
+  }
+
+  setTimeout(glitchCycle, 2000);
+})();
 </script>
 </body>
 </html>
