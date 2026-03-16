@@ -54,11 +54,21 @@ nav .nav-links a:hover{opacity:1}
 .hero-links svg{width:18px;height:18px}
 .hero-scroll{position:absolute;right:3rem;top:50%;transform:translateY(-50%) rotate(90deg);transform-origin:center;font-family:var(--mono);font-size:.5rem;letter-spacing:.4em;text-transform:uppercase;color:var(--dim)}
 
-.marquee{overflow:hidden;padding:2rem 0;border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04)}
+.marquee{overflow:hidden;padding:2rem 0;border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04);position:relative}
 .marquee-inner{display:flex;gap:3rem;animation:marqueeScroll 45s linear infinite;width:max-content}
-.marquee-inner span{font-family:var(--serif);font-size:1.2rem;font-style:italic;color:var(--dim);white-space:nowrap}
+.marquee-inner span{font-family:var(--serif);font-size:1.2rem;font-style:italic;color:var(--dim);white-space:nowrap;animation:marqueeGlitch 8s infinite;position:relative}
 .marquee-inner span .dot{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--accent);margin:0 1.5rem;vertical-align:middle}
 @keyframes marqueeScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes marqueeGlitch{
+  0%,92%,100%{transform:none;opacity:1;text-shadow:none;filter:none}
+  93%{transform:translateX(-2px) skewX(-1deg);opacity:.85;text-shadow:2px 0 var(--accent),-2px 0 var(--accent2);filter:none}
+  94%{transform:translateX(3px) skewX(0.5deg);opacity:.9;text-shadow:-1px 0 var(--accent),1px 0 var(--accent2);filter:blur(0.5px)}
+  95%{transform:translateX(-1px);opacity:.7;text-shadow:3px 0 var(--accent),-3px 0 var(--accent2);filter:none}
+  96%{transform:translateX(1px) skewX(-0.5deg);opacity:.95;text-shadow:1px 0 var(--accent),-1px 0 var(--accent2);filter:blur(0.3px)}
+  97%{transform:none;opacity:1;text-shadow:none;filter:none}
+}
+/* Offset the two spans so they don't glitch in sync */
+.marquee-inner span:nth-child(2){animation-delay:-4s}
 
 section{padding:8rem 3rem}
 .section-num{font-family:var(--mono);font-size:.7rem;letter-spacing:.35em;color:var(--dim);margin-bottom:3rem;display:block}
