@@ -55,7 +55,7 @@ nav .nav-links a:hover{opacity:1}
 .hero-scroll{position:absolute;right:3rem;top:50%;transform:translateY(-50%) rotate(90deg);transform-origin:center;font-family:var(--mono);font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;color:var(--fg);opacity:.4}
 
 .marquee{overflow:hidden;padding:2rem 0;border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04);position:relative}
-.marquee-inner{display:flex;gap:3rem;animation:marqueeScroll 45s linear infinite;width:max-content}
+.marquee-inner{display:flex;gap:3rem;animation:marqueeScroll 95s linear infinite;width:max-content}
 .marquee-inner span{font-family:var(--serif);font-size:1.2rem;font-style:italic;color:var(--dim);white-space:nowrap;animation:marqueeGlitch 8s infinite;position:relative}
 .marquee-inner span a{color:inherit;text-decoration:none;cursor:pointer;transition:color .3s}
 .marquee-inner span a:hover{color:var(--accent)}
@@ -69,7 +69,6 @@ nav .nav-links a:hover{opacity:1}
   96%{transform:translateX(1px) skewX(-0.5deg);opacity:.95;text-shadow:1px 0 var(--accent),-1px 0 var(--accent2);filter:blur(0.3px)}
   97%{transform:none;opacity:1;text-shadow:none;filter:none}
 }
-/* Offset the two spans so they don't glitch in sync */
 .marquee-inner span:nth-child(2){animation-delay:-4s}
 
 section{padding:8rem 3rem}
@@ -127,7 +126,6 @@ section{padding:8rem 3rem}
 .gallery img{width:100%;margin-bottom:8px;border-radius:4px;cursor:pointer;transition:all .5s;filter:grayscale(.15);break-inside:avoid}
 .gallery img:hover{filter:grayscale(0);transform:scale(1.01)}
 
-/* TAROT GRID */
 .tarot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:2rem}
 .tarot-grid img{width:100%;border-radius:4px;cursor:pointer;transition:all .5s;filter:grayscale(.1)}
 .tarot-grid img:hover{filter:grayscale(0);transform:scale(1.02)}
@@ -135,7 +133,6 @@ section{padding:8rem 3rem}
   .tarot-grid{grid-template-columns:1fr 1fr}
 }
 
-/* WORKS GALLERY — masonry columns, no cropping */
 .works-grid{columns:4;column-gap:8px;margin-top:2rem}
 .works-grid img{width:100%;margin-bottom:8px;border-radius:4px;cursor:pointer;transition:all .5s;filter:grayscale(.12);break-inside:avoid}
 .works-grid img:hover{filter:grayscale(0);transform:scale(1.015)}
@@ -159,10 +156,10 @@ section{padding:8rem 3rem}
 
 footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,.04);font-family:var(--mono);font-size:.55rem;color:var(--dim);letter-spacing:.1em}
 
-.modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;backdrop-filter:blur(20px);cursor:zoom-out}
+.modal{display:none;flex-direction:column;align-items:center;justify-content:center;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.95);backdrop-filter:blur(20px);cursor:zoom-out}
 .modal.open{display:flex}
-.modal img{max-width:92vw;max-height:90vh;object-fit:contain;border-radius:4px}
-.modal .cap{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:.65rem;color:var(--dim);letter-spacing:.1em}
+.modal img{max-width:92vw;max-height:80vh;object-fit:contain;border-radius:4px}
+.modal .cap{margin-top:1.2rem;padding:.5rem 1.2rem;background:rgba(255,255,255,.06);border-radius:100px;font-family:var(--mono);font-size:.65rem;color:var(--fg);letter-spacing:.1em;text-align:center;max-width:90vw;opacity:.7}
 .modal .x{position:absolute;top:2rem;right:2.5rem;background:none;border:none;color:var(--fg);font-size:1.3rem;cursor:pointer;opacity:.5;transition:opacity .3s}
 .modal .x:hover{opacity:1}
 
@@ -253,10 +250,11 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
   <span class="hero-scroll">Scroll to explore</span>
 </section>
 
+<!-- MARQUEE — 25 items, 95s scroll -->
 <div class="marquee">
   <div class="marquee-inner">
-    <span><a href="http://thisobituarydoesnotexist.com/" target="_blank">StyleGAN</a><span class="dot"></span><a href="#projects">the space between two bodies is a body too</a><span class="dot"></span><a href="https://dl.acm.org/doi/full/10.1145/3681756.3697928" target="_blank">computer vision</a><span class="dot"></span><a href="#projects">roses are roses</a><span class="dot"></span><a href="#projects">EEG</a><span class="dot"></span><a onclick="openMUrl('images/garden.png')">a garden in perpetual collapse</a><span class="dot"></span><a href="#projects">satellite telemetry</a><span class="dot"></span><a href="#projects">mysterious forces at play</a><span class="dot"></span><a href="#projects">shader rendering</a><span class="dot"></span><a href="shop.html">what is not saved will be lost</a><span class="dot"></span><a href="files/calliope.pdf" target="_blank">neural networks</a><span class="dot"></span><a href="#projects">i just wish we could kiss somewhere that isn't melting</a><span class="dot"></span><a href="#projects">SuperCollider</a><span class="dot"></span><a href="#projects">break me into bigger pieces so some of me is home with you</a><span class="dot"></span></span>
-    <span><a href="http://thisobituarydoesnotexist.com/" target="_blank">StyleGAN</a><span class="dot"></span><a href="#projects">the space between two bodies is a body too</a><span class="dot"></span><a href="https://dl.acm.org/doi/full/10.1145/3681756.3697928" target="_blank">computer vision</a><span class="dot"></span><a href="#projects">roses are roses</a><span class="dot"></span><a href="#projects">EEG</a><span class="dot"></span><a onclick="openMUrl('images/garden.png')">a garden in perpetual collapse</a><span class="dot"></span><a href="#projects">satellite telemetry</a><span class="dot"></span><a href="#projects">mysterious forces at play</a><span class="dot"></span><a href="#projects">shader rendering</a><span class="dot"></span><a href="shop.html">what is not saved will be lost</a><span class="dot"></span><a href="files/calliope.pdf" target="_blank">neural networks</a><span class="dot"></span><a href="#projects">i just wish we could kiss somewhere that isn't melting</a><span class="dot"></span><a href="#projects">SuperCollider</a><span class="dot"></span><a href="#projects">break me into bigger pieces so some of me is home with you</a><span class="dot"></span></span>
+    <span><a href="files/font_your_friends_preprint.pdf" target="_blank">StyleGAN</a><span class="dot"></span><a href="javascript:void(0)" onclick="openMUrl('images/aSuddenRush/gold.png','the space between two bodies is a body too')">the space between two bodies is a body too</a><span class="dot"></span><a href="https://dl.acm.org/doi/full/10.1145/3681756.3697928" target="_blank">computer vision</a><span class="dot"></span><a href="javascript:void(0)" onclick="openMUrl('images/aSuddenRush/slitScan.png','roses are roses')">roses are roses</a><span class="dot"></span><a href="#proj-synapstraction">EEG</a><span class="dot"></span><a href="http://thisobituarydoesnotexist.com/" target="_blank">thisObituaryDoesNotExist</a><span class="dot"></span><a href="#proj-satellite">satellite telemetry</a><span class="dot"></span><a href="javascript:void(0)" onclick="openMUrl('images/aSuddenRush/roses_2.png','mysterious forces at play')">mysterious forces at play</a><span class="dot"></span><a href="javascript:void(0)" onclick="openMUrl('images/aSuddenRush/vanitas_2_2v2_final.png','a sudden rush of blood to the skin')">a sudden rush of blood to the skin</a><span class="dot"></span><a href="shop.html">what is not saved will be lost</a><span class="dot"></span><a href="#proj-nightair">the night air</a><span class="dot"></span><a href="files/calliope.pdf" target="_blank">neural networks</a><span class="dot"></span><a href="javascript:void(0)" onclick="openMUrl('images/aSuddenRush/wave.png','i just wish we could kiss somewhere that isn\'t melting')">i just wish we could kiss somewhere that isn't melting</a><span class="dot"></span><a href="https://youtu.be/J8WJhj35_5E" target="_blank">co-creative AI</a><span class="dot"></span><a href="files/IllumiWear_final_corrected.pdf" target="_blank">SuperCollider</a><span class="dot"></span><a href="#proj-psychvr">three days and a year on top of a mountain</a><span class="dot"></span><a href="javascript:void(0)" onclick="openMUrl('images/aSuddenRush/fruit_2_vert.png','break me into bigger pieces so some of me is home with you')">break me into bigger pieces so some of me is home with you</a><span class="dot"></span><a href="files/IllumiWear_final_corrected.pdf" target="_blank">fiber optics</a><span class="dot"></span><a href="javascript:void(0)" onclick="openMUrl('images/space_gen6.png','postcards from the electric void')">postcards from the electric void</a><span class="dot"></span><a href="shop.html">atlas of deleted worlds</a><span class="dot"></span><a href="files/tangiblecircuits_CHI20.pdf" target="_blank">tangible circuits</a><span class="dot"></span><a href="shop.html">between pixels and prophecy</a><span class="dot"></span><a href="files/indutivo.pdf" target="_blank">inductive sensing</a><span class="dot"></span><a href="files/pokerface.pdf" target="_blank">mixed reality masks</a><span class="dot"></span><a href="files/DIS23_Multimodal_Direct_Manipulation.pdf" target="_blank">omnimodality</a><span class="dot"></span></span>
+    <span><a href="files/font_your_friends_preprint.pdf" target="_blank">StyleGAN</a><span class="dot"></span><a href="javascript:void(0)" onclick="openMUrl('images/aSuddenRush/gold.png','the space between two bodies is a body too')">the space between two bodies is a body too</a><span class="dot"></span><a href="https://dl.acm.org/doi/full/10.1145/3681756.3697928" target="_blank">computer vision</a><span class="dot"></span><a href="javascript:void(0)" onclick="openMUrl('images/aSuddenRush/slitScan.png','roses are roses')">roses are roses</a><span class="dot"></span><a href="#proj-synapstraction">EEG</a><span class="dot"></span><a href="http://thisobituarydoesnotexist.com/" target="_blank">thisObituaryDoesNotExist</a><span class="dot"></span><a href="#proj-satellite">satellite telemetry</a><span class="dot"></span><a href="javascript:void(0)" onclick="openMUrl('images/aSuddenRush/roses_2.png','mysterious forces at play')">mysterious forces at play</a><span class="dot"></span><a href="javascript:void(0)" onclick="openMUrl('images/aSuddenRush/vanitas_2_2v2_final.png','a sudden rush of blood to the skin')">a sudden rush of blood to the skin</a><span class="dot"></span><a href="shop.html">what is not saved will be lost</a><span class="dot"></span><a href="#proj-nightair">the night air</a><span class="dot"></span><a href="files/calliope.pdf" target="_blank">neural networks</a><span class="dot"></span><a href="javascript:void(0)" onclick="openMUrl('images/aSuddenRush/wave.png','i just wish we could kiss somewhere that isn\'t melting')">i just wish we could kiss somewhere that isn't melting</a><span class="dot"></span><a href="https://youtu.be/J8WJhj35_5E" target="_blank">co-creative AI</a><span class="dot"></span><a href="files/IllumiWear_final_corrected.pdf" target="_blank">SuperCollider</a><span class="dot"></span><a href="#proj-psychvr">three days and a year on top of a mountain</a><span class="dot"></span><a href="javascript:void(0)" onclick="openMUrl('images/aSuddenRush/fruit_2_vert.png','break me into bigger pieces so some of me is home with you')">break me into bigger pieces so some of me is home with you</a><span class="dot"></span><a href="files/IllumiWear_final_corrected.pdf" target="_blank">fiber optics</a><span class="dot"></span><a href="javascript:void(0)" onclick="openMUrl('images/space_gen6.png','postcards from the electric void')">postcards from the electric void</a><span class="dot"></span><a href="shop.html">atlas of deleted worlds</a><span class="dot"></span><a href="files/tangiblecircuits_CHI20.pdf" target="_blank">tangible circuits</a><span class="dot"></span><a href="shop.html">between pixels and prophecy</a><span class="dot"></span><a href="files/indutivo.pdf" target="_blank">inductive sensing</a><span class="dot"></span><a href="files/pokerface.pdf" target="_blank">mixed reality masks</a><span class="dot"></span><a href="files/DIS23_Multimodal_Direct_Manipulation.pdf" target="_blank">omnimodality</a><span class="dot"></span></span>
   </div>
 </div>
 
@@ -287,17 +285,17 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
     <div class="pub-item reveal" onclick="window.open('https://arxiv.org/abs/2509.18390','_blank')"><span class="pub-num">01</span><div class="pub-body"><h3>Improving the Color Accuracy of Lighting Estimation Models</h3><div class="meta"><span>Z. Zhang, Josh Urban Davis, J. P. A. Vu, J. Kuang, J-F. Lalonde</span><span>CVPR '25</span></div></div><div class="pub-actions"><a href="https://arxiv.org/abs/2509.18390" target="_blank" class="pub-act" title="Paper" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div></div>
     <div class="pub-item reveal" onclick="window.open('https://dl.acm.org/doi/full/10.1145/3681756.3697928','_blank')"><span class="pub-num">02</span><div class="pub-body"><h3>Bridging Reality and the Virtual Environment: Perceptual Consistency and Visual Adaptation</h3><div class="meta"><span>J. Miao, A. Shin, J. Vu, T. Miki, G. Rong, Josh Urban Davis, Z. Li, W. Wang, J. Gao, J. Kuang</span><span>SIGGRAPH '24</span><span>~25% acceptance</span></div></div><div class="pub-actions"><a href="files/3681756.3697928.pdf" target="_blank" class="pub-act" title="Paper" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://dl.acm.org/doi/full/10.1145/3681756.3697928" target="_blank" class="pub-act" title="ACM DL" onclick="event.stopPropagation()"><i class="fa fa-key"></i></a></div></div>
     <div class="pub-item reveal" onclick="window.open('files/davis_imwut23.pdf','_blank')"><span class="pub-num">03</span><div class="pub-body"><h3>"It's Not an Issue of Malice, but of Ignorance": Towards Inclusive Video Conferencing</h3><div class="meta"><span>Josh Urban Davis, H. Wang, P. Chilana, X-D. Yang</span><span>IMWUT / UbiComp '23</span><span>23.2% acceptance</span></div></div><div class="pub-actions"><a href="files/davis_imwut23.pdf" target="_blank" class="pub-act" title="Paper" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://dl.acm.org/doi/10.1145/3610901" target="_blank" class="pub-act" title="ACM DL" onclick="event.stopPropagation()"><i class="fa fa-key"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">04</span><div class="pub-body"><h3>Multimodal Direction Manipulation in Video Conferencing</h3><div class="meta"><span>Josh Urban Davis, P. Asente, X-D. Yang</span><span>DIS '23</span><span>24.6% acceptance</span></div></div><div class="pub-actions"><a href="files/DIS23_Multimodal_Direct_Manipulation.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/kmUDDjTNRCw" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">05</span><div class="pub-body"><h3>Exploring AltNarrative in HCI Imagery and Comics</h3><div class="meta"><span>M. Lewis, M. Sturdee, J. Miers, T. Hoang, Josh Urban Davis</span><span>CHI '22</span><span>21% acceptance</span></div></div><div class="pub-actions"><a href="files/altText.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">06</span><div class="pub-body"><h3>PokerFace: Exploring Augmenting Masks through Mixed-Reality</h3><div class="meta"><span>Josh Urban Davis, J. Tang, E. Cutrell, T. Seyed</span><span>HICSS '22</span></div></div><div class="pub-actions"><a href="files/pokerface.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/i3ebUKSHNuc" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">07</span><div class="pub-body"><h3>Designing Co-Creative AI in Virtual Environments</h3><div class="meta"><span>Josh Urban Davis, F. Anderson, M. Stroetzel, T. Grossman, G. Fitzmaurice</span><span>C&amp;C '21</span><span>23.1% acceptance</span></div></div><div class="pub-actions"><a href="files/calliope.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/J8WJhj35_5E" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">08</span><div class="pub-body"><h3>A Plurality of Practices: Artistic Narratives in HCI Research</h3><div class="meta"><span>Josh Urban Davis, M. Sturdee, M. Lewis, A. Strohmayer, K. Spiel, N. Koulidou, S. Fdili Alaoui</span><span>C&amp;C '21</span><span class="award-tag"><i class="fa fa-trophy"></i> Best Paper &mdash; Top 1%</span></div></div><div class="pub-actions"><a href="files/Art_HCI_CR.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/ycWEKL6HnHg" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">09</span><div class="pub-body"><h3>Font Your Friends and Loved Ones: On the Utility of Ugly Interfaces</h3><div class="meta"><span>Josh Urban Davis &amp; J. Wentzel</span><span>CHI '21</span><span>21% acceptance</span></div></div><div class="pub-actions"><a href="files/font_your_friends_preprint.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="http://gofontyourself.xyz/" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-external-link"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">10</span><div class="pub-body"><h3>Mixed Abilities and Varied Experiences: A Group Auto-Ethnography</h3><div class="meta"><span>K. Mack, M. Das, D. Jain, D. Bragg, J. Tang, A. Begel, E. Beneteau, Josh Urban Davis, et al.</span><span>ASSETS '21</span><span class="award-tag"><i class="fa fa-trophy"></i> Best Paper &mdash; Top 5%</span></div></div><div class="pub-actions"><a href="files/assets_21_final.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">11</span><div class="pub-body"><h3>TangibleCircuits: An Interactive 3D Printed Circuit Education Tool for People with Visual Impairments</h3><div class="meta"><span>Josh Urban Davis, T-Y. Wu, B. Shi, H. Lui, A. Panotopoulou, E. Whiting, X-D. Yang</span><span>CHI '20</span><span class="award-tag"><i class="fa fa-trophy"></i> Honorable Mention &mdash; Top 5%</span></div></div><div class="pub-actions"><a href="files/tangiblecircuits_CHI20.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=wcd1_HpeStA" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">12</span><div class="pub-body"><h3>CircuitStyle: Peripherally Reinforcing Best Practices in Hardware Computing</h3><div class="meta"><span>Josh Urban Davis, J. Gong, Y. Sun, P. Chilana, X-D. Yang</span><span>UIST '19</span><span>20.6% acceptance</span></div></div><div class="pub-actions"><a href="files/circuitstyle_uist19.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=zUsr06QR1mM" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">13</span><div class="pub-body"><h3>IllumiWear: A Fiber-Optic eTextile for MultiMedia Interactions</h3><div class="meta"><span>Josh Urban Davis</span><span>NIME '19</span></div></div><div class="pub-actions"><a href="files/IllumiWear_final_corrected.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=1tNn6CTtTFs" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
-    <div class="pub-item reveal"><span class="pub-num">14</span><div class="pub-body"><h3>Indutivo: Contact-Based, Object-Driven Interactions with Inductive Sensing</h3><div class="meta"><span>J. Gong, X. Yang, T. Seyed, Josh Urban Davis, X-D. Yang</span><span>UIST '18</span></div></div><div class="pub-actions"><a href="files/indutivo.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=XLmVo2tELM4" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal" onclick="window.open('files/DIS23_Multimodal_Direct_Manipulation.pdf','_blank')"><span class="pub-num">04</span><div class="pub-body"><h3>Multimodal Direction Manipulation in Video Conferencing</h3><div class="meta"><span>Josh Urban Davis, P. Asente, X-D. Yang</span><span>DIS '23</span><span>24.6% acceptance</span></div></div><div class="pub-actions"><a href="files/DIS23_Multimodal_Direct_Manipulation.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/kmUDDjTNRCw" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal" onclick="window.open('files/altText.pdf','_blank')"><span class="pub-num">05</span><div class="pub-body"><h3>Exploring AltNarrative in HCI Imagery and Comics</h3><div class="meta"><span>M. Lewis, M. Sturdee, J. Miers, T. Hoang, Josh Urban Davis</span><span>CHI '22</span><span>21% acceptance</span></div></div><div class="pub-actions"><a href="files/altText.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div></div>
+    <div class="pub-item reveal" onclick="window.open('files/pokerface.pdf','_blank')"><span class="pub-num">06</span><div class="pub-body"><h3>PokerFace: Exploring Augmenting Masks through Mixed-Reality</h3><div class="meta"><span>Josh Urban Davis, J. Tang, E. Cutrell, T. Seyed</span><span>HICSS '22</span></div></div><div class="pub-actions"><a href="files/pokerface.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/i3ebUKSHNuc" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal" onclick="window.open('files/calliope.pdf','_blank')"><span class="pub-num">07</span><div class="pub-body"><h3>Designing Co-Creative AI in Virtual Environments</h3><div class="meta"><span>Josh Urban Davis, F. Anderson, M. Stroetzel, T. Grossman, G. Fitzmaurice</span><span>C&amp;C '21</span><span>23.1% acceptance</span></div></div><div class="pub-actions"><a href="files/calliope.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/J8WJhj35_5E" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal" onclick="window.open('files/Art_HCI_CR.pdf','_blank')"><span class="pub-num">08</span><div class="pub-body"><h3>A Plurality of Practices: Artistic Narratives in HCI Research</h3><div class="meta"><span>Josh Urban Davis, M. Sturdee, M. Lewis, A. Strohmayer, K. Spiel, N. Koulidou, S. Fdili Alaoui</span><span>C&amp;C '21</span><span class="award-tag"><i class="fa fa-trophy"></i> Best Paper &mdash; Top 1%</span></div></div><div class="pub-actions"><a href="files/Art_HCI_CR.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://youtu.be/ycWEKL6HnHg" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal" onclick="window.open('files/font_your_friends_preprint.pdf','_blank')"><span class="pub-num">09</span><div class="pub-body"><h3>Font Your Friends and Loved Ones: On the Utility of Ugly Interfaces</h3><div class="meta"><span>Josh Urban Davis &amp; J. Wentzel</span><span>CHI '21</span><span>21% acceptance</span></div></div><div class="pub-actions"><a href="files/font_your_friends_preprint.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="http://gofontyourself.xyz/" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-external-link"></i></a></div></div>
+    <div class="pub-item reveal" onclick="window.open('files/assets_21_final.pdf','_blank')"><span class="pub-num">10</span><div class="pub-body"><h3>Mixed Abilities and Varied Experiences: A Group Auto-Ethnography</h3><div class="meta"><span>K. Mack, M. Das, D. Jain, D. Bragg, J. Tang, A. Begel, E. Beneteau, Josh Urban Davis, et al.</span><span>ASSETS '21</span><span class="award-tag"><i class="fa fa-trophy"></i> Best Paper &mdash; Top 5%</span></div></div><div class="pub-actions"><a href="files/assets_21_final.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div></div>
+    <div class="pub-item reveal" onclick="window.open('files/tangiblecircuits_CHI20.pdf','_blank')"><span class="pub-num">11</span><div class="pub-body"><h3>TangibleCircuits: An Interactive 3D Printed Circuit Education Tool for People with Visual Impairments</h3><div class="meta"><span>Josh Urban Davis, T-Y. Wu, B. Shi, H. Lui, A. Panotopoulou, E. Whiting, X-D. Yang</span><span>CHI '20</span><span class="award-tag"><i class="fa fa-trophy"></i> Honorable Mention &mdash; Top 5%</span></div></div><div class="pub-actions"><a href="files/tangiblecircuits_CHI20.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=wcd1_HpeStA" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal" onclick="window.open('files/circuitstyle_uist19.pdf','_blank')"><span class="pub-num">12</span><div class="pub-body"><h3>CircuitStyle: Peripherally Reinforcing Best Practices in Hardware Computing</h3><div class="meta"><span>Josh Urban Davis, J. Gong, Y. Sun, P. Chilana, X-D. Yang</span><span>UIST '19</span><span>20.6% acceptance</span></div></div><div class="pub-actions"><a href="files/circuitstyle_uist19.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=zUsr06QR1mM" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal" onclick="window.open('files/IllumiWear_final_corrected.pdf','_blank')"><span class="pub-num">13</span><div class="pub-body"><h3>IllumiWear: A Fiber-Optic eTextile for MultiMedia Interactions</h3><div class="meta"><span>Josh Urban Davis</span><span>NIME '19</span></div></div><div class="pub-actions"><a href="files/IllumiWear_final_corrected.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=1tNn6CTtTFs" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
+    <div class="pub-item reveal" onclick="window.open('files/indutivo.pdf','_blank')"><span class="pub-num">14</span><div class="pub-body"><h3>Indutivo: Contact-Based, Object-Driven Interactions with Inductive Sensing</h3><div class="meta"><span>J. Gong, X. Yang, T. Seyed, Josh Urban Davis, X-D. Yang</span><span>UIST '18</span></div></div><div class="pub-actions"><a href="files/indutivo.pdf" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a><a href="https://www.youtube.com/watch?v=XLmVo2tELM4" target="_blank" class="pub-act" onclick="event.stopPropagation()"><i class="fa fa-play"></i></a></div></div>
   </div>
 </section>
 
@@ -338,7 +336,7 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
   </div>
 
   <!-- 02: if you go_say hello -->
-  <div class="proj-block">
+  <div class="proj-block" id="proj-satellite">
     <div class="proj-hero flip reveal">
       <div>
         <div class="proj-num">02</div>
@@ -353,7 +351,7 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
   </div>
 
   <!-- 03: The Night Air -->
-  <div class="proj-block">
+  <div class="proj-block" id="proj-nightair">
     <div class="proj-hero reveal">
       <div>
         <div class="proj-num">03</div>
@@ -368,7 +366,7 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
   </div>
 
   <!-- 04: Selected Works -->
-  <div class="proj-block">
+  <div class="proj-block" id="proj-works">
     <div class="proj-hero flip reveal">
       <div>
         <div class="proj-num">04</div>
@@ -387,43 +385,44 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
     </div>
     <div class="works-grid reveal">
       <img src="images/aSuddenRush/vanitas_2_2v2_final.png" alt="a sudden rush of blood to the skin" onclick="openM(this)">
-      <img src="images/hideouts/IMG_6805.JPG" alt="Wall of Wonders" onclick="openM(this)">
+      <img src="images/hideouts/IMG_6805.JPG" alt="Hideout No. 37" onclick="openM(this)">
       <img src="images/space_gen6.png" alt="Postcard from the Electric Void" onclick="openM(this)">
       <img src="images/aSuddenRush/fruit_2_vert.png" alt="break me into bigger pieces so some of me is home with you" onclick="openM(this)">
-      <img src="images/hideouts/IMG_0812.png" alt="Postcards from the Electric Void No. 44522" onclick="openM(this)">
+      <img src="images/hideouts/IMG_0812.png" alt="Hideout No. 114" onclick="openM(this)">
       <img src="images/butterly_epiphany.jpg" alt="Butterfly Epiphany" onclick="openM(this)">
       <img src="images/aSuddenRush/gold.png" alt="the space between two bodies is a body too" onclick="openM(this)">
       <img src="images/creature_thumb.JPG" alt="Creature" onclick="openM(this)">
-      <img src="images/hideouts/IMG_4.JPG" alt="Pixel Dripper No. 3" onclick="openM(this)">
+      <img src="images/hideouts/IMG_4.JPG" alt="Hideout No. 8" onclick="openM(this)">
       <img src="images/aSuddenRush/slitScan.png" alt="roses are roses" onclick="openM(this)">
-      <img src="images/hideouts/IMG_1.JPG" alt="Butterfly Epiphany" onclick="openM(this)">
+      <img src="images/hideouts/IMG_1.JPG" alt="Holographic Fishing Net" onclick="openM(this)">
       <img src="images/aSuddenRush/vanitas_3_2.png" alt="i am skinless in a limo" onclick="openM(this)">
-      <img src="images/hideouts/IMG_2.JPG" alt="Beyond the Beast's Tongue" onclick="openM(this)">
-      <img src="images/collage_5_500_20_48.png" alt="Collage" onclick="openM(this)">
+      <img src="images/hideouts/IMG_2.JPG" alt="Hideout No. 53" onclick="openM(this)">
+      <img src="images/collage_5_500_20_48.png" alt="Pixel Dripper No. 1" onclick="openM(this)">
       <img src="images/aSuddenRush/roses_2.png" alt="mysterious forces at play" onclick="openM(this)">
-      <img src="images/hideouts/IMG_0477.png" alt="Feather River" onclick="openM(this)">
+      <img src="images/hideouts/IMG_0477.png" alt="Hideout No. 71" onclick="openM(this)">
       <img src="images/golden_portrait.jpg" alt="Self Portrait as Scattering Glitter" onclick="openM(this)">
       <img src="images/vertigo.png" alt="Self-Portrait as Vertigo" onclick="openM(this)">
       <img src="images/aSuddenRush/wave.png" alt="i just wish we could kiss somewhere that isn't melting" onclick="openM(this)">
-      <img src="images/hideouts/IMG_0525.png" alt="Self-Portrait as Vertigo" onclick="openM(this)">
-      <img src="images/piexel_dripper_2.jpg" alt="Pixel Dripper No. 7" onclick="openM(this)">
+      <img src="images/hideouts/IMG_0525.png" alt="Hideout No. 22" onclick="openM(this)">
+      <img src="images/piexel_dripper_2.jpg" alt="Pixel Dripper No. 2" onclick="openM(this)">
       <img src="images/space_grid.jpg" alt="Postcards grid" onclick="openM(this)">
       <img src="images/aSuddenRush/randomPurple.png" alt="purple shifted" onclick="openM(this)">
-      <img src="images/hideouts/IMG_6403.jpg" alt="Pixel Dripper No. 7" onclick="openM(this)">
+      <img src="images/hideouts/IMG_6403.jpg" alt="Hideout Colony Collapse" onclick="openM(this)">
       <img src="images/aSuddenRush/sampleScan.png" alt="sample and replicate No. 15" onclick="openM(this)">
-      <img src="images/hideouts/IMG_0818.png" alt="A Garden in Perpetual Collapse" onclick="openM(this)">
+      <img src="images/hideouts/IMG_0818.png" alt="Hideout No. 96" onclick="openM(this)">
       <img src="images/aSuddenRush/jan_large_2.png" alt="violence" onclick="openM(this)">
-      <img src="images/pixel_puddle.jpg" alt="Pixel Dripper No. 9" onclick="openM(this)">
-      <img src="images/hideouts/IMG_0663.png" alt="Self Portrait as Scattering Glitter" onclick="openM(this)">
+      <img src="images/pixel_puddle.jpg" alt="Pixel Puddle" onclick="openM(this)">
+      <img src="images/hideouts/IMG_0663.png" alt="Hideout No. 45" onclick="openM(this)">
       <img src="images/aSuddenRush/random_blur.png" alt="random walk on a rose" onclick="openM(this)">
-      <img src="images/hideouts/IMG_0417.jpg" alt="Pixel Dripper No. 9" onclick="openM(this)">
+      <img src="images/hideouts/IMG_0417.jpg" alt="Architecture Slouching Toward Ruins" onclick="openM(this)">
       <img src="images/aSuddenRush/wave_detail.png" alt="i just wish we could kiss somewhere that isn't melting (detail)" onclick="openM(this)">
-      <img src="images/hideouts/IMG_3.JPG" alt="Postcard from the Electric Void No. 552" onclick="openM(this)">
+      <img src="images/hideouts/IMG_3.JPG" alt="Hideout No. 61" onclick="openM(this)">
+      <img src="images/hideout_triangle.jpg" alt="There's a Bridge from Here to There" onclick="openM(this)">
     </div>
   </div>
 
   <!-- 05: Synapstraction -->
-  <div class="proj-block">
+  <div class="proj-block" id="proj-synapstraction">
     <div class="proj-hero reveal">
       <div>
         <div class="proj-num">05</div>
@@ -455,7 +454,7 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
   </div>
 
   <!-- 07: Psych-VR -->
-  <div class="proj-block">
+  <div class="proj-block" id="proj-psychvr">
     <div class="proj-hero reveal">
       <div>
         <div class="proj-num">07</div>
@@ -471,7 +470,7 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
   </div>
 
   <!-- 08: Animation -->
-  <div class="proj-block">
+  <div class="proj-block" id="proj-animation">
     <div class="proj-hero flip reveal">
       <div>
         <div class="proj-num">08</div>
@@ -594,6 +593,12 @@ function openM(el) {
   document.getElementById('modal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
+function openMUrl(src, alt) {
+  document.getElementById('mImg').src = src;
+  document.getElementById('mCap').textContent = alt || '';
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
 function closeM() {
   document.getElementById('modal').classList.remove('open');
   document.body.style.overflow = '';
@@ -614,7 +619,7 @@ window.addEventListener('scroll', function() {
   lastScroll = s;
 });
 
-// TEXT SCRAMBLE on hover — pills and nav links
+// TEXT SCRAMBLE on hover
 var scrambleChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*';
 var scrambleTimers = {};
 var scrambleId = 0;
@@ -639,7 +644,6 @@ function scrambleHover(el) {
     el.setAttribute('data-original-text', original);
   }
 
-  // Find the text node to manipulate
   var textNode = null;
   for (var i = el.childNodes.length - 1; i >= 0; i--) {
     if (el.childNodes[i].nodeType === 3 && el.childNodes[i].textContent.trim()) {
@@ -686,13 +690,12 @@ function scrambleReset(el) {
   if (textNode) textNode.textContent = ' ' + original;
 }
 
-// Attach to all pills and nav links
 document.querySelectorAll('.pill, nav .nav-links a, .mob-nav a').forEach(function(el) {
   el.addEventListener('mouseenter', function() { scrambleHover(el); });
   el.addEventListener('mouseleave', function() { scrambleReset(el); });
 });
 
-// MARQUEE GLITCH — periodic zalgo text corruption
+// MARQUEE GLITCH
 (function() {
   var zalgoUp = ['\u0300','\u0301','\u0302','\u0303','\u0304','\u0305','\u0306','\u0307','\u0308','\u030A','\u030B','\u030C','\u030D','\u030E','\u030F','\u0310','\u0311','\u0312','\u0313','\u0314','\u0315','\u031A','\u033D','\u034A','\u034B','\u034C'];
   var zalgoMid = ['\u0316','\u0317','\u0318','\u0319','\u031C','\u031D','\u031E','\u031F','\u0320','\u0321','\u0322','\u0323','\u0324','\u0325','\u0326','\u0327','\u0328','\u0329','\u032A','\u032B','\u032C','\u032D','\u032E','\u032F','\u0330','\u0331','\u0332','\u0333','\u0339','\u033A','\u033B','\u033C','\u0345','\u0347','\u0348','\u0349'];
