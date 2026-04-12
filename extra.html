@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Josh Urban Davis</title>
+<link rel="apple-touch-icon" sizes="180x180" href="logo_personalweb_favicon_io/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="logo_personalweb_favicon_io/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="logo_personalweb_favicon_io/favicon-16x16.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+
+/* ══ RESET ══ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:auto;background:#000}
+body{background:#000;color:#e8e4de;font-family:'Inter',system-ui,sans-serif;overflow-x:hidden;cursor:none;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+::selection{background:#fff;color:#000}
+
+/* ══ CSS VARS ══ */
+:root{
+  --fg:#e8e4de;
+  --dim:#4a4642;
+  --mid:#888;
+  --serif:'Instrument Serif',Georgia,serif;
+  --mono:'Space Mono',monospace;
+  --sans:'Inter',system-ui,sans-serif;
+}
+
+/* ══ GRAIN ══ */
+body::after{
+  content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grainShift 0.4s steps(1) infinite;
+}
+@keyframes grainShift{
+  0%{background-position:0 0}
+  25%{background-position:-5% -8%}
+  50%{background-position:3% 5%}
+  75%{background-position:-7% 3%}
+  100%{background-position:5% -5%}
+}
+
+/* ══ CUSTOM CURSOR ══ */
+#cursor{
+  position:fixed;width:12px;height:12px;background:#fff;border-radius:50%;
+  pointer-events:none;z-index:9999;transform:translate(-50%,-50%);
+  transition:width .25s,height .25s,background .25s,opacity .3s;
+  mix-blend-mode:difference;
+}
+#cursor-ring{
+  position:fixed;width:40px;height:40px;border:1px solid rgba(255,255,255,.35);border-radius:50%;
+  pointer-events:none;z-index:9997;transform:translate(-50%,-50%);
+  transition:width .5s cubic-bezier(.16,1,.3,1),height .5s cubic-bezier(.16,1,.3,1),opacity .4s;
+}
+body:hover #cursor{opacity:1}
+a:hover ~ #cursor, button:hover ~ #cursor{width:4px;height:4px}
+
+/* ══ NAV ══ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  padding:2rem 3rem;display:flex;align-items:center;justify-content:space-between;
+  transition:transform .5s cubic-bezier(.16,1,.3,1),opacity .4s;
+  mix-blend-mode:difference;
+}
+nav.hidden{transform:translateY(-100%)}
+.nav-logo{
+  font-family:var(--mono);font-size:.65rem;letter-spacing:.4em;text-transform:uppercase;color:#fff;
+}
+.nav-links{display:flex;gap:3rem}
+.nav-links a{
+  font-family:var(--mono);font-size:.55rem;letter-spacing:.3em;text-transform:uppercase;
+  color:rgba(255,255,255,.4);transition:color .3s;
+}
+.nav-links a:hover{color:#fff}
+.nav-menu-btn{display:none;background:none;border:none;color:#fff;cursor:none;font-family:var(--mono);font-size:.55rem;letter-spacing:.3em;text-transform:uppercase}
+
+/* ══ HERO ══ */
+.hero{
+  position:relative;height:100vh;min-height:600px;overflow:hidden;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0 3rem 5rem;
+}
+#hero-canvas{position:absolute;inset:0;z-index:0;opacity:.6}
+.hero-inner{position:relative;z-index:2}
+.hero-eyebrow{
+  font-family:var(--mono);font-size:.55rem;letter-spacing:.5em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);margin-bottom:2.5rem;display:block;
+  transform:translateY(20px);opacity:0;animation:fadeUp .8s .2s cubic-bezier(.16,1,.3,1) forwards;
+}
+.hero-name{
+  font-family:var(--serif);font-weight:400;line-height:.88;
+  overflow:hidden;
+}
+.hero-name-line{
+  display:block;overflow:hidden;
+}
+.hero-name-line span{
+  display:block;
+  transform:translateY(110%);
+  animation:slideUp .9s cubic-bezier(.16,1,.3,1) forwards;
+}
+.hero-name-line:nth-child(1) span{
+  font-size:clamp(5rem,14vw,16rem);
+  animation-delay:.1s;
+}
+.hero-name-line:nth-child(2) span{
+  font-size:clamp(4rem,11vw,12rem);font-style:italic;
+  padding-left:clamp(3rem,8vw,10rem);
+  animation-delay:.22s;
+}
+.hero-name-line:nth-child(3) span{
+  font-size:clamp(4.5rem,12.5vw,14rem);
+  padding-left:clamp(1rem,3vw,4rem);
+  animation-delay:.35s;
+}
+.hero-sub{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  margin-top:3rem;
+  opacity:0;animation:fadeUp .8s .55s cubic-bezier(.16,1,.3,1) forwards;
+}
+.hero-roles{
+  display:flex;gap:2.5rem;
+}
+.hero-roles span{
+  font-family:var(--mono);font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;
+  color:rgba(255,255,255,.35);
+}
+.hero-roles span.active{color:rgba(255,255,255,.8)}
+.hero-scroll-hint{
+  font-family:var(--mono);font-size:.5rem;letter-spacing:.4em;text-transform:uppercase;
+  color:rgba(255,255,255,.2);display:flex;align-items:center;gap:1rem;
+}
+.hero-scroll-hint::before{content:'';display:block;width:40px;height:1px;background:rgba(255,255,255,.15)}
+
+@keyframes slideUp{to{transform:translateY(0)}}
+@keyframes fadeUp{to{opacity:1;transform:none}}
+
+/* ══ SECTION SHARED ══ */
+.section-wrap{padding:10rem 3rem}
+.sec-label{
+  font-family:var(--mono);font-size:.5rem;letter-spacing:.5em;text-transform:uppercase;
+  color:rgba(255,255,255,.2);display:block;margin-bottom:4rem;
+}
+.sec-ghost{
+  font-family:var(--serif);font-size:clamp(6rem,18vw,22rem);font-weight:400;
+  color:rgba(255,255,255,.025);line-height:1;position:absolute;right:3rem;top:6rem;
+  pointer-events:none;user-select:none;letter-spacing:-.04em;
+}
+
+/* ══ DIVIDER ══ */
+.divider{height:1px;background:linear-gradient(to right,rgba(255,255,255,.08) 0%,rgba(255,255,255,.02) 100%);margin:0 3rem}
+
+/* ══ ABOUT ══ */
+.about-wrap{
+  position:relative;display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:90vh;
+  align-items:stretch;
+}
+.about-left{
+  padding:10rem 5rem 10rem 3rem;display:flex;flex-direction:column;justify-content:center;
+  border-right:1px solid rgba(255,255,255,.05);position:relative;
+}
+.about-pull{
+  font-family:var(--serif);font-size:clamp(1.8rem,3.5vw,3.2rem);font-weight:400;line-height:1.25;
+  color:#fff;margin-bottom:3rem;
+}
+.about-pull em{font-style:italic;color:rgba(255,255,255,.45)}
+.about-body{color:rgba(255,255,255,.4);font-size:.88rem;line-height:1.95;max-width:44ch}
+.about-body p{margin-bottom:1.2rem}
+.about-body p em{color:rgba(255,255,255,.7);font-style:normal}
+.about-btns{display:flex;gap:1rem;margin-top:3rem}
+.btn-outline{
+  font-family:var(--mono);font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;
+  padding:.7rem 1.8rem;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);
+  transition:all .4s;display:inline-block;
+}
+.btn-outline:hover{border-color:#fff;color:#fff;background:rgba(255,255,255,.04)}
+.btn-solid{
+  font-family:var(--mono);font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;
+  padding:.7rem 1.8rem;background:#fff;color:#000;display:inline-block;transition:all .3s;
+}
+.btn-solid:hover{background:rgba(255,255,255,.85)}
+.about-right{position:relative;overflow:hidden}
+.about-right img{
+  width:100%;height:100%;object-fit:cover;object-position:center top;
+  filter:grayscale(1) contrast(1.1);
+  transform:scale(1.05);transition:transform 8s ease;
+}
+.about-right:hover img{transform:scale(1)}
+.about-right::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to right,#000 0%,transparent 18%),linear-gradient(to top,#000 0%,transparent 20%);
+}
+
+/* ══ RESEARCH / PUBS ══ */
+.pubs-wrap{position:relative;padding:10rem 3rem}
+.pubs-list{margin-top:2rem;border-top:1px solid rgba(255,255,255,.05)}
+.pub-row{
+  display:grid;grid-template-columns:5rem 1fr auto;align-items:baseline;
+  padding:2.2rem 0;border-bottom:1px solid rgba(255,255,255,.05);
+  transition:background .3s;cursor:pointer;position:relative;gap:2rem;
+}
+.pub-row:hover{background:rgba(255,255,255,.02)}
+.pub-row:hover .pub-title{color:#fff}
+.pub-n{font-family:var(--mono);font-size:.55rem;color:rgba(255,255,255,.2);letter-spacing:.1em}
+.pub-title{
+  font-family:var(--serif);font-size:clamp(1rem,2vw,1.35rem);font-weight:400;
+  color:rgba(255,255,255,.75);line-height:1.3;transition:color .3s;margin-bottom:.4rem;
+}
+.pub-meta{font-family:var(--mono);font-size:.5rem;color:rgba(255,255,255,.2);letter-spacing:.05em;display:flex;flex-wrap:wrap;gap:.3rem .8rem;margin-top:.3rem}
+.pub-award{color:rgba(255,255,255,.55)}
+.pub-acts{display:flex;gap:.5rem;opacity:0;transition:opacity .3s}
+.pub-row:hover .pub-acts{opacity:1}
+.pub-act-btn{
+  width:36px;height:36px;border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;
+  justify-content:center;color:rgba(255,255,255,.4);font-size:.75rem;transition:all .3s;
+}
+.pub-act-btn:hover{border-color:rgba(255,255,255,.5);color:#fff}
+
+/* ══ PROJECTS ══ */
+.proj-intro{padding:10rem 3rem 4rem;position:relative}
+.proj-card{
+  position:relative;overflow:hidden;border-top:1px solid rgba(255,255,255,.05);
+  cursor:pointer;
+}
+.proj-card-inner{
+  display:grid;grid-template-columns:1fr 1fr;min-height:55vh;align-items:stretch;
+}
+.proj-card-inner.flip{direction:rtl}
+.proj-card-inner.flip > *{direction:ltr}
+.proj-info{
+  padding:5rem 4rem;display:flex;flex-direction:column;justify-content:center;
+  position:relative;z-index:2;background:#000;
+  border-right:1px solid rgba(255,255,255,.04);
+}
+.proj-card-inner.flip .proj-info{border-right:none;border-left:1px solid rgba(255,255,255,.04)}
+.proj-n{
+  font-family:var(--mono);font-size:6rem;font-weight:700;color:rgba(255,255,255,.04);
+  line-height:1;margin-bottom:-2rem;
+}
+.proj-title{
+  font-family:var(--serif);font-size:clamp(1.6rem,3vw,2.6rem);font-weight:400;line-height:1.15;
+  color:#fff;margin-bottom:1.5rem;
+}
+.proj-title em{font-style:italic;color:rgba(255,255,255,.45)}
+.proj-desc{color:rgba(255,255,255,.35);font-size:.82rem;line-height:1.95;max-width:40ch}
+.proj-desc p{margin-bottom:.9rem}
+.proj-desc em{color:rgba(255,255,255,.6);font-style:normal}
+.proj-links{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.5rem}
+.proj-img{position:relative;overflow:hidden}
+.proj-img img,.proj-img video{width:100%;height:100%;object-fit:cover;filter:grayscale(.3) contrast(1.05);transition:transform .8s cubic-bezier(.16,1,.3,1),filter .8s}
+.proj-card:hover .proj-img img,.proj-card:hover .proj-img video{transform:scale(1.04);filter:grayscale(0) contrast(1.05)}
+.proj-img-overlay{position:absolute;inset:0;background:linear-gradient(135deg,#000 0%,transparent 40%);opacity:.5;pointer-events:none}
+
+/* video embed */
+.proj-video-wrap{position:relative;width:100%;height:100%}
+.proj-video-wrap iframe{position:absolute;inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);border:none;pointer-events:none}
+
+/* works gallery */
+.works-section{padding:0 3rem 10rem}
+.works-grid{columns:4;column-gap:4px}
+.works-grid img{width:100%;margin-bottom:4px;cursor:pointer;filter:grayscale(.2);transition:filter .5s,transform .5s;break-inside:avoid}
+.works-grid img:hover{filter:grayscale(0);transform:scale(1.01)}
+.tarot-sub{columns:6;column-gap:4px;margin-top:4px}
+.tarot-sub img{width:100%;margin-bottom:4px;cursor:pointer;filter:grayscale(.1);transition:all .5s;break-inside:avoid}
+.tarot-sub img:hover{filter:grayscale(0)}
+
+/* ══ CONTACT ══ */
+.contact-wrap{
+  padding:12rem 3rem;position:relative;text-align:center;overflow:hidden;
+}
+.contact-ghost{
+  font-family:var(--serif);font-size:clamp(6rem,20vw,28rem);font-weight:400;
+  color:rgba(255,255,255,.025);line-height:.9;position:absolute;
+  left:50%;top:50%;transform:translate(-50%,-50%);
+  pointer-events:none;white-space:nowrap;letter-spacing:-.05em;
+}
+.contact-eyebrow{
+  font-family:var(--mono);font-size:.5rem;letter-spacing:.5em;text-transform:uppercase;
+  color:rgba(255,255,255,.2);display:block;margin-bottom:3rem;
+}
+.contact-mailto{
+  display:inline-block;
+  font-family:var(--serif);font-size:clamp(1.5rem,4vw,3.5rem);font-weight:400;
+  color:#fff;border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:.25em;
+  transition:border-color .3s;
+}
+.contact-mailto:hover{border-color:#fff}
+.contact-meta{
+  margin-top:3rem;display:flex;justify-content:center;gap:4rem;flex-wrap:wrap;
+}
+.contact-meta span{
+  font-family:var(--mono);font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(255,255,255,.2);display:flex;align-items:center;gap:.6rem;
+}
+.contact-socials{
+  display:flex;gap:1.5rem;justify-content:center;margin-top:3rem;
+}
+.contact-socials a{
+  width:40px;height:40px;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;
+  justify-content:center;color:rgba(255,255,255,.25);transition:all .3s;
+}
+.contact-socials a:hover{border-color:rgba(255,255,255,.4);color:#fff}
+.contact-socials svg{width:16px;height:16px}
+
+/* ══ FOOTER ══ */
+footer{
+  padding:2.5rem 3rem;border-top:1px solid rgba(255,255,255,.05);
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--mono);font-size:.5rem;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(255,255,255,.15);
+}
+
+/* ══ MODAL ══ */
+.modal{
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.97);cursor:none;
+}
+.modal.open{display:flex}
+.modal img{max-width:90vw;max-height:82vh;object-fit:contain}
+.modal .cap{
+  margin-top:1.5rem;font-family:var(--mono);font-size:.5rem;
+  color:rgba(255,255,255,.25);letter-spacing:.15em;text-align:center;max-width:70vw;
+}
+.modal .x{
+  position:absolute;top:2rem;right:2.5rem;background:none;border:none;
+  color:rgba(255,255,255,.3);font-size:1.2rem;cursor:none;transition:color .3s;
+}
+.modal .x:hover{color:#fff}
+
+/* ══ MOBILE NAV ══ */
+.mob-nav{
+  position:fixed;inset:0;z-index:800;background:#000;display:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:3rem;
+}
+.mob-nav.open{display:flex}
+.mob-nav a{
+  font-family:var(--serif);font-size:3rem;font-style:italic;
+  color:rgba(255,255,255,.4);transition:color .3s;
+}
+.mob-nav a:hover{color:#fff}
+.mob-nav .x{
+  position:absolute;top:2rem;right:2rem;background:none;border:none;
+  color:rgba(255,255,255,.3);font-size:1.2rem;cursor:none;
+}
+
+/* ══ REVEAL ══ */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
+.reveal.visible{opacity:1;transform:none}
+.reveal-d1{transition-delay:.1s}
+.reveal-d2{transition-delay:.2s}
+.reveal-d3{transition-delay:.35s}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:900px){
+  nav{padding:1.5rem 1.5rem}
+  .nav-links{display:none}
+  .nav-menu-btn{display:block}
+  .hero{padding:0 1.5rem 4rem}
+  .hero-name-line:nth-child(2) span{padding-left:1.5rem}
+  .hero-name-line:nth-child(3) span{padding-left:.5rem}
+  .about-wrap{grid-template-columns:1fr}
+  .about-right{height:60vh;order:-1}
+  .about-left{padding:5rem 1.5rem;border-right:none}
+  .about-right::after{background:linear-gradient(to top,#000 0%,transparent 25%)}
+  .section-wrap,.pubs-wrap,.proj-intro,.works-section,.contact-wrap{padding-left:1.5rem;padding-right:1.5rem}
+  .divider{margin:0 1.5rem}
+  .pub-row{grid-template-columns:3rem 1fr;gap:1rem}
+  .pub-acts{display:none}
+  .proj-card-inner,.proj-card-inner.flip{grid-template-columns:1fr;direction:ltr;min-height:auto}
+  .proj-info{padding:3.5rem 1.5rem;border-right:none!important;border-left:none!important}
+  .proj-img{height:55vw}
+  .works-grid{columns:2}
+  .tarot-sub{columns:3}
+  .sec-ghost{display:none}
+  .contact-ghost{font-size:clamp(4rem,18vw,22rem)}
+  footer{flex-direction:column;gap:1rem;text-align:center}
+}
+@media(max-width:600px){
+  .works-grid{columns:2}
+  .tarot-sub{columns:2}
+  .hero-roles{display:none}
+  .contact-meta{gap:2rem}
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#home" class="nav-logo">JUD</a>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#pubs">Research</a>
+    <a href="#projects">Design</a>
+    <a href="http://73f7b8-3.myshopify.com" target="_blank">Shop</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <button class="nav-menu-btn" id="menuBtn">MENU</button>
+</nav>
+
+<div class="mob-nav" id="mobNav">
+  <button class="x" id="mobClose">&times;</button>
+  <a href="#about" onclick="document.getElementById('mobNav').classList.remove('open')">About</a>
+  <a href="#pubs" onclick="document.getElementById('mobNav').classList.remove('open')">Research</a>
+  <a href="#projects" onclick="document.getElementById('mobNav').classList.remove('open')">Design</a>
+  <a href="http://73f7b8-3.myshopify.com" target="_blank" onclick="document.getElementById('mobNav').classList.remove('open')">Shop</a>
+  <a href="#contact" onclick="document.getElementById('mobNav').classList.remove('open')">Contact</a>
+</div>
+
+<!-- ════ HERO ════ -->
+<section class="hero" id="home">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-inner">
+    <span class="hero-eyebrow">Researcher &nbsp;·&nbsp; Engineer &nbsp;·&nbsp; Designer &nbsp;·&nbsp; Maker</span>
+    <h1 class="hero-name">
+      <span class="hero-name-line"><span>Josh</span></span>
+      <span class="hero-name-line"><span>Urban</span></span>
+      <span class="hero-name-line"><span>Davis</span></span>
+    </h1>
+    <div class="hero-sub">
+      <div class="hero-roles">
+        <span class="active">Machine Learning</span>
+        <span>Computer Vision</span>
+        <span>HCI</span>
+        <span>Creative Practice</span>
+      </div>
+      <div class="hero-scroll-hint">Scroll</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ════ ABOUT ════ -->
+<div class="about-wrap" id="about">
+  <div class="about-left">
+    <span class="sec-label reveal">01 — About</span>
+    <p class="about-pull reveal reveal-d1">Systems for<br><em>strange futures</em></p>
+    <div class="about-body reveal reveal-d2">
+      <p>I'm a designer and engineer working at the intersection of machine learning, computer vision, and human-computer interaction. Based in San Francisco, I build multimodal systems that push on questions of creativity, communication, and who gets to participate in both.</p>
+      <p>My research has received <em>best paper awards</em> at C&C and ASSETS, honorable mentions at CHI, and recognition from the Neukom Institute. My creative practice has been supported by a grant from the Queer Arts Council.</p>
+      <p>Work exhibited at <em>Grey Area Foundation for the Arts</em>, D!iverseWorks, Synaps Projects, the Blaffer Art Museum, the Chandler Center for the Arts, and at the <em>Venice Architecture Biennale</em> in 2021.</p>
+      <p>I live with my two cats, Jynx and Nyx, in San Francisco.</p>
+    </div>
+    <div class="about-btns reveal reveal-d3">
+      <a href="files/davis_joshua_resume_short_m_2026.pdf" target="_blank" class="btn-solid">Resume</a>
+      <a href="files/Josh_cv_2025_condensed.pdf" target="_blank" class="btn-outline">Full CV</a>
+    </div>
+  </div>
+  <div class="about-right">
+    <img src="images/josh_recon.PNG" alt="Josh Urban Davis">
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ════ RESEARCH ════ -->
+<section class="pubs-wrap" id="pubs">
+  <span class="sec-ghost">02</span>
+  <span class="sec-label reveal">02 — Research</span>
+  <h2 style="font-family:var(--serif);font-size:clamp(2rem,5vw,4rem);font-weight:400;color:#fff;line-height:1.1;max-width:16ch" class="reveal reveal-d1">Peer-reviewed<br><em style="color:rgba(255,255,255,.35)">publications</em></h2>
+
+  <div class="pubs-list">
+    <div class="pub-row reveal" onclick="window.open('https://arxiv.org/abs/2509.18390','_blank')">
+      <span class="pub-n">01</span>
+      <div><h3 class="pub-title">Improving the Color Accuracy of Lighting Estimation Models</h3><div class="pub-meta"><span>Z. Zhang, Josh Urban Davis, J.P.A. Vu, J. Kuang, J-F. Lalonde</span><span>CVPR '25</span></div></div>
+      <div class="pub-acts"><a href="https://arxiv.org/abs/2509.18390" target="_blank" class="pub-act-btn" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div>
+    </div>
+    <div class="pub-row reveal" onclick="window.open('https://dl.acm.org/doi/full/10.1145/3681756.3697928','_blank')">
+      <span class="pub-n">02</span>
+      <div><h3 class="pub-title">Bridging Reality and the Virtual Environment: Perceptual Consistency and Visual Adaptation</h3><div class="pub-meta"><span>J. Miao, A. Shin, et al., Josh Urban Davis</span><span>SIGGRAPH '24</span><span>~25% acceptance</span></div></div>
+      <div class="pub-acts"><a href="files/3681756.3697928.pdf" target="_blank" class="pub-act-btn" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div>
+    </div>
+    <div class="pub-row reveal" onclick="window.open('files/davis_imwut23.pdf','_blank')">
+      <span class="pub-n">03</span>
+      <div><h3 class="pub-title">"It's Not an Issue of Malice, but of Ignorance": Towards Inclusive Video Conferencing</h3><div class="pub-meta"><span>Josh Urban Davis, H. Wang, P. Chilana, X-D. Yang</span><span>IMWUT / UbiComp '23</span><span>23.2% acceptance</span></div></div>
+      <div class="pub-acts"><a href="files/davis_imwut23.pdf" target="_blank" class="pub-act-btn" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div>
+    </div>
+    <div class="pub-row reveal" onclick="window.open('files/DIS23_Multimodal_Direct_Manipulation.pdf','_blank')">
+      <span class="pub-n">04</span>
+      <div><h3 class="pub-title">Multimodal Direction Manipulation in Video Conferencing</h3><div class="pub-meta"><span>Josh Urban Davis, P. Asente, X-D. Yang</span><span>DIS '23</span><span>24.6% acceptance</span></div></div>
+      <div class="pub-acts"><a href="files/DIS23_Multimodal_Direct_Manipulation.pdf" target="_blank" class="pub-act-btn" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div>
+    </div>
+    <div class="pub-row reveal" onclick="window.open('files/altText.pdf','_blank')">
+      <span class="pub-n">05</span>
+      <div><h3 class="pub-title">Exploring AltNarrative in HCI Imagery and Comics</h3><div class="pub-meta"><span>M. Lewis, M. Sturdee, J. Miers, T. Hoang, Josh Urban Davis</span><span>CHI '22</span><span>21% acceptance</span></div></div>
+      <div class="pub-acts"><a href="files/altText.pdf" target="_blank" class="pub-act-btn" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div>
+    </div>
+    <div class="pub-row reveal" onclick="window.open('files/pokerface.pdf','_blank')">
+      <span class="pub-n">06</span>
+      <div><h3 class="pub-title">PokerFace: Exploring Augmenting Masks through Mixed-Reality</h3><div class="pub-meta"><span>Josh Urban Davis, J. Tang, E. Cutrell, T. Seyed</span><span>HICSS '22</span></div></div>
+      <div class="pub-acts"><a href="files/pokerface.pdf" target="_blank" class="pub-act-btn" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div>
+    </div>
+    <div class="pub-row reveal" onclick="window.open('files/calliope.pdf','_blank')">
+      <span class="pub-n">07</span>
+      <div><h3 class="pub-title">Designing Co-Creative AI in Virtual Environments</h3><div class="pub-meta"><span>Josh Urban Davis, F. Anderson, M. Stroetzel, T. Grossman, G. Fitzmaurice</span><span>C&amp;C '21</span><span>23.1% acceptance</span></div></div>
+      <div class="pub-acts"><a href="files/calliope.pdf" target="_blank" class="pub-act-btn" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div>
+    </div>
+    <div class="pub-row reveal" onclick="window.open('files/Art_HCI_CR.pdf','_blank')">
+      <span class="pub-n">08</span>
+      <div><h3 class="pub-title">A Plurality of Practices: Artistic Narratives in HCI Research</h3><div class="pub-meta"><span>Josh Urban Davis, M. Sturdee, et al.</span><span>C&amp;C '21</span><span class="pub-award"><i class="fa fa-trophy"></i> Best Paper — Top 1%</span></div></div>
+      <div class="pub-acts"><a href="files/Art_HCI_CR.pdf" target="_blank" class="pub-act-btn" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div>
+    </div>
+    <div class="pub-row reveal" onclick="window.open('files/font_your_friends_preprint.pdf','_blank')">
+      <span class="pub-n">09</span>
+      <div><h3 class="pub-title">Font Your Friends and Loved Ones: On the Utility of Ugly Interfaces</h3><div class="pub-meta"><span>Josh Urban Davis &amp; J. Wentzel</span><span>CHI '21</span><span>21% acceptance</span></div></div>
+      <div class="pub-acts"><a href="files/font_your_friends_preprint.pdf" target="_blank" class="pub-act-btn" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div>
+    </div>
+    <div class="pub-row reveal" onclick="window.open('files/assets_21_final.pdf','_blank')">
+      <span class="pub-n">10</span>
+      <div><h3 class="pub-title">Mixed Abilities and Varied Experiences: A Group Auto-Ethnography</h3><div class="pub-meta"><span>K. Mack, M. Das, et al., Josh Urban Davis</span><span>ASSETS '21</span><span class="pub-award"><i class="fa fa-trophy"></i> Best Paper — Top 5%</span></div></div>
+      <div class="pub-acts"><a href="files/assets_21_final.pdf" target="_blank" class="pub-act-btn" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div>
+    </div>
+    <div class="pub-row reveal" onclick="window.open('files/tangiblecircuits_CHI20.pdf','_blank')">
+      <span class="pub-n">11</span>
+      <div><h3 class="pub-title">TangibleCircuits: An Interactive 3D Printed Circuit Education Tool for People with Visual Impairments</h3><div class="pub-meta"><span>Josh Urban Davis, T-Y. Wu, B. Shi, H. Lui, et al.</span><span>CHI '20</span><span class="pub-award"><i class="fa fa-trophy"></i> Honorable Mention — Top 5%</span></div></div>
+      <div class="pub-acts"><a href="files/tangiblecircuits_CHI20.pdf" target="_blank" class="pub-act-btn" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div>
+    </div>
+    <div class="pub-row reveal" onclick="window.open('files/circuitstyle_uist19.pdf','_blank')">
+      <span class="pub-n">12</span>
+      <div><h3 class="pub-title">CircuitStyle: Peripherally Reinforcing Best Practices in Hardware Computing</h3><div class="pub-meta"><span>Josh Urban Davis, J. Gong, Y. Sun, P. Chilana, X-D. Yang</span><span>UIST '19</span><span>20.6% acceptance</span></div></div>
+      <div class="pub-acts"><a href="files/circuitstyle_uist19.pdf" target="_blank" class="pub-act-btn" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div>
+    </div>
+    <div class="pub-row reveal" onclick="window.open('files/IllumiWear_final_corrected.pdf','_blank')">
+      <span class="pub-n">13</span>
+      <div><h3 class="pub-title">IllumiWear: A Fiber-Optic eTextile for MultiMedia Interactions</h3><div class="pub-meta"><span>Josh Urban Davis</span><span>NIME '19</span></div></div>
+      <div class="pub-acts"><a href="files/IllumiWear_final_corrected.pdf" target="_blank" class="pub-act-btn" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div>
+    </div>
+    <div class="pub-row reveal" onclick="window.open('files/indutivo.pdf','_blank')">
+      <span class="pub-n">14</span>
+      <div><h3 class="pub-title">Indutivo: Contact-Based, Object-Driven Interactions with Inductive Sensing</h3><div class="pub-meta"><span>J. Gong, X. Yang, T. Seyed, Josh Urban Davis, X-D. Yang</span><span>UIST '18</span></div></div>
+      <div class="pub-acts"><a href="files/indutivo.pdf" target="_blank" class="pub-act-btn" onclick="event.stopPropagation()"><i class="fa fa-file-text-o"></i></a></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ════ PROJECTS ════ -->
+<section class="proj-intro" id="projects">
+  <span class="sec-ghost">03</span>
+  <span class="sec-label reveal">03 — Design</span>
+  <h2 style="font-family:var(--serif);font-size:clamp(2rem,5vw,4rem);font-weight:400;color:#fff;line-height:1.1" class="reveal reveal-d1">Past &amp; ongoing<br><em style="color:rgba(255,255,255,.35)">works</em></h2>
+</section>
+
+<!-- 01: Tarot -->
+<div class="proj-card reveal">
+  <div class="proj-card-inner">
+    <div class="proj-info">
+      <div class="proj-n">01</div>
+      <h3 class="proj-title">Deleted World <em>Tarot</em></h3>
+      <div class="proj-desc">
+        <p>A fully illustrated 80-card tarot deck and guidebook. Many influences went into this deck, from emerging technologies and internet cultures to occult histories and tarot illustrations past.</p>
+        <p>The early internet promised unlimited connection; that vision faded into disinformation and data-driven oppression. A choice was made. A world was deleted.</p>
+        <p>Includes a hand-illustrated companion book, <em>Atlas of Deleted Worlds</em>, custom marbled box, and printed ephemera.</p>
+      </div>
+      <div class="proj-links">
+        <a href="shop.html" class="btn-solid">Purchase</a>
+        <a href="https://notrealart.com/josh-urban-davis/" target="_blank" class="btn-outline">Press</a>
+        <a href="https://dl.acm.org/doi/10.1145/3643834.3660735" target="_blank" class="btn-outline">Paper</a>
+      </div>
+    </div>
+    <div class="proj-img">
+      <img src="images/IMG_8789.JPG" alt="Deleted World Tarot" onclick="openM(this)">
+      <div class="proj-img-overlay"></div>
+    </div>
+  </div>
+</div>
+
+<div class="works-section">
+  <div class="tarot-sub reveal">
+    <img src="images/IMG_3413.jpg" alt="The Composer, Ambition, The Shapeshifter" onclick="openM(this)">
+    <img src="images/IMG_8772.JPG" alt="Between Pixels and Prophecy" onclick="openM(this)">
+    <img src="images/IMG_8785.JPG" alt="The Moon" onclick="openM(this)">
+    <img src="images/IMG_8793.JPG" alt="Box interior" onclick="openM(this)">
+    <img src="images/IMG_8775.JPG" alt="Atlas of Deleted Worlds" onclick="openM(this)">
+    <img src="images/IMG_8773.JPG" alt="What is not saved will be lost" onclick="openM(this)">
+  </div>
+</div>
+
+<!-- 02: Satellite -->
+<div class="proj-card reveal" id="proj-satellite">
+  <div class="proj-card-inner flip">
+    <div class="proj-info">
+      <div class="proj-n">02</div>
+      <h3 class="proj-title">if you go_<em>say hello</em></h3>
+      <div class="proj-desc">
+        <p>A memorial: an AI trained on a deceased poet's writing, attached to a satellite, sent into orbit. Twice daily, visitors received transmissions. Over months, cosmic radiation corrupted the computer. Poems degraded to noise, then silence.</p>
+        <p style="font-family:var(--mono);font-size:.5rem;color:rgba(255,255,255,.2);letter-spacing:.05em">Venice Architecture Biennale, 2021.</p>
+      </div>
+    </div>
+    <div class="proj-img">
+      <img src="images/venice.png" alt="Venice Biennale 2021" onclick="openM(this)">
+      <div class="proj-img-overlay"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 03: Night Air -->
+<div class="proj-card reveal" id="proj-nightair">
+  <div class="proj-card-inner">
+    <div class="proj-info">
+      <div class="proj-n">03</div>
+      <h3 class="proj-title">The <em>Night Air</em></h3>
+      <div class="proj-desc">
+        <p>A collaborative poem composed by visitors during COVID-19 lockdown, inspired by miasma, the medieval belief that bad air spread plague. Technology as connection, language as survival.</p>
+        <p style="font-family:var(--mono);font-size:.5rem;color:rgba(255,255,255,.2);letter-spacing:.05em">Houston Arts Alliance grant.</p>
+      </div>
+    </div>
+    <div class="proj-img">
+      <img src="images/nightair.png" alt="The Night Air" onclick="openM(this)">
+      <div class="proj-img-overlay"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 04: Selected Works -->
+<div class="proj-card reveal" id="proj-works">
+  <div class="proj-card-inner flip">
+    <div class="proj-info">
+      <div class="proj-n">04</div>
+      <h3 class="proj-title">Selected <em>Works</em></h3>
+      <div class="proj-desc">
+        <p>Experiments in photomanipulation, shader rendering, generative neural networks, and digital collage — spanning series including <em>A Sudden Rush of Blood to the Skin</em>, <em>Hideouts</em>, and <em>Postcards from the Electric Void</em>.</p>
+        <p>When the glitch arrives, it's the most human thing in the frame.</p>
+      </div>
+      <div class="proj-links">
+        <a href="https://www.instagram.com/joshurbandavis/" target="_blank" class="btn-outline">Instagram</a>
+        <a href="https://dl.acm.org/doi/10.1145/3450741.3466771" target="_blank" class="btn-outline">C&amp;C</a>
+        <a href="http://www.aiartonline.com/community/josh-urban-davis/" target="_blank" class="btn-outline">NeurIPS</a>
+      </div>
+    </div>
+    <div class="proj-img" style="overflow-y:hidden">
+      <img src="images/aSuddenRush/vanitas_2_2v2_final.png" alt="a sudden rush of blood to the skin" onclick="openM(this)">
+      <div class="proj-img-overlay"></div>
+    </div>
+  </div>
+</div>
+
+<div class="works-section">
+  <div class="works-grid reveal">
+    <img src="images/aSuddenRush/vanitas_2_2v2_final.png" alt="a sudden rush of blood to the skin" onclick="openM(this)">
+    <img src="images/hideouts/IMG_6805.JPG" alt="Hideout No. 37" onclick="openM(this)">
+    <img src="images/space_gen6.png" alt="Postcard from the Electric Void" onclick="openM(this)">
+    <img src="images/aSuddenRush/fruit_2_vert.png" alt="break me into bigger pieces so some of me is home with you" onclick="openM(this)">
+    <img src="images/hideouts/IMG_0812.png" alt="Hideout No. 114" onclick="openM(this)">
+    <img src="images/butterly_epiphany.jpg" alt="Butterfly Epiphany" onclick="openM(this)">
+    <img src="images/aSuddenRush/gold.png" alt="the space between two bodies is a body too" onclick="openM(this)">
+    <img src="images/creature_thumb.JPG" alt="Creature" onclick="openM(this)">
+    <img src="images/hideouts/IMG_4.JPG" alt="Hideout No. 8" onclick="openM(this)">
+    <img src="images/aSuddenRush/slitScan.png" alt="roses are roses" onclick="openM(this)">
+    <img src="images/hideouts/IMG_1.JPG" alt="Holographic Fishing Net" onclick="openM(this)">
+    <img src="images/aSuddenRush/vanitas_3_2.png" alt="i am skinless in a limo" onclick="openM(this)">
+    <img src="images/hideouts/IMG_2.JPG" alt="Hideout No. 53" onclick="openM(this)">
+    <img src="images/collage_5_500_20_48.png" alt="Pixel Dripper No. 1" onclick="openM(this)">
+    <img src="images/aSuddenRush/roses_2.png" alt="mysterious forces at play" onclick="openM(this)">
+    <img src="images/hideouts/IMG_0477.png" alt="Hideout No. 71" onclick="openM(this)">
+    <img src="images/golden_portrait.jpg" alt="Self Portrait as Scattering Glitter" onclick="openM(this)">
+    <img src="images/vertigo.png" alt="Self-Portrait as Vertigo" onclick="openM(this)">
+    <img src="images/aSuddenRush/wave.png" alt="i just wish we could kiss somewhere that isn't melting" onclick="openM(this)">
+    <img src="images/hideouts/IMG_0525.png" alt="Hideout No. 22" onclick="openM(this)">
+    <img src="images/piexel_dripper_2.jpg" alt="Pixel Dripper No. 2" onclick="openM(this)">
+    <img src="images/space_grid.jpg" alt="Postcards grid" onclick="openM(this)">
+    <img src="images/aSuddenRush/randomPurple.png" alt="purple shifted" onclick="openM(this)">
+    <img src="images/hideouts/IMG_6403.jpg" alt="Hideout Colony Collapse" onclick="openM(this)">
+    <img src="images/aSuddenRush/sampleScan.png" alt="sample and replicate No. 15" onclick="openM(this)">
+    <img src="images/hideouts/IMG_0818.png" alt="Hideout No. 96" onclick="openM(this)">
+    <img src="images/aSuddenRush/jan_large_2.png" alt="violence" onclick="openM(this)">
+    <img src="images/pixel_puddle.jpg" alt="Pixel Puddle" onclick="openM(this)">
+    <img src="images/hideouts/IMG_0663.png" alt="Hideout No. 45" onclick="openM(this)">
+    <img src="images/aSuddenRush/random_blur.png" alt="random walk on a rose" onclick="openM(this)">
+    <img src="images/hideouts/IMG_0417.jpg" alt="Architecture Slouching Toward Ruins" onclick="openM(this)">
+    <img src="images/aSuddenRush/wave_detail.png" alt="i just wish we could kiss somewhere (detail)" onclick="openM(this)">
+    <img src="images/hideouts/IMG_3.JPG" alt="Hideout No. 61" onclick="openM(this)">
+    <img src="images/hideout-triangle.jpg" alt="There's a Bridge from Here to There" onclick="openM(this)">
+  </div>
+</div>
+
+<!-- 05: Synapstraction -->
+<div class="proj-card reveal" id="proj-synapstraction">
+  <div class="proj-card-inner">
+    <div class="proj-info">
+      <div class="proj-n">05</div>
+      <h3 class="proj-title"><em>Synapstraction</em></h3>
+      <div class="proj-desc">
+        <p>A brain-computer installation: EEG headsets measure your neural response to five stimuli, one per sense, each mapped to a painting implement through machine learning. Your brain serves as conduit.</p>
+        <p style="font-family:var(--mono);font-size:.5rem;color:rgba(255,255,255,.2);letter-spacing:.05em">Black Visual Arts Center, 2017.</p>
+      </div>
+    </div>
+    <div class="proj-img">
+      <div class="proj-video-wrap" style="min-height:38vh">
+        <iframe src="https://www.youtube.com/embed/gZUT1KMxpoQ" allowfullscreen loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 06: thisObituaryDoesNotExist -->
+<div class="proj-card reveal">
+  <div class="proj-card-inner flip">
+    <div class="proj-info">
+      <div class="proj-n">06</div>
+      <h3 class="proj-title">thisObituary<em>DoesNot</em>Exist</h3>
+      <div class="proj-desc">
+        <p>StyleGAN and GPT-2 imagine photographs, death narratives, and life stories for people who never existed. Printed as funeral pamphlets indistinguishable from real ones.</p>
+      </div>
+      <div class="proj-links">
+        <a href="http://thisobituarydoesnotexist.com/" target="_blank" class="btn-outline">Visit</a>
+      </div>
+    </div>
+    <div class="proj-img">
+      <img src="images/thisobit_thumb_2.jpg" alt="thisObituaryDoesNotExist" onclick="openM(this)">
+      <div class="proj-img-overlay"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 07: Psych-VR -->
+<div class="proj-card reveal" id="proj-psychvr">
+  <div class="proj-card-inner">
+    <div class="proj-info">
+      <div class="proj-n">07</div>
+      <h3 class="proj-title"><em>Psych</em>-VR</h3>
+      <div class="proj-desc">
+        <p>VR relaxation content for astronauts in isolated spaces, developed with NASA and the Geisel School of Medicine. "Three Days and a Year On Top of a Mountain" compresses a year of timelapse footage into a single sunrise-to-sunset experience.</p>
+      </div>
+    </div>
+    <div class="proj-img">
+      <div class="proj-video-wrap" style="min-height:38vh">
+        <iframe src="https://www.youtube.com/embed/PTOQoZnPwww" allowfullscreen loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 08: Animation -->
+<div class="proj-card reveal" id="proj-animation">
+  <div class="proj-card-inner flip">
+    <div class="proj-info">
+      <div class="proj-n">08</div>
+      <h3 class="proj-title"><em>Animation</em></h3>
+      <div class="proj-desc">
+        <p>Ongoing experiments since 2017: abandoned sculptures, lab timelapse, visual programming. Each film paired with contemporary literature, soundscaped in SuperCollider.</p>
+      </div>
+      <div class="proj-links">
+        <a href="https://joshurbandavis.github.io/pages/frank.html" target="_blank" class="btn-outline">Watch {frankenstein} live</a>
+      </div>
+    </div>
+    <div class="proj-img">
+      <div class="proj-video-wrap" style="min-height:38vh">
+        <iframe src="https://www.youtube.com/embed/2hFV_rQct-k" allowfullscreen loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider" style="margin-top:0"></div>
+
+<!-- ════ CONTACT ════ -->
+<section class="contact-wrap" id="contact">
+  <div class="contact-ghost">Hello</div>
+  <span class="contact-eyebrow reveal">04 — Contact</span>
+  <h2 style="font-family:var(--serif);font-size:clamp(1.5rem,4vw,3rem);font-weight:400;color:rgba(255,255,255,.4);margin-bottom:2rem" class="reveal reveal-d1">Let's build something <em style="color:#fff;font-style:italic">strange</em></h2>
+  <a href="mailto:hello@joshurbandavis.com" class="contact-mailto reveal reveal-d2">hello@joshurbandavis.com</a>
+  <div class="contact-meta reveal reveal-d3">
+    <span><i class="fa fa-map-marker"></i> San Francisco, CA</span>
+    <span><i class="fa fa-circle" style="font-size:.35rem;color:rgba(255,255,255,.3)"></i> Open to collaboration</span>
+  </div>
+  <div class="contact-socials reveal">
+    <a href="http://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en" target="_blank" aria-label="Scholar"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M128 0L0 80l48 28v72l80 48 80-48v-72l16-9.3V176h16V72L128 0zM128 180l-64-38.4V120l64 38 64-38v21.6L128 180z"/></svg></a>
+    <a href="https://www.instagram.com/joshurbandavis/" target="_blank" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg></a>
+    <a href="https://github.com/joshurbandavis" target="_blank" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg></a>
+    <a href="https://twitter.com/joshurbandavis" target="_blank" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <a href="https://www.linkedin.com/in/joshurbandavis/" target="_blank" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+  </div>
+</section>
+
+<footer>
+  <span>&copy; 2025 Josh Urban Davis</span>
+  <span style="display:flex;align-items:center;gap:1.5rem">
+    <a href="index.html" style="color:rgba(255,255,255,.15);transition:color .3s" onmouseover="this.style.color='rgba(255,255,255,.4)'" onmouseout="this.style.color='rgba(255,255,255,.15)'">← Standard view</a>
+    <span>Built with obsession</span>
+  </span>
+</footer>
+
+<!-- MODAL -->
+<div class="modal" id="modal" onclick="closeM()">
+  <button class="x">&times;</button>
+  <img id="mImg" src="" alt="">
+  <p class="cap" id="mCap"></p>
+</div>
+
+<script>
+/* ── CURSOR ── */
+var cur = document.getElementById('cursor');
+var ring = document.getElementById('cursor-ring');
+var mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; });
+document.addEventListener('mouseleave', function() { cur.style.opacity = '0'; ring.style.opacity = '0'; });
+document.addEventListener('mouseenter', function() { cur.style.opacity = '1'; ring.style.opacity = '1'; });
+(function cursorLoop() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  cur.style.left = mx + 'px';
+  cur.style.top  = my + 'px';
+  ring.style.left = rx + 'px';
+  ring.style.top  = ry + 'px';
+  requestAnimationFrame(cursorLoop);
+})();
+// expand ring on hover of links/buttons
+document.querySelectorAll('a,button,.proj-card,.pub-row').forEach(function(el) {
+  el.addEventListener('mouseenter', function() {
+    ring.style.width = '70px'; ring.style.height = '70px';
+    ring.style.borderColor = 'rgba(255,255,255,.6)';
+    cur.style.width = '6px'; cur.style.height = '6px';
+  });
+  el.addEventListener('mouseleave', function() {
+    ring.style.width = '40px'; ring.style.height = '40px';
+    ring.style.borderColor = 'rgba(255,255,255,.35)';
+    cur.style.width = '12px'; cur.style.height = '12px';
+  });
+});
+
+/* ── HERO CANVAS: white noise field ── */
+(function() {
+  var c = document.getElementById('hero-canvas');
+  var ctx = c.getContext('2d');
+  var w, h, pts = [], t = 0;
+  function resize() {
+    w = c.width = c.offsetWidth;
+    h = c.height = c.offsetHeight;
+    pts = [];
+    var n = Math.floor(w * h / 8000);
+    for (var i = 0; i < n; i++) {
+      pts.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - .5) * .25,
+        vy: (Math.random() - .5) * .25,
+        r: Math.random() * 1.2 + .2,
+        a: Math.random() * .12 + .02,
+        d: Math.random()
+      });
+    }
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  function draw() {
+    t += .002;
+    ctx.fillStyle = 'rgba(0,0,0,.18)';
+    ctx.fillRect(0, 0, w, h);
+    for (var i = 0; i < pts.length; i++) {
+      var p = pts[i];
+      p.x += p.vx + Math.sin(t + i * .4) * (p.d * .08);
+      p.y += p.vy + Math.cos(t + i * .3) * (p.d * .08);
+      if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+      if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+      // connect nearby
+      for (var j = i + 1; j < pts.length; j++) {
+        var q = pts[j];
+        var dx = p.x - q.x, dy = p.y - q.y;
+        var d = Math.sqrt(dx*dx + dy*dy);
+        if (d < 120) {
+          ctx.strokeStyle = 'rgba(255,255,255,' + (1 - d/120) * .04 + ')';
+          ctx.lineWidth = .5;
+          ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
+        }
+      }
+      var al = p.a + Math.sin(t * 1.5 + i) * .03;
+      ctx.fillStyle = 'rgba(255,255,255,' + al + ')';
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── NAV HIDE/SHOW ── */
+var nav = document.getElementById('nav');
+var lastY = 0;
+window.addEventListener('scroll', function() {
+  var y = window.scrollY;
+  if (y > 80 && y > lastY) nav.classList.add('hidden');
+  else nav.classList.remove('hidden');
+  lastY = y;
+});
+
+/* ── MOBILE NAV ── */
+document.getElementById('menuBtn').addEventListener('click', function() {
+  document.getElementById('mobNav').classList.add('open');
+});
+document.getElementById('mobClose').addEventListener('click', function() {
+  document.getElementById('mobNav').classList.remove('open');
+});
+
+/* ── SCROLL REVEALS ── */
+var obs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.06 });
+document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
+
+/* ── HERO ROLE CYCLING ── */
+var roles = document.querySelectorAll('.hero-roles span');
+var ri = 0;
+setInterval(function() {
+  roles.forEach(function(r) { r.classList.remove('active'); });
+  ri = (ri + 1) % roles.length;
+  roles[ri].classList.add('active');
+}, 2200);
+
+/* ── MODAL ── */
+function openM(el) {
+  document.getElementById('mImg').src = el.src;
+  document.getElementById('mCap').textContent = el.alt;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeM() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeM(); });
+
+/* ── SCAN LINE SWEEP on hero ── */
+(function() {
+  var scanLine = document.createElement('div');
+  Object.assign(scanLine.style, {
+    position:'absolute', left:'0', right:'0', height:'1px',
+    background:'linear-gradient(to right,transparent,rgba(255,255,255,.06),transparent)',
+    pointerEvents:'none', zIndex:'3', top:'0',
+    animation:'scanSweep 6s linear infinite'
+  });
+  var style = document.createElement('style');
+  style.textContent = '@keyframes scanSweep{0%{top:-2px;opacity:0}5%{opacity:1}95%{opacity:.6}100%{top:100%;opacity:0}}';
+  document.head.appendChild(style);
+  document.querySelector('.hero').appendChild(scanLine);
+})();
+</script>
+
+</body>
+</html>
