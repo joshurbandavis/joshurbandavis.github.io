@@ -211,6 +211,33 @@ footer{padding:6rem 3rem;border-top:1px solid rgba(255,255,255,.04);display:flex
 .footer-coords{font-family:var(--mono);font-size:.6rem;letter-spacing:.4em;text-transform:uppercase;color:var(--dim);opacity:.45}
 .footer-love{font-family:var(--mono);font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);opacity:.28}
 
+/* ══ GEAR / SHOPPING LIST ══ */
+.gear{background:rgba(245,200,66,.012);border-top:1px solid rgba(245,200,66,.07);border-bottom:1px solid rgba(245,200,66,.07)}
+.gear-intro{max-width:58ch;margin-bottom:4rem}
+.gear-intro p{font-size:.95rem;line-height:1.85;color:var(--fg);opacity:.6;margin-top:1rem}
+.gear-cats{display:flex;flex-direction:column;gap:3.5rem}
+.gear-cat-head{font-family:var(--display);font-size:1.5rem;color:var(--gold);padding-bottom:.75rem;border-bottom:1px solid rgba(245,200,66,.12);margin-bottom:1.5rem;display:flex;align-items:center;gap:.75rem}
+.gear-cat-head .gc-icon{font-size:1.3rem}
+.gear-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.9rem}
+.gear-item{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);padding:1.5rem 1.5rem 1.2rem;transition:border-color .3s,background .3s;display:flex;flex-direction:column}
+.gear-item:hover{border-color:rgba(245,200,66,.18);background:rgba(245,200,66,.018)}
+.gear-item-name{font-family:var(--serif);font-size:1.05rem;color:var(--fg);margin-bottom:.35rem;line-height:1.3}
+.gear-item-desc{font-size:.8rem;color:var(--dim);line-height:1.75;flex:1;margin-bottom:1rem}
+.gear-tag{font-family:var(--mono);font-size:.45rem;letter-spacing:.2em;text-transform:uppercase;padding:.25rem .6rem;border:1px solid rgba(255,107,53,.25);color:var(--fire);display:inline-block;margin-bottom:.5rem;width:fit-content}
+.gear-btn{font-family:var(--mono);font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;padding:.5rem 1rem;border:1px solid rgba(245,200,66,.25);color:var(--gold);display:inline-flex;align-items:center;gap:.4rem;transition:all .3s;width:fit-content;margin-top:auto}
+.gear-btn:hover{background:rgba(245,200,66,.07);border-color:rgba(245,200,66,.5)}
+.gear-btn.fire{border-color:rgba(255,107,53,.25);color:var(--fire)}
+.gear-btn.fire:hover{background:rgba(255,107,53,.07);border-color:rgba(255,107,53,.5)}
+.gear-btn.teal{border-color:rgba(0,212,255,.22);color:var(--teal)}
+.gear-btn.teal:hover{background:rgba(0,212,255,.05);border-color:rgba(0,212,255,.4)}
+.gear-shelter-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.9rem;margin-bottom:1.5rem}
+.gear-shelter-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);padding:1.75rem 1.5rem;transition:all .3s;display:flex;flex-direction:column}
+.gear-shelter-card:hover{border-color:rgba(245,200,66,.2);background:rgba(245,200,66,.015)}
+.gear-shelter-label{font-family:var(--mono);font-size:.48rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.5rem;display:block}
+.gear-shelter-name{font-family:var(--display);font-size:1.2rem;color:var(--fg);margin-bottom:.5rem}
+.gear-shelter-desc{font-size:.8rem;color:var(--dim);line-height:1.75;flex:1;margin-bottom:1rem}
+.gear-note{font-family:var(--mono);font-size:.6rem;color:var(--dim);background:rgba(255,255,255,.02);border-left:2px solid rgba(245,200,66,.18);padding:.8rem 1.25rem;line-height:1.75;opacity:.8;margin-top:1rem}
+
 /* ══ RESPONSIVE ══ */
 @media(max-width:1000px){
   .invitation-inner{grid-template-columns:1fr}
@@ -532,6 +559,343 @@ footer{padding:6rem 3rem;border-top:1px solid rgba(255,255,255,.04);display:flex
       <h3 class="prep-title">For the Ceremony</h3>
       <p class="prep-text">Show up in your finest strange. Bring dancing shoes, an open heart, and something to say if we ask. Prepare to cry, make lifelong friends, and dance under the stars at the weirdest, most beautiful wedding you've ever attended.</p>
     </div>
+  </div>
+</section>
+
+<!-- ══════════ GEAR LIST — shopping & shelter ══════════ -->
+<section class="gear" id="gear">
+  <div class="gear-intro">
+    <span class="sec-label reveal">§ 03.5 &nbsp;— &nbsp; the playa kit</span>
+    <h2 class="sec-head reveal rd1">Gear Up<br><em>for the Burn</em></h2>
+    <p class="reveal rd2">Everything you actually need — from where you'll sleep to how you'll survive the dust. Links go directly to Amazon searches or the best source for each item. Don't wing it. The playa will eat you alive if you show up unprepared, and we need you alive for the wedding.</p>
+  </div>
+
+  <div class="gear-cats">
+
+    <!-- SHELTER -->
+    <div class="reveal">
+      <h3 class="gear-cat-head"><span class="gc-icon">🏕️</span> Where You'll Sleep</h3>
+      <div class="gear-shelter-grid">
+
+        <div class="gear-shelter-card">
+          <span class="gear-shelter-label">Gold Standard</span>
+          <div class="gear-shelter-name">Shiftpod 2</div>
+          <p class="gear-shelter-desc">The cult classic. Reflective shell keeps it 20–30°F cooler inside than a regular tent. Pops up in 60 seconds. Dust-sealed zippers. If you're serious about comfort, this is it — and it lasts for years.</p>
+          <a href="https://www.shiftpod.com/products/" target="_blank" rel="noopener" class="gear-btn">Shop Shiftpod.com →</a>
+        </div>
+
+        <div class="gear-shelter-card">
+          <span class="gear-shelter-label">Veteran Favorite</span>
+          <div class="gear-shelter-name">Kodiak Canvas Tent</div>
+          <p class="gear-shelter-desc">Heavy canvas blocks UV and holds up in dust storms. Breathes better than synthetic tents and keeps heat out. The Flex-Bow 6-person is a popular choice for solo or duo camping with room to breathe.</p>
+          <a href="https://www.amazon.com/s?k=kodiak+canvas+flex-bow+tent" target="_blank" rel="noopener" class="gear-btn">Search on Amazon →</a>
+        </div>
+
+        <div class="gear-shelter-card">
+          <span class="gear-shelter-label">Maximum Comfort</span>
+          <div class="gear-shelter-name">RV Rental</div>
+          <p class="gear-shelter-desc">AC, a bed, and a bathroom. Split between 4–6 people and it's surprisingly affordable. RVshare and Outdoorsy are the two main platforms — book early, BM inventory goes fast.</p>
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:auto;padding-top:1rem">
+            <a href="https://rvshare.com/" target="_blank" rel="noopener" class="gear-btn teal">RVshare →</a>
+            <a href="https://www.outdoorsy.com/" target="_blank" rel="noopener" class="gear-btn teal">Outdoorsy →</a>
+          </div>
+        </div>
+
+        <div class="gear-shelter-card">
+          <span class="gear-shelter-label">Budget-Friendly</span>
+          <div class="gear-shelter-name">Car Camping</div>
+          <p class="gear-shelter-desc">If you're driving an SUV, minivan, or hatchback, fold the seats flat and sleep inside. Add a platform, an air mattress, and blackout curtains and it's genuinely comfortable. Zero rental cost.</p>
+          <a href="https://www.amazon.com/s?k=car+camping+air+mattress+suv" target="_blank" rel="noopener" class="gear-btn">SUV air mattress →</a>
+        </div>
+
+        <div class="gear-shelter-card">
+          <span class="gear-shelter-label">Actually Brilliant</span>
+          <div class="gear-shelter-name">Moving Truck Conversion</div>
+          <p class="gear-shelter-desc">Rent a 10 or 15 ft box truck, build out a platform bed, and fill it with all your gear. Big community of people do this — you get a cool, dark, weatherproof room on wheels. Cheaper than you'd think when split.</p>
+          <a href="https://www.uhaul.com/Trucks/" target="_blank" rel="noopener" class="gear-btn">U-Haul rentals →</a>
+        </div>
+
+      </div>
+      <p class="gear-note">Shade structure tip: No matter your sleeping setup, bring a shade canopy or ez-up for daytime. The sun is relentless and you need covered outdoor space to exist during peak afternoon hours.</p>
+    </div>
+
+    <!-- HYDRATION & COOLING -->
+    <div class="reveal">
+      <h3 class="gear-cat-head"><span class="gc-icon">💧</span> Hydration & Staying Cool</h3>
+      <div class="gear-items">
+
+        <div class="gear-item">
+          <div class="gear-item-name">Hydration Pack (3L)</div>
+          <p class="gear-item-desc">Non-negotiable. You need hands-free water access at all times. CamelBak MULE or Osprey Skarab are the classic choices. Get the 3-liter bladder — smaller ones run out too fast.</p>
+          <a href="https://www.amazon.com/s?k=camelbak+3+liter+hydration+pack" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Electrolyte Packets</div>
+          <p class="gear-item-desc">Water alone isn't enough — you lose electrolytes sweating all day. LMNT, Liquid IV, or Nuun tabs. Bring more than you think you need. Hyponatremia (low sodium) is a real risk on the playa.</p>
+          <a href="https://www.amazon.com/s?k=lmnt+electrolyte+packets" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Battery Misting Fan</div>
+          <p class="gear-item-desc">A handheld misting fan is one of the best quality-of-life items you'll own on the playa. The evaporative cooling effect in dry desert air is dramatic. Get one with a rechargeable battery.</p>
+          <a href="https://www.amazon.com/s?k=rechargeable+misting+fan+portable" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Neck Cooling Towels</div>
+          <p class="gear-item-desc">Soak in water, wring out, snap to activate. Drape around your neck for instant cooling. Cheap, light, effective. Bring 3–4 so you always have a dry backup.</p>
+          <a href="https://www.amazon.com/s?k=cooling+towel+neck+wrap+evaporative" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Collapsible Water Containers</div>
+          <p class="gear-item-desc">5-gallon collapsible jugs for camp water storage. You'll buy a water allowance at BRC or bring your own — either way you need vessels. Platypus and MSR make good ones.</p>
+          <a href="https://www.amazon.com/s?k=collapsible+water+jug+5+gallon+camping" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Evaporative Cooling Vest</div>
+          <p class="gear-item-desc">For peak afternoon heat, a soaked cooling vest can be a game-changer. Especially useful for people who run hot or have trouble in extreme heat.</p>
+          <a href="https://www.amazon.com/s?k=evaporative+cooling+vest+hot+weather" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DUST & EYES -->
+    <div class="reveal">
+      <h3 class="gear-cat-head"><span class="gc-icon">🥽</span> Dust, Eyes & Lungs</h3>
+      <div class="gear-items">
+
+        <div class="gear-item">
+          <span class="gear-tag">Non-Negotiable</span>
+          <div class="gear-item-name">Playa Goggles</div>
+          <p class="gear-item-desc">In a whiteout, you literally cannot see. Ventilated, anti-fog goggles are essential — not optional. Get ones that seal against your face. Ski goggles or motocross-style both work great.</p>
+          <a href="https://www.amazon.com/s?k=burning+man+dust+goggles+ventilated" target="_blank" rel="noopener" class="gear-btn fire">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <span class="gear-tag">Non-Negotiable</span>
+          <div class="gear-item-name">P100 Respirator or Dust Mask</div>
+          <p class="gear-item-desc">A bandana is not enough. A 3M half-mask P100 respirator filters playa dust effectively. For lighter use, quality N95s work for shorter exposures. Have both.</p>
+          <a href="https://www.amazon.com/s?k=3m+p100+respirator+half+mask" target="_blank" rel="noopener" class="gear-btn fire">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Saline Nasal Spray</div>
+          <p class="gear-item-desc">Playa dust is alkaline and desiccating. Saline spray several times a day keeps your sinuses from drying out completely. Little Remedies or any pharmacy brand — buy a few.</p>
+          <a href="https://www.amazon.com/s?k=saline+nasal+spray+travel+size" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Preservative-Free Eye Drops</div>
+          <p class="gear-item-desc">Preservative-free single-use vials (Refresh Celluvisc or Systane). The playa is brutal on eyes. Use them liberally. Regular preserved drops irritate inflamed eyes — get preservative-free.</p>
+          <a href="https://www.amazon.com/s?k=preservative+free+eye+drops+single+dose" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Dust-Proof Bags & Cases</div>
+          <p class="gear-item-desc">Playa dust destroys electronics. Store your phone, camera, and batteries in sealed ziplock bags or dustproof cases when not in use. Your future self will thank you.</p>
+          <a href="https://www.amazon.com/s?k=dustproof+zipper+bags+large" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FOOTWEAR -->
+    <div class="reveal">
+      <h3 class="gear-cat-head"><span class="gc-icon">👢</span> Footwear</h3>
+      <div class="gear-items">
+
+        <div class="gear-item">
+          <span class="gear-tag">Protect Your Ankles</span>
+          <div class="gear-item-name">Ankle Boots or Hiking Boots</div>
+          <p class="gear-item-desc">Low shoes or open sandals fill with playa dust in minutes. You want ankle coverage — a boot that closes out the dust. Leather or synthetic, doesn't matter. Just cover the ankles. Broken-in before you arrive.</p>
+          <a href="https://www.amazon.com/s?k=ankle+boots+lace+up+festival" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Wool or Moisture-Wicking Socks</div>
+          <p class="gear-item-desc">Merino wool regulates temperature, resists odor, and doesn't get scratchy when dusty. Bring way more pairs than you think you need — at least 8–10 for a week. Your feet will be doing a lot.</p>
+          <a href="https://www.amazon.com/s?k=merino+wool+socks+hiking" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Camp Sandals or Crocs</div>
+          <p class="gear-item-desc">For around camp (not deep playa), a pair of slides or Crocs is great. Gives your feet a break from boots. But never rely on them as your only footwear.</p>
+          <a href="https://www.amazon.com/s?k=crocs+clogs+sandals+festival" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Blister Prevention</div>
+          <p class="gear-item-desc">You will walk more than you expect. Moleskin and Body Glide anti-chafe balm are essential. Apply pre-emptively before blisters form, not after. Your feet will do miles every day.</p>
+          <a href="https://www.amazon.com/s?k=moleskin+blister+prevention+kit" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SUN & SKIN -->
+    <div class="reveal">
+      <h3 class="gear-cat-head"><span class="gc-icon">☀️</span> Sun Protection & Skin</h3>
+      <div class="gear-items">
+
+        <div class="gear-item">
+          <span class="gear-tag">Bring A Lot</span>
+          <div class="gear-item-name">Mineral Sunscreen SPF 50+</div>
+          <p class="gear-item-desc">You're at altitude, in a reflective white dust environment, with no shade. Zinc oxide mineral sunscreen is better than chemical — doesn't wash off in sweat as easily. Apply constantly. Seriously, you will burn.</p>
+          <a href="https://www.amazon.com/s?k=mineral+sunscreen+zinc+spf+50+face" target="_blank" rel="noopener" class="gear-btn fire">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Wide-Brim Sun Hat</div>
+          <p class="gear-item-desc">A hat with a 3"+ brim makes a huge difference. Crushable/packable styles work well. UPF-rated fabric is a bonus. Pair with neck gaiter for full coverage.</p>
+          <a href="https://www.amazon.com/s?k=wide+brim+sun+hat+upf+50+packable" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">UV-Blocking Long Sleeve Shirt</div>
+          <p class="gear-item-desc">Counter-intuitive but true: a light, breathable long-sleeve UV shirt keeps you cooler than bare skin by blocking direct solar radiation. Get UPF 50+ rated fabric in white or light color.</p>
+          <a href="https://www.amazon.com/s?k=long+sleeve+upf+50+shirt+lightweight" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">SPF Lip Balm + Body Lotion</div>
+          <p class="gear-item-desc">Playa destroys lips and skin. SPF lip balm applied constantly. And bring a heavy duty moisturizing body lotion — CeraVe or Eucerin — to repair skin each night. Your skin will thank you for months.</p>
+          <a href="https://www.amazon.com/s?k=spf+30+lip+balm+pack" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- LIGHTS & COSTUME -->
+    <div class="reveal">
+      <h3 class="gear-cat-head"><span class="gc-icon">✨</span> Lights & Costuming</h3>
+      <p class="gear-note" style="margin-top:0;margin-bottom:1.5rem">This is a Burning Man wedding. Maximum weird is the minimum. Dress for the event you want to attend. Also: by BRC rules, you must have lights on yourself and your bike after dark. This is not optional — it's a safety rule, and you will be told to go back and get lights if you forget.</p>
+      <div class="gear-items">
+
+        <div class="gear-item">
+          <span class="gear-tag">Required After Dark</span>
+          <div class="gear-item-name">EL Wire Kit</div>
+          <p class="gear-item-desc">Electroluminescent wire is the classic BM body light. Flexible, colourful, low battery draw. Get a kit with battery pack and multiple colors — wrap it around your costume, backpack, anything.</p>
+          <a href="https://www.amazon.com/s?k=el+wire+kit+battery+pack+assorted+colors" target="_blank" rel="noopener" class="gear-btn fire">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <span class="gear-tag">Required After Dark</span>
+          <div class="gear-item-name">LED Bike Lights</div>
+          <p class="gear-item-desc">Front and rear, minimum. But more is better. Spoke lights, frame lights, handlebar lights — the more visible your bike, the safer you are in the dark. Flashing patterns over solid.</p>
+          <a href="https://www.amazon.com/s?k=led+bike+lights+set+bright+rechargeable" target="_blank" rel="noopener" class="gear-btn fire">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">LED Strip Lights (Battery)</div>
+          <p class="gear-item-desc">Battery-powered LED strips for your costume, tent, or camp. RGB color-changing options are great. USB-rechargeable versions run all night on a power bank.</p>
+          <a href="https://www.amazon.com/s?k=battery+powered+led+strip+lights+portable" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Glitter, Body Paint & Fur</div>
+          <p class="gear-item-desc">Leave inhibitions at home. Chunky biodegradable glitter, face paint, body shimmer, faux fur coats, sequin everything — the playa rewards the committed. Your everyday clothes will feel boring forever after.</p>
+          <a href="https://www.amazon.com/s?k=biodegradable+glitter+body+face" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- WARMTH / COLD NIGHTS -->
+    <div class="reveal">
+      <h3 class="gear-cat-head"><span class="gc-icon">🧥</span> Cold Nights (Yes, Really)</h3>
+      <p class="gear-note" style="margin-top:0;margin-bottom:1.5rem">Temperatures drop to 40–50°F (4–10°C) at night. Every single year, people show up with only warm-weather gear and suffer through the nights. Bring real layers.</p>
+      <div class="gear-items">
+
+        <div class="gear-item">
+          <div class="gear-item-name">Sleeping Bag — 30°F Rated</div>
+          <p class="gear-item-desc">Don't bring a summer bag. Nights get genuinely cold. A 30°F rated bag will keep you comfortable without being overkill. Mummy style is warmest; rectangular is more comfortable.</p>
+          <a href="https://www.amazon.com/s?k=sleeping+bag+30+degree+rated+camping" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Packable Puffer Jacket</div>
+          <p class="gear-item-desc">A good insulated jacket that compresses small enough to fit in your backpack. You'll be out at 3am and you'll want it. Synthetic fill is better than down in dusty environments.</p>
+          <a href="https://www.amazon.com/s?k=lightweight+packable+puffer+jacket+synthetic" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Warm Hat & Gloves</div>
+          <p class="gear-item-desc">A beanie and light gloves for the coldest nights (usually before dawn). Sounds excessive until you're watching sunrise at 6am shivering without them.</p>
+          <a href="https://www.amazon.com/s?k=beanie+hat+and+gloves+warm+set" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Thermal Base Layers</div>
+          <p class="gear-item-desc">Lightweight merino or synthetic thermal top and bottom. Wear under a costume for warmth without bulk. Great for late-night adventures when the temperature drops fast.</p>
+          <a href="https://www.amazon.com/s?k=thermal+base+layer+set+lightweight+merino" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- POWER -->
+    <div class="reveal">
+      <h3 class="gear-cat-head"><span class="gc-icon">⚡</span> Power</h3>
+      <div class="gear-items">
+
+        <div class="gear-item">
+          <div class="gear-item-name">Portable Power Station (500Wh+)</div>
+          <p class="gear-item-desc">A Jackery, EcoFlow, or Goal Zero power station keeps your devices, lights, and fans running all week. 500Wh is the minimum useful size; 1000Wh+ if you're running a fan all night. Pair with solar.</p>
+          <a href="https://www.amazon.com/s?k=portable+power+station+500wh+jackery+ecoflow" target="_blank" rel="noopener" class="gear-btn fire">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Foldable Solar Panel (100W)</div>
+          <p class="gear-item-desc">The playa gets 10+ hours of sun. A 100W foldable solar panel charges your power station during the day. Get one compatible with your power station brand (most use MC4 connectors).</p>
+          <a href="https://www.amazon.com/s?k=100w+foldable+solar+panel+camping" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">High-Capacity Power Bank</div>
+          <p class="gear-item-desc">A 30,000mAh+ power bank keeps your phone, lights, and small devices going when you're away from camp. Anker makes reliable, dust-resistant options. Carry it always.</p>
+          <a href="https://www.amazon.com/s?k=anker+power+bank+30000mah+fast+charge" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- HYGIENE & COMFORT -->
+    <div class="reveal">
+      <h3 class="gear-cat-head"><span class="gc-icon">🧴</span> Hygiene & Comfort</h3>
+      <div class="gear-items">
+
+        <div class="gear-item">
+          <div class="gear-item-name">Body Wet Wipes (Many Packs)</div>
+          <p class="gear-item-desc">There are no showers (unless your camp has one). Large unscented body wipes are how you stay clean all week. Burt's Bees, DUDE Wipes, or baby wipes work. Bring a lot — each wipe does one body part.</p>
+          <a href="https://www.amazon.com/s?k=large+body+wipes+unscented+bathing" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Dr. Bronner's Castile Soap</div>
+          <p class="gear-item-desc">Biodegradable, all-purpose. Works for body, hair, dishes. Concentrated — a little goes a long way. The standard for Leave No Trace hygiene. Peppermint is refreshing in the heat.</p>
+          <a href="https://www.amazon.com/s?k=dr+bronners+castile+soap+18+in+1" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Heavy Moisturizer (CeraVe / Eucerin)</div>
+          <p class="gear-item-desc">The playa strips moisture from skin faster than almost any environment on earth. Apply a thick moisturizer head-to-toe every morning and evening. Your skin will thank you for weeks after.</p>
+          <a href="https://www.amazon.com/s?k=cerave+moisturizing+cream+large" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+        <div class="gear-item">
+          <div class="gear-item-name">Dry Shampoo</div>
+          <p class="gear-item-desc">Your hair will be dusty all week. Dry shampoo absorbs oil and makes your hair feel human again without water. Get a multi-pack — you'll use more than you expect.</p>
+          <a href="https://www.amazon.com/s?k=dry+shampoo+spray+travel+size+pack" target="_blank" rel="noopener" class="gear-btn">Amazon →</a>
+        </div>
+
+      </div>
+      <p class="gear-note">Leave No Trace: Everything you bring in, you carry out. Pack a dedicated MOOP bag (Matter Out Of Place) — even glitter and sequins. Zero tolerance for litter on the playa.</p>
+    </div>
+
   </div>
 </section>
 
