@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(file:*)",
+      "Bash(sips:*)",
+      "Bash(open:*)",
+      "WebSearch",
+      "WebFetch(domain:burningman.org)",
+      "WebFetch(domain:journal.burningman.org)",
+      "WebFetch(domain:help.burningman.org)",
+      "WebFetch(domain:venga-store.com)",
+      "WebFetch(domain:www.chillrv.com)",
+      "WebFetch(domain:www.prnewswire.com)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(du -sh /Users/imac/Desktop/website/joshurbandavis.github.io/wedding_files/*)",
+      "Bash(git config:*)",
+      "WebFetch(domain:activetheory.net)"
+    ]
+  }
+}
