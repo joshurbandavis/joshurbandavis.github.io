@@ -52,35 +52,35 @@ body::after{
 @keyframes heroBgZoom{0%{transform:scale(1.08)}100%{transform:scale(1.16)}}
 #fire-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1}
 .hero-content{position:relative;z-index:2}
-.hero-eyebrow{font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:2.5rem;opacity:.85;display:block}
-.hero-cordially{font-family:var(--serif);font-style:italic;font-size:clamp(1.1rem,2.5vw,1.8rem);color:var(--fg);opacity:.55;margin-bottom:.5rem}
+.hero-eyebrow{font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:2.5rem;opacity:.85;display:block;text-shadow:0 2px 16px rgba(6,3,2,.8)}
+.hero-cordially{font-family:var(--serif);font-style:italic;font-size:clamp(1.1rem,2.5vw,1.8rem);color:var(--fg);opacity:.55;margin-bottom:.5rem;text-shadow:0 2px 20px rgba(6,3,2,.85)}
 .hero-title{font-family:var(--display);line-height:.85;margin-bottom:.75rem}
-.hero-title .t1{display:block;font-size:clamp(2.5rem,8vw,7.5rem);color:rgba(245,237,228,.4);letter-spacing:.1em}
+.hero-title .t1{display:block;font-size:clamp(2.5rem,8vw,7.5rem);color:rgba(245,237,228,.4);letter-spacing:.1em;text-shadow:0 2px 24px rgba(6,3,2,.85)}
 .hero-title .t2{display:block;font-size:clamp(5rem,19vw,17rem);color:var(--fire);letter-spacing:-.02em;text-shadow:0 0 80px rgba(255,107,53,.6),0 0 160px rgba(255,107,53,.25),0 2px 40px rgba(255,107,53,.9);animation:titleFlicker 4s ease-in-out infinite}
 .hero-title .t3{display:block;font-size:clamp(3.5rem,12vw,11rem);color:var(--gold);letter-spacing:.02em;margin-left:clamp(1rem,5vw,5rem);text-shadow:0 0 60px rgba(245,200,66,.45),0 0 120px rgba(245,200,66,.15)}
-.hero-title .t4{display:block;font-size:clamp(2rem,6.5vw,6rem);color:rgba(245,237,228,.3);letter-spacing:.12em}
+.hero-title .t4{display:block;font-size:clamp(2rem,6.5vw,6rem);color:rgba(245,237,228,.3);letter-spacing:.12em;text-shadow:0 2px 24px rgba(6,3,2,.85)}
 @keyframes titleFlicker{
   0%,100%{text-shadow:0 0 80px rgba(255,107,53,.6),0 0 160px rgba(255,107,53,.25),0 2px 40px rgba(255,107,53,.9)}
   25%{text-shadow:0 0 110px rgba(255,107,53,.8),0 0 210px rgba(255,107,53,.38),0 2px 65px rgba(255,107,53,1)}
   50%{text-shadow:0 0 70px rgba(255,107,53,.5),0 0 140px rgba(255,107,53,.2),0 2px 30px rgba(255,107,53,.8)}
   75%{text-shadow:0 0 130px rgba(255,160,50,.85),0 0 240px rgba(255,107,53,.45),0 2px 75px rgba(255,160,50,1)}
 }
-.hero-at{font-family:var(--serif);font-style:italic;font-size:clamp(1.2rem,3vw,2.2rem);color:var(--fg);opacity:.45;margin:.4rem 0}
+.hero-at{font-family:var(--serif);font-style:italic;font-size:clamp(1.2rem,3vw,2.2rem);color:var(--fg);opacity:.45;margin:.4rem 0;text-shadow:0 2px 20px rgba(6,3,2,.85)}
 .hero-bm{font-family:var(--display);font-size:clamp(2rem,6vw,5rem);color:var(--pink);text-shadow:0 0 50px rgba(255,77,158,.5);letter-spacing:.04em;margin-bottom:1.75rem}
 .hero-names-block{margin:1.75rem 0;position:relative}
 .hero-names-block::before,.hero-names-block::after{content:'';display:block;width:100px;height:1px;background:linear-gradient(to right,transparent,var(--gold),transparent);margin:0 auto 1.25rem;opacity:.3}
 .hero-names-block::after{margin:1.25rem auto 0}
-.hero-names{font-family:var(--display);font-size:clamp(2.5rem,7vw,6rem);color:var(--fg);letter-spacing:.02em}
+.hero-names{font-family:var(--display);font-size:clamp(2.5rem,7vw,6rem);color:var(--fg);letter-spacing:.02em;text-shadow:0 2px 28px rgba(6,3,2,.85),0 1px 4px rgba(6,3,2,.9)}
 .hero-names .amp{font-family:var(--serif);font-style:italic;color:var(--gold);font-size:.75em;vertical-align:middle}
-.hero-playa{font-family:var(--mono);font-size:.7rem;letter-spacing:.5em;text-transform:uppercase;color:var(--dim);margin-top:.5rem}
+.hero-playa{font-family:var(--mono);font-size:.7rem;letter-spacing:.5em;text-transform:uppercase;color:var(--dim);margin-top:.5rem;text-shadow:0 2px 16px rgba(6,3,2,.85)}
 .hero-tagline{font-family:var(--serif);font-style:italic;font-size:clamp(1.4rem,3.5vw,2.8rem);color:var(--gold);text-shadow:0 0 25px rgba(245,200,66,.25);margin:2.25rem 0 2.75rem}
 .hero-ctas{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
 .btn{display:inline-block;font-family:var(--mono);font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;font-weight:700;padding:.9rem 2.2rem;transition:all .3s;cursor:pointer}
 .btn-primary{background:var(--fire);color:var(--bg);border:2px solid var(--fire)}
 .btn-primary:hover{background:transparent;color:var(--fire);text-shadow:0 0 20px rgba(255,107,53,.5)}
-.btn-ghost{background:transparent;color:var(--fg);border:2px solid rgba(255,255,255,.18)}
+.btn-ghost{background:rgba(6,3,2,.25);color:var(--fg);border:2px solid rgba(255,255,255,.28);text-shadow:0 1px 8px rgba(6,3,2,.7)}
 .btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
-.hero-scroll{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:.6rem;letter-spacing:.4em;text-transform:uppercase;color:var(--dim);animation:bob 2.2s ease-in-out infinite}
+.hero-scroll{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:.6rem;letter-spacing:.4em;text-transform:uppercase;color:var(--dim);animation:bob 2.2s ease-in-out infinite;text-shadow:0 2px 16px rgba(6,3,2,.85)}
 @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
 
 /* ══ PHOTO STRIP ══ */
