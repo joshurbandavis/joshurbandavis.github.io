@@ -756,10 +756,13 @@
 
   var state = {
     poem: null,            // {title, author, lines}
-    rows: [],              // array of arrays of word strings (one per line, may be empty)
-    grid: [],              // bool[row][col], rectangular incl. phantom slots
-    phantom: [],           // bool[row][col]
-    maxCols: 0,
+    rows: [],              // array of arrays of word strings (one per line, as the poem reads)
+    grid: [],              // bool[i][j] over the simulation's own near-square shape
+    phantom: [],           // bool[i][j], true where no real word landed
+    simRows: 0,            // the simulation grid's shape - deliberately NOT
+    simCols: 0,            // the same shape as the poem's own lines (see buildSimLayout())
+    keyToSim: {},          // "r-c" (a word's real position in the poem) -> {i,j} in the sim grid
+    simToKey: [],          // [i][j] -> "r-c", or null for a phantom cell
     generation: 0,
     seed: 0,
     rng: null,
@@ -845,10 +848,47 @@
   function loadPoem(poem){
     state.poem = poem;
     state.rows = tokenizeLines(poem.lines);
-    state.maxCols = state.rows.reduce(function(m,r){ return Math.max(m, r.length); }, 0);
+    buildSimLayout();
     document.getElementById("poemTitle").textContent = poem.title || "Untitled";
     document.getElementById("poemByline").textContent = poem.author || "anonymous / submitted";
     reseed(Math.floor(Math.random() * 1e9));
+  }
+
+  // The poem's own lines are almost never square, and Life barely reads as
+  // Life on a grid too thin to give a glider room to move. So the poem's
+  // words get flattened, in reading order, into a grid shaped as close to
+  // square as the word count allows - that's what actually runs the
+  // automaton. Read mode never sees this shape: every word keeps its real
+  // "r-c" position from state.rows as its identity, and that's what it
+  // flips back to once the grid settles.
+  function buildSimLayout(){
+    var slots = [];
+    for (var r=0; r<state.rows.length; r++){
+      for (var c=0; c<state.rows[r].length; c++) slots.push(r + "-" + c);
+    }
+    var total = slots.length;
+    var cols = Math.max(1, Math.ceil(Math.sqrt(total)));
+    var rows = total === 0 ? 0 : Math.ceil(total / cols);
+    var simToKey = [], keyToSim = {};
+    for (var i=0; i<rows; i++){
+      var row = [];
+      for (var j=0; j<cols; j++){
+        var idx = i * cols + j;
+        var key = idx < total ? slots[idx] : null;
+        row.push(key);
+        if (key) keyToSim[key] = { i: i, j: j };
+      }
+      simToKey.push(row);
+    }
+    state.simRows = rows;
+    state.simCols = cols;
+    state.simToKey = simToKey;
+    state.keyToSim = keyToSim;
+  }
+
+  function aliveAt(r, c){
+    var pos = state.keyToSim[r + "-" + c];
+    return pos ? state.grid[pos.i][pos.j] : false;
   }
 
   function reseed(seedVal){
@@ -856,13 +896,12 @@
     state.seed = seedVal;
     state.rng = mulberry32(seedVal);
     var density = parseInt(document.getElementById("densityInput").value, 10) / 100;
-    var rows = state.rows.length, cols = state.maxCols;
+    var rows = state.simRows, cols = state.simCols;
     var grid = [], phantom = [];
-    for (var r = 0; r < rows; r++){
+    for (var i = 0; i < rows; i++){
       var gRow = [], pRow = [];
-      var lineLen = state.rows[r].length;
-      for (var c = 0; c < cols; c++){
-        var isPhantom = c >= lineLen;
+      for (var j = 0; j < cols; j++){
+        var isPhantom = state.simToKey[i][j] === null;
         pRow.push(isPhantom);
         gRow.push(isPhantom ? false : (state.rng() < density));
       }
@@ -970,7 +1009,7 @@
       lineEl.className = "poem-line";
       var any = false;
       for (var c=0; c<words.length; c++){
-        var alive = state.grid[r] && state.grid[r][c];
+        var alive = aliveAt(r, c);
         var role = state.settled ? finalRole(alive) : "plain";
         // Selected extracts: only chosen words return to the page at all.
         // Erased keeps the whole page: a covered word stays put as a bar.
@@ -989,27 +1028,32 @@
     }
   }
 
+  // Renders the automaton's own near-square shape (state.simRows x
+  // state.simCols), not the poem's line shape - a word's data-key is still
+  // its real "r-c" position, so the FLIP back to reading order still works.
   function renderGridDOM(){
     var container = document.getElementById("poemSurface");
     container.className = "grid-surface";
-    container.style.setProperty("--cols", state.maxCols || 1);
+    container.style.setProperty("--cols", state.simCols || 1);
     container.innerHTML = "";
-    for (var r=0; r<state.rows.length; r++){
-      for (var c=0; c<state.maxCols; c++){
-        var isPhantom = c >= state.rows[r].length;
+    for (var i=0; i<state.simRows; i++){
+      for (var j=0; j<state.simCols; j++){
+        var key = state.simToKey[i][j];
         var span = document.createElement("span");
-        span.style.gridColumn = String(c + 1);
-        span.style.gridRow = String(r + 1);
-        if (isPhantom){
+        span.style.gridColumn = String(j + 1);
+        span.style.gridRow = String(i + 1);
+        if (key === null){
           span.className = "word-cell mode-grid phantom";
-          span.dataset.key = "phantom-" + r + "-" + c;
+          span.dataset.key = "phantom-" + i + "-" + j;
         } else {
-          var alive = state.grid[r][c];
+          var parts = key.split("-");
+          var word = state.rows[+parts[0]][+parts[1]];
+          var alive = state.grid[i][j];
           var cls = state.settled ? finalRole(alive) : (alive ? "alive" : "off");
           span.className = "word-cell mode-grid " + cls;
-          span.dataset.key = r + "-" + c;
-          span.title = state.rows[r][c];
-          span.textContent = state.rows[r][c];
+          span.dataset.key = key;
+          span.title = word;
+          span.textContent = word;
         }
         container.appendChild(span);
       }
@@ -1025,8 +1069,8 @@
     var els = container.querySelectorAll(".word-cell.mode-grid:not(.phantom)");
     for (var i=0; i<els.length; i++){
       var el = els[i];
-      var parts = el.dataset.key.split("-");
-      var alive = state.grid[+parts[0]][+parts[1]];
+      var pos = state.keyToSim[el.dataset.key];
+      var alive = state.grid[pos.i][pos.j];
       el.classList.toggle("alive", alive);
       el.classList.toggle("off", !alive);
     }
@@ -1039,8 +1083,8 @@
     var els = container.querySelectorAll(".word-cell.mode-grid:not(.phantom)");
     for (var i=0; i<els.length; i++){
       var el = els[i];
-      var parts = el.dataset.key.split("-");
-      var alive = state.grid[+parts[0]][+parts[1]];
+      var pos = state.keyToSim[el.dataset.key];
+      var alive = state.grid[pos.i][pos.j];
       el.classList.remove("alive", "off", "chosen", "covered", "plain");
       el.classList.add(finalRole(alive));
     }
@@ -1157,7 +1201,7 @@
       var kept = [];
       for (var c=0; c<state.rows[r].length; c++){
         totalWords++;
-        var alive = state.grid[r] && state.grid[r][c];
+        var alive = aliveAt(r, c);
         if (isChosen(alive)){ chosenWords++; kept.push(state.rows[r][c]); }
       }
       if (kept.length) lines.push(kept.join(" "));
@@ -1193,7 +1237,7 @@
         var lineDiv = document.createElement("div");
         if (!words.length){ lineDiv.style.height = "1em"; textEl.appendChild(lineDiv); continue; }
         for (var c2=0; c2<words.length; c2++){
-          var alive = state.grid[r2][c2];
+          var alive = aliveAt(r2, c2);
           var span = document.createElement("span");
           span.className = "word" + (isChosen(alive) ? "" : " covered");
           span.textContent = words[c2];
