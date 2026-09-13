@@ -19,6 +19,7 @@
     --paper-off-ink:#77705F;
     --paper-alive-bg:#D7DBBF;
     --paper-alive-border:#5F7A47;
+    --life:#5F7A47;
     --focus:#8C2F22;
   }
   @media (prefers-color-scheme: dark){
@@ -31,6 +32,7 @@
       --accent:#E2694F;
       --accent-soft:#F08A70;
       --accent-tint:#3A241D;
+      --life:#8FBE6B;
     }
   }
   :root[data-theme="dark"]{
@@ -42,6 +44,7 @@
     --accent:#E2694F;
     --accent-soft:#F08A70;
     --accent-tint:#3A241D;
+    --life:#8FBE6B;
   }
 
   *{box-sizing:border-box;}
@@ -306,6 +309,11 @@
     opacity:0;
     transform:scale(0.35);
   }
+  /* a recognized still life gets a ring, so you can see where one is
+     sitting on the board, not just read about it in the field notes */
+  .word-cell.mode-grid.species{
+    box-shadow:0 0 0 2px var(--paper-alive-border);
+  }
 
   /* ---------- control rail ---------- */
   .rail{
@@ -420,6 +428,26 @@
     display:inline-block; font-size:0.68rem; letter-spacing:0.05em; text-transform:uppercase;
     color:var(--ink-soft); text-decoration:underline; cursor:pointer;
   }
+
+  .fn-empty{ margin:0; font-size:0.72rem; color:var(--ink-soft); }
+  .fn-list{
+    list-style:none; margin:0; padding:0;
+    display:flex; flex-direction:column; gap:8px;
+    max-height:220px; overflow-y:auto;
+  }
+  .fn-list li{
+    display:flex; flex-direction:column; gap:2px;
+    font-size:0.72rem; line-height:1.4;
+    padding-bottom:8px; border-bottom:1px solid var(--rule);
+  }
+  .fn-list li:last-child{ border-bottom:none; padding-bottom:0; }
+  .fn-gen{
+    font-family:'IBM Plex Mono', monospace; font-size:0.6rem;
+    letter-spacing:0.05em; text-transform:uppercase; color:var(--ink-soft);
+    font-variant-numeric:tabular-nums;
+  }
+  .fn-name{ font-weight:600; color:var(--life); }
+  .fn-words{ color:var(--ink-soft); }
 
   /* ---------- recovered poem ---------- */
   .recovered{
@@ -553,6 +581,12 @@
           <div class="row"><span class="swatch" id="legendAliveSwatch"></span> <span id="legendAliveLabel"></span></div>
           <div class="row"><span class="swatch" id="legendDeadSwatch"></span> <span id="legendDeadLabel"></span></div>
         </div>
+      </div>
+
+      <div class="panel">
+        <h2>Field notes</h2>
+        <p class="fn-empty" id="fieldNotesEmpty">No species sighted yet.</p>
+        <ul class="fn-list" id="fieldNotesList"></ul>
       </div>
 
     </div>
@@ -797,7 +831,9 @@
     lastPoemIndex: -1,
     viewMode: 'read',      // 'read' | 'grid'
     enteredGrid: false,
-    outputMode: 'selected' // 'selected' | 'erased'
+    outputMode: 'selected', // 'selected' | 'erased'
+    seenPatterns: {},       // "name@position:shape" -> true, so a still life already logged this run isn't re-logged every generation it just sits there
+    activeSpeciesCells: {}  // "r-c" (original word position) -> true, for whichever cells currently form a recognized still life
   };
 
   var MODE_COPY = {
@@ -818,6 +854,141 @@
       legendDead: "cell is dead: word stays visible"
     }
   };
+
+  // ---------- species: still lifes ----------
+  // A still life is an isolated cluster of living cells whose shape, once
+  // matched against the catalog below (in any rotation/reflection), is
+  // mathematically guaranteed to stay put - no need to watch it over time
+  // to confirm it. Coordinates are the standard, widely documented shapes
+  // for each pattern (relative cells, row/col).
+  var STILL_LIFE_CATALOG = [
+    { name: "Block",   cells: [[0,0],[0,1],[1,0],[1,1]] },
+    { name: "Tub",     cells: [[0,1],[1,0],[1,2],[2,1]] },
+    { name: "Boat",    cells: [[0,0],[0,1],[1,0],[1,2],[2,1]] },
+    { name: "Ship",    cells: [[0,0],[0,1],[1,0],[1,2],[2,1],[2,2]] },
+    { name: "Beehive", cells: [[0,1],[0,2],[1,0],[1,3],[2,1],[2,2]] },
+    { name: "Loaf",    cells: [[0,1],[0,2],[1,0],[1,3],[2,1],[2,3],[3,2]] }
+  ];
+
+  function normalizeCells(cells){
+    var minR = Math.min.apply(null, cells.map(function(p){ return p[0]; }));
+    var minC = Math.min.apply(null, cells.map(function(p){ return p[1]; }));
+    return cells.map(function(p){ return [p[0]-minR, p[1]-minC]; })
+      .sort(function(a,b){ return a[0]-b[0] || a[1]-b[1]; });
+  }
+  function shapeSignature(cells){
+    return normalizeCells(cells).map(function(p){ return p[0]+","+p[1]; }).join("|");
+  }
+  function rotate90(cells){ return cells.map(function(p){ return [p[1], -p[0]]; }); }
+  function reflectH(cells){ return cells.map(function(p){ return [p[0], -p[1]]; }); }
+  function allOrientations(cells){
+    var out = [], cur = cells;
+    for (var i=0; i<4; i++){
+      out.push(cur, reflectH(cur));
+      cur = rotate90(cur);
+    }
+    return out;
+  }
+
+  // signature (any orientation) -> species name, built once
+  var STILL_LIFE_SIGNATURES = (function(){
+    var map = {};
+    STILL_LIFE_CATALOG.forEach(function(entry){
+      allOrientations(entry.cells).forEach(function(variant){
+        var sig = shapeSignature(variant);
+        if (!(sig in map)) map[sig] = entry.name;
+      });
+    });
+    return map;
+  })();
+
+  function getComponents(){
+    var rows = state.grid.length, cols = rows ? state.grid[0].length : 0;
+    var visited = [];
+    for (var r=0; r<rows; r++) visited.push(new Array(cols).fill(false));
+    var comps = [];
+    for (var r=0; r<rows; r++){
+      for (var c=0; c<cols; c++){
+        if (!state.grid[r][c] || visited[r][c]) continue;
+        var stack = [[r,c]], comp = [];
+        visited[r][c] = true;
+        while (stack.length){
+          var cur = stack.pop();
+          comp.push(cur);
+          for (var dr=-1; dr<=1; dr++){
+            for (var dc=-1; dc<=1; dc++){
+              if (dr===0 && dc===0) continue;
+              var nr = cur[0]+dr, nc = cur[1]+dc;
+              if (nr<0 || nc<0 || nr>=rows || nc>=cols) continue;
+              if (visited[nr][nc] || !state.grid[nr][nc]) continue;
+              visited[nr][nc] = true;
+              stack.push([nr, nc]);
+            }
+          }
+        }
+        comps.push(comp);
+      }
+    }
+    return comps;
+  }
+
+  // Runs after every generation (including the initial seed). Tags every
+  // cell currently forming a recognized still life for the grid's visual
+  // ring, and logs a field note the first time a given pattern appears at
+  // a given spot - not every generation it just sits there afterward.
+  function detectStillLifes(){
+    var activeCells = {};
+    getComponents().forEach(function(comp){
+      var name = STILL_LIFE_SIGNATURES[shapeSignature(comp)];
+      if (!name) return;
+      var minR = Math.min.apply(null, comp.map(function(p){ return p[0]; }));
+      var minC = Math.min.apply(null, comp.map(function(p){ return p[1]; }));
+      var words = [];
+      comp.forEach(function(p){
+        var key = state.simToKey[p[0]][p[1]];
+        if (key){
+          activeCells[key] = true;
+          var parts = key.split("-");
+          words.push(state.rows[+parts[0]][+parts[1]]);
+        }
+      });
+      var seenKey = name + "@" + minR + "," + minC;
+      if (!state.seenPatterns[seenKey]){
+        state.seenPatterns[seenKey] = true;
+        logFieldNote(name, words);
+      }
+    });
+    state.activeSpeciesCells = activeCells;
+  }
+
+  function logFieldNote(name, words){
+    var list = document.getElementById("fieldNotesList");
+    var empty = document.getElementById("fieldNotesEmpty");
+    if (empty) empty.hidden = true;
+    var li = document.createElement("li");
+    var genSpan = document.createElement("span");
+    genSpan.className = "fn-gen";
+    genSpan.textContent = "gen " + state.generation;
+    var nameSpan = document.createElement("span");
+    nameSpan.className = "fn-name";
+    nameSpan.textContent = name;
+    var wordsSpan = document.createElement("span");
+    wordsSpan.className = "fn-words";
+    wordsSpan.textContent = words.length ? ("on " + words.join(", ")) : "(no word beneath it)";
+    li.appendChild(genSpan);
+    li.appendChild(nameSpan);
+    li.appendChild(wordsSpan);
+    list.insertBefore(li, list.firstChild);
+    while (list.children.length > 20) list.removeChild(list.lastChild);
+  }
+
+  function clearFieldNotes(){
+    state.seenPatterns = {};
+    state.activeSpeciesCells = {};
+    var list = document.getElementById("fieldNotesList");
+    list.innerHTML = "";
+    document.getElementById("fieldNotesEmpty").hidden = false;
+  }
 
   // A cell's raw alive/dead state means opposite things depending on the
   // Ending switch. finalRole() is the single place that resolves it, once
@@ -939,6 +1110,8 @@
     state.running = false;
     state.viewMode = "read";
     state.enteredGrid = false;
+    clearFieldNotes();
+    detectStillLifes();
     renderReadDOM();
     updateToggleButton();
     updateReadouts("seeded");
@@ -990,6 +1163,7 @@
 
   function doStep(){
     advanceGeneration();
+    detectStillLifes();
     if (state.settled){
       commitFinalState();
       updateReadouts("stable");
@@ -1085,7 +1259,7 @@
           var word = state.rows[+parts[0]][+parts[1]];
           var alive = state.grid[i][j];
           var cls = state.settled ? finalRole(alive) : (alive ? "alive" : "off");
-          span.className = "word-cell mode-grid " + cls;
+          span.className = "word-cell mode-grid " + cls + (state.activeSpeciesCells[key] ? " species" : "");
           span.dataset.key = key;
           span.title = word;
           span.textContent = word;
@@ -1108,6 +1282,7 @@
       var alive = state.grid[pos.i][pos.j];
       el.classList.toggle("alive", alive);
       el.classList.toggle("off", !alive);
+      el.classList.toggle("species", !!state.activeSpeciesCells[el.dataset.key]);
     }
   }
 
@@ -1122,6 +1297,7 @@
       var alive = state.grid[pos.i][pos.j];
       el.classList.remove("alive", "off", "chosen", "covered", "plain");
       el.classList.add(finalRole(alive));
+      el.classList.toggle("species", !!state.activeSpeciesCells[el.dataset.key]);
     }
   }
 
