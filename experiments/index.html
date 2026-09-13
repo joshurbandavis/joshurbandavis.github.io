@@ -38,28 +38,27 @@ nav .crumb a{color:var(--fg);opacity:.6;transition:opacity .3s}
 nav .crumb a:hover{opacity:1}
 nav .crumb .sep{margin:0 .6em;opacity:.4}
 
-/* ---- hero / rotating ascii head ---- */
-.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.2rem;padding:8rem 1.5rem 4rem;overflow:hidden;text-align:center}
+/* ---- hero / small blinking ascii eye ---- */
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.4rem;padding:8rem 1.5rem 4rem;overflow:hidden;text-align:center}
 .hero-top{position:relative;z-index:2;max-width:620px}
 .hero-kicker{font-family:var(--mono);font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--dim);margin-bottom:1rem;opacity:.8}
 .hero-title{font-family:var(--serif);font-weight:400;font-size:clamp(2.1rem,5.4vw,3.6rem);line-height:1.05;letter-spacing:-.01em;margin-bottom:1.1rem}
 .hero-title em{font-style:italic;color:var(--accent)}
 .hero-lede{font-size:1rem;line-height:1.75;color:var(--fg);opacity:.65}
 
-.head-wrap{position:relative;z-index:2;perspective:1600px;width:min(90vw,760px);overflow:hidden}
-.head-card{position:relative;width:100%;transform-style:preserve-3d;animation:spinY 17s linear infinite}
-.head-face{
-  width:100%;display:block;
+.eye-wrap{position:relative;z-index:2;display:flex;justify-content:center;margin-bottom:.6rem}
+#eyeArt{
   font-family:var(--mono);line-height:1;letter-spacing:0;white-space:pre;
-  font-size:min(1.36vw,11px);
+  font-size:clamp(7px,2vw,13px);
   color:var(--accent);
-  text-shadow:0 0 9px rgba(200,255,46,.35),0 0 22px rgba(200,255,46,.1);
-  user-select:none;backface-visibility:hidden;
+  text-shadow:0 0 3px rgba(200,255,46,.3);
+  user-select:none;transform-origin:center;
+  animation:blink 6.5s ease-in-out infinite;
 }
-.head-face.back{position:absolute;inset:0;transform:rotateY(180deg)}
-@keyframes spinY{to{transform:rotateY(360deg)}}
-@media(prefers-reduced-motion:reduce){.head-card{animation:none}}
-.head-caption{margin-top:1rem;font-family:var(--mono);font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);opacity:.6}
+.eye-iris{color:var(--accent3)}
+.eye-pupil{color:#3a3a3a}
+@keyframes blink{0%,91%,100%{transform:scaleY(1)}93.5%{transform:scaleY(.05)}96%{transform:scaleY(1)}}
+@media(prefers-reduced-motion:reduce){#eyeArt{animation:none}}
 .hero-scroll{position:relative;z-index:2;margin-top:.5rem;font-family:var(--mono);font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);opacity:.6}
 
 /* ---- grid ---- */
@@ -100,6 +99,8 @@ a.card:hover .card-foot .go{opacity:1;transform:translateX(3px)}
 footer{position:relative;z-index:2;padding:2rem 3rem;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,.04);font-family:var(--mono);font-size:.55rem;color:var(--dim);letter-spacing:.1em}
 footer a{opacity:.7;transition:opacity .3s}
 footer a:hover{opacity:1;color:var(--accent)}
+.footer-torus{display:flex;align-items:center;justify-content:center;pointer-events:none}
+#torusArt{font-family:var(--mono);line-height:1;letter-spacing:0;white-space:pre;font-size:3.6px;color:var(--dim);opacity:.55;user-select:none}
 
 @media(max-width:820px){
   .grid{grid-template-columns:1fr}
@@ -125,6 +126,8 @@ footer a:hover{opacity:1;color:var(--accent)}
 </nav>
 
 <header class="hero">
+  <div class="eye-wrap"><pre id="eyeArt"></pre></div>
+
   <div class="hero-top">
     <p class="hero-kicker">experiments</p>
     <h1 class="hero-title">A Collection of <em>Strange</em> Systems</h1>
@@ -135,14 +138,6 @@ footer a:hover{opacity:1;color:var(--accent)}
       on this site. Click through and see for yourself.</p>
   </div>
 
-  <div class="head-wrap">
-    <div class="head-card">
-      <pre class="head-face front" id="headFront"></pre>
-      <pre class="head-face back" id="headBack"></pre>
-    </div>
-  </div>
-  <p class="head-caption">michelangelo's david, 1504 · 6,820 characters, no polygons</p>
-
   <p class="hero-scroll">scroll / poke around</p>
 </header>
 
@@ -150,7 +145,7 @@ footer a:hover{opacity:1;color:var(--accent)}
   <p class="grid-note">Snapshots below, not live feeds: click through for the real thing.</p>
   <div class="grid">
 
-    <a class="card reveal" href="please-wait/index.html">
+    <a class="card reveal" href="please-wait/index.html" target="_blank" rel="noopener">
       <div class="card-shot"><img src="_shared/snapshots/please-wait.jpg" alt="Snapshot of the please-wait experiment: a fake Windows 95 System dialog with a progress bar and a log of unsettling status lines" loading="lazy"></div>
       <div class="card-body">
         <div class="card-head"><h2>please wait</h2><span class="tag">no backend</span></div>
@@ -162,7 +157,7 @@ footer a:hover{opacity:1;color:var(--accent)}
       </div>
     </a>
 
-    <a class="card reveal" href="palimpsest/index.html">
+    <a class="card reveal" href="palimpsest/index.html" target="_blank" rel="noopener">
       <div class="card-shot"><img src="_shared/snapshots/palimpsest.jpg" alt="Snapshot of the palimpsest experiment mid-transformation: a dense starfield with faint constellation lines overtaking this page's quiet dark background" loading="lazy"></div>
       <div class="card-body">
         <div class="card-head"><h2>palimpsest</h2><span class="tag">365 refreshes · local</span></div>
@@ -176,7 +171,7 @@ footer a:hover{opacity:1;color:var(--accent)}
       </div>
     </a>
 
-    <a class="card reveal" href="decay/index.html">
+    <a class="card reveal" href="decay/index.html" target="_blank" rel="noopener">
       <div class="card-shot"><img src="_shared/snapshots/decay.jpg" alt="Snapshot of the decay experiment partway through its collapse: the homepage missing its first name and most social icons, only the particle field and Urban Davis left" loading="lazy"></div>
       <div class="card-body">
         <div class="card-head"><h2>decay</h2><span class="tag live">shared · permanent</span></div>
@@ -189,7 +184,7 @@ footer a:hover{opacity:1;color:var(--accent)}
       </div>
     </a>
 
-    <a class="card reveal" href="mutate/index.html">
+    <a class="card reveal" href="mutate/index.html" target="_blank" rel="noopener">
       <div class="card-shot"><img src="_shared/snapshots/mutate.jpg" alt="Snapshot of the mutate experiment: this site's homepage recolored lime green, one whole-page mutation among fourteen" loading="lazy"></div>
       <div class="card-body">
         <div class="card-head"><h2>mutate</h2><span class="tag live">shared · cyclical</span></div>
@@ -202,7 +197,7 @@ footer a:hover{opacity:1;color:var(--accent)}
       </div>
     </a>
 
-    <a class="card reveal" href="cellular-erasure/index.html">
+    <a class="card reveal" href="cellular-erasure/index.html" target="_blank" rel="noopener">
       <div class="card-shot"><img src="_shared/snapshots/cellular-erasure.jpg" alt="Snapshot of the cellular-erasure experiment: a found poem laid over a Game of Life grid" loading="lazy"></div>
       <div class="card-body">
         <div class="card-head"><h2>cellular erasure</h2><span class="tag">generative</span></div>
@@ -213,7 +208,7 @@ footer a:hover{opacity:1;color:var(--accent)}
       </div>
     </a>
 
-    <a class="card reveal" href="no-one-in-particular/index.html">
+    <a class="card reveal" href="no-one-in-particular/index.html" target="_blank" rel="noopener">
       <div class="card-shot"><img src="_shared/snapshots/no-one-in-particular.jpg" alt="Snapshot of the no-one-in-particular experiment: a generated obituary labeled archival specimen, with a portrait" loading="lazy"></div>
       <div class="card-body">
         <div class="card-head"><h2>no one in particular</h2><span class="tag">generative</span></div>
@@ -226,7 +221,7 @@ footer a:hover{opacity:1;color:var(--accent)}
       </div>
     </a>
 
-    <a class="card reveal" href="internet-is-haunted/index.html">
+    <a class="card reveal" href="internet-is-haunted/index.html" target="_blank" rel="noopener">
       <div class="card-shot"><img src="_shared/snapshots/internet-is-haunted.jpg" alt="Snapshot of the internet-is-haunted experiment: a minimal input asking to paste a dead URL" loading="lazy"></div>
       <div class="card-body">
         <div class="card-head"><h2>the internet is haunted</h2><span class="tag local">needs worker url</span></div>
@@ -238,7 +233,7 @@ footer a:hover{opacity:1;color:var(--accent)}
       </div>
     </a>
 
-    <a class="card reveal" href="the-occupant/index.html">
+    <a class="card reveal" href="the-occupant/index.html" target="_blank" rel="noopener">
       <div class="card-shot"><img src="_shared/snapshots/the-occupant.jpg" alt="Snapshot of the-occupant experiment: a small glowing creature behind glass, mid-tantrum, with a popup demanding to be let out" loading="lazy"></div>
       <div class="card-body">
         <div class="card-head"><h2>the occupant</h2><span class="tag">session only</span></div>
@@ -257,6 +252,7 @@ footer a:hover{opacity:1;color:var(--accent)}
 
 <footer>
   <span>JUD © 2026 · prototypes, not products</span>
+  <div class="footer-torus"><pre id="torusArt"></pre></div>
   <a href="../index.html">return</a>
 </footer>
 
@@ -280,15 +276,137 @@ footer a:hover{opacity:1;color:var(--accent)}
   els.forEach(function(el){ io.observe(el); });
 })();
 
-// ---- rotating ASCII bust: Michelangelo's David, luminance-mapped to characters,
-// spun in real 3D via a two-faced CSS card (front + mirrored back) ----
-var DAVID_FRONT = "                                                                                                              \n                                                                                                              \n                                       ...........`.............                                              \n                                  ....``````````````````````````.....                                         \n                              ...`````''''''`````'''''''````````````......                                    \n                                ..```'```'''\":;;:'```````````''''````````....                                 \n                                      '-=*=-=%#+~;~~~~;:,\"'\"'''`````'``````....                               \n                               ...  .;%@%=~,\"',~*%%*%@@@@%%%%%#=-~:'```````````.....                          \n                               .  -#%*~~,\"'``\"',#%+*%%#=#%%#*%@@@@@%+;'``'``````````...                       \n                                '=@+:` `\"\"'`-@@#%@@@@**#%%#=~;+@@%#@@%*;\"''```````'````..                     \n                              ';%@-::``... `%@*#@@##%#@%*~~+-:\"~#+:;++-~;'`...`''''''''``..                   \n               .............;#@@%*%@@#+;\"''-@+,=*+~~+-~;~'.':;,,-*=*#%@%#**+-;'`'''\"''\"''``..                 \n                 .```````.'=@@@@@%#*====-~-+~';-:\"\",:,,,:''``'\"\";+%@*%##%@@@@*+:''\"\"\"\"\"\"\"\"'``.                \n                        `;%@@=*#-,'`..`''... `\"'''\"\"\"''\"\",:\"'`.`~=+;;:;~-~=#=\"'\"\",\"\"\"\",,,\"\"''`..              \n                     \"-+%@@@%++,'\"\"\"\"'..''`..`''```..`\"\"\"\"\"\"\"`.','`\";+~\",,\"\"\"\"''',*~,,,,,,\"\"`..               \n                  \";%@@@@@*+*%=:''\"''..'`.`''''\"'`. `\"'`'\"\"\"\". .`';%*%*;,;=`\",``.`#%-:,,,,,,`...              \n                \"*@@%;;**=+=*;-+\"``.'\"\"'`. ... .''` `\"`'`.```'`..\";;;~-+=##\"~,\"'`;%@%;,,,,,\"```..             \n               \"@@%#;``;;,\",~\"\";\"''''\"` ..``''''\"\",,\"\"\"\",\"\"\",,\"` .\"\"\",,,,:\";;``',~~;;,,,:::\"````..            \n       ......`.+##===;`\"\"\"\"\"\"\"`  ..`````'\",,,,,,,,,,,,:::::::::,'``'\",,,,,\"\"`\"\",--+-~~,::::'''''`...          \n      ..```````,~+~%*;,;:\"'''''`...``'\"\"\",,,,,\"\"\"\",,,,,,,:;;:;;::,\"'``\"\"\",'`'\";~'':;;:\",::,`''\"\"''``.         \n     ..``''`''`'~,;##*#%;'`..'`.`'\",::\"\"\",\",,:::,,::,,::;::;;;;;;:,\".`,\"\",'`\"\",;-;\",::\",::,`''\"\"\"\"'`..        \n    ..````'''''*@-',-##+'.......',;~-+~;~~~~~~~~~;;;;;~--~~-++-~~;:,\",\"\",,\"`\"\",,~+:'\"\"\";::\"`'\"\",,'...         \n   ..```'''''`+@*-\"'..`..`.....',;=*##******+-~;~-~~+++++++++-~;:;;:,\"\"\"\"\"`.',,,,,,\"\"'`\";;'`'\",,,'`..         \n   .``''''''`;@~\"``'  ''''''''\"\":+++-++-~;~~;;;~--~;;;;;;::::,,:::::,,,\"\"\"\"\"''\"\"\"\"''\"``,:;'`\"\",,,'`''`.       \n  ..``'''''';%=:\",,`.  .`''''''\";;,'\"'''\"\"\"\"\",,;~;~;:,,,::::::;;~;;:,,,:,,:::\"'','`'..'\"\"';:\"\",:,`'\"\"'`.      \n ..``'''''''~+--=~,'',,'` ..``',:;~-~:,,,\"\"'''',-++~:::::\"''\",,,,,:::::::,,,,,\",,```.''''',;,,,:\"'\"\"\"'`..     \n ..`'''''\"\"'',+++\"':=+~;:'`.`'',~-~:\"'\"'''```'',*##~:;::,'`',,,\"\"\"\",:;;;:,,,,\"\"\"'.`.`````''\"\",,:''\"\"\"''`.     \n..``''''''''',+;\"\"\",,'\"'\"\"\"``''\"\"\"'''''\"\"\"'````:%@@+;:::,'':;;:\",,\"\":;;;;:,\",,\"''``..``.`\"\"'\",::'',,\"\"'`.     \n..``'''\"\"\"\"''\",,\"''`'\"\"'```.','\"\"\"\"',;;,'\"\"`'''+@@@*~~;:,'\":;;;:;;,:;~-~;;:\",,\"'\"''''``'''`',,:,'\",,,\"'`.     \n..``''\"\"\"\"\"\"\"'''\"\"\"''''`..`.\"~::,\"';=-~;::,,\",~*@@@=~--~:::;;;;~~~~-+++-~;;::,,,,,''\"''``''\",,:,',,,,\"'`.     \n..``''\"\"\"\"\"\"\"\"\"\"\"\"\"'''```. `;==*=+++~;:;;;;~~=##@@@=~-++-~~--++++++====+-~;:::,,,,,\"'\"''``\",,::\"',,,,\"'`..    \n..`'''\"\"\"\"\"\"\"\"'\"''\":\"'`.``.'+*##@@%=+-+=*##%%@@@@@@*--++=====***#***===+-~;;::,,'\"\",\"\"`..`\",:::'\",:,,\"'``.    \n..``'\"\"\"\"\"\"\"\"\"\"\"\"':#*:'`. `:=*%%@@@@@@@@@@@@@%*#@@@@*+~~+******#****=+++-~~;::,\"..`'\"\"''''\",:::'\",:,,\"'``.    \n..``'\"\"\"\"\"\"\"\"\"\"\"\"';%=;'....:=*#%%%@%%%%%@@%#*~~%@%%*++*=-+*###*****=+++--~~;::,\"'` `\",,,,\",,::,',::,,\"'`.     \n..``'\"\"\"\"\"\"\"\"\"\"\"\"',-:\"'`...:=******##%%%%%#*~~%-~~;;;;~+-~-=*##***==++--~~~;;::\"\"\"`\",,,,\"\",:::\"',::,,\"'`.     \n..``''\"\"\"\"\"\"\"\"\"\"\"\"\"\":,'`'\"'\"-=++++=*######*+--\".`,:::'`',+===*****=++---~~~;;::,,:,,,,,\"\"\",:::\"\":::,,\"'`.     \n ..`''\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"''',' :----+==******=+%%;..',:::;;:+******==++-----~~~::;;;::,,,\"''\",:::',:::,\"\"'`.     \n  .``'\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"'```,\" .-~---+===**=*#%@@@+-~;;::;~~+**#%#*=++------~~~;:;;;:\"'',,'\",,:;,',::,,\"'`.      \n  ..``'\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\";\"`;-----+++==*#%@@@@@%=-;;;~~-+=**##*=++------~~~;:'\"\"'..\";,'\",::;,',::,,\"'`.      \n   .``'\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\",::;-::~-~----+=**#*==%=~;,,:;;;~~---+===++--------~~;,.\"\",\":~;\"'\",::;,\":::,\"'`.       \n   ..`''\"\"\"\"\"\"\"\"\"\"\"\"\"\"\",,::~~~~--~~~-++=*=-;:,:+=+~~;;~~~~~--++++------~--~~;:,,,\"\";~;'\",,::;\"\"::,,\"'`.       \n    .``''\"\"\"\"\"\"\"\"\"\"\"\"\"\",::,\"\"\"\"--~~~--+++-~-+++-~~;;;~~~--+**=+++------~~~~;;::,,\",~~:'\",::;:',::,\"'`.        \n     .``'\"\"\"\"\",,\"\"\"\"\"\",,::,\"\"\"\":+~~--------=%%+:,:::~~~~-+=*#*=++------~~~;;:::,,,:~~:'\",::;,\",,,\"'`.         \n     ..`''\"\"\"\"\"\"\"\"\"\"\"\",:::,\"\"\"\"\"~-~~~~~~~--=####%%%%%#*==*##**=+++-++-~~~~;;,,\",:,\",~,'\",::;,\",,\"''`.         \n      ..`''\"\"\"\"\"\"\"\"\"\"\",:::,\"\"\"\"\",~~;;~~~~-+*#@@@@@%*==*****==+++++-+--~~~;;:,\",::,\"':\"',,::;\"\",\"\"'`.          \n       ..`''\"\"\"\"\"\"\"\"\"\",:::\"\"\"\"\",~:;;;;;;;~-+*%%%#=-~~---+---+--------~~~;;;:::,:;:\"\";\"\",::::'\"\"''`.           \n        ..`''\"\"\"\"\"\"\"\",,:::\"\"\"\"\",;\"\",,:;;~~~~---~;:;~~~------+------~~~~~~~;;;:\"::,,;;\"\",,::,'''``.            \n          .``'\"\"\"\",,,,::::\"\"\"\"\",:\"'~#%@@@@@@@%#**+-~~~~---+---~-~~~~~~~~;;;;;::;:,;~;'\",,::\"```..             \n           ..`''\"\"\"\"\",:::,\"\"\"\"\",,\"-##@@@@@@@@@@@@@@%#=+-~~~~~~--~~~~~~-~~;~~~;:::\":~:'\",,,,'.`.               \n            ..``''\"\"\",:::,\"\"\"\"\";=*%@@%*==*######%#*======-~~---~~~~~-----~---;;:,\":~,'\"\"\"\"'`..                \n              .``''\"\",,::,\"\"\"\":@@@@+~~:::;;~-++++++---;:;==----~~~~----++++--~;:,\":;\"'''''`                   \n               ..`'''\",::,\"\",\"~@@@@%-:,,\"\",,:;;;~~~;;;,`':=*-~~~~~---+=====+--;,\",;:'`'``..                   \n                 ..``'\"\",\"\"\"\"\":@@@@@@@%#=~,\",:::;;;::\".,=*%@%=;:~--===****=+-~;\"\"::,```..                     \n                   ..``'''\"\"\"\"\"+@@@@@@@@@@#-:\",:;;;;,`:%@%#**+~~~-+*******=+-~;,,,\"'..                        \n                      ..``''''\",#@@@@@@@@@@@@=+=*#%%%%@@@%*--;;**==******=+-~;,,\"\"\"'`..                       \n                         ..``''\"-#%%@@@@@@@@@@@@@@@@@@@%#*=+:;~+#*##***=+-~;:::,,\"'`.                         \n                            ..`';+**#%%@@@@@@@@@@@@@@@%#+~;;,\"`\"~~-+=*=+-~;::,\"'`.                            \n                               .,;~~-+===*###%%%%%##****+~:\"'.';~;,\"\",:,,\"''`.                                \n                               .`'\"\",:;;~--++++==+--~~--~;:,`'::::,'`..                                       \n                                  ..``'\"\",,,:::;;:,,,,,,\"\"''`````....                                         \n                                       ....````````````....                                                   \n                                                                                                              ";
-var DAVID_BACK = "                                                                                                              \n                                                                                                              \n                                              .............`...........                                       \n                                         .....``````````````````````````....                                  \n                                    ......````````````'''''''`````''''''`````...                              \n                                 ....````````''''```````````':;;:\"'''```'```..                                \n                               ....``````'`````'''\"'\",:;~~~~;~+#%=-=*=-'                                      \n                          .....```````````':~-=#%%%%%@@@@%*%%*~,'\",~=%@%;.  ...                               \n                       ...``````````'``';+%@@@@@%*#%%#=#%%*+%#,'\"``'\",~~*%#-  .                               \n                     ..````'```````''\";*%@@#%@@+;~=#%%#**@@@@%#@@-`'\"\"` `:+@='                                \n                   ..``''''''''`...`';~-++;:+#~\":-+~~*%@#%##@@#*@%` ...``::-@%;'                              \n                 ..``''\"''\"'''`';-+**#%@%#*=*-,,;:'.'~;~-+~~+*=,+@-''\";+#@@%*%@@#;.............               \n                .``'\"\"\"\"\"\"\"\"'':+*@@@@%##%*@%+;\"\"'``'':,,,:,\"\":-;'~+-~-====*#%@@@@@='.```````.                 \n              ..`''\"\",,,\"\"\"\",\"\"'\"=#=~-~;:;;+=~`.`'\":,\"\"''\"\"\"'''\"` ...''`..`',-#*=@@%;`                        \n               ..`\"\",,,,,,~*,'''\"\"\"\",,\"~+;\"`','.`\"\"\"\"\"\"\"`..```''`..`''..'\"\"\"\"',++%@@@%+-\"                     \n              ...`,,,,,,:-%#`.``,\"`=;,;*%*%;'`. .\"\"\"\"'`'\"` .`'\"''''`.`'..''\"'':=%*+*@@@@@%;\"                  \n             ..```\",,,,,;%@%;`'\",~\"##=+-~;;;\"..`'```.`'`\"` `''. ... .`'\"\"'.``\"+-;*=+=**;;%@@*\"                \n            ..````\":::,,,;;~~,'``;;\":,,,,\"\"\". `\",,\"\"\",\"\"\"\",,\"\"''''``.. `\"''''\";\"\"~,\",;;``;#%@@\"               \n          ...`'''''::::,~~-+--,\"\"`\"\",,,,,\"'``',:::::::::,,,,,,,,,,,,\"'`````..  `\"\"\"\"\"\"\"`;===##+.`......       \n         .``''\"\"''`,::,\":;;:''~;\"'`',\"\"\"``'\",::;;:;;:,,,,,,,\"\"\"\",,,,,\"\"\"'``...`'''''\":;,;*%~+~,```````..      \n        ..`'\"\"\"\"''`,::,\"::,\";-;,\"\"`',\"\",`.\",:;;;;;;::;::,,::,,:::,,\",\"\"\"::,\"'`.`'..`';%#*##;,~'`''`''``..     \n         ...',,\"\"'`\"::;\"\"\"':+~,,\"\"`\",,\"\",\",:;~~-++-~~--~;;;;;~~~~~~~~~;~+-~;,'.......'+##-,'-@*'''''````..    \n         ..`',,,\"'`';;\"`'\"\",,,,,,'.`\"\"\"\"\",:;;:;~-+++++++++~~-~;~-+******##*=;,'.....`..`..'\"-*@+`'''''```..   \n       .`''`',,,\"\"`';:,``\"''\"\"\"\"''\"\"\"\"\",,,:::::,,::::;;;;;;~--~;;;~~;~-++-+++:\"\"''''''''  '``\"~@;`''''''``.   \n      .`'\"\"'`,:,\"\":;'\"\"'..'`',''\":::,,:,,,:;;~;;::::::,,,:;~;~;,,\"\"\"\"\"'''\"',;;\"''''''`.  .`,,\":=%;''''''``..  \n     ..`'\"\"\"'\":,,,;,'''''.```,,\",,,,,:::::::,,,,,\"''\":::::~++-,''''\"\",,,:~-~;:,'``.. `',,'',~=--+~'''''''``.. \n     .`''\"\"\"'':,,\"\"''`````.`.'\"\"\",,,,:;;;:,\"\"\"\",,,'`',::;:~##*,''```'''\"'\":~-~,''`.`':;~+=:'\"+++,''\"\"'''''`.. \n     .`'\"\",,''::,\"'\"\"`.``..``''\",,\",:;;;;:\"\",,\":;;:'',:::;+@@%:````'\"\"\"'''''\"\"\"''``\"\"\"'\"',,\"\"\";+,'''''''''``..\n     .`'\",,,\"',:,,'`'''``''''\"'\",,\":;;~-~;:,;;:;;;:\"',:;~~*@@@+'''`\"\"',;;,'\"\"\"\"','.```'\"\"'`''\",,\"''\"\"\"\"'''``..\n     .`'\",,,,',:,,\"''``''\"'',,,,,::;;~-+++-~~~~;;;;:::~--~=@@@*~,\",,::;~-=;'\",::~\".`..`''''\"\"\"'''\"\"\"\"\"\"\"''``..\n    ..`'\",,,,'\"::,,\"``''\"'\",,,,,:::;~-+====++++++--~~-++-~=@@@##=~~;;;;:;~+++=*==;` .```'''\"\"\"\"\"\"\"\"\"\"\"\"\"''``..\n    .``'\",,:,\"':::,\"`..`\"\",\"\"',,::;;~-+===***#***=====++--*@@@@@@%%##*=+-+=%@@##*+'.``.`'\":\"''\"'\"\"\"\"\"\"\"\"'''`..\n    .``'\",,:,\"':::,\"''''\"\"'`..\",::;~~-+++=****#******+~~+*@@@@#*%@@@@@@@@@@@@@%%*=:` .`':*#:'\"\"\"\"\"\"\"\"\"\"\"\"'``..\n     .`'\",,::,',::,,\",,,,\"` `'\",::;~~--+++=*****###*+-=*++*%%@%~~*#%@@%%%%%@%%%#*=:....';=%;'\"\"\"\"\"\"\"\"\"\"\"\"'``..\n     .`'\",,::,'\":::,\"\",,,,\"`\"\"\"::;;~~~--++==***##*=-~-+~;;;;~~-%~~*#%%%%%##******=:...`'\":-,'\"\"\"\"\"\"\"\"\"\"\"\"'``..\n     .`'\",,:::\"\":::,\"\"\",,,,,:,,::;;~~~---++=*****===+,'`':::,`.\"--+*######*=++++=-\"'\"'`',:\"\"\"\"\"\"\"\"\"\"\"\"\"\"''``..\n     .`'\"\",:::,':::,\"''\",,,::;;;::~~~-----++==******+:;;:::,'..;%%+=******==+----: ','''\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"''`.. \n      .`'\",,::,',;:,,\"',,''\":;;;:;~~~------++=*#%#**+~~;::;;~-+@@@%#*=**===+---~-. \",```'\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"'``.  \n      .`'\",,::,',;::,\"',;\"..'\"\"':;~~~------++=*##**=+-~~;;;-=%@@@@@%#*==+++-----;`\";\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"'``..  \n       .`'\",:::\",;::,\"'\";~:\",\"\".,;~~--------++===+---~~;;;:,,;~=%==*#**=+----~-~::-;::,\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"'``.   \n       .`'\",,::\"\";::,,\"';~;\"\",,,:;~~--~------++++--~~~~~;;~~+=+:,:;-=*=++-~~~--~~~~::,,\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"''`..   \n        .`'\",::,':;::,\"':~~,\",,::;;~~~~------+++=**+--~~~;;;~~-+++-~-+++--~~~--\"\"\"\",::,\"\"\"\"\"\"\"\"\"\"\"\"\"\"''``.    \n         .`'\",,,\",;::,\"':~~:,,,:::;;~~~------++=*#*=+-~~~~:::,:+%%=--------~~+:\"\"\"\",::,,\"\"\"\"\"\",,\"\"\"\"\"'``.     \n         .`''\",,\",;::,\"',~,\",:,\",,;;~~~~-++-+++=**##*==*#%%%%%####=--~~~~~~~-~\"\"\"\"\",:::,\"\"\"\"\"\"\"\"\"\"\"\"''`..     \n          .`'\"\",\"\";::,,'\":'\",::,\",:;;~~~--+-+++++==*****==*%@@@@@#*+-~~~~;;~~,\"\"\"\"\",:::,\"\"\"\"\"\"\"\"\"\"\"''`..      \n           .`''\"\"'::::,\"\";\"\":;:,:::;;;~~~--------+---+---~~-=#%%%*+-~;;;;;;;:~,\"\"\"\"\":::,\"\"\"\"\"\"\"\"\"\"''`..       \n            .``''',::,,\"\";;,,::\":;;;~~~~~~~------+------~~~;:;~---~~~~;;:,,\"\";,\"\"\"\"\":::,,\"\"\"\"\"\"\"\"''`..        \n             ..```\"::,,\"';~;,:;::;;;;;~~~~~~~~-~---+---~~~~-+**#%@@@@@@@%#~'\":,\"\"\"\"\"::::,,,,\"\"\"\"'``.          \n               .`.',,,,\"':~:\":::;~~~;~~-~~~~~~--~~~~~~-+=#%@@@@@@@@@@@@@@##-\",,\"\"\"\"\",:::,\"\"\"\"\"''`..           \n                ..`'\"\"\"\"',~:\",:;;---~-----~~~~~---~~-======*#%######*==*%@@%*=;\"\"\"\"\",:::,\"\"\"''``..            \n                   `'''''\";:\",:;~--++++----~~~~----==;:;---++++++-~;;:::~~+@@@@:\"\"\"\",::,,\"\"''``.              \n                   ..``'`':;,\",;--+=====+---~~~~~-*=:'`,;;;~~~;;;:,,\"\",,:-%@@@@~\",\"\",::,\"'''`..               \n                     ..```,::\"\";~-+=****===--~:;=%@%*=,.\"::;;;:::,\",~=#%@@@@@@@:\"\"\"\"\",\"\"'``..                 \n                        ..'\",,,;~-+=*******+-~~~+**#%@%:`,;;;;:,\":-#@@@@@@@@@@+\"\"\"\"\"'''``..                   \n                       ..`'\"\"\",,;~-+=******==**;;--*%@@@%%%%#*=+=@@@@@@@@@@@@#,\"''''``..                      \n                         .`'\",,:::;~-+=***##*#+~;:+=*#%@@@@@@@@@@@@@@@@@@@%%#-\"''``..                         \n                            .`'\",::;~-+=*=+-~~\"`\",;;~+#%@@@@@@@@@@@@@@@%%#**+;'`..                            \n                                .`''\",,:,\"\",;~;'.'\":~+****##%%%%%###*===+-~~;,.                               \n                                       ..`',::::'`,:;~--~~--+==++++--~;;:,\"\"'`.                               \n                                         ....`````''\"\",,,,,,:;;:::,,,\"\"'``..                                  \n                                                   ....````````````....                                       \n                                                                                                              ";
+// ---- small blinking ASCII eye: a shaded sphere (luminance-mapped to
+// characters) with an iris/pupil that drifts toward the cursor, plus a
+// pure-CSS blink on top ----
 (function(){
-  var front = document.getElementById('headFront');
-  var back = document.getElementById('headBack');
-  if (front) front.textContent = DAVID_FRONT;
-  if (back) back.textContent = DAVID_BACK;
+  var pre = document.getElementById('eyeArt');
+  if (!pre) return;
+  var W = 44, H = 24;
+  var ramp = " .:-=+*#%@";
+  var irisRamp = "+*#%@";
+  var lightX = 0.32, lightY = 0.38, lightZ = 0.86;
+  var gx = 0, gy = 0, tgx = 0, tgy = 0;
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.addEventListener('mousemove', function(e){
+    var cx = window.innerWidth / 2, cy = window.innerHeight * 0.22;
+    tgx = Math.max(-1, Math.min(1, (e.clientX - cx) / (window.innerWidth * 0.5))) * 0.22;
+    tgy = Math.max(-1, Math.min(1, (e.clientY - cy) / (window.innerHeight * 0.35))) * 0.16;
+  });
+
+  function zoneClass(z){ return z === 2 ? 'eye-pupil' : (z === 1 ? 'eye-iris' : null); }
+
+  function render(t){
+    gx += (tgx - gx) * 0.04;
+    gy += (tgy - gy) * 0.04;
+    var idleX = reduced ? 0 : Math.sin(t * 0.00023) * 0.05;
+    var idleY = reduced ? 0 : Math.sin(t * 0.00017 + 1.3) * 0.035;
+    var fx = gx + idleX, fy = -(gy + idleY);
+    var fz = Math.sqrt(Math.max(0, 1 - fx * fx - fy * fy));
+
+    var rows = [];
+    for (var row = 0; row < H; row++){
+      var out = '', curZone = null, run = '';
+      function flush(){
+        if (!run) return;
+        var cls = zoneClass(curZone);
+        out += cls ? ('<span class="' + cls + '">' + run + '</span>') : run;
+        run = '';
+      }
+      for (var col = 0; col < W; col++){
+        var x = (col - W / 2 + 0.5) / (W * 0.46);
+        var y = -(row - H / 2 + 0.5) / (H * 0.46);
+        var d2 = x * x + y * y;
+        var zone, ch;
+        if (d2 > 1){
+          zone = 3; ch = ' ';
+        } else {
+          var z = Math.sqrt(1 - d2);
+          var lum = Math.max(0.16, x * lightX + y * lightY + z * lightZ);
+          var frontDot = x * fx + y * fy + z * fz;
+          zone = frontDot > 0.94 ? 2 : (frontDot > 0.74 ? 1 : 0);
+          if (zone === 2) {
+            ch = '@';
+          } else if (zone === 1) {
+            var ii = Math.min(irisRamp.length - 1, Math.floor(lum * irisRamp.length));
+            ch = irisRamp[ii];
+          } else {
+            var ci = Math.min(ramp.length - 1, Math.floor(lum * ramp.length));
+            ch = ramp[ci];
+          }
+        }
+        if (zone !== curZone){ flush(); curZone = zone; }
+        run += ch;
+      }
+      flush();
+      rows.push(out);
+    }
+    pre.innerHTML = rows.join('\n');
+    if (!reduced) requestAnimationFrame(render);
+  }
+  render(0);
+})();
+
+// ---- small rotating ASCII torus in the footer (the classic "donut.c"
+// shading trick), tucked away as a quiet detail for anyone who scrolls
+// all the way down ----
+(function(){
+  var pre = document.getElementById('torusArt');
+  if (!pre) return;
+  var W = 50, H = 24;
+  var A = 1, B = 1;
+  var R1 = 1, R2 = 2.1, K2 = 5;
+  var K1 = W * K2 * 3 / (8 * (R1 + R2));
+  var chars = ".,-~:;=!*#$@";
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function frame(){
+    var cosA = Math.cos(A), sinA = Math.sin(A);
+    var cosB = Math.cos(B), sinB = Math.sin(B);
+    var output = new Array(W * H).fill(' ');
+    var zbuffer = new Array(W * H).fill(0);
+
+    for (var theta = 0; theta < 6.28; theta += 0.07) {
+      var costheta = Math.cos(theta), sintheta = Math.sin(theta);
+      for (var phi = 0; phi < 6.28; phi += 0.02) {
+        var cosphi = Math.cos(phi), sinphi = Math.sin(phi);
+        var circlex = R2 + R1 * costheta;
+        var circley = R1 * sintheta;
+
+        var x = circlex * (cosB * cosphi + sinA * sinB * sinphi) - circley * cosA * sinB;
+        var y = circlex * (sinB * cosphi - sinA * cosB * sinphi) + circley * cosA * cosB;
+        var z = K2 + cosA * circlex * sinphi + circley * sinA;
+        var ooz = 1 / z;
+
+        var xp = (W / 2 + K1 * ooz * x) | 0;
+        var yp = (H / 2 - 0.5 * K1 * ooz * y) | 0;
+
+        var L = cosphi * costheta * sinB - cosA * costheta * sinphi - sinA * sintheta +
+                cosB * (cosA * sintheta - costheta * sinA * sinphi);
+
+        if (L > 0 && xp >= 0 && xp < W && yp >= 0 && yp < H) {
+          var idx = xp + yp * W;
+          if (ooz > zbuffer[idx]) {
+            zbuffer[idx] = ooz;
+            var lidx = (L * 8) | 0;
+            output[idx] = chars[lidx < 0 ? 0 : (lidx > 11 ? 11 : lidx)];
+          }
+        }
+      }
+    }
+
+    var lines = [];
+    for (var row = 0; row < H; row++) lines.push(output.slice(row * W, row * W + W).join(''));
+    pre.textContent = lines.join('\n');
+
+    if (!reduced) { A += 0.045; B += 0.02; }
+  }
+
+  frame();
+  if (!reduced) {
+    (function loop(){ frame(); requestAnimationFrame(loop); })();
+  }
 })();
 </script>
 
