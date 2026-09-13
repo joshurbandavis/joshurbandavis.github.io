@@ -39,6 +39,19 @@
     try { localStorage.setItem(sKey, String(v)); } catch (e) { /* storage unavailable */ }
   }
 
+  // A dead/unreachable host can otherwise take many seconds to actually
+  // fail (DNS retries, connection timeouts) — during which the page shows
+  // nothing new, which reads as "broken," not "loading." Cap the wait so
+  // the local fallback kicks in fast regardless of why the network call
+  // didn't come back in time.
+  function fetchWithTimeout(url, ms) {
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, ms);
+    return fetch(url, { cache: 'no-store', signal: controller.signal }).finally(function () {
+      clearTimeout(timer);
+    });
+  }
+
   async function getStep(opts) {
     var namespace = opts.namespace;
     var key = opts.key;
@@ -58,7 +71,7 @@
 
     if (peek) {
       try {
-        var peekRes = await fetch('https://api.countapi.xyz/get/' + namespace + '/' + key, { cache: 'no-store' });
+        var peekRes = await fetchWithTimeout('https://api.countapi.xyz/get/' + namespace + '/' + key, 2500);
         if (!peekRes.ok) throw new Error('bad status');
         var peekData = await peekRes.json();
         var peekVal = peekData.value || 0;
@@ -70,7 +83,7 @@
     }
 
     try {
-      var res = await fetch('https://api.countapi.xyz/hit/' + namespace + '/' + key, { cache: 'no-store' });
+      var res = await fetchWithTimeout('https://api.countapi.xyz/hit/' + namespace + '/' + key, 2500);
       if (!res.ok) throw new Error('bad status');
       var data = await res.json();
       var newVal = data.value;
