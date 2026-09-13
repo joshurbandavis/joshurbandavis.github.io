@@ -17,7 +17,8 @@
     --paper-rule:#DED6C4;
     --paper-off-bg:#ECE6D8;
     --paper-off-ink:#77705F;
-    --paper-alive-bg:#E4C3B4;
+    --paper-alive-bg:#D7DBBF;
+    --paper-alive-border:#5F7A47;
     --focus:#8C2F22;
   }
   @media (prefers-color-scheme: dark){
@@ -190,6 +191,24 @@
     border-radius:3px;
     padding:0.3em 0.8em;
   }
+  /* Erased keeps the poem regardless, so extinction there gets a slim
+     banner above the (fully intact) text instead of replacing it */
+  .extinction-banner{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:0.6em;
+    margin-bottom:1.1em;
+    padding-bottom:0.9em;
+    border-bottom:1px dashed var(--paper-rule);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    color:var(--paper-ink);
+    opacity:0.85;
+  }
+  .extinction-banner .extinction-label{
+    flex:none;
+  }
   .extinction-notice .extinction-body{
     font-family:'Special Elite', monospace;
     font-size:1rem;
@@ -246,11 +265,13 @@
     color:var(--paper-ink);
     transition:background-color .4s ease, border-color .4s ease, color .3s ease, opacity .28s ease, transform .28s ease;
   }
-  /* alive: a visible wash + a solid accent border, so the pattern reads at
-     a glance as it runs, not just on close inspection of the text */
+  /* alive: a moss wash of its own, not the oxblood accent - the automaton's
+     "this cell is living right now" is a different claim than the reader's
+     accent mark for "this word was chosen," so it gets a different color.
+     Visible enough that the pattern reads at a glance as it runs. */
   .word-cell.mode-grid.alive{
     background:var(--paper-alive-bg);
-    border-color:var(--accent);
+    border-color:var(--paper-alive-border);
   }
   /* off: this cell died this run, but Life is reversible mid-simulation -
      so it stays legible, just faded, rather than being blacked out early */
@@ -1000,6 +1021,17 @@
         + '<span class="extinction-body">Every cell died before the grid settled. Nothing lived to be selected, so the poem returns exactly as it was found.</span>';
       container.appendChild(notice);
       return;
+    }
+    // Erased keeps the poem either way, so extinction here doesn't leave the
+    // page blank - it leaves it entirely untouched. Flag that plainly, or a
+    // fully legible page reads like nothing happened rather than like an
+    // automaton that simply never got the chance to mark anything.
+    if (state.settled && state.outputMode === "erased" && countPopulation() === 0){
+      var banner = document.createElement("div");
+      banner.className = "extinction-banner";
+      banner.innerHTML = '<span class="extinction-label">Extinction</span>'
+        + '<span>Every cell died before the grid settled. Nothing was ever marked.</span>';
+      container.appendChild(banner);
     }
     for (var r=0; r<state.rows.length; r++){
       var words = state.rows[r];
