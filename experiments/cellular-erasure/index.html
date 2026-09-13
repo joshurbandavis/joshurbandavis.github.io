@@ -17,6 +17,7 @@
     --paper-rule:#DED6C4;
     --paper-off-bg:#ECE6D8;
     --paper-off-ink:#77705F;
+    --paper-alive-bg:#E4C3B4;
     --focus:#8C2F22;
   }
   @media (prefers-color-scheme: dark){
@@ -245,9 +246,11 @@
     color:var(--paper-ink);
     transition:background-color .4s ease, border-color .4s ease, color .3s ease, opacity .28s ease, transform .28s ease;
   }
-  /* alive: full-strength ink, a slightly firmer border marks it "on" */
+  /* alive: a visible wash + a solid accent border, so the pattern reads at
+     a glance as it runs, not just on close inspection of the text */
   .word-cell.mode-grid.alive{
-    border-color:rgba(32,28,22,.4);
+    background:var(--paper-alive-bg);
+    border-color:var(--accent);
   }
   /* off: this cell died this run, but Life is reversible mid-simulation -
      so it stays legible, just faded, rather than being blacked out early */
