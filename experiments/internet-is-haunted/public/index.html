@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Internet Is Haunted</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%;
+    background: #1c1b19; color: #8f8b84;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  a { color: #c98a3d; text-decoration: none; }
+  a:hover { color: #e0a557; }
+  .stage {
+    min-height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px 24px;
+  }
+  .column { width: 100%; max-width: 460px; }
+
+  .eyebrow {
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: #55524b; text-align: center; margin-bottom: 30px;
+  }
+  .input-row {
+    display: flex; align-items: center; gap: 14px;
+    border-bottom: 1px solid #3a3833; padding-bottom: 12px;
+  }
+  .input-row:focus-within { border-bottom-color: #c98a3d; }
+  .url-input {
+    flex-grow: 1; background: transparent; border: none; outline: none;
+    font-family: 'Inter', system-ui, sans-serif; font-size: 16px;
+    color: #d8d5cf; caret-color: #c98a3d;
+  }
+  .url-input::placeholder { color: #5a5750; }
+  .go-btn {
+    background: none; border: none; padding: 4px; cursor: pointer;
+    color: #6b6862; display: flex; align-items: center;
+  }
+  .go-btn:hover { color: #c98a3d; }
+  .go-btn:disabled { opacity: 0.35; cursor: default; }
+  .demo-note {
+    margin-top: 20px; font-size: 12px; line-height: 1.6; color: #4d4b46;
+    text-align: center;
+  }
+
+  .state { display: none; }
+  .state.active { display: block; }
+
+  .loading {
+    text-align: center; font-family: 'Source Serif 4', Georgia, serif;
+    font-style: italic; color: #6b6862; font-size: 15px;
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+
+  .empty, .down {
+    font-family: 'Source Serif 4', Georgia, serif; font-style: italic;
+    font-size: 16px; line-height: 1.6; color: #9c988f; text-align: center;
+  }
+
+  .memorial { animation: reveal 0.7s ease both; }
+  @keyframes reveal { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .m-url { font-size: 12px; color: #6b6862; word-break: break-all; }
+  .m-rule { margin: 24px 0; height: 1px; background: #33322f; }
+  .m-lede { font-family: 'Source Serif 4', Georgia, serif; font-size: 24px; line-height: 1.5; color: #d8d5cf; }
+  .m-record { margin-top: 32px; display: flex; flex-direction: column; gap: 11px; font-size: 13px; }
+  .m-row { display: flex; gap: 8px; }
+  .m-k { color: #605d57; min-width: 132px; flex-shrink: 0; }
+  .m-v { color: #a5a29b; }
+  .m-v.ember { color: #c98a3d; }
+  .m-salvage { margin-top: 32px; padding-top: 20px; border-top: 1px solid #2c2b28; display: flex; flex-direction: column; gap: 14px; }
+  .m-salvage-text { font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 14.5px; line-height: 1.7; color: #9c988f; }
+  .m-salvage-text.absent { color: #605d57; }
+  .m-glyph-row { display: flex; align-items: center; gap: 10px; color: #4d4b46; }
+  .m-glyph-cap { font-size: 11.5px; color: #605d57; }
+  .m-footer { margin-top: 30px; display: flex; justify-content: space-between; font-size: 12px; color: #676459; }
+  .m-footer button { background: none; border: none; padding: 0; cursor: pointer; color: inherit; font-family: inherit; font-size: inherit; }
+  .m-footer button:hover, .m-footer a:hover { color: #c98a3d; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="column">
+
+    <div class="eyebrow">the internet is haunted</div>
+
+    <div class="input-row">
+      <input class="url-input" id="url-input" type="text" placeholder="paste a dead url…" autocomplete="off" spellcheck="false">
+      <button class="go-btn" id="go-btn" aria-label="visit" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+    <div class="demo-note" id="idle-note">real dates and salvage, pulled live from web.archive.org.</div>
+
+    <div class="state" id="state-loading">
+      <div class="loading" id="loading-text">listening for an echo…</div>
+    </div>
+
+    <div class="state" id="state-empty">
+      <div class="empty">This address was never captured.<br>It may never have existed — or it did, and nobody thought to save it.</div>
+      <div class="m-footer" style="justify-content:center; margin-top:26px;"><button id="reset-empty">try another url</button></div>
+    </div>
+
+    <div class="state" id="state-down">
+      <div class="down">The archive itself isn't answering right now.<br>Try again in a moment.</div>
+      <div class="m-footer" style="justify-content:center; margin-top:26px;"><button id="reset-down">try another url</button></div>
+    </div>
+
+    <div class="state" id="state-memorial">
+      <div class="memorial">
+        <div class="m-url" id="m-url"></div>
+        <div class="m-rule"></div>
+        <div class="m-lede" id="m-lede"></div>
+        <div class="m-record">
+          <div class="m-row"><span class="m-k">Last known author</span><span class="m-v" id="m-author"></span></div>
+          <div class="m-row"><span class="m-k">Last known visitor</span><span class="m-v ember">unknown</span></div>
+        </div>
+        <div class="m-salvage">
+          <div class="m-salvage-text" id="m-fragment"></div>
+          <div class="m-glyph-row" id="m-glyph-row">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="16" rx="1.5"/><circle cx="8" cy="9" r="1.5"/><path d="M2 16l5.5-5.5a2 2 0 0 1 2.8 0L14 14"/><path d="M13 19l4.5-4.5a2 2 0 0 1 2.8 0L22 16"/><path d="M3 3l18 18" stroke-dasharray="2 2"/></svg>
+            <span class="m-glyph-cap" id="m-glyph-cap"></span>
+          </div>
+        </div>
+        <div class="m-footer">
+          <button id="reset-memorial">try another url</button>
+          <a id="m-last-capture" href="#" target="_blank" rel="noopener">the last capture ↗</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  var input = document.getElementById('url-input');
+  var goBtn = document.getElementById('go-btn');
+  var idleNote = document.getElementById('idle-note');
+  var states = ['state-loading', 'state-empty', 'state-down', 'state-memorial'];
+
+  function showState(id) {
+    states.forEach(function (s) { document.getElementById(s).classList.remove('active'); });
+    if (id) document.getElementById(id).classList.add('active');
+    var idleVisible = !id;
+    document.querySelector('.input-row').style.display = idleVisible ? 'flex' : 'none';
+    idleNote.style.display = idleVisible ? 'block' : 'none';
+  }
+
+  input.addEventListener('input', function () {
+    goBtn.disabled = !input.value.trim();
+  });
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') submit();
+  });
+  goBtn.addEventListener('click', submit);
+  ['reset-empty', 'reset-down', 'reset-memorial'].forEach(function (id) {
+    document.getElementById(id).addEventListener('click', reset);
+  });
+
+  function reset() {
+    input.value = '';
+    goBtn.disabled = true;
+    showState(null);
+    input.focus();
+  }
+
+  // The real archive can genuinely take 20-35 seconds to answer. A single
+  // static "loading" line over that long a wait reads as broken, so the
+  // copy itself narrates the wait rather than pretending it's instant.
+  var LOADING_STAGES = [
+    { at: 0, text: 'listening for an echo…' },
+    { at: 6000, text: 'the archive is slow to answer today…' },
+    { at: 16000, text: 'still listening…' },
+    { at: 28000, text: 'some records take a while to surface…' },
+    { at: 40000, text: 'the archive is unusually slow tonight — still trying…' },
+  ];
+  var loadingTimers = [];
+  var loadingEl = document.getElementById('loading-text');
+
+  function startLoadingNarration() {
+    LOADING_STAGES.forEach(function (stage) {
+      loadingTimers.push(setTimeout(function () {
+        loadingEl.textContent = stage.text;
+      }, stage.at));
+    });
+  }
+  function stopLoadingNarration() {
+    loadingTimers.forEach(clearTimeout);
+    loadingTimers = [];
+    loadingEl.textContent = LOADING_STAGES[0].text;
+  }
+
+  function submit() {
+    var v = input.value.trim();
+    if (!v) return;
+    showState('state-loading');
+    startLoadingNarration();
+
+    // A client-side ceiling so a truly stuck request still resolves to a
+    // clear state instead of spinning forever.
+    var controller = new AbortController();
+    var hardTimeout = setTimeout(function () { controller.abort(); }, 55000);
+
+    fetch('/api/memorial?url=' + encodeURIComponent(v), { signal: controller.signal })
+      .then(function (r) { return r.json(); })
+      .then(render)
+      .catch(function () { showState('state-down'); })
+      .finally(function () {
+        clearTimeout(hardTimeout);
+        stopLoadingNarration();
+      });
+  }
+
+  function render(data) {
+    if (!data || data.ok === false) { showState('state-down'); return; }
+    if (!data.archived) { showState('state-empty'); return; }
+
+    document.getElementById('m-url').textContent = data.url;
+    var lede = data.firstYear === data.lastYear
+      ? 'This page was captured only in ' + data.firstYear + '.'
+      : 'This page existed from ' + data.firstYear + ' to ' + data.lastYear + '.';
+    document.getElementById('m-lede').textContent = lede;
+    document.getElementById('m-author').textContent = data.author || 'unrecovered';
+
+    var fragEl = document.getElementById('m-fragment');
+    var glyphCap = document.getElementById('m-glyph-cap');
+    if (data.fragment) {
+      fragEl.textContent = '"' + data.fragment + '"';
+      fragEl.classList.remove('absent');
+      glyphCap.textContent = data.title ? data.title : 'no legible image survived';
+    } else {
+      fragEl.textContent = 'No legible fragment survived the crawl.';
+      fragEl.classList.add('absent');
+      glyphCap.textContent = 'nothing recoverable';
+    }
+
+    var link = document.getElementById('m-last-capture');
+    link.href = data.lastSnapshotUrl || '#';
+
+    showState('state-memorial');
+  }
+</script>
+</body>
+</html>

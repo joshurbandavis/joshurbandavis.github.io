@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>please wait</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --desktop:#008080;
+  --face:#c0c0c0;
+  --hi:#ffffff;
+  --sh:#808080;
+  --dk:#000000;
+  --tb1:#0a0a8c;
+  --tb2:#1084d0;
+  --text:#000000;
+  --green:#008000;
+  --bsod:#0000aa;
+  --ui:Tahoma,Verdana,'Segoe UI',Arial,sans-serif;
+  --serif:'Instrument Serif',Georgia,serif;
+  --mono:'Courier New',Consolas,monospace;
+}
+*{box-sizing:border-box;}
+html,body{
+  margin:0;padding:0;min-height:100%;
+  background:var(--desktop);
+  font-family:var(--ui);
+  overflow-x:hidden;
+}
+body{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;
+  position:relative;
+  padding:16px;
+  padding-bottom:56px;
+  cursor:default;
+  user-select:none;
+}
+
+/* ---------- bevel helpers ---------- */
+.raised{
+  background:var(--face);
+  border-top:1px solid var(--hi);
+  border-left:1px solid var(--hi);
+  border-right:1px solid var(--dk);
+  border-bottom:1px solid var(--dk);
+  box-shadow:inset 1px 1px 0 var(--face), inset -1px -1px 0 var(--sh);
+}
+.sunken{
+  background:var(--hi);
+  border-top:1px solid var(--sh);
+  border-left:1px solid var(--sh);
+  border-right:1px solid var(--hi);
+  border-bottom:1px solid var(--hi);
+  box-shadow:inset 1px 1px 0 var(--dk);
+}
+
+/* ---------- window ---------- */
+.window{
+  width:min(420px,92vw);
+  background:var(--face);
+  border-top:2px solid var(--hi);
+  border-left:2px solid var(--hi);
+  border-right:2px solid var(--dk);
+  border-bottom:2px solid var(--dk);
+  box-shadow:inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 var(--sh), 4px 4px 12px rgba(0,0,0,.35);
+  transition:transform .05s linear;
+}
+.window.shake{ animation:shake .32s ease; }
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  20%{transform:translateX(-4px);}
+  40%{transform:translateX(4px);}
+  60%{transform:translateX(-3px);}
+  80%{transform:translateX(3px);}
+}
+@media (prefers-reduced-motion: reduce){
+  .window.shake{ animation:none; }
+}
+
+.titlebar{
+  background:linear-gradient(90deg,var(--tb1),var(--tb2));
+  color:#fff;
+  font-size:12px;
+  font-weight:bold;
+  padding:3px 3px 3px 6px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  letter-spacing:.2px;
+}
+.titlebar-btns{display:flex;gap:2px;}
+.tbtn{
+  width:16px;height:14px;
+  background:var(--face);
+  border-top:1px solid var(--hi);
+  border-left:1px solid var(--hi);
+  border-right:1px solid var(--dk);
+  border-bottom:1px solid var(--dk);
+  color:#000;
+  font-size:9px;
+  line-height:12px;
+  text-align:center;
+  cursor:pointer;
+}
+.tbtn:active{
+  border-top:1px solid var(--dk);
+  border-left:1px solid var(--dk);
+  border-right:1px solid var(--hi);
+  border-bottom:1px solid var(--hi);
+}
+.tbtn:focus-visible, .okbtn:focus-visible{
+  outline:1px dotted #000;
+  outline-offset:-3px;
+}
+
+.winbody{
+  padding:14px 16px 10px;
+  color:var(--text);
+  font-size:12px;
+  line-height:1.5;
+}
+
+.track{
+  height:18px;
+  margin-top:10px;
+  position:relative;
+}
+.fill{
+  position:absolute;left:2px;top:2px;bottom:2px;
+  width:0%;
+  background-image:repeating-linear-gradient(90deg, var(--green) 0 6px, transparent 6px 8px);
+  transition:width .4s linear;
+}
+.timeremaining{
+  margin-top:6px;
+  font-size:11px;
+  color:#333;
+}
+
+.statuslist{
+  margin-top:16px;
+  min-height:18px;
+  display:flex;flex-direction:column;gap:11px;
+}
+.statusline{
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:15.5px;
+  font-weight:normal;
+  color:#3c3c3c;
+  opacity:0;
+  transform:translateY(3px);
+  transition:opacity 2.2s ease, transform 2.2s ease;
+}
+.statusline.show{opacity:1;transform:translateY(0);}
+.statusline::before{
+  content:"» ";
+  font-family:var(--ui);
+  font-style:normal;
+  font-size:11px;
+  color:#888;
+  vertical-align:1px;
+}
+
+.checkrow{
+  margin-top:14px;
+  display:flex;align-items:center;gap:6px;
+  font-size:11px;
+  opacity:0;
+  transition:opacity 1.2s ease;
+}
+.checkrow.show{opacity:1;}
+.checkrow input{margin:0;width:13px;height:13px;}
+.checkrow label{cursor:pointer;}
+
+/* ---------- taskbar ---------- */
+.taskbar{
+  position:fixed;left:0;right:0;bottom:0;
+  height:32px;
+  background:var(--face);
+  border-top:1px solid var(--hi);
+  display:flex;align-items:center;
+  padding:2px 3px;
+  gap:6px;
+  z-index:20;
+}
+.startbtn{
+  display:flex;align-items:center;gap:5px;
+  height:24px;padding:0 8px 0 4px;
+  font-size:11px;font-weight:bold;color:#000;
+  cursor:pointer;
+}
+.flag{
+  width:14px;height:14px;
+  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+  gap:1px;
+}
+.flag i{display:block;}
+.flag i:nth-child(1){background:#f25022;}
+.flag i:nth-child(2){background:#7fba00;}
+.flag i:nth-child(3){background:#00a4ef;}
+.flag i:nth-child(4){background:#ffb900;}
+
+.taskbar-sep{
+  flex:1;
+  display:flex;align-items:center;gap:6px;
+  overflow:hidden;
+}
+.taskbtn{
+  height:24px;
+  padding:0 10px;
+  font-size:11px;color:#000;
+  display:flex;align-items:center;
+  max-width:150px;
+  overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+  opacity:0;
+  transition:opacity .4s ease;
+}
+.taskbtn.show{opacity:1;}
+
+.clock{
+  height:24px;padding:0 10px;
+  font-size:11px;color:#000;
+  display:flex;align-items:center;
+  font-variant-numeric:tabular-nums;
+}
+
+/* ---------- BSOD glimpse ---------- */
+.bsod{
+  position:fixed;inset:0;
+  background:var(--bsod);
+  color:#fff;
+  font-family:var(--mono);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;
+  gap:18px;
+  text-align:center;
+  padding:24px;
+  opacity:0;
+  pointer-events:none;
+  z-index:50;
+  transition:opacity .12s linear;
+}
+.bsod.show{opacity:1;transition:opacity .08s linear;}
+.bsod-main{font-size:15px;max-width:640px;line-height:1.6;}
+.bsod-sub{font-size:12px;opacity:.85;}
+
+/* ---------- away alert ---------- */
+.alert{
+  position:fixed;
+  top:14%;left:50%;
+  transform:translate(-50%,-12px);
+  width:min(280px,80vw);
+  background:var(--face);
+  border-top:2px solid var(--hi);
+  border-left:2px solid var(--hi);
+  border-right:2px solid var(--dk);
+  border-bottom:2px solid var(--dk);
+  box-shadow:4px 4px 14px rgba(0,0,0,.4);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .35s ease, transform .35s ease;
+  z-index:40;
+}
+.alert.show{
+  opacity:1;
+  transform:translate(-50%,0);
+  pointer-events:auto;
+}
+.alert .titlebar{font-size:11px;}
+.alert-body{
+  padding:14px 14px 10px;
+  display:flex;gap:10px;
+  align-items:flex-start;
+  font-size:11px;color:#000;
+}
+.alert-icon{font-size:20px;line-height:1;}
+.alert-actions{
+  display:flex;justify-content:center;
+  padding:0 14px 12px;
+}
+.okbtn{
+  font-size:11px;padding:3px 16px;
+  cursor:pointer;
+}
+.okbtn:active{
+  border-top:1px solid var(--dk);
+  border-left:1px solid var(--dk);
+  border-right:1px solid var(--hi);
+  border-bottom:1px solid var(--hi);
+}
+
+/* ---------- finale ---------- */
+.finale-overlay{
+  position:fixed;inset:0;
+  background:#000;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 2.6s ease;
+  display:flex;align-items:center;justify-content:center;
+  z-index:60;
+  padding:16px;
+}
+.finale-overlay.show{opacity:1;pointer-events:auto;}
+.finale{
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:22px;
+  line-height:1.75;
+  color:#ddd8d0;
+  text-align:center;
+  white-space:pre-line;
+  opacity:0;
+  transition:opacity 2.4s ease;
+  max-width:520px;
+}
+.finale.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<div class="bsod" id="bsod">
+  <div class="bsod-main" id="bsodText"></div>
+  <div class="bsod-sub">Press any key to continue.</div>
+</div>
+
+<div class="window" id="dialog">
+  <div class="titlebar">
+    <span>System</span>
+    <div class="titlebar-btns">
+      <span class="tbtn">_</span>
+      <span class="tbtn">□</span>
+      <span class="tbtn" id="closeBtn" role="button" tabindex="0">X</span>
+    </div>
+  </div>
+  <div class="winbody">
+    <div id="headline">Please wait.</div>
+    <div class="track sunken"><div class="fill" id="fill"></div></div>
+    <div class="timeremaining">Time remaining: calculating…</div>
+
+    <div class="statuslist" id="log"></div>
+
+    <div class="checkrow" id="checkrow">
+      <input type="checkbox" id="listenCheck">
+      <label for="listenCheck">Enable audio feedback</label>
+    </div>
+  </div>
+</div>
+
+<div class="alert" id="alert">
+  <div class="titlebar"><span>Message</span><div class="titlebar-btns"><span class="tbtn" id="alertClose" role="button" tabindex="0">X</span></div></div>
+  <div class="alert-body">
+    <div class="alert-icon">⚠</div>
+    <div id="alertText">you looked away.</div>
+  </div>
+  <div class="alert-actions"><div class="okbtn raised" id="okBtn" role="button" tabindex="0">OK</div></div>
+</div>
+
+<div class="taskbar">
+  <div class="startbtn raised">
+    <div class="flag"><i></i><i></i><i></i><i></i></div>
+    Start
+  </div>
+  <div class="taskbar-sep" id="taskbarSep"></div>
+  <div class="clock sunken" id="clock"></div>
+</div>
+
+<div class="finale-overlay" id="finaleOverlay">
+  <div class="finale" id="finale"></div>
+</div>
+
+<script>
+(function(){
+
+  var headline    = document.getElementById('headline');
+  var fill        = document.getElementById('fill');
+  var log         = document.getElementById('log');
+  var checkrow    = document.getElementById('checkrow');
+  var listenCheck = document.getElementById('listenCheck');
+  var finale      = document.getElementById('finale');
+  var finaleOv    = document.getElementById('finaleOverlay');
+  var alertBox    = document.getElementById('alert');
+  var alertText   = document.getElementById('alertText');
+  var okBtn       = document.getElementById('okBtn');
+  var bsod        = document.getElementById('bsod');
+  var bsodText    = document.getElementById('bsodText');
+  var closeBtn    = document.getElementById('closeBtn');
+  var dialog      = document.getElementById('dialog');
+  var taskbarSep  = document.getElementById('taskbarSep');
+  var clockEl     = document.getElementById('clock');
+
+  var active = 0;
+  var lastTick = null;
+  var visible = document.visibilityState === 'visible';
+  var lookAways = 0;
+
+  function isAttending(){
+    // Visibility alone — document.hasFocus() is unreliable inside a
+    // sandboxed preview iframe and can sit permanently false, stalling
+    // everything even though the page is plainly on screen.
+    return document.visibilityState === 'visible';
+  }
+
+  // ---------- clock, real time, in a fake window ----------
+  function tickClock(){
+    var d = new Date();
+    var h = d.getHours();
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12; if(h === 0) h = 12;
+    var m = String(d.getMinutes()).padStart(2,'0');
+    clockEl.textContent = h + ':' + m + ' ' + ampm;
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  // ---------- shared "Message" popup: away notices + the close-button denial ----------
+  function dismissAlert(){
+    alertBox.classList.remove('show');
+  }
+  function showMessage(text, holdMs){
+    alertText.textContent = text;
+    alertBox.classList.add('show');
+    clearTimeout(showMessage._t);
+    showMessage._t = setTimeout(dismissAlert, holdMs || 6500);
+  }
+  okBtn.addEventListener('click', dismissAlert);
+
+  // ---------- close button: there is no exit ----------
+  closeBtn.addEventListener('click', function(){
+    dialog.classList.remove('shake');
+    void dialog.offsetWidth;
+    dialog.classList.add('shake');
+    showMessage('This window cannot be closed.', 3000);
+  });
+
+  // ---------- look-away tracking: alert only fires on return ----------
+  var awayPending = false;
+  function leftPage(){ lookAways++; awayPending = true; }
+  function returnedPage(){
+    if(!awayPending) return;
+    awayPending = false;
+    var msg = lookAways >= 5 ? 'That’s fine. We were counting anyway.'
+            : lookAways >= 3 ? 'You keep looking away.'
+            : 'You looked away.';
+    showMessage(msg, 6500);
+  }
+  document.getElementById('alertClose').addEventListener('click', dismissAlert);
+  document.addEventListener('visibilitychange', function(){
+    var now = isAttending();
+    if(visible && !now){ leftPage(); }
+    if(!visible && now){ returnedPage(); }
+    visible = now;
+  });
+
+  // ---------- ambient sound, off by default, generated (no asset) ----------
+  var audioCtx = null, osc = null, lfo = null, gain = null, playing = false;
+  function startSound(){
+    if(playing) return;
+    try{
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      osc = audioCtx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = 96;
+      lfo = audioCtx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.07;
+      var lfoGain = audioCtx.createGain();
+      lfoGain.gain.value = 4;
+      lfo.connect(lfoGain);
+      lfoGain.connect(osc.frequency);
+      gain = audioCtx.createGain();
+      gain.gain.value = 0;
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      lfo.start();
+      gain.gain.linearRampToValueAtTime(0.018, audioCtx.currentTime + 3);
+      playing = true;
+    }catch(e){}
+  }
+  function stopSound(){
+    if(!playing) return;
+    try{
+      gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.2);
+      setTimeout(function(){ try{ osc.stop(); lfo.stop(); audioCtx.close(); }catch(e){} }, 1300);
+    }catch(e){}
+    playing = false;
+  }
+  listenCheck.addEventListener('change', function(){
+    listenCheck.checked ? startSound() : stopSound();
+  });
+
+  // role="button" spans/divs (closeBtn, alertClose, okBtn) get no free
+  // Enter/Space activation the way a real <button> would — wire it up.
+  [closeBtn, document.getElementById('alertClose'), okBtn].forEach(function(btn){
+    btn.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); btn.click(); }
+    });
+  });
+
+  // ---------- reveal timeline: a false, unreliable biography ----------
+  var bsodTimer = null;
+  function showBsod(text){
+    bsodText.textContent = 'A fatal exception has occurred: ' + text;
+    bsod.classList.add('show');
+    clearTimeout(bsodTimer);
+    bsodTimer = setTimeout(function(){ bsod.classList.remove('show'); }, 900);
+  }
+  function addLine(text){
+    var el = document.createElement('div');
+    el.className = 'statusline';
+    el.textContent = text;
+    log.appendChild(el);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.add('show'); }); });
+  }
+  function ghostWindow(){
+    var el = document.createElement('div');
+    el.className = 'taskbtn raised';
+    el.textContent = 'System';
+    taskbarSep.appendChild(el);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.add('show'); }); });
+    setTimeout(function(){
+      el.classList.remove('show');
+      setTimeout(function(){ el.remove(); }, 500);
+    }, 2400);
+  }
+
+  var REVEALS = [
+    { t: 8,   fn: function(){ showBsod('...nine minutes, then you left.'); } },
+    { t: 45,  fn: function(){ addLine('you were here before.'); } },
+    { t: 75,  fn: function(){ addLine('you stayed for eleven minutes.'); } },
+    { t: 110, fn: function(){ addLine('you did not finish waiting then, either.'); } },
+    { t: 150, fn: function(){ addLine('someone was with you. we did not ask who.'); } },
+    { t: 200, fn: function(){ addLine('that one might be you.'); ghostWindow(); } },
+    { t: 260, fn: function(){ checkrow.classList.add('show'); } },
+    { t: 340, fn: function(){ addLine('you are still here.'); } }
+  ];
+  var revealed = new Array(REVEALS.length).fill(false);
+  var headlineSwitched = false;
+  var finaleShown = false;
+
+  function frame(ts){
+    if(lastTick === null) lastTick = ts;
+    var dt = (ts - lastTick) / 1000;
+    lastTick = ts;
+    if(isAttending()){ active += dt; }
+
+    if(active < 30){
+      fill.style.width = Math.min(active/30,1)*100 + '%';
+    } else {
+      if(!headlineSwitched){
+        headlineSwitched = true;
+        headline.textContent = 'Please continue waiting.';
+      }
+      var t = active - 30;
+      fill.style.width = (1 - 1/(1 + t/45)) * 100 + '%'; // asymptotic, never finishes
+    }
+
+    for(var i=0;i<REVEALS.length;i++){
+      if(!revealed[i] && active > REVEALS[i].t){
+        revealed[i] = true;
+        REVEALS[i].fn();
+      }
+    }
+
+    if(active > 420 && !finaleShown){
+      finaleShown = true;
+      finaleOv.classList.add('show');
+      setTimeout(function(){
+        finale.textContent = 'you have been here for seven minutes.\nwe will remember eleven.\nwe may be wrong about the difference.\nwe usually are.';
+        finale.classList.add('show');
+      }, 1400);
+    }
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+})();
+</script>
+</body>
+</html>

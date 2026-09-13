@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atlas of Deleted Worlds — Deleted World Tarot Guidebook</title>
+<meta name="description" content="A searchable digital guidebook to all 79 cards of the Deleted World Tarot — upright and reversed meanings, keywords, and correspondences.">
+<link rel="apple-touch-icon" sizes="180x180" href="../logo_personalweb_favicon_io/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../logo_personalweb_favicon_io/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../logo_personalweb_favicon_io/favicon-16x16.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080710;--fg:#e8e0d4;--dim:#6b5e6a;--dim2:#a196a3;
+  --gold:#c9a84c;--gold-dim:rgba(201,168,76,.15);--gold-glow:rgba(201,168,76,.35);
+  --accent:#ff2a6d;--accent-dim:rgba(255,42,109,.12);--accent-glow:rgba(255,42,109,.3);
+  --accent2:#ff5e5b;--violet:#9b72cf;--teal:#4fd1c5;
+  --line:rgba(255,42,109,.08);
+  --serif:'Instrument Serif',Georgia,serif;
+  --mono:'Space Mono',monospace;
+  --sans:'Inter',system-ui,sans-serif;
+
+  --c-major:var(--gold);
+  --c-components:var(--accent2);
+  --c-glitches:var(--accent);
+  --c-illusions:var(--violet);
+  --c-pixels:var(--teal);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);min-height:100vh;overflow-x:hidden;cursor:crosshair;background-image:radial-gradient(ellipse at 50% 0%,rgba(42,26,62,.4) 0%,var(--bg) 60%);background-attachment:fixed}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--accent);color:#fff}
+body::after{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.cursor-glow{position:fixed;width:350px;height:350px;border-radius:50%;pointer-events:none;z-index:1;background:radial-gradient(circle,rgba(255,42,109,.06),rgba(201,168,76,.03) 50%,transparent 70%);transform:translate(-50%,-50%);transition:opacity .3s}
+
+/* ---- nav ---- */
+nav{position:sticky;top:0;z-index:150;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 3rem;background:rgba(8,7,16,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav .back{font-family:var(--mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim2);display:flex;align-items:center;gap:.5rem;transition:all .3s}
+nav .back:hover{color:var(--gold);text-shadow:0 0 12px var(--gold-glow)}
+nav .logo{position:absolute;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);opacity:.75;white-space:nowrap}
+nav .shop-link{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--bg);background:var(--gold);border:1px solid var(--gold);font-weight:700;padding:.55rem 1.2rem;border-radius:100px;transition:all .3s}
+nav .shop-link:hover{background:#d4b85c;box-shadow:0 0 15px var(--gold-glow),0 0 40px rgba(201,168,76,.15)}
+
+/* ---- hero ---- */
+.gb-hero{padding:5rem 3rem 2.5rem;max-width:900px}
+.gb-kicker{font-family:var(--mono);font-size:.68rem;letter-spacing:.35em;text-transform:uppercase;color:var(--accent);margin-bottom:1.2rem;display:block}
+.gb-title{font-family:var(--serif);font-weight:400;font-size:clamp(2.6rem,6vw,4.6rem);line-height:1.02;letter-spacing:-.01em;margin-bottom:1.1rem}
+.gb-title em{font-style:italic;color:var(--gold)}
+.gb-sub{color:var(--dim2);font-size:.95rem;line-height:1.75;max-width:560px}
+.gb-sub a{color:var(--fg);border-bottom:1px solid var(--dim);transition:.3s}
+.gb-sub a:hover{color:var(--gold);border-color:var(--gold)}
+.gb-divider{width:60px;height:1px;background:linear-gradient(to right,var(--accent),var(--gold),transparent);margin:2rem 0 0;opacity:.6}
+
+/* ---- controls ---- */
+.gb-controls{position:sticky;top:57px;z-index:120;background:rgba(8,7,16,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:1.25rem 3rem}
+.gb-search-row{display:flex;gap:.9rem;align-items:center;max-width:1400px}
+.gb-search{flex:1;position:relative;min-width:0}
+.gb-search i{position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--dim);font-size:.8rem}
+.gb-search input{width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(255,42,109,.15);border-radius:100px;padding:.75rem 1.2rem .75rem 2.5rem;color:var(--fg);font-family:var(--sans);font-size:.85rem;transition:border-color .3s}
+.gb-search input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-dim)}
+.gb-search input::placeholder{color:var(--dim)}
+.gb-toggle{display:flex;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(255,42,109,.15);border-radius:100px;overflow:hidden;flex-shrink:0}
+.gb-toggle button{background:none;border:none;color:var(--dim2);padding:.7rem 1.1rem;cursor:pointer;transition:all .3s;font-family:inherit;letter-spacing:inherit}
+.gb-toggle button.active{background:var(--gold);color:var(--bg)}
+.gb-pills{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem;max-width:1400px}
+.gb-pill{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.5rem 1rem;border-radius:100px;border:1px solid rgba(255,42,109,.12);color:var(--dim2);cursor:pointer;transition:all .25s;background:none;display:flex;align-items:center;gap:.5rem}
+.gb-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--c,var(--dim))}
+.sym{display:inline-block;flex-shrink:0;background-color:var(--c,var(--dim));-webkit-mask-image:var(--icon);mask-image:var(--icon);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;transition:transform .3s}
+.sym.reversed{transform:rotate(180deg)}
+.gb-pill .sym{width:13px;height:13px}
+.gb-card .sym{width:15px;height:15px}
+.gb-card .gnum .sym{width:20px;height:20px}
+.p-suit .sym{width:18px;height:18px;margin-right:.5rem;vertical-align:-3px}
+.p-rank{display:flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim2);margin-bottom:1rem}
+.p-rank .sym{width:22px;height:22px}
+.gb-pill:hover{border-color:var(--c,var(--accent));color:var(--fg)}
+.gb-pill.active{border-color:var(--c,var(--accent));color:var(--fg);background:rgba(255,255,255,.05);box-shadow:0 0 15px -5px var(--c,transparent)}
+.gb-count{font-family:var(--mono);font-size:.62rem;color:var(--dim);margin-top:.9rem;letter-spacing:.05em}
+
+/* ---- grid ---- */
+.gb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1rem;padding:2.5rem 3rem 6rem;max-width:1600px}
+.gb-empty{grid-column:1/-1;padding:4rem 0;text-align:center;color:var(--dim);font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase}
+.gb-card{--c:var(--dim);position:relative;overflow:hidden;background:rgba(255,255,255,.015);border:1px solid var(--line);border-radius:10px;padding:1.4rem 1.3rem 1.2rem;cursor:pointer;transition:transform .3s,border-color .3s,box-shadow .3s;text-align:left}
+.gb-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c)}
+.gb-card:hover{transform:translateY(-3px);border-color:var(--c);box-shadow:0 12px 30px -12px rgba(0,0,0,.6),0 0 20px -8px var(--c)}
+.gb-card .row1{display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem;gap:.5rem}
+.gb-card .gnum{font-family:var(--mono);font-size:.62rem;color:var(--dim2);letter-spacing:.1em;display:flex;align-items:center}
+.gb-card .gsuit{font-family:var(--mono);font-size:.56rem;text-transform:uppercase;letter-spacing:.13em;color:var(--c);display:flex;align-items:center;gap:.4rem;white-space:nowrap}
+.gb-card h3{font-family:var(--serif);font-size:1.5rem;font-weight:400;line-height:1.12;margin-bottom:.3rem;transition:color .3s}
+.gb-card:hover h3{color:var(--c)}
+.gb-card .gsub{font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);margin-bottom:.9rem}
+.gb-card .gtags{display:flex;flex-wrap:wrap;gap:.35rem}
+.gb-tag{font-family:var(--mono);font-size:.54rem;letter-spacing:.04em;text-transform:uppercase;padding:.22rem .55rem;border:1px solid rgba(255,42,109,.12);border-radius:100px;color:var(--dim2);white-space:nowrap}
+
+/* ---- detail overlay ---- */
+.gb-overlay{position:fixed;inset:0;z-index:300;display:flex;align-items:flex-start;justify-content:center;padding:5vh 1.5rem;background:rgba(5,3,10,.8);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .25s}
+.gb-overlay.open{opacity:1;pointer-events:auto}
+.gb-panel{--c:var(--dim);position:relative;background:#0d0b16;border:1px solid rgba(255,42,109,.12);border-radius:16px;max-width:700px;width:100%;max-height:88vh;overflow-y:auto;overflow-x:hidden;padding:5.2rem 2.6rem 2.6rem;transform:translateY(12px);transition:transform .25s}
+.gb-overlay.open .gb-panel{transform:translateY(0)}
+.gb-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--c);border-radius:16px 16px 0 0}
+.gb-panel .pclose{position:absolute;top:1.4rem;right:1.4rem;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,42,109,.15);background:none;color:var(--fg);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:.3s}
+.gb-panel .pclose:hover{border-color:var(--accent);color:var(--accent)}
+.gb-nav-arrows{position:absolute;top:1.4rem;left:1.4rem;display:flex;gap:.4rem}
+.gb-nav-arrows button{width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,42,109,.15);background:none;color:var(--dim2);cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;transition:.3s}
+.gb-nav-arrows button:hover{border-color:var(--c);color:var(--c)}
+.gb-nav-arrows button:disabled{opacity:.25;cursor:default}
+.p-suit{font-family:var(--mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--c);margin-bottom:.6rem}
+.p-num{color:var(--dim);margin-right:.6rem}
+.p-title{font-family:var(--serif);font-size:clamp(1.9rem,4vw,2.6rem);font-weight:400;line-height:1.05;margin-bottom:.3rem}
+.p-title em{font-style:italic}
+.p-heading{font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim2);margin-bottom:1.3rem}
+.p-corr{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.6rem}
+.p-corr span{font-family:var(--mono);font-size:.56rem;letter-spacing:.06em;text-transform:uppercase;color:var(--dim2);border:1px solid rgba(255,42,109,.12);border-radius:100px;padding:.25rem .65rem}
+.p-summary{font-family:var(--serif);font-style:italic;font-size:1.15rem;line-height:1.65;color:var(--dim2);margin-bottom:1.8rem;padding-left:1rem;border-left:2px solid rgba(255,42,109,.15)}
+.p-switch{display:flex;font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(255,42,109,.15);border-radius:100px;overflow:hidden;width:fit-content;margin-bottom:1.2rem}
+.p-switch button{background:none;border:none;color:var(--dim2);padding:.5rem 1rem;cursor:pointer;font-family:inherit;letter-spacing:inherit}
+.p-switch button.active{background:var(--c);color:var(--bg)}
+.p-meaning{font-size:.95rem;line-height:1.85;color:var(--fg);margin-bottom:1.4rem}
+.p-keys{display:flex;flex-wrap:wrap;gap:.4rem}
+.p-keys span{font-family:var(--mono);font-size:.58rem;letter-spacing:.05em;text-transform:uppercase;padding:.3rem .7rem;border-radius:100px;color:var(--bg);background:var(--c)}
+
+/* ---- footer ---- */
+.gb-footer{padding:3rem 3rem 5rem;border-top:1px solid var(--line);color:var(--dim);font-family:var(--mono);font-size:.65rem;letter-spacing:.05em;line-height:1.9}
+.gb-footer a{color:var(--dim2);border-bottom:1px solid var(--dim);transition:.3s}
+.gb-footer a:hover{color:var(--gold);border-color:var(--gold)}
+
+@media(max-width:640px){
+  nav{padding:1rem 1.25rem}
+  nav .logo{display:none}
+  .gb-hero{padding:3rem 1.25rem 2rem}
+  .gb-controls{padding:1rem 1.25rem}
+  .gb-grid{padding:1.75rem 1.25rem 4rem;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.7rem}
+  .gb-panel{padding:2.8rem 1.4rem 2rem}
+  .gb-search-row{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+
+<div class="cursor-glow" id="glow"></div>
+
+<nav>
+  <a class="back" href="../index.html"><i class="fa fa-arrow-left"></i>&nbsp;Josh Urban Davis</a>
+  <span class="logo">Atlas of Deleted Worlds</span>
+  <a class="shop-link" href="http://73f7b8-3.myshopify.com" target="_blank" rel="noopener">Get the Deck</a>
+</nav>
+
+<header class="gb-hero">
+  <span class="gb-kicker">Deleted World Tarot — Companion Guidebook</span>
+  <h1 class="gb-title">Atlas of <em>Deleted Worlds</em></h1>
+  <p class="gb-sub">All 79 cards of the Deleted World Tarot, searchable and browsable — upright and reversed meanings, keywords, and correspondences, drawn from the print guidebook <em>Atlas of Deleted Worlds</em> written &amp; illustrated by <a href="../index.html">Josh Urban Davis</a>.</p>
+  <div class="gb-divider"></div>
+</header>
+
+<div class="gb-controls">
+  <div class="gb-search-row">
+    <div class="gb-search">
+      <i class="fa fa-search"></i>
+      <input id="search" type="text" placeholder="Search a card, keyword, or feeling — “growth”, “deceit”, “the fool”…" autocomplete="off">
+    </div>
+    <div class="gb-toggle" id="reverseToggle">
+      <button data-v="0" class="active">Upright</button>
+      <button data-v="1">Reversed</button>
+    </div>
+  </div>
+  <div class="gb-pills" id="pills"></div>
+  <div class="gb-count" id="count"></div>
+</div>
+
+<main class="gb-grid" id="grid"></main>
+
+<footer class="gb-footer">
+  <p>Deleted World Tarot &amp; <em>Atlas of Deleted Worlds</em> © Joshua Urban Davis. Card text digitized from the printed guidebook for browsing &amp; search.</p>
+  <p><a href="../index.html">← Back to the main site</a> &nbsp;·&nbsp; <a href="http://73f7b8-3.myshopify.com" target="_blank" rel="noopener">Get the physical deck →</a></p>
+</footer>
+
+<div class="gb-overlay" id="overlay">
+  <div class="gb-panel" id="panel"></div>
+</div>
+
+<script>
+// CURSOR GLOW (matches shop.html)
+(function(){
+  var glow = document.getElementById('glow');
+  var mx = 0, my = 0, gx = 0, gy = 0;
+  document.addEventListener('mousemove', function(e){ mx = e.clientX; my = e.clientY; });
+  (function loop(){
+    gx += (mx - gx) * 0.08;
+    gy += (my - gy) * 0.08;
+    glow.style.left = gx + 'px';
+    glow.style.top = gy + 'px';
+    requestAnimationFrame(loop);
+  })();
+})();
+
+const SUIT_LABELS = {
+  all: 'All Cards',
+  major: 'Major Arcana',
+  components: 'Components',
+  glitches: 'Glitches',
+  illusions: 'Illusions',
+  pixels: 'Pixels'
+};
+const SUIT_ORDER = ['all','major','components','glitches','illusions','pixels'];
+const SUIT_ICON = {
+  major: 'icons/suit-major.png',
+  components: 'icons/suit-components.png',
+  glitches: 'icons/suit-glitches.png',
+  illusions: 'icons/suit-illusions.png',
+  pixels: 'icons/suit-pixels.png'
+};
+const RANK_ICON = {
+  scholar: 'icons/rank-scholar.png',
+  messenger: 'icons/rank-messenger.png',
+  visionary: 'icons/rank-visionary.png',
+  architect: 'icons/rank-architect.png'
+};
+const RANK_CHESS_NAME = { scholar: 'Pawn', messenger: 'Knight', visionary: 'Queen', architect: 'King' };
+function rankOf(card){
+  if(!card.isCourt) return null;
+  const h = card.heading.toLowerCase();
+  for(const rank of Object.keys(RANK_ICON)) if(h.startsWith(rank)) return rank;
+  return null;
+}
+function symHTML(iconUrl, extraClass, reversed){
+  if(!iconUrl) return '';
+  return `<span class="sym${reversed?' reversed':''}${extraClass?' '+extraClass:''}" style="--icon:url('${iconUrl}')"></span>`;
+}
+
+let CARDS = [];
+let state = { query: '', suit: 'all', reversed: false, activeId: null };
+
+function esc(s){
+  return (s||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+}
+
+function matches(card, q){
+  if(!q) return true;
+  const hay = [
+    card.heading, card.name, card.nameInv, card.suitLabel,
+    card.summary, card.upright, card.reversed,
+    card.upKeywords.join(' '), card.invKeywords.join(' '),
+    card.correspondences.join(' ')
+  ].join(' ').toLowerCase();
+  return q.toLowerCase().split(/\s+/).filter(Boolean).every(tok => hay.includes(tok));
+}
+
+function filteredCards(){
+  return CARDS.filter(c => (state.suit === 'all' || c.suitKey === state.suit) && matches(c, state.query));
+}
+
+function renderPills(){
+  const counts = { all: CARDS.length };
+  CARDS.forEach(c => counts[c.suitKey] = (counts[c.suitKey]||0) + 1);
+  const el = document.getElementById('pills');
+  el.innerHTML = SUIT_ORDER.map(key => `
+    <button class="gb-pill${state.suit===key?' active':''}" data-suit="${key}" style="--c:var(--c-${key==='all'?'major':key})">
+      ${key === 'all' ? '<span class="dot"></span>' : symHTML(SUIT_ICON[key])}${SUIT_LABELS[key]} <span style="color:var(--dim)">${counts[key]||0}</span>
+    </button>
+  `).join('');
+  el.querySelectorAll('.gb-pill').forEach(btn => {
+    btn.addEventListener('click', () => { state.suit = btn.dataset.suit; render(); });
+  });
+}
+
+function cardCardHTML(c){
+  const showInv = state.reversed && c.hasInv;
+  const dispName = showInv ? c.nameInv : c.name;
+  const dispTags = (showInv ? c.invKeywords : c.upKeywords).slice(0,4);
+  const rank = rankOf(c);
+  const numSlot = rank ? symHTML(RANK_ICON[rank]) : esc(c.number);
+  return `
+    <button class="gb-card" style="--c:var(--c-${c.suitKey})" data-id="${c.id}">
+      <div class="row1">
+        <span class="gnum">${numSlot}</span>
+        <span class="gsuit">${symHTML(SUIT_ICON[c.suitKey], null, showInv)}${esc(c.suitLabel)}</span>
+      </div>
+      <h3>${esc(dispName)}</h3>
+      <div class="gsub">${esc(c.heading)}${showInv ? ' · reversed' : ''}</div>
+      <div class="gtags">${dispTags.map(k=>`<span class="gb-tag">${esc(k)}</span>`).join('')}</div>
+    </button>
+  `;
+}
+
+function render(){
+  renderPills();
+  const list = filteredCards();
+  const grid = document.getElementById('grid');
+  grid.innerHTML = list.length
+    ? list.map(cardCardHTML).join('')
+    : `<div class="gb-empty">No cards match “${esc(state.query)}”</div>`;
+  grid.querySelectorAll('.gb-card').forEach(el => {
+    el.addEventListener('click', () => openDetail(el.dataset.id));
+  });
+  document.getElementById('count').textContent = `Showing ${list.length} of ${CARDS.length} cards`;
+}
+
+function panelHTML(c, localReversed){
+  const showInv = localReversed && c.hasInv;
+  const meaning = showInv ? c.reversed : c.upright;
+  const keys = showInv ? c.invKeywords : c.upKeywords;
+  const list = filteredCards();
+  const idx = list.findIndex(x => x.id === c.id);
+
+  return `
+    <button class="pclose" id="pclose" aria-label="Close">✕</button>
+    <div class="gb-nav-arrows">
+      <button id="pprev" ${idx<=0?'disabled':''} aria-label="Previous card"><i class="fa fa-chevron-left"></i></button>
+      <button id="pnext" ${idx<0||idx>=list.length-1?'disabled':''} aria-label="Next card"><i class="fa fa-chevron-right"></i></button>
+    </div>
+    <div class="p-suit">${symHTML(SUIT_ICON[c.suitKey], null, showInv)}${esc(c.suitLabel)}</div>
+    <h2 class="p-title"><span class="p-num">${esc(c.number)}</span>${esc(showInv ? c.nameInv : c.name)}</h2>
+    <div class="p-heading">${esc(c.heading)}${c.hasInv ? (showInv ? ' — Reversed' : ' — Upright') : ''}</div>
+    ${rankOf(c) ? `<div class="p-rank" style="--c:var(--c-${c.suitKey})">${symHTML(RANK_ICON[rankOf(c)])}Court rank: the ${RANK_CHESS_NAME[rankOf(c)]}</div>` : ''}
+    ${c.correspondences.length ? `<div class="p-corr">${
+      c.isCourt
+        ? `<span>${esc(c.correspondences.join(' of '))}</span>`
+        : c.correspondences.map(w=>`<span>${esc(w)}</span>`).join('')
+    }</div>` : ''}
+    ${c.summary ? `<p class="p-summary">${esc(c.summary)}</p>` : ''}
+    ${c.hasInv ? `
+      <div class="p-switch" id="pswitch" style="--c:var(--c-${c.suitKey})">
+        <button data-v="0" class="${showInv?'':'active'}">Upright</button>
+        <button data-v="1" class="${showInv?'active':''}">Reversed</button>
+      </div>` : ''}
+    <p class="p-meaning">${esc(meaning)}</p>
+    <div class="p-keys" style="--c:var(--c-${c.suitKey})">${keys.map(k=>`<span>${esc(k)}</span>`).join('')}</div>
+  `;
+}
+
+let localReversed = false;
+
+function openDetail(id){
+  const c = CARDS.find(x => x.id === id);
+  if(!c) return;
+  state.activeId = id;
+  localReversed = state.reversed && c.hasInv;
+  location.hash = id;
+  const panel = document.getElementById('panel');
+  panel.style.setProperty('--c', `var(--c-${c.suitKey})`);
+  panel.innerHTML = panelHTML(c, localReversed);
+  wirePanel(c);
+  document.getElementById('overlay').classList.add('open');
+}
+
+function wirePanel(c){
+  document.getElementById('pclose').addEventListener('click', closeDetail);
+  const sw = document.getElementById('pswitch');
+  if(sw){
+    sw.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      localReversed = b.dataset.v === '1';
+      document.getElementById('panel').innerHTML = panelHTML(c, localReversed);
+      wirePanel(c);
+    }));
+  }
+  const list = filteredCards();
+  const idx = list.findIndex(x => x.id === c.id);
+  const prev = document.getElementById('pprev');
+  const next = document.getElementById('pnext');
+  if(prev) prev.addEventListener('click', () => { if(idx>0) openDetail(list[idx-1].id); });
+  if(next) next.addEventListener('click', () => { if(idx<list.length-1) openDetail(list[idx+1].id); });
+}
+
+function closeDetail(){
+  state.activeId = null;
+  document.getElementById('overlay').classList.remove('open');
+  history.replaceState(null, '', location.pathname + location.search);
+}
+
+document.getElementById('overlay').addEventListener('click', e => {
+  if(e.target.id === 'overlay') closeDetail();
+});
+
+document.addEventListener('keydown', e => {
+  if(!document.getElementById('overlay').classList.contains('open')) return;
+  if(e.key === 'Escape') closeDetail();
+  if(e.key === 'ArrowRight') document.getElementById('pnext')?.click();
+  if(e.key === 'ArrowLeft') document.getElementById('pprev')?.click();
+});
+
+document.getElementById('reverseToggle').addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  state.reversed = btn.dataset.v === '1';
+  document.querySelectorAll('#reverseToggle button').forEach(b => b.classList.toggle('active', b === btn));
+  render();
+});
+
+let searchDebounce;
+document.getElementById('search').addEventListener('input', e => {
+  clearTimeout(searchDebounce);
+  const v = e.target.value;
+  searchDebounce = setTimeout(() => { state.query = v; render(); }, 60);
+});
+
+// TEXT SCRAMBLE on hover (matches shop.html, applied only to nav chrome —
+// not the card grid, so browsing/scanning stays fast to read)
+(function(){
+  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*';
+  var timers = {};
+  var uid = 0;
+  function textOnly(el){
+    var t = '';
+    el.childNodes.forEach(function(n){ if(n.nodeType === 3) t += n.textContent; });
+    return t.trim();
+  }
+  function findTextNode(el){
+    for(var i = el.childNodes.length - 1; i >= 0; i--){
+      var n = el.childNodes[i];
+      if(n.nodeType === 3 && n.textContent.trim()) return n;
+    }
+    return null;
+  }
+  function scramble(el){
+    var id = el.getAttribute('data-sid');
+    if(!id){ id = String(++uid); el.setAttribute('data-sid', id); }
+    if(timers[id]) clearInterval(timers[id]);
+    var original = el.getAttribute('data-otext');
+    if(!original){ original = textOnly(el); if(!original) return; el.setAttribute('data-otext', original); }
+    var node = findTextNode(el);
+    if(!node) return;
+    var iterations = 0, total = original.length * 2;
+    timers[id] = setInterval(function(){
+      var out = '';
+      for(var j = 0; j < original.length; j++){
+        if(original[j] === ' ') out += ' ';
+        else if(j < iterations / 2) out += original[j];
+        else out += chars[(Math.random() * chars.length) | 0];
+      }
+      node.textContent = out;
+      iterations++;
+      if(iterations > total){ clearInterval(timers[id]); delete timers[id]; node.textContent = original; }
+    }, 25);
+  }
+  function reset(el){
+    var id = el.getAttribute('data-sid');
+    if(id && timers[id]){ clearInterval(timers[id]); delete timers[id]; }
+    var original = el.getAttribute('data-otext');
+    if(!original) return;
+    var node = findTextNode(el);
+    if(node) node.textContent = original;
+  }
+  document.querySelectorAll('nav .back, nav .shop-link').forEach(function(el){
+    el.addEventListener('mouseenter', function(){ scramble(el); });
+    el.addEventListener('mouseleave', function(){ reset(el); });
+  });
+})();
+
+fetch('cards.json')
+  .then(r => r.json())
+  .then(data => {
+    CARDS = data;
+    render();
+    const hashId = decodeURIComponent(location.hash.slice(1));
+    if(hashId) openDetail(hashId);
+  })
+  .catch(err => {
+    document.getElementById('grid').innerHTML = `<div class="gb-empty">Could not load card data. (${esc(err.message)})</div>`;
+  });
+</script>
+</body>
+</html>

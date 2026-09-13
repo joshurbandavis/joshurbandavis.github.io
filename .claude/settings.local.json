@@ -16,7 +16,12 @@
       "Bash(git push:*)",
       "Bash(du -sh /Users/imac/Desktop/website/joshurbandavis.github.io/wedding_files/*)",
       "Bash(git config:*)",
-      "WebFetch(domain:activetheory.net)"
+      "WebFetch(domain:activetheory.net)",
+      "Bash(pkill -f \"http.server 8123\")",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(timeout 10 curl -sI https://github.com)",
+      "Bash(echo \"curl exit:$?\")",
+      "Bash(GIT_TERMINAL_PROMPT=0 GIT_CURL_VERBOSE=1 timeout 15 git push origin master)"
     ]
   }
 }

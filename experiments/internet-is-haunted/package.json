@@ -1,0 +1,13 @@
+{
+  "name": "internet-is-haunted",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Paste in a dead URL and get a small memorial instead of a 404, pulled live from the Wayback Machine.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

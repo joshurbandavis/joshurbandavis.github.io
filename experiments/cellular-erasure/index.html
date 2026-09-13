@@ -1,0 +1,1332 @@
+<title>Cellular Erasure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#EEF1EC;
+    --bg-raised:#E3E7DF;
+    --rule:#CBD2C5;
+    --ink:#1A1D18;
+    --ink-soft:#5C645A;
+    --accent:#8C2F22;
+    --accent-soft:#C24A34;
+    --accent-tint:#F3DDD5;
+    --paper:#F7F4EC;
+    --paper-ink:#201C16;
+    --paper-erase:#17140F;
+    --paper-rule:#DED6C4;
+    --paper-off-bg:#ECE6D8;
+    --paper-off-ink:#77705F;
+    --focus:#8C2F22;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#14160F;
+      --bg-raised:#1D2018;
+      --rule:#343A2E;
+      --ink:#E7EBE1;
+      --ink-soft:#9BA48F;
+      --accent:#E2694F;
+      --accent-soft:#F08A70;
+      --accent-tint:#3A241D;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#14160F;
+    --bg-raised:#1D2018;
+    --rule:#343A2E;
+    --ink:#E7EBE1;
+    --ink-soft:#9BA48F;
+    --accent:#E2694F;
+    --accent-soft:#F08A70;
+    --accent-tint:#3A241D;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Mono', ui-monospace, Menlo, monospace;
+    padding-inline:20px;
+    padding-block:28px;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    width:100%;
+    max-width:1040px;
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    border-bottom:1px solid var(--rule);
+    padding-bottom:16px;
+  }
+  h1{
+    font-family:'Special Elite', 'Courier New', monospace;
+    font-size:clamp(1.5rem, 1.1rem + 1.4vw, 2.1rem);
+    font-weight:400;
+    margin:0;
+    letter-spacing:0.01em;
+    text-wrap:balance;
+  }
+  header p{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:0.8rem;
+    letter-spacing:0.02em;
+    max-width:65ch;
+  }
+  header p a{
+    color:var(--accent);
+    text-decoration-thickness:1px;
+    text-underline-offset:2px;
+  }
+  header p a:hover{ color:var(--accent-soft); }
+
+  /* ---------- layout grid ---------- */
+  .workspace{
+    display:grid;
+    grid-template-columns:1fr 260px;
+    grid-template-areas:"manuscript controls";
+    gap:18px;
+    align-items:start;
+  }
+  @media (max-width:820px){
+    .workspace{
+      grid-template-columns:1fr;
+      grid-template-areas:"manuscript" "controls";
+    }
+  }
+
+  /* ---------- manuscript sheet (fixed paper look, both themes) ---------- */
+  .manuscript-wrap{ grid-area:manuscript; }
+  .sheet{
+    background:var(--paper);
+    color:var(--paper-ink);
+    border-radius:3px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.18), 0 10px 28px -14px rgba(0,0,0,0.35);
+    padding:30px clamp(18px,4vw,42px);
+    min-height:260px;
+    position:relative;
+  }
+  .sheet::before{
+    content:"";
+    position:absolute; inset:0;
+    border:1px solid var(--paper-rule);
+    border-radius:3px;
+    pointer-events:none;
+  }
+  .sheet-head{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:baseline;
+    gap:12px;
+    margin-bottom:20px;
+    padding-bottom:10px;
+    border-bottom:1px dashed var(--paper-rule);
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .sheet-head .byline{
+    margin-left:auto;
+    font-size:0.7rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--paper-ink);
+    opacity:0.55;
+  }
+  .sheet-head .title{
+    font-family:'Special Elite', monospace;
+    font-size:1rem;
+  }
+  .sheet-head button{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    background:transparent;
+    border:1px solid var(--paper-rule);
+    color:var(--paper-ink);
+    padding:4px 9px;
+    border-radius:3px;
+    cursor:pointer;
+  }
+  .sheet-head button:hover{ border-color:var(--accent); }
+  .sheet-head button:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .poem-lines{
+    font-family:'Special Elite', 'Courier New', monospace;
+    font-size:1.05rem;
+    line-height:2.15;
+  }
+  .poem-line{
+    display:flex;
+    flex-wrap:wrap;
+    row-gap:6px;
+  }
+  .poem-line.blank{ height:1.2em; }
+
+  .extinction-notice{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:0.6em;
+    padding:2.4em 1em;
+    text-align:center;
+  }
+  .extinction-notice .extinction-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--accent);
+    border:1px solid var(--accent-soft);
+    border-radius:3px;
+    padding:0.3em 0.8em;
+  }
+  .extinction-notice .extinction-body{
+    font-family:'Special Elite', monospace;
+    font-size:1rem;
+    line-height:1.6;
+    color:var(--paper-ink);
+    opacity:0.75;
+    max-width:38ch;
+  }
+
+  .word-cell.mode-read{
+    display:inline-block;
+    padding:0.04em 0.4em;
+    margin-right:0.15em;
+    border-radius:2px;
+    color:var(--paper-ink);
+    background:transparent;
+    white-space:pre;
+  }
+  .word-cell.mode-read.survivor{
+    box-shadow:inset 0 -2px 0 var(--accent);
+  }
+  /* a covered word stays in the reading flow under Erased - it just carries
+     its black mark with it instead of disappearing */
+  .word-cell.mode-read.redacted{
+    background:var(--paper-erase);
+    color:transparent;
+    user-select:none;
+  }
+
+  /* ---------- uniform automaton grid ---------- */
+  .grid-surface{
+    display:grid;
+    grid-template-columns:repeat(var(--cols), minmax(26px, 1fr));
+    gap:4px;
+    overflow-x:auto;
+    padding-bottom:2px;
+  }
+  .word-cell.mode-grid{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    aspect-ratio:1/1;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.58rem;
+    line-height:1.1;
+    padding:2px 3px;
+    border-radius:3px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    border:1px solid var(--paper-rule);
+    background:transparent;
+    color:var(--paper-ink);
+    transition:background-color .4s ease, border-color .4s ease, color .3s ease, opacity .28s ease, transform .28s ease;
+  }
+  /* alive: full-strength ink, a slightly firmer border marks it "on" */
+  .word-cell.mode-grid.alive{
+    border-color:rgba(32,28,22,.4);
+  }
+  /* off: this cell died this run, but Life is reversible mid-simulation -
+     so it stays legible, just faded, rather than being blacked out early */
+  .word-cell.mode-grid.off{
+    background:var(--paper-off-bg);
+    color:var(--paper-off-ink);
+  }
+  /* Once the automaton settles, every real cell resolves to one of three
+     final roles (which raw alive/dead state maps to which role depends on
+     the Ending switch - see finalRole() in the script):
+       chosen  - part of the poem, highlighted
+       covered - a living cell sits on top of it like a marker, blacking it out
+       plain   - ordinary, legible, just not part of the poem (unstyled - it's
+                 identical to the base .word-cell.mode-grid look) */
+  .word-cell.mode-grid.chosen{
+    background:var(--accent-tint);
+    border-color:var(--accent-soft);
+  }
+  .word-cell.mode-grid.covered{
+    background:var(--paper-erase);
+    border-color:var(--paper-erase);
+    color:transparent;
+  }
+  /* phantom: empty padding beyond a short line, filled in so the board reads
+     as one rectangle instead of a ragged silhouette */
+  .word-cell.mode-grid.phantom{
+    border-style:dashed;
+    border-color:var(--paper-rule);
+    opacity:.5;
+  }
+  .word-cell.mode-grid.cell-exit{
+    opacity:0;
+    transform:scale(0.35);
+  }
+
+  /* ---------- control rail ---------- */
+  .rail{
+    grid-area:controls;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .panel{
+    background:var(--bg-raised);
+    border:1px solid var(--rule);
+    border-radius:4px;
+    padding:14px 16px;
+  }
+  .panel h2{
+    margin:0 0 10px;
+    font-size:0.7rem;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--ink-soft);
+    font-weight:600;
+  }
+
+  .readout-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px 14px;
+  }
+  .readout{ display:flex; flex-direction:column; gap:2px; }
+  .readout .label{ font-size:0.62rem; letter-spacing:0.08em; color:var(--ink-soft); text-transform:uppercase; }
+  .readout .value{ font-size:1.05rem; font-variant-numeric:tabular-nums; font-weight:600; }
+  .status-row{
+    display:flex; align-items:center; gap:8px;
+    margin-top:10px; padding-top:10px; border-top:1px solid var(--rule);
+    font-size:0.72rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-soft);
+  }
+  .dot{ width:8px; height:8px; border-radius:50%; background:var(--ink-soft); flex:none; }
+  .dot.running{ background:var(--accent); animation:pulse 1s ease-in-out infinite; }
+  .dot.stable{ background:var(--accent); }
+  @media (prefers-reduced-motion:reduce){ .dot.running{ animation:none; } }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+
+  .field{ display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
+  .field:last-child{ margin-bottom:0; }
+  .field .label-row{ display:flex; justify-content:space-between; font-size:0.68rem; letter-spacing:0.05em; text-transform:uppercase; color:var(--ink-soft); }
+  .field .label-row span.val{ color:var(--ink); font-variant-numeric:tabular-nums; }
+  input[type="range"]{
+    -webkit-appearance:none; appearance:none;
+    width:100%; height:3px; background:var(--rule); border-radius:2px; outline-offset:4px;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:14px; height:14px; border-radius:50%;
+    background:var(--accent); cursor:pointer; border:2px solid var(--bg-raised);
+  }
+  input[type="range"]::-moz-range-thumb{
+    width:14px; height:14px; border-radius:50%; background:var(--accent); border:2px solid var(--bg-raised); cursor:pointer;
+  }
+
+  .btn-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  button{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    padding:8px 12px;
+    border-radius:3px;
+    border:1px solid var(--rule);
+    background:var(--bg);
+    color:var(--ink);
+    cursor:pointer;
+  }
+  button:hover{ border-color:var(--ink-soft); }
+  button:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  button.primary{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#F7EFEA;
+    flex:1 1 auto;
+  }
+  button.primary:hover{ background:var(--accent-soft); border-color:var(--accent-soft); }
+  button.wide{ flex:1 1 100%; }
+
+  textarea{
+    width:100%;
+    min-height:110px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    background:var(--bg);
+    color:var(--ink);
+    border:1px solid var(--rule);
+    border-radius:3px;
+    padding:8px 10px;
+    resize:vertical;
+  }
+  textarea:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+  .mode-switch{ display:flex; border:1px solid var(--rule); border-radius:3px; overflow:hidden; margin-bottom:8px; }
+  .mode-opt{
+    flex:1 1 50%; border:none; border-radius:0; background:var(--bg);
+    font-size:0.68rem; padding:7px 6px;
+  }
+  .mode-opt.is-active{ background:var(--accent); color:#F7EFEA; }
+  .mode-opt:hover{ border-color:transparent; }
+  .mode-desc{ margin:0 0 12px; font-size:0.7rem; line-height:1.5; color:var(--ink-soft); }
+
+  .legend{ display:flex; flex-direction:column; gap:6px; font-size:0.7rem; color:var(--ink-soft); }
+  .legend .row{ display:flex; align-items:center; gap:8px; }
+  .swatch{ width:14px; height:10px; border-radius:2px; flex:none; transition:background-color .3s ease, border-color .3s ease, box-shadow .3s ease; }
+  .swatch.chosen{ background:var(--accent-tint); box-shadow:inset 0 -2px 0 var(--accent); border:1px solid var(--accent-soft); }
+  .swatch.covered{ background:var(--paper-erase); border:1px solid var(--paper-erase); box-shadow:none; }
+  .swatch.plain{ background:transparent; border:1px solid var(--rule); box-shadow:none; }
+  .file-label{
+    display:inline-block; font-size:0.68rem; letter-spacing:0.05em; text-transform:uppercase;
+    color:var(--ink-soft); text-decoration:underline; cursor:pointer;
+  }
+
+  /* ---------- recovered poem ---------- */
+  .recovered{
+    background:var(--bg-raised);
+    border:1px solid var(--rule);
+    border-radius:4px;
+    padding:20px 22px;
+  }
+  .recovered h2{
+    margin:0 0 4px;
+    font-size:0.7rem;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--ink-soft);
+    font-weight:600;
+  }
+  .recovered .caption{ font-size:0.72rem; color:var(--ink-soft); margin-bottom:14px; }
+  .recovered .found-text{
+    font-family:'Special Elite', monospace;
+    font-size:1.15rem;
+    line-height:1.9;
+    white-space:pre-wrap;
+  }
+  .recovered .found-text .word.covered{
+    background:var(--paper-erase);
+    color:transparent;
+    border-radius:2px;
+    padding:0 .3em;
+  }
+  .recovered .empty{ color:var(--ink-soft); font-family:'IBM Plex Mono',monospace; font-size:0.8rem; }
+  .recovered .foot{ margin-top:14px; }
+
+  footer{
+    font-size:0.68rem;
+    color:var(--ink-soft);
+    text-align:center;
+    padding-top:6px;
+  }
+</style>
+
+<div class="page">
+
+  <header>
+    <h1>Cellular Erasure</h1>
+    <p id="headerDesc">A found poem is seeded onto <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life" target="_blank" rel="noopener noreferrer">Conway's Game of Life</a>, one word per cell, and left to run until it settles. The automaton doesn't compose: it just decides, cell by cell, who keeps living from one generation to the next. What's still standing when it settles isn't authored so much as survived, closer to what a second reading does to a poem than to writing one.</p>
+  </header>
+
+  <div class="workspace">
+
+    <div class="manuscript-wrap">
+      <div class="sheet">
+        <div class="sheet-head">
+          <span class="title" id="poemTitle">&mdash;</span>
+          <button id="viewToggleBtn" type="button" hidden>View as grid</button>
+          <span class="byline" id="poemByline">&mdash;</span>
+        </div>
+        <div class="poem-lines" id="poemSurface" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div class="rail">
+
+      <div class="panel">
+        <h2>Instrument</h2>
+        <div class="readout-grid">
+          <div class="readout">
+            <span class="label">Generation</span>
+            <span class="value" id="genValue">0</span>
+          </div>
+          <div class="readout">
+            <span class="label">Population</span>
+            <span class="value" id="popValue">0 / 0</span>
+          </div>
+          <div class="readout">
+            <span class="label">Rule</span>
+            <span class="value" id="ruleValue">B3/S23</span>
+          </div>
+          <div class="readout">
+            <span class="label">Seed</span>
+            <span class="value" id="seedValue">&mdash;</span>
+          </div>
+        </div>
+        <div class="status-row">
+          <span class="dot" id="statusDot"></span>
+          <span id="statusText">seeded</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Automaton</h2>
+        <div class="field">
+          <div class="label-row"><span>Seed density</span><span class="val" id="densityLabel">40%</span></div>
+          <input type="range" id="densityInput" min="15" max="65" value="40">
+        </div>
+        <div class="field">
+          <div class="label-row"><span>Speed</span><span class="val" id="speedLabel">3 gen/s</span></div>
+          <input type="range" id="speedInput" min="1" max="10" value="3">
+        </div>
+        <div class="btn-row">
+          <button class="primary" id="runBtn">Run</button>
+          <button id="stepBtn">Step</button>
+        </div>
+        <div class="btn-row" style="margin-top:8px;">
+          <button class="wide" id="reseedBtn">New seed, same poem</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Source text</h2>
+        <div class="btn-row">
+          <button class="wide" id="randomPoemBtn">Random poem</button>
+        </div>
+        <div class="field" style="margin-top:12px;">
+          <div class="label-row"><span>Paste your own</span></div>
+          <textarea id="customText" placeholder="Paste a poem here, one line per row&#10;&#10;then press Use this text"></textarea>
+        </div>
+        <div class="btn-row">
+          <button id="useCustomBtn">Use this text</button>
+          <label class="file-label">Upload .txt<input type="file" id="fileInput" accept=".txt,text/plain" hidden></label>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Ending</h2>
+        <div class="mode-switch" role="group" aria-label="How the poem ends">
+          <button type="button" class="mode-opt" id="modeErasedBtn">Erased</button>
+          <button type="button" class="mode-opt is-active" id="modeSelectedBtn">Selected</button>
+        </div>
+        <p class="mode-desc" id="modeDesc"></p>
+        <div class="legend">
+          <div class="row"><span class="swatch" id="legendAliveSwatch"></span> <span id="legendAliveLabel"></span></div>
+          <div class="row"><span class="swatch" id="legendDeadSwatch"></span> <span id="legendDeadLabel"></span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="recovered">
+    <h2 id="recoveredHeading">Recovered text</h2>
+    <div class="caption" id="recoveredCaption">Run the automaton to see what it finds.</div>
+    <div class="found-text" id="foundText"></div>
+    <div class="btn-row foot" id="copyRow" hidden>
+      <button id="copyBtn">Copy poem</button>
+    </div>
+  </div>
+
+  <footer>dead border &middot; no wraparound &middot; standard Conway life, B3/S23</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CORPUS = [
+    {
+      title: "“Hope” is the thing with feathers",
+      author: "Emily Dickinson",
+      lines: [
+        "“Hope” is the thing with feathers -",
+        "That perches in the soul -",
+        "And sings the tune without the words -",
+        "And never stops - at all -",
+        "",
+        "And sweetest - in the Gale - is heard -",
+        "And sore must be the storm -",
+        "That could abash the little Bird",
+        "That kept so many warm -",
+        "",
+        "I've heard it in the chillest land -",
+        "And on the strangest Sea -",
+        "Yet - never - in Extremity,",
+        "It asked a crumb - of me."
+      ]
+    },
+    {
+      title: "The Red Wheelbarrow",
+      author: "William Carlos Williams",
+      lines: [
+        "so much depends",
+        "upon",
+        "",
+        "a red wheel",
+        "barrow",
+        "",
+        "glazed with rain",
+        "water",
+        "",
+        "beside the white",
+        "chickens"
+      ]
+    },
+    {
+      title: "Fog",
+      author: "Carl Sandburg",
+      lines: [
+        "The fog comes",
+        "on little cat feet.",
+        "",
+        "It sits looking",
+        "over harbor and city",
+        "on silent haunches",
+        "and then moves on."
+      ]
+    },
+    {
+      title: "A Clear Midnight",
+      author: "Walt Whitman",
+      lines: [
+        "This is thy hour O Soul, thy free flight into the wordless,",
+        "Away from books, away from art, the day erased, the lesson done,",
+        "Thee fully forth emerging, silent, gazing, pondering the themes thou lovest best,",
+        "Night, sleep, death and the stars."
+      ]
+    },
+    {
+      title: "Song",
+      author: "Christina Rossetti",
+      lines: [
+        "When I am dead, my dearest,",
+        "Sing no sad songs for me;",
+        "Plant thou no roses at my head,",
+        "Nor shady cypress tree:",
+        "Be the green grass above me",
+        "With showers and dewdrops wet;",
+        "And if thou wilt, remember,",
+        "And if thou wilt, forget."
+      ]
+    },
+    {
+      title: "I'm Nobody! Who are you?",
+      author: "Emily Dickinson",
+      lines: [
+        "I'm Nobody! Who are you?",
+        "Are you - Nobody - too?",
+        "Then there's a pair of us!",
+        "Don't tell! they'd advertise - you know!",
+        "",
+        "How dreary - to be - Somebody!",
+        "How public - like a Frog -",
+        "To tell one's name - the livelong June -",
+        "To an admiring Bog!"
+      ]
+    },
+    {
+      title: "When I Heard the Learn'd Astronomer",
+      author: "Walt Whitman",
+      lines: [
+        "When I heard the learn'd astronomer,",
+        "When the proofs, the figures, were ranged in columns before me,",
+        "When I was shown the charts and diagrams, to add, divide, and measure them,",
+        "When I sitting heard the astronomer where he lectured with much applause in the lecture-room,",
+        "How soon unaccountable I became tired and sick,",
+        "Till rising and gliding out I wander'd off by myself,",
+        "In the mystical moist night-air, and from time to time,",
+        "Look'd up in perfect silence at the stars."
+      ]
+    },
+    {
+      title: "Because I could not stop for Death",
+      author: "Emily Dickinson",
+      lines: [
+        "Because I could not stop for Death -",
+        "He kindly stopped for me -",
+        "The Carriage held but just Ourselves -",
+        "And Immortality.",
+        "",
+        "We slowly drove - He knew no haste",
+        "And I had put away",
+        "My labor and my leisure too,",
+        "For His Civility -",
+        "",
+        "We passed the School, where Children strove",
+        "At Recess - in the Ring -",
+        "We passed the Fields of Gazing Grain -",
+        "We passed the Setting Sun -",
+        "",
+        "Or rather - He passed Us -",
+        "The Dews drew quivering and Chill -",
+        "For only Gossamer, my Gown -",
+        "My Tippet - only Tulle -",
+        "",
+        "We paused before a House that seemed",
+        "A Swelling of the Ground -",
+        "The Roof was scarcely visible -",
+        "The Cornice - in the Ground -",
+        "",
+        "Since then - 'tis Centuries - and yet",
+        "Feels shorter than the Day",
+        "I first surmised the Horses' Heads",
+        "Were toward Eternity -"
+      ]
+    },
+    {
+      title: "A Noiseless Patient Spider",
+      author: "Walt Whitman",
+      lines: [
+        "A noiseless patient spider,",
+        "I mark'd where on a little promontory it stood isolated,",
+        "Mark'd how to explore the vacant vast surrounding,",
+        "It launch'd forth filament, filament, filament, out of itself,",
+        "Ever unreeling them, ever tirelessly speeding them.",
+        "",
+        "And you O my soul where you stand,",
+        "Surrounded, detached, in measureless oceans of space,",
+        "Ceaselessly musing, venturing, throwing, seeking the spheres to connect them,",
+        "Till the bridge you will need be form'd, till the ductile anchor hold,",
+        "Till the gossamer thread you fling catch somewhere, O my soul."
+      ]
+    },
+    {
+      title: "There's a certain Slant of light",
+      author: "Emily Dickinson",
+      lines: [
+        "There's a certain Slant of light,",
+        "Winter Afternoons -",
+        "That oppresses, like the Heft",
+        "Of Cathedral Tunes -",
+        "",
+        "Heavenly Hurt, it gives us -",
+        "We can find no scar,",
+        "But internal difference -",
+        "Where the Meanings, are -",
+        "",
+        "None may teach it - Any -",
+        "'Tis the Seal Despair -",
+        "An imperial affliction",
+        "Sent us of the Air -",
+        "",
+        "When it comes, the Landscape listens -",
+        "Shadows - hold their breath -",
+        "When it goes, 'tis like the Distance",
+        "On the look of Death -"
+      ]
+    },
+    {
+      title: "I Hear America Singing",
+      author: "Walt Whitman",
+      lines: [
+        "I hear America singing, the varied carols I hear,",
+        "Those of mechanics, each one singing his as it should be blithe and strong,",
+        "The carpenter singing his as he measures his plank or beam,",
+        "The mason singing his as he makes ready for work, or leaves off work,",
+        "The boatman singing what belongs to him in his boat, the deckhand singing on the steamboat deck,",
+        "The shoemaker singing as he sits on his bench, the hatter singing as he stands,",
+        "The wood-cutter's song, the ploughboy's on his way in the morning, or at noon intermission or at sundown,",
+        "The delicious singing of the mother, or of the young wife at work, or of the girl sewing or washing,",
+        "Each singing what belongs to him or her and to none else,",
+        "The day what belongs to the day - at night the party of young fellows, robust, friendly,",
+        "Singing with open mouths their strong melodious songs."
+      ]
+    }
+  ];
+
+  var MAX_GENERATIONS = 150;
+  var LOOKBACK = 30;
+  var REDUCE_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var state = {
+    poem: null,            // {title, author, lines}
+    rows: [],              // array of arrays of word strings (one per line, may be empty)
+    grid: [],              // bool[row][col], rectangular incl. phantom slots
+    phantom: [],           // bool[row][col]
+    maxCols: 0,
+    generation: 0,
+    seed: 0,
+    rng: null,
+    history: [],
+    running: false,
+    settled: false,
+    timer: null,
+    lastPoemIndex: -1,
+    viewMode: 'read',      // 'read' | 'grid'
+    enteredGrid: false,
+    outputMode: 'selected' // 'selected' | 'erased'
+  };
+
+  var MODE_COPY = {
+    selected: {
+      heading: "Selected reading",
+      caption0: "Run the automaton to see what it selects.",
+      captionN: function(g,n,t){ return "settled at generation " + g + " · " + n + " of " + t + " words selected"; },
+      desc: "Selected: cells still alive when the grid settles are the poem. They're lifted out of the page and read together, in order; everything else falls away.",
+      legendAlive: "cell is alive: highlighted, selected",
+      legendDead: "cell is dead: stays plain, still legible"
+    },
+    erased: {
+      heading: "Redacted page",
+      caption0: "Run the automaton to see what stays uncovered.",
+      captionN: function(g,n,t){ return "settled at generation " + g + " · " + n + " of " + t + " words left uncovered"; },
+      desc: "Erased: a living cell is a mark of ink. It settles over its word and blacks it out, right there on the page. The poem is whatever's left showing through.",
+      legendAlive: "cell is alive: covers, erases the word",
+      legendDead: "cell is dead: word stays visible"
+    }
+  };
+
+  // A cell's raw alive/dead state means opposite things depending on the
+  // Ending switch. finalRole() is the single place that resolves it, once
+  // the automaton has settled, into what actually shows on the page:
+  //   "chosen"  - part of the poem, highlighted
+  //   "covered" - a living cell sits over it like ink, blacking it out
+  //   "plain"   - ordinary and legible, just not part of the poem
+  function finalRole(alive){
+    if (state.outputMode === "erased") return alive ? "covered" : "chosen";
+    return alive ? "chosen" : "plain";
+  }
+  // Whether a word belongs to the emergent poem at all, in either mode.
+  function isChosen(alive){
+    return finalRole(alive) === "chosen";
+  }
+  function countPopulation(){
+    var n = 0;
+    for (var r=0; r<state.grid.length; r++){
+      for (var c=0; c<state.grid[r].length; c++){
+        if (state.grid[r][c]) n++;
+      }
+    }
+    return n;
+  }
+
+  function mulberry32(a){
+    return function(){
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  function tokenizeLines(rawLines){
+    return rawLines.map(function(line){
+      var trimmed = line.trim();
+      if (!trimmed) return [];
+      return trimmed.split(/\s+/);
+    });
+  }
+
+  function pickPoem(forceDifferent){
+    var idx = Math.floor(Math.random() * CORPUS.length);
+    if (forceDifferent && CORPUS.length > 1){
+      while (idx === state.lastPoemIndex) idx = Math.floor(Math.random() * CORPUS.length);
+    }
+    state.lastPoemIndex = idx;
+    return CORPUS[idx];
+  }
+
+  function loadPoem(poem){
+    state.poem = poem;
+    state.rows = tokenizeLines(poem.lines);
+    state.maxCols = state.rows.reduce(function(m,r){ return Math.max(m, r.length); }, 0);
+    document.getElementById("poemTitle").textContent = poem.title || "Untitled";
+    document.getElementById("poemByline").textContent = poem.author || "anonymous / submitted";
+    reseed(Math.floor(Math.random() * 1e9));
+  }
+
+  function reseed(seedVal){
+    stopTimer();
+    state.seed = seedVal;
+    state.rng = mulberry32(seedVal);
+    var density = parseInt(document.getElementById("densityInput").value, 10) / 100;
+    var rows = state.rows.length, cols = state.maxCols;
+    var grid = [], phantom = [];
+    for (var r = 0; r < rows; r++){
+      var gRow = [], pRow = [];
+      var lineLen = state.rows[r].length;
+      for (var c = 0; c < cols; c++){
+        var isPhantom = c >= lineLen;
+        pRow.push(isPhantom);
+        gRow.push(isPhantom ? false : (state.rng() < density));
+      }
+      grid.push(gRow); phantom.push(pRow);
+    }
+    state.grid = grid;
+    state.phantom = phantom;
+    state.generation = 0;
+    state.history = [signature(grid)];
+    state.settled = (rows === 0 || cols === 0);
+    state.running = false;
+    state.viewMode = "read";
+    state.enteredGrid = false;
+    renderReadDOM();
+    updateToggleButton();
+    updateReadouts("seeded");
+    renderRecovered();
+  }
+
+  function signature(grid){
+    return grid.map(function(row){
+      return row.map(function(v){ return v ? "1":"0"; }).join("");
+    }).join("|");
+  }
+
+  function countNeighbors(grid, r, c){
+    var count = 0;
+    for (var dr=-1; dr<=1; dr++){
+      for (var dc=-1; dc<=1; dc++){
+        if (dr===0 && dc===0) continue;
+        var nr=r+dr, nc=c+dc;
+        if (nr<0 || nc<0 || nr>=grid.length || nc>=grid[nr].length) continue;
+        if (grid[nr][nc]) count++;
+      }
+    }
+    return count;
+  }
+
+  function advanceGeneration(){
+    if (state.settled) return;
+    var grid = state.grid, phantom = state.phantom;
+    var next = grid.map(function(row){ return row.slice(); });
+    for (var r=0; r<grid.length; r++){
+      for (var c=0; c<grid[r].length; c++){
+        if (phantom[r][c]){ next[r][c] = false; continue; }
+        var n = countNeighbors(grid, r, c);
+        next[r][c] = grid[r][c] ? (n===2 || n===3) : (n===3);
+      }
+    }
+    state.grid = next;
+    state.generation++;
+    var sig = signature(next);
+    var loopFound = state.history.indexOf(sig) !== -1;
+    state.history.push(sig);
+    if (state.history.length > LOOKBACK) state.history.shift();
+    if (loopFound || state.generation >= MAX_GENERATIONS){
+      state.settled = true;
+      stopTimer();
+      state.running = false;
+    }
+  }
+
+  function doStep(){
+    advanceGeneration();
+    if (state.settled){
+      commitFinalState();
+      updateReadouts("stable");
+      renderRecovered();
+      setTimeout(exitGridToRead, 650);
+    } else {
+      syncGridCellStates();
+      updateReadouts("running");
+      renderRecovered();
+    }
+  }
+
+  // ---------- dual-layout rendering ----------
+  // Every word keeps a stable "r-c" data-key across both layouts, so a FLIP
+  // transform can visually carry it from one to the other.
+
+  function renderReadDOM(){
+    var container = document.getElementById("poemSurface");
+    container.className = "poem-lines";
+    container.style.removeProperty("--cols");
+    container.innerHTML = "";
+    // Selected extracts only what's still alive - if the whole population
+    // died out, that extraction is empty. Say so, rather than leaving the
+    // manuscript looking like a blank, broken page.
+    if (state.settled && state.outputMode === "selected" && countPopulation() === 0){
+      var notice = document.createElement("div");
+      notice.className = "extinction-notice";
+      notice.innerHTML = '<span class="extinction-label">Extinction</span>'
+        + '<span class="extinction-body">Every cell died before the grid settled. Nothing lived to be selected, so the poem returns exactly as it was found.</span>';
+      container.appendChild(notice);
+      return;
+    }
+    for (var r=0; r<state.rows.length; r++){
+      var words = state.rows[r];
+      var lineEl = document.createElement("div");
+      if (words.length === 0){
+        lineEl.className = "poem-line blank";
+        container.appendChild(lineEl);
+        continue;
+      }
+      lineEl.className = "poem-line";
+      var any = false;
+      for (var c=0; c<words.length; c++){
+        var alive = state.grid[r] && state.grid[r][c];
+        var role = state.settled ? finalRole(alive) : "plain";
+        // Selected extracts: only chosen words return to the page at all.
+        // Erased keeps the whole page: a covered word stays put as a bar.
+        if (state.settled && state.outputMode === "selected" && role !== "chosen") continue;
+        any = true;
+        var span = document.createElement("span");
+        span.className = "word-cell mode-read"
+          + (role === "chosen" ? " survivor" : "")
+          + (role === "covered" ? " redacted" : "");
+        span.dataset.key = r + "-" + c;
+        span.textContent = words[c];
+        lineEl.appendChild(span);
+      }
+      if (!any) lineEl.className = "poem-line blank";
+      container.appendChild(lineEl);
+    }
+  }
+
+  function renderGridDOM(){
+    var container = document.getElementById("poemSurface");
+    container.className = "grid-surface";
+    container.style.setProperty("--cols", state.maxCols || 1);
+    container.innerHTML = "";
+    for (var r=0; r<state.rows.length; r++){
+      for (var c=0; c<state.maxCols; c++){
+        var isPhantom = c >= state.rows[r].length;
+        var span = document.createElement("span");
+        span.style.gridColumn = String(c + 1);
+        span.style.gridRow = String(r + 1);
+        if (isPhantom){
+          span.className = "word-cell mode-grid phantom";
+          span.dataset.key = "phantom-" + r + "-" + c;
+        } else {
+          var alive = state.grid[r][c];
+          var cls = state.settled ? finalRole(alive) : (alive ? "alive" : "off");
+          span.className = "word-cell mode-grid " + cls;
+          span.dataset.key = r + "-" + c;
+          span.title = state.rows[r][c];
+          span.textContent = state.rows[r][c];
+        }
+        container.appendChild(span);
+      }
+    }
+  }
+
+  // mid-simulation: dead is provisional (a Life cell can revive), so cells
+  // only toggle between "alive" and the still-legible "off" state - the
+  // Ending switch doesn't apply until the automaton actually settles.
+  function syncGridCellStates(){
+    var container = document.getElementById("poemSurface");
+    if (container.className.indexOf("grid-surface") === -1) return;
+    var els = container.querySelectorAll(".word-cell.mode-grid:not(.phantom)");
+    for (var i=0; i<els.length; i++){
+      var el = els[i];
+      var parts = el.dataset.key.split("-");
+      var alive = state.grid[+parts[0]][+parts[1]];
+      el.classList.toggle("alive", alive);
+      el.classList.toggle("off", !alive);
+    }
+  }
+
+  // at settle: resolve every cell to its final role under the current
+  // Ending switch (see finalRole()).
+  function commitFinalState(){
+    var container = document.getElementById("poemSurface");
+    var els = container.querySelectorAll(".word-cell.mode-grid:not(.phantom)");
+    for (var i=0; i<els.length; i++){
+      var el = els[i];
+      var parts = el.dataset.key.split("-");
+      var alive = state.grid[+parts[0]][+parts[1]];
+      el.classList.remove("alive", "off", "chosen", "covered", "plain");
+      el.classList.add(finalRole(alive));
+    }
+  }
+
+  // ---------- FLIP transition between the two layouts ----------
+  function measureByKey(root){
+    var map = {};
+    var els = root.querySelectorAll("[data-key]");
+    for (var i=0; i<els.length; i++) map[els[i].dataset.key] = els[i].getBoundingClientRect();
+    return map;
+  }
+
+  function applyFlip(root, oldRects, opts){
+    var duration = REDUCE_MOTION ? 0 : (opts && opts.duration || 480);
+    var stagger = REDUCE_MOTION ? 0 : (opts && opts.stagger || 0);
+    var els = root.querySelectorAll("[data-key]");
+    els.forEach(function(el, i){
+      var oldRect = oldRects[el.dataset.key];
+      var newRect = el.getBoundingClientRect();
+      var delay = Math.min(i, 18) * stagger;
+      if (!oldRect){
+        if (!duration) return;
+        el.style.transition = "none";
+        el.style.opacity = "0";
+        el.style.transform = "scale(.5)";
+        requestAnimationFrame(function(){
+          requestAnimationFrame(function(){
+            el.style.transition = "opacity " + duration + "ms ease, transform " + duration + "ms ease";
+            el.style.transitionDelay = delay + "ms";
+            el.style.opacity = "1";
+            el.style.transform = "none";
+          });
+        });
+        return;
+      }
+      var dx = oldRect.left - newRect.left;
+      var dy = oldRect.top - newRect.top;
+      var sx = newRect.width ? oldRect.width / newRect.width : 1;
+      var sy = newRect.height ? oldRect.height / newRect.height : 1;
+      el.style.transformOrigin = "top left";
+      el.style.transition = "none";
+      el.style.transform = "translate(" + dx.toFixed(2) + "px," + dy.toFixed(2) + "px) scale(" + sx.toFixed(3) + "," + sy.toFixed(3) + ")";
+      if (!duration){ el.style.transform = ""; return; }
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          el.style.transition = "transform " + duration + "ms cubic-bezier(.22,.68,.28,1)";
+          el.style.transitionDelay = delay + "ms";
+          el.style.transform = "none";
+        });
+      });
+    });
+    var cleanup = duration + stagger * 18 + 60;
+    setTimeout(function(){
+      els.forEach(function(el){
+        el.style.transition = ""; el.style.transitionDelay = ""; el.style.transformOrigin = "";
+      });
+    }, cleanup);
+  }
+
+  function enterGridFromRead(cb){
+    var container = document.getElementById("poemSurface");
+    var oldRects = measureByKey(container);
+    renderGridDOM();
+    applyFlip(container, oldRects, { duration:520, stagger:6 });
+    state.viewMode = "grid";
+    state.enteredGrid = true;
+    updateToggleButton();
+    if (cb) setTimeout(cb, REDUCE_MOTION ? 0 : 80);
+  }
+
+  function exitGridToRead(){
+    var container = document.getElementById("poemSurface");
+    if (container.className.indexOf("grid-surface") === -1) return;
+    // "Selected" extracts: the unselected words fade out before the reflow.
+    // "Erased" keeps everything - a covered word carries its black mark
+    // forward instead of disappearing, so only the empty filler fades.
+    var fadeSelector = state.outputMode === "selected"
+      ? ".word-cell.plain, .word-cell.phantom"
+      : ".word-cell.phantom";
+    var fadeEls = container.querySelectorAll(fadeSelector);
+    var wait = REDUCE_MOTION ? 0 : 260;
+    fadeEls.forEach(function(el){ el.classList.add("cell-exit"); });
+    setTimeout(function(){
+      var oldRects = measureByKey(container);
+      renderReadDOM();
+      applyFlip(container, oldRects, { duration:520, stagger:6 });
+      state.viewMode = "read";
+      updateToggleButton();
+    }, wait);
+  }
+
+  function toggleView(){
+    if (!state.settled) return;
+    if (state.viewMode === "read") enterGridFromRead();
+    else exitGridToRead();
+  }
+
+  function updateToggleButton(){
+    var btn = document.getElementById("viewToggleBtn");
+    btn.hidden = !state.settled;
+    btn.textContent = state.viewMode === "grid" ? "View as poem" : "View as grid";
+  }
+
+  function renderRecovered(){
+    var copy = MODE_COPY[state.outputMode];
+    document.getElementById("recoveredHeading").textContent = copy.heading;
+    var caption = document.getElementById("recoveredCaption");
+    var textEl = document.getElementById("foundText");
+    var copyRow = document.getElementById("copyRow");
+    var totalWords = 0, chosenWords = 0;
+    var lines = [];
+    for (var r=0; r<state.rows.length; r++){
+      var kept = [];
+      for (var c=0; c<state.rows[r].length; c++){
+        totalWords++;
+        var alive = state.grid[r] && state.grid[r][c];
+        if (isChosen(alive)){ chosenWords++; kept.push(state.rows[r][c]); }
+      }
+      if (kept.length) lines.push(kept.join(" "));
+    }
+    if (!state.settled){
+      caption.textContent = copy.caption0;
+      textEl.textContent = "";
+      copyRow.hidden = true;
+      return;
+    }
+    var extinct = countPopulation() === 0;
+    caption.textContent = extinct
+      ? "extinction at generation " + state.generation + ". every cell died before it settled"
+      : copy.captionN(state.generation, chosenWords, totalWords);
+
+    if (state.outputMode === "selected"){
+      if (extinct){
+        textEl.innerHTML = '<span class="empty">Extinction. No cell survived the run, so nothing was selected. Try a higher seed density or a new seed.</span>';
+      } else {
+        textEl.textContent = lines.join("\n");
+      }
+    } else {
+      textEl.innerHTML = "";
+      if (extinct){
+        var note = document.createElement("div");
+        note.className = "empty";
+        note.style.marginBottom = "0.8em";
+        note.textContent = "Extinction. No cell survived the run, so nothing was ever marked.";
+        textEl.appendChild(note);
+      }
+      for (var r2=0; r2<state.rows.length; r2++){
+        var words = state.rows[r2];
+        var lineDiv = document.createElement("div");
+        if (!words.length){ lineDiv.style.height = "1em"; textEl.appendChild(lineDiv); continue; }
+        for (var c2=0; c2<words.length; c2++){
+          var alive = state.grid[r2][c2];
+          var span = document.createElement("span");
+          span.className = "word" + (isChosen(alive) ? "" : " covered");
+          span.textContent = words[c2];
+          lineDiv.appendChild(span);
+          lineDiv.appendChild(document.createTextNode(" "));
+        }
+        textEl.appendChild(lineDiv);
+      }
+    }
+    copyRow.hidden = !lines.length;
+    if (lines.length) copyRow.dataset.text = lines.join("\n");
+  }
+
+  function setOutputMode(mode){
+    state.outputMode = mode;
+    var copy = MODE_COPY[mode];
+    document.querySelector(".sheet").dataset.outputMode = mode;
+    document.getElementById("modeErasedBtn").classList.toggle("is-active", mode === "erased");
+    document.getElementById("modeSelectedBtn").classList.toggle("is-active", mode === "selected");
+    document.getElementById("modeDesc").textContent = copy.desc;
+    document.getElementById("legendAliveLabel").textContent = copy.legendAlive;
+    document.getElementById("legendDeadLabel").textContent = copy.legendDead;
+    document.getElementById("legendAliveSwatch").className = "swatch " + (mode === "erased" ? "covered" : "chosen");
+    document.getElementById("legendDeadSwatch").className = "swatch " + (mode === "erased" ? "chosen" : "plain");
+    if (state.settled){
+      if (state.viewMode === "read") renderReadDOM();
+      else renderGridDOM();
+    }
+    renderRecovered();
+  }
+
+  function updateReadouts(statusWord){
+    document.getElementById("genValue").textContent = state.generation;
+    var total = state.rows.reduce(function(s,r){ return s + r.length; }, 0);
+    var alive = 0;
+    for (var r=0; r<state.grid.length; r++) for (var c=0; c<state.grid[r].length; c++) if (state.grid[r][c]) alive++;
+    document.getElementById("popValue").textContent = alive + " / " + total;
+    document.getElementById("seedValue").textContent = state.seed;
+    var dot = document.getElementById("statusDot");
+    var text = document.getElementById("statusText");
+    dot.className = "dot" + (statusWord === "running" ? " running" : statusWord === "stable" ? " stable" : "");
+    text.textContent = statusWord === "stable"
+      ? (alive === 0 ? "extinct" : (state.generation >= MAX_GENERATIONS ? "capped" : "stable"))
+      : statusWord;
+    document.getElementById("runBtn").textContent = state.running ? "Pause" : "Run";
+  }
+
+  function stopTimer(){
+    if (state.timer){ clearInterval(state.timer); state.timer = null; }
+  }
+
+  function startTimer(){
+    stopTimer();
+    var speed = parseInt(document.getElementById("speedInput").value, 10);
+    state.timer = setInterval(function(){
+      doStep();
+      if (state.settled) stopTimer();
+    }, 1000 / speed);
+  }
+
+  function toggleRun(){
+    if (state.settled) return;
+    if (!state.enteredGrid){
+      enterGridFromRead(function(){
+        state.running = true;
+        startTimer();
+        updateReadouts("running");
+      });
+      return;
+    }
+    state.running = !state.running;
+    if (state.running) startTimer(); else stopTimer();
+    updateReadouts(state.running ? "running" : "paused");
+  }
+
+  // ---------- wire up controls ----------
+  document.getElementById("densityInput").addEventListener("input", function(){
+    document.getElementById("densityLabel").textContent = this.value + "%";
+  });
+  document.getElementById("densityInput").addEventListener("change", function(){
+    reseed(state.seed);
+  });
+  document.getElementById("speedInput").addEventListener("input", function(){
+    document.getElementById("speedLabel").textContent = this.value + " gen/s";
+    if (state.running) startTimer();
+  });
+  document.getElementById("runBtn").addEventListener("click", toggleRun);
+  document.getElementById("stepBtn").addEventListener("click", function(){
+    state.running = false; stopTimer();
+    if (!state.enteredGrid){ enterGridFromRead(doStep); return; }
+    doStep();
+  });
+  document.getElementById("viewToggleBtn").addEventListener("click", toggleView);
+  document.getElementById("modeErasedBtn").addEventListener("click", function(){ setOutputMode("erased"); });
+  document.getElementById("modeSelectedBtn").addEventListener("click", function(){ setOutputMode("selected"); });
+  document.getElementById("reseedBtn").addEventListener("click", function(){
+    reseed(Math.floor(Math.random() * 1e9));
+  });
+  document.getElementById("randomPoemBtn").addEventListener("click", function(){
+    loadPoem(pickPoem(true));
+  });
+  document.getElementById("useCustomBtn").addEventListener("click", function(){
+    var raw = document.getElementById("customText").value;
+    if (!raw.trim()) return;
+    var rawLines = raw.replace(/\r\n/g, "\n").split("\n");
+    loadPoem({ title: "Untitled", author: "your text", lines: rawLines });
+  });
+  document.getElementById("fileInput").addEventListener("change", function(e){
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      var text = String(reader.result || "");
+      document.getElementById("customText").value = text;
+      var rawLines = text.replace(/\r\n/g, "\n").split("\n");
+      loadPoem({ title: file.name.replace(/\.[^.]+$/, ""), author: "uploaded", lines: rawLines });
+    };
+    reader.readAsText(file);
+  });
+  document.getElementById("copyBtn").addEventListener("click", function(){
+    var text = document.getElementById("copyRow").dataset.text || "";
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        var btn = document.getElementById("copyBtn");
+        var original = btn.textContent;
+        btn.textContent = "Copied";
+        setTimeout(function(){ btn.textContent = original; }, 1200);
+      }).catch(function(){});
+    }
+  });
+
+  // ---------- boot: open in a realistic working state ----------
+  setOutputMode("selected");
+  loadPoem(CORPUS[0]);
+})();
+</script>

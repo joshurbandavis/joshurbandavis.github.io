@@ -1,0 +1,91 @@
+/*
+ * mutate.css
+ *
+ * A full copy of the site where exactly one thing about the design is
+ * different — never nothing, never more than one, never the same thing
+ * twice in a row (barring wraparound). Pushed toward bigger swings: each
+ * of the 14 moves below now reworks something at the scale of the whole
+ * page (palette inversion, typography system, viewport-level layout),
+ * not a single element's corner radius. The counter is shared: which
+ * thing is different right now is the same for every visitor, and it
+ * never settles. Unlike decay/ and spacejam/, this one doesn't accumulate
+ * and doesn't arrive anywhere — it just keeps being a different site.
+ *
+ * mutate.js picks exactly one `mu-N` class (N = shared step mod 14) and
+ * applies only that one to <html>. Loaded after the page's own <style>
+ * block so these rules win outright.
+ */
+
+.mu-chrome{
+  position:fixed;bottom:14px;left:16px;z-index:9998;
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;
+  color:#5a564f;opacity:.4;text-transform:lowercase;pointer-events:none;
+}
+.mu-return{
+  position:fixed;bottom:14px;right:16px;z-index:9998;
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.12em;
+  color:#5a564f;opacity:.35;text-decoration:none;text-transform:lowercase;
+  transition:opacity .4s;
+}
+.mu-return:hover{opacity:.8}
+
+/* 0 — the whole palette inverts: dark site becomes a light one */
+html.mu-0{--bg:#f2f0e9;--fg:#141310;--dim:#8a8578;--accent:#8a6b00}
+html.mu-0 body::after{opacity:.02}
+html.mu-0 .cursor-glow{background:radial-gradient(circle,rgba(138,107,0,.06),transparent 70%)}
+
+/* 1 — every word on the page shouts */
+html.mu-1 body{text-transform:uppercase}
+html.mu-1 .hero-name .line2, html.mu-1 .section-head em{font-style:normal}
+
+/* 2 — the nav abandons the top of the page for the bottom */
+html.mu-2 nav{top:auto;bottom:0}
+html.mu-2 body{padding-bottom:4.5rem}
+html.mu-2 .hero-scroll{transform:translateY(-50%) rotate(-90deg)}
+
+/* 3 — every typeface on the page becomes the same monospace */
+html.mu-3{--serif:'Space Mono',monospace;--sans:'Space Mono',monospace}
+html.mu-3 .hero-name{letter-spacing:-.01em}
+html.mu-3 .hero-name .line2{font-style:normal}
+
+/* 4 — the accent color swallows the page whole; the ground goes dark ink instead */
+html.mu-4{--bg:#c8ff2e;--fg:#050505;--dim:#1c2400;--accent:#050505}
+html.mu-4 body::after{opacity:.05}
+html.mu-4 nav .nav-links a{opacity:.75}
+html.mu-4 .pill{border-color:rgba(5,5,5,.3)}
+html.mu-4 .pill-filled{background:#050505;color:#c8ff2e}
+
+/* 5 — the works grid collapses to one enormous column */
+html.mu-5 .works-grid{columns:1}
+html.mu-5 .works-grid img{margin-bottom:16px}
+
+/* 6 — the whole page runs oversized, like it's been zoomed in */
+html.mu-6 body{transform:scale(1.14);transform-origin:top center;width:87.7%;margin:0 auto}
+
+/* 7 — the whole page sits very slightly off its axis */
+html.mu-7 body{transform:rotate(-1.1deg) scale(.985);transform-origin:top center}
+
+/* 8 — every hard edge on the page goes soft */
+html.mu-8 .pill,html.mu-8 .proj-media,html.mu-8 .proj-media img,html.mu-8 .works-grid img,html.mu-8 .about-right{border-radius:28px}
+html.mu-8 .pub-act,html.mu-8 .contact-links a,html.mu-8 .hero-links a{border-radius:12px}
+
+/* 9 — every soft edge on the page goes hard */
+html.mu-9 .pill,html.mu-9 .proj-media,html.mu-9 .proj-media img,html.mu-9 .works-grid img,html.mu-9 .about-right,html.mu-9 .modal img{border-radius:0}
+html.mu-9 .pub-act,html.mu-9 .contact-links a,html.mu-9 .hero-links a{border-radius:0}
+
+/* 10 — the name that opens the page grows until it barely fits */
+html.mu-10 .hero-name .line1{font-size:clamp(6rem,20vw,18rem)}
+html.mu-10 .hero-name .line2{font-size:clamp(4.5rem,15vw,13rem)}
+html.mu-10 .hero-name .line3{font-size:clamp(5rem,17vw,15rem)}
+
+/* 11 — every photo on the page loses its color */
+html.mu-11 .works-grid img,html.mu-11 .about-right img{filter:grayscale(1)!important}
+html.mu-11 .works-grid img:hover{filter:grayscale(1)!important}
+
+/* 12 — every heading pulls its letters apart */
+html.mu-12 .section-head,html.mu-12 .proj-title,html.mu-12 .contact-big{letter-spacing:.08em}
+html.mu-12 .hero-name{letter-spacing:.04em}
+
+/* 13 — the whole page narrows to a single centered column, on any screen */
+html.mu-13 body{max-width:420px;margin:0 auto;border-left:1px solid rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.08)}
+html.mu-13 nav{left:50%;transform:translateX(-50%);max-width:420px;width:100%}

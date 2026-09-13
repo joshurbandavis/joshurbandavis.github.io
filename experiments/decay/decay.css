@@ -1,0 +1,36 @@
+/*
+ * decay.css
+ *
+ * A full copy of the site that permanently loses one real, randomly-chosen
+ * piece of itself with every visit, anywhere — the shared counter from
+ * ../_shared/step-engine.js. Real DOM removal (see decay.js), not a CSS
+ * hide, so there's almost nothing to style here: the destruction itself
+ * needs no rules, only the always-on meta chrome and the final epitaph do.
+ */
+
+.dc-chrome{
+  position:fixed;bottom:14px;left:16px;z-index:9998;
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;
+  color:#5a564f;opacity:.4;text-transform:lowercase;pointer-events:none;
+}
+.dc-return{
+  position:fixed;bottom:14px;right:16px;z-index:9998;
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.12em;
+  color:#5a564f;opacity:.35;text-decoration:none;text-transform:lowercase;
+  transition:opacity .4s;
+}
+.dc-return:hover{opacity:.8}
+
+.dc-epitaph{
+  position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.8rem;text-align:center;padding:2rem;pointer-events:none;
+  background:#050505;
+}
+.dc-epitaph p{
+  font-family:'Instrument Serif',Georgia,serif;font-style:italic;
+  font-size:clamp(1.1rem,2.4vw,1.6rem);color:#ddd8d0;opacity:.8;margin:0;
+}
+.dc-epitaph span{
+  font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:.12em;
+  text-transform:lowercase;color:#5a564f;opacity:.6;
+}

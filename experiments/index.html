@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Collection of Strange Systems · Josh Urban Davis</title>
+<meta name="description" content="Small net art pieces built and left running: fictional infrastructure, digital archaeology, behavioral art.">
+<link rel="apple-touch-icon" sizes="180x180" href="../logo_personalweb_favicon_io/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../logo_personalweb_favicon_io/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../logo_personalweb_favicon_io/favicon-16x16.png">
+<link rel="manifest" href="../logo_personalweb_favicon_io/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#050505;--fg:#ddd8d0;--dim:#5a564f;--dim2:#39362f;
+  --accent:#c8ff2e;--accent2:#ff5e5b;--accent3:#d4a843;
+  --serif:'Instrument Serif',Georgia,serif;
+  --mono:'Space Mono',monospace;
+  --sans:'Inter',system-ui,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);overflow-x:hidden;cursor:crosshair}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+::selection{background:var(--accent);color:var(--bg)}
+
+body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+.cursor-glow{position:fixed;width:300px;height:300px;border-radius:50%;pointer-events:none;z-index:1;background:radial-gradient(circle,rgba(200,255,46,.07),transparent 70%);transform:translate(-50%,-50%);transition:opacity .3s}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.5rem 3rem;display:flex;align-items:center;justify-content:space-between}
+nav .logo{font-family:var(--mono);font-size:.8rem;letter-spacing:.2em;text-transform:uppercase}
+nav .crumb{font-family:var(--mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim)}
+nav .crumb a{color:var(--fg);opacity:.6;transition:opacity .3s}
+nav .crumb a:hover{opacity:1}
+nav .crumb .sep{margin:0 .6em;opacity:.4}
+
+/* ---- hero / rotating ascii head ---- */
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.2rem;padding:8rem 1.5rem 4rem;overflow:hidden;text-align:center}
+.hero-top{position:relative;z-index:2;max-width:620px}
+.hero-kicker{font-family:var(--mono);font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--dim);margin-bottom:1rem;opacity:.8}
+.hero-title{font-family:var(--serif);font-weight:400;font-size:clamp(2.1rem,5.4vw,3.6rem);line-height:1.05;letter-spacing:-.01em;margin-bottom:1.1rem}
+.hero-title em{font-style:italic;color:var(--accent)}
+.hero-lede{font-size:1rem;line-height:1.75;color:var(--fg);opacity:.65}
+
+.head-wrap{position:relative;z-index:2;perspective:1600px;width:min(90vw,760px);overflow:hidden}
+.head-card{position:relative;width:100%;transform-style:preserve-3d;animation:spinY 17s linear infinite}
+.head-face{
+  width:100%;display:block;
+  font-family:var(--mono);line-height:1;letter-spacing:0;white-space:pre;
+  font-size:min(1.36vw,11px);
+  color:var(--accent);
+  text-shadow:0 0 9px rgba(200,255,46,.35),0 0 22px rgba(200,255,46,.1);
+  user-select:none;backface-visibility:hidden;
+}
+.head-face.back{position:absolute;inset:0;transform:rotateY(180deg)}
+@keyframes spinY{to{transform:rotateY(360deg)}}
+@media(prefers-reduced-motion:reduce){.head-card{animation:none}}
+.head-caption{margin-top:1rem;font-family:var(--mono);font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);opacity:.6}
+.hero-scroll{position:relative;z-index:2;margin-top:.5rem;font-family:var(--mono);font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);opacity:.6}
+
+/* ---- grid ---- */
+main{position:relative;z-index:2;padding:2rem 3rem 6rem;max-width:1200px;margin:0 auto}
+.grid-note{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);opacity:.6;margin:0 0 1.4rem}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2rem}
+.grid .card:last-child{grid-column:1/-1}
+@media(min-width:821px){
+  .grid .card:last-child{display:grid;grid-template-columns:1fr 1.15fr}
+  .grid .card:last-child .card-shot{aspect-ratio:auto}
+}
+.card{
+  display:flex;flex-direction:column;
+  background:rgba(255,255,255,.015);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:10px;overflow:hidden;
+  transition:border-color .4s,transform .4s,box-shadow .4s;
+}
+a.card:hover{border-color:rgba(200,255,46,.35);transform:translateY(-4px);box-shadow:0 20px 40px -20px rgba(0,0,0,.6),0 0 30px -10px rgba(200,255,46,.15)}
+.card-shot{position:relative;aspect-ratio:16/10;overflow:hidden;background:#000;border-bottom:1px solid rgba(255,255,255,.06)}
+.card-shot img{width:100%;height:100%;object-fit:cover;object-position:top;transition:transform .6s cubic-bezier(.16,1,.3,1),filter .6s}
+a.card:hover .card-shot img{transform:scale(1.045);filter:brightness(1.08)}
+.card-shot::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.35) 100%);pointer-events:none}
+.card-body{padding:1.5rem 1.6rem 1.7rem;display:flex;flex-direction:column;gap:.7rem;flex:1}
+.card-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem}
+.card-head h2{font-family:var(--serif);font-size:1.5rem;font-weight:400;letter-spacing:-.01em}
+.tag{flex-shrink:0;font-family:var(--mono);font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent3);border:1px solid rgba(212,168,67,.3);border-radius:100px;padding:.25em .7em;white-space:nowrap}
+.tag.live{color:var(--accent);border-color:rgba(200,255,46,.3)}
+.tag.local{color:var(--accent2);border-color:rgba(255,94,91,.3)}
+.card-desc{font-size:.88rem;line-height:1.65;color:var(--fg);opacity:.62;flex:1}
+.card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:.4rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+a.card .card-foot .go{color:var(--fg);opacity:.55;transition:opacity .3s,transform .3s}
+a.card:hover .card-foot .go{opacity:1;transform:translateX(3px)}
+
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+.reveal.visible{opacity:1;transform:none}
+
+footer{position:relative;z-index:2;padding:2rem 3rem;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,.04);font-family:var(--mono);font-size:.55rem;color:var(--dim);letter-spacing:.1em}
+footer a{opacity:.7;transition:opacity .3s}
+footer a:hover{opacity:1;color:var(--accent)}
+
+@media(max-width:820px){
+  .grid{grid-template-columns:1fr}
+  main{padding:1rem 1.5rem 4rem}
+  nav{padding:1.2rem 1.5rem}
+  .hero{padding:7rem 1.2rem 3rem;gap:1.6rem}
+  footer{flex-direction:column;gap:.8rem;text-align:center;padding:2rem 1.5rem}
+  .card-head{flex-wrap:wrap;row-gap:.4rem}
+}
+@media(max-width:480px){
+  .hero-scroll{letter-spacing:.15em}
+  .hero-kicker{letter-spacing:.2em}
+}
+</style>
+</head>
+<body>
+
+<div class="cursor-glow" id="glow"></div>
+
+<nav>
+  <a href="../index.html" class="logo">JUD</a>
+  <div class="crumb"><a href="../index.html">home</a><span class="sep">/</span>experiments</div>
+</nav>
+
+<header class="hero">
+  <div class="hero-top">
+    <p class="hero-kicker">experiments</p>
+    <h1 class="hero-title">A Collection of <em>Strange</em> Systems</h1>
+    <p class="hero-lede">Small net art pieces built and left running: fictional infrastructure,
+      digital archaeology, behavioral art. A page that only rewards waiting. A copy of this
+      site quietly converging on a 1996 website. A copy that only ever loses pieces of itself.
+      Each one lives in its own folder, self-contained, mostly unlinked from the rest of the
+      site until now.</p>
+  </div>
+
+  <div class="head-wrap">
+    <div class="head-card">
+      <pre class="head-face front" id="headFront"></pre>
+      <pre class="head-face back" id="headBack"></pre>
+    </div>
+  </div>
+  <p class="head-caption">michelangelo's david, 1504 · 6,820 characters, no polygons</p>
+
+  <p class="hero-scroll">scroll / poke around</p>
+</header>
+
+<main>
+  <p class="grid-note">Snapshots below, not live feeds: click through for the real thing.</p>
+  <div class="grid">
+
+    <a class="card reveal" href="please-wait/index.html">
+      <div class="card-shot"><img src="_shared/snapshots/please-wait.jpg" alt="Snapshot of the please-wait experiment: a fake Windows 95 System dialog with a progress bar and a log of unsettling status lines" loading="lazy"></div>
+      <div class="card-body">
+        <div class="card-head"><h2>please wait</h2><span class="tag">no backend</span></div>
+        <p class="card-desc">A fake Windows 95 dialog that never finishes loading: the progress
+          bar approaches 100% but never arrives. Stay, and a false, self-contradicting biography
+          accumulates in the log. The close button doesn't work. No save state; reload and it
+          starts over from zero.</p>
+        <div class="card-foot"><span>01</span><span class="go">open →</span></div>
+      </div>
+    </a>
+
+    <a class="card reveal" href="spacejam/index.html">
+      <div class="card-shot"><img src="_shared/snapshots/spacejam.jpg" alt="Snapshot of the spacejam experiment mid-transformation: the real Space Jam 1996 logo and planet-shaped nav buttons overlaid on a fading homepage against a starfield" loading="lazy"></div>
+      <div class="card-body">
+        <div class="card-head"><h2>spacejam</h2><span class="tag">365 refreshes · local</span></div>
+        <p class="card-desc">This site's homepage, contaminated one refresh at a time by the real
+          1996 spacejam.com homepage: actual supplied GIF assets, not redrawn, until a local
+          copy of that page (spacejam/1996/) fully replaces it. Tracked per-browser in
+          localStorage, 365 steps to convergence, no shared backend. The terminal state is a
+          local copy rather than an embed of the live site, so the piece doesn't depend on WB's
+          site staying reachable or embeddable.</p>
+        <div class="card-foot"><span>02</span><span class="go">open →</span></div>
+      </div>
+    </a>
+
+    <a class="card reveal" href="decay/index.html">
+      <div class="card-shot"><img src="_shared/snapshots/decay.jpg" alt="Snapshot of the decay experiment partway through its collapse: the homepage missing its first name and most social icons, only the particle field and Urban Davis left" loading="lazy"></div>
+      <div class="card-body">
+        <div class="card-head"><h2>decay</h2><span class="tag live">shared · permanent</span></div>
+        <p class="card-desc">A full copy of this site that permanently loses one more real piece
+          of itself with every visit, anywhere: actual DOM removal, not a CSS hide. A seeded
+          shuffle mixes 105 elements, whole sections down to single photos and paragraphs, into
+          one pool, so an unlucky early roll can still gut the page fast. 106 visits guarantee
+          true blankness no matter how the randomness landed.</p>
+        <div class="card-foot"><span>03</span><span class="go">open →</span></div>
+      </div>
+    </a>
+
+    <a class="card reveal" href="mutate/index.html">
+      <div class="card-shot"><img src="_shared/snapshots/mutate.jpg" alt="Snapshot of the mutate experiment: this site's homepage recolored lime green, one whole-page mutation among fourteen" loading="lazy"></div>
+      <div class="card-body">
+        <div class="card-head"><h2>mutate</h2><span class="tag live">shared · cyclical</span></div>
+        <p class="card-desc">A full copy of this site where exactly one thing is different, and
+          which one thing keeps changing: one shared counter, cycling through fourteen
+          page-wide moves (palette inverted, every typeface swapped, the whole page tilted
+          off its axis). Never cumulative, never arrives anywhere: it just never stops being
+          slightly different than itself.</p>
+        <div class="card-foot"><span>04</span><span class="go">open →</span></div>
+      </div>
+    </a>
+
+    <a class="card reveal" href="cellular-erasure/index.html">
+      <div class="card-shot"><img src="_shared/snapshots/cellular-erasure.jpg" alt="Snapshot of the cellular-erasure experiment: a found poem laid over a Game of Life grid" loading="lazy"></div>
+      <div class="card-body">
+        <div class="card-head"><h2>cellular erasure</h2><span class="tag">generative</span></div>
+        <p class="card-desc">A found poem seeded onto a Conway's Game of Life grid, one word
+          per cell. The automaton runs until it settles, then an "ending" switch decides:
+          lift the survivors out as a poem, or black out everything the grid marked as ink.</p>
+        <div class="card-foot"><span>05</span><span class="go">open →</span></div>
+      </div>
+    </a>
+
+    <a class="card reveal" href="no-one-in-particular/index.html">
+      <div class="card-shot"><img src="_shared/snapshots/no-one-in-particular.jpg" alt="Snapshot of the no-one-in-particular experiment: a generated obituary labeled archival specimen, with a portrait" loading="lazy"></div>
+      <div class="card-body">
+        <div class="card-head"><h2>no one in particular</h2><span class="tag">generative</span></div>
+        <p class="card-desc">A rebuild of a lapsed 2019 net-art piece: a new obituary for someone
+          who never lived, on every visit: roughly half the time freshly assembled by a
+          markov-chain eulogy engine, the rest one of 148 real GPT-2 completions curated for
+          the original 2019 show, labeled honestly either way. The portrait is a real StyleGAN
+          face from that run, never regenerated live.</p>
+        <div class="card-foot"><span>06</span><span class="go">open →</span></div>
+      </div>
+    </a>
+
+    <a class="card reveal" href="internet-is-haunted/index.html">
+      <div class="card-shot"><img src="_shared/snapshots/internet-is-haunted.jpg" alt="Snapshot of the internet-is-haunted experiment: a minimal input asking to paste a dead URL" loading="lazy"></div>
+      <div class="card-body">
+        <div class="card-head"><h2>the internet is haunted</h2><span class="tag local">needs worker url</span></div>
+        <p class="card-desc">Paste in a dead (or any) URL and get back a small memorial instead
+          of a 404: real capture dates and a fragment of real archived text, pulled live from
+          the Wayback Machine. archive.org's API sends no CORS header, so a static page can't
+          reach it directly: a small Cloudflare Worker sits in between.</p>
+        <div class="card-foot"><span>07</span><span class="go">open →</span></div>
+      </div>
+    </a>
+
+  </div>
+</main>
+
+<footer>
+  <span>JUD © 2026 · prototypes, not products</span>
+  <a href="../index.html">return</a>
+</footer>
+
+<script>
+// cursor glow
+(function(){
+  var glow = document.getElementById('glow');
+  if (!glow || window.matchMedia('(pointer: coarse)').matches) return;
+  document.addEventListener('mousemove', function(e){
+    glow.style.left = e.clientX + 'px';
+    glow.style.top = e.clientY + 'px';
+  });
+})();
+
+// reveal-on-scroll
+(function(){
+  var els = document.querySelectorAll('.reveal');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if (en.isIntersecting) en.target.classList.add('visible'); });
+  }, { threshold: 0.15 });
+  els.forEach(function(el){ io.observe(el); });
+})();
+
+// ---- rotating ASCII bust: Michelangelo's David, luminance-mapped to characters,
+// spun in real 3D via a two-faced CSS card (front + mirrored back) ----
+var DAVID_FRONT = "                                                                                                              \n                                                                                                              \n                                       ...........`.............                                              \n                                  ....``````````````````````````.....                                         \n                              ...`````''''''`````'''''''````````````......                                    \n                                ..```'```'''\":;;:'```````````''''````````....                                 \n                                      '-=*=-=%#+~;~~~~;:,\"'\"'''`````'``````....                               \n                               ...  .;%@%=~,\"',~*%%*%@@@@%%%%%#=-~:'```````````.....                          \n                               .  -#%*~~,\"'``\"',#%+*%%#=#%%#*%@@@@@%+;'``'``````````...                       \n                                '=@+:` `\"\"'`-@@#%@@@@**#%%#=~;+@@%#@@%*;\"''```````'````..                     \n                              ';%@-::``... `%@*#@@##%#@%*~~+-:\"~#+:;++-~;'`...`''''''''``..                   \n               .............;#@@%*%@@#+;\"''-@+,=*+~~+-~;~'.':;,,-*=*#%@%#**+-;'`'''\"''\"''``..                 \n                 .```````.'=@@@@@%#*====-~-+~';-:\"\",:,,,:''``'\"\";+%@*%##%@@@@*+:''\"\"\"\"\"\"\"\"'``.                \n                        `;%@@=*#-,'`..`''... `\"'''\"\"\"''\"\",:\"'`.`~=+;;:;~-~=#=\"'\"\",\"\"\"\",,,\"\"''`..              \n                     \"-+%@@@%++,'\"\"\"\"'..''`..`''```..`\"\"\"\"\"\"\"`.','`\";+~\",,\"\"\"\"''',*~,,,,,,\"\"`..               \n                  \";%@@@@@*+*%=:''\"''..'`.`''''\"'`. `\"'`'\"\"\"\". .`';%*%*;,;=`\",``.`#%-:,,,,,,`...              \n                \"*@@%;;**=+=*;-+\"``.'\"\"'`. ... .''` `\"`'`.```'`..\";;;~-+=##\"~,\"'`;%@%;,,,,,\"```..             \n               \"@@%#;``;;,\",~\"\";\"''''\"` ..``''''\"\",,\"\"\"\",\"\"\",,\"` .\"\"\",,,,:\";;``',~~;;,,,:::\"````..            \n       ......`.+##===;`\"\"\"\"\"\"\"`  ..`````'\",,,,,,,,,,,,:::::::::,'``'\",,,,,\"\"`\"\",--+-~~,::::'''''`...          \n      ..```````,~+~%*;,;:\"'''''`...``'\"\"\",,,,,\"\"\"\",,,,,,,:;;:;;::,\"'``\"\"\",'`'\";~'':;;:\",::,`''\"\"''``.         \n     ..``''`''`'~,;##*#%;'`..'`.`'\",::\"\"\",\",,:::,,::,,::;::;;;;;;:,\".`,\"\",'`\"\",;-;\",::\",::,`''\"\"\"\"'`..        \n    ..````'''''*@-',-##+'.......',;~-+~;~~~~~~~~~;;;;;~--~~-++-~~;:,\",\"\",,\"`\"\",,~+:'\"\"\";::\"`'\"\",,'...         \n   ..```'''''`+@*-\"'..`..`.....',;=*##******+-~;~-~~+++++++++-~;:;;:,\"\"\"\"\"`.',,,,,,\"\"'`\";;'`'\",,,'`..         \n   .``''''''`;@~\"``'  ''''''''\"\":+++-++-~;~~;;;~--~;;;;;;::::,,:::::,,,\"\"\"\"\"''\"\"\"\"''\"``,:;'`\"\",,,'`''`.       \n  ..``'''''';%=:\",,`.  .`''''''\";;,'\"'''\"\"\"\"\",,;~;~;:,,,::::::;;~;;:,,,:,,:::\"'','`'..'\"\"';:\"\",:,`'\"\"'`.      \n ..``'''''''~+--=~,'',,'` ..``',:;~-~:,,,\"\"'''',-++~:::::\"''\",,,,,:::::::,,,,,\",,```.''''',;,,,:\"'\"\"\"'`..     \n ..`'''''\"\"'',+++\"':=+~;:'`.`'',~-~:\"'\"'''```'',*##~:;::,'`',,,\"\"\"\",:;;;:,,,,\"\"\"'.`.`````''\"\",,:''\"\"\"''`.     \n..``''''''''',+;\"\"\",,'\"'\"\"\"``''\"\"\"'''''\"\"\"'````:%@@+;:::,'':;;:\",,\"\":;;;;:,\",,\"''``..``.`\"\"'\",::'',,\"\"'`.     \n..``'''\"\"\"\"''\",,\"''`'\"\"'```.','\"\"\"\"',;;,'\"\"`'''+@@@*~~;:,'\":;;;:;;,:;~-~;;:\",,\"'\"''''``'''`',,:,'\",,,\"'`.     \n..``''\"\"\"\"\"\"\"'''\"\"\"''''`..`.\"~::,\"';=-~;::,,\",~*@@@=~--~:::;;;;~~~~-+++-~;;::,,,,,''\"''``''\",,:,',,,,\"'`.     \n..``''\"\"\"\"\"\"\"\"\"\"\"\"\"'''```. `;==*=+++~;:;;;;~~=##@@@=~-++-~~--++++++====+-~;:::,,,,,\"'\"''``\",,::\"',,,,\"'`..    \n..`'''\"\"\"\"\"\"\"\"'\"''\":\"'`.``.'+*##@@%=+-+=*##%%@@@@@@*--++=====***#***===+-~;;::,,'\"\",\"\"`..`\",:::'\",:,,\"'``.    \n..``'\"\"\"\"\"\"\"\"\"\"\"\"':#*:'`. `:=*%%@@@@@@@@@@@@@%*#@@@@*+~~+******#****=+++-~~;::,\"..`'\"\"''''\",:::'\",:,,\"'``.    \n..``'\"\"\"\"\"\"\"\"\"\"\"\"';%=;'....:=*#%%%@%%%%%@@%#*~~%@%%*++*=-+*###*****=+++--~~;::,\"'` `\",,,,\",,::,',::,,\"'`.     \n..``'\"\"\"\"\"\"\"\"\"\"\"\"',-:\"'`...:=******##%%%%%#*~~%-~~;;;;~+-~-=*##***==++--~~~;;::\"\"\"`\",,,,\"\",:::\"',::,,\"'`.     \n..``''\"\"\"\"\"\"\"\"\"\"\"\"\"\":,'`'\"'\"-=++++=*######*+--\".`,:::'`',+===*****=++---~~~;;::,,:,,,,,\"\"\",:::\"\":::,,\"'`.     \n ..`''\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"''',' :----+==******=+%%;..',:::;;:+******==++-----~~~::;;;::,,,\"''\",:::',:::,\"\"'`.     \n  .``'\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"'```,\" .-~---+===**=*#%@@@+-~;;::;~~+**#%#*=++------~~~;:;;;:\"'',,'\",,:;,',::,,\"'`.      \n  ..``'\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\";\"`;-----+++==*#%@@@@@%=-;;;~~-+=**##*=++------~~~;:'\"\"'..\";,'\",::;,',::,,\"'`.      \n   .``'\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\",::;-::~-~----+=**#*==%=~;,,:;;;~~---+===++--------~~;,.\"\",\":~;\"'\",::;,\":::,\"'`.       \n   ..`''\"\"\"\"\"\"\"\"\"\"\"\"\"\"\",,::~~~~--~~~-++=*=-;:,:+=+~~;;~~~~~--++++------~--~~;:,,,\"\";~;'\",,::;\"\"::,,\"'`.       \n    .``''\"\"\"\"\"\"\"\"\"\"\"\"\"\",::,\"\"\"\"--~~~--+++-~-+++-~~;;;~~~--+**=+++------~~~~;;::,,\",~~:'\",::;:',::,\"'`.        \n     .``'\"\"\"\"\",,\"\"\"\"\"\",,::,\"\"\"\":+~~--------=%%+:,:::~~~~-+=*#*=++------~~~;;:::,,,:~~:'\",::;,\",,,\"'`.         \n     ..`''\"\"\"\"\"\"\"\"\"\"\"\",:::,\"\"\"\"\"~-~~~~~~~--=####%%%%%#*==*##**=+++-++-~~~~;;,,\",:,\",~,'\",::;,\",,\"''`.         \n      ..`''\"\"\"\"\"\"\"\"\"\"\",:::,\"\"\"\"\",~~;;~~~~-+*#@@@@@%*==*****==+++++-+--~~~;;:,\",::,\"':\"',,::;\"\",\"\"'`.          \n       ..`''\"\"\"\"\"\"\"\"\"\",:::\"\"\"\"\",~:;;;;;;;~-+*%%%#=-~~---+---+--------~~~;;;:::,:;:\"\";\"\",::::'\"\"''`.           \n        ..`''\"\"\"\"\"\"\"\",,:::\"\"\"\"\",;\"\",,:;;~~~~---~;:;~~~------+------~~~~~~~;;;:\"::,,;;\"\",,::,'''``.            \n          .``'\"\"\"\",,,,::::\"\"\"\"\",:\"'~#%@@@@@@@%#**+-~~~~---+---~-~~~~~~~~;;;;;::;:,;~;'\",,::\"```..             \n           ..`''\"\"\"\"\",:::,\"\"\"\"\",,\"-##@@@@@@@@@@@@@@%#=+-~~~~~~--~~~~~~-~~;~~~;:::\":~:'\",,,,'.`.               \n            ..``''\"\"\",:::,\"\"\"\"\";=*%@@%*==*######%#*======-~~---~~~~~-----~---;;:,\":~,'\"\"\"\"'`..                \n              .``''\"\",,::,\"\"\"\":@@@@+~~:::;;~-++++++---;:;==----~~~~----++++--~;:,\":;\"'''''`                   \n               ..`'''\",::,\"\",\"~@@@@%-:,,\"\",,:;;;~~~;;;,`':=*-~~~~~---+=====+--;,\",;:'`'``..                   \n                 ..``'\"\",\"\"\"\"\":@@@@@@@%#=~,\",:::;;;::\".,=*%@%=;:~--===****=+-~;\"\"::,```..                     \n                   ..``'''\"\"\"\"\"+@@@@@@@@@@#-:\",:;;;;,`:%@%#**+~~~-+*******=+-~;,,,\"'..                        \n                      ..``''''\",#@@@@@@@@@@@@=+=*#%%%%@@@%*--;;**==******=+-~;,,\"\"\"'`..                       \n                         ..``''\"-#%%@@@@@@@@@@@@@@@@@@@%#*=+:;~+#*##***=+-~;:::,,\"'`.                         \n                            ..`';+**#%%@@@@@@@@@@@@@@@%#+~;;,\"`\"~~-+=*=+-~;::,\"'`.                            \n                               .,;~~-+===*###%%%%%##****+~:\"'.';~;,\"\",:,,\"''`.                                \n                               .`'\"\",:;;~--++++==+--~~--~;:,`'::::,'`..                                       \n                                  ..``'\"\",,,:::;;:,,,,,,\"\"''`````....                                         \n                                       ....````````````....                                                   \n                                                                                                              ";
+var DAVID_BACK = "                                                                                                              \n                                                                                                              \n                                              .............`...........                                       \n                                         .....``````````````````````````....                                  \n                                    ......````````````'''''''`````''''''`````...                              \n                                 ....````````''''```````````':;;:\"'''```'```..                                \n                               ....``````'`````'''\"'\",:;~~~~;~+#%=-=*=-'                                      \n                          .....```````````':~-=#%%%%%@@@@%*%%*~,'\",~=%@%;.  ...                               \n                       ...``````````'``';+%@@@@@%*#%%#=#%%*+%#,'\"``'\",~~*%#-  .                               \n                     ..````'```````''\";*%@@#%@@+;~=#%%#**@@@@%#@@-`'\"\"` `:+@='                                \n                   ..``''''''''`...`';~-++;:+#~\":-+~~*%@#%##@@#*@%` ...``::-@%;'                              \n                 ..``''\"''\"'''`';-+**#%@%#*=*-,,;:'.'~;~-+~~+*=,+@-''\";+#@@%*%@@#;.............               \n                .``'\"\"\"\"\"\"\"\"'':+*@@@@%##%*@%+;\"\"'``'':,,,:,\"\":-;'~+-~-====*#%@@@@@='.```````.                 \n              ..`''\"\",,,\"\"\"\",\"\"'\"=#=~-~;:;;+=~`.`'\":,\"\"''\"\"\"'''\"` ...''`..`',-#*=@@%;`                        \n               ..`\"\",,,,,,~*,'''\"\"\"\",,\"~+;\"`','.`\"\"\"\"\"\"\"`..```''`..`''..'\"\"\"\"',++%@@@%+-\"                     \n              ...`,,,,,,:-%#`.``,\"`=;,;*%*%;'`. .\"\"\"\"'`'\"` .`'\"''''`.`'..''\"'':=%*+*@@@@@%;\"                  \n             ..```\",,,,,;%@%;`'\",~\"##=+-~;;;\"..`'```.`'`\"` `''. ... .`'\"\"'.``\"+-;*=+=**;;%@@*\"                \n            ..````\":::,,,;;~~,'``;;\":,,,,\"\"\". `\",,\"\"\",\"\"\"\",,\"\"''''``.. `\"''''\";\"\"~,\",;;``;#%@@\"               \n          ...`'''''::::,~~-+--,\"\"`\"\",,,,,\"'``',:::::::::,,,,,,,,,,,,\"'`````..  `\"\"\"\"\"\"\"`;===##+.`......       \n         .``''\"\"''`,::,\":;;:''~;\"'`',\"\"\"``'\",::;;:;;:,,,,,,,\"\"\"\",,,,,\"\"\"'``...`'''''\":;,;*%~+~,```````..      \n        ..`'\"\"\"\"''`,::,\"::,\";-;,\"\"`',\"\",`.\",:;;;;;;::;::,,::,,:::,,\",\"\"\"::,\"'`.`'..`';%#*##;,~'`''`''``..     \n         ...',,\"\"'`\"::;\"\"\"':+~,,\"\"`\",,\"\",\",:;~~-++-~~--~;;;;;~~~~~~~~~;~+-~;,'.......'+##-,'-@*'''''````..    \n         ..`',,,\"'`';;\"`'\"\",,,,,,'.`\"\"\"\"\",:;;:;~-+++++++++~~-~;~-+******##*=;,'.....`..`..'\"-*@+`'''''```..   \n       .`''`',,,\"\"`';:,``\"''\"\"\"\"''\"\"\"\"\",,,:::::,,::::;;;;;;~--~;;;~~;~-++-+++:\"\"''''''''  '``\"~@;`''''''``.   \n      .`'\"\"'`,:,\"\":;'\"\"'..'`',''\":::,,:,,,:;;~;;::::::,,,:;~;~;,,\"\"\"\"\"'''\"',;;\"''''''`.  .`,,\":=%;''''''``..  \n     ..`'\"\"\"'\":,,,;,'''''.```,,\",,,,,:::::::,,,,,\"''\":::::~++-,''''\"\",,,:~-~;:,'``.. `',,'',~=--+~'''''''``.. \n     .`''\"\"\"'':,,\"\"''`````.`.'\"\"\",,,,:;;;:,\"\"\"\",,,'`',::;:~##*,''```'''\"'\":~-~,''`.`':;~+=:'\"+++,''\"\"'''''`.. \n     .`'\"\",,''::,\"'\"\"`.``..``''\",,\",:;;;;:\"\",,\":;;:'',:::;+@@%:````'\"\"\"'''''\"\"\"''``\"\"\"'\"',,\"\"\";+,'''''''''``..\n     .`'\",,,\"',:,,'`'''``''''\"'\",,\":;;~-~;:,;;:;;;:\"',:;~~*@@@+'''`\"\"',;;,'\"\"\"\"','.```'\"\"'`''\",,\"''\"\"\"\"'''``..\n     .`'\",,,,',:,,\"''``''\"'',,,,,::;;~-+++-~~~~;;;;:::~--~=@@@*~,\",,::;~-=;'\",::~\".`..`''''\"\"\"'''\"\"\"\"\"\"\"''``..\n    ..`'\",,,,'\"::,,\"``''\"'\",,,,,:::;~-+====++++++--~~-++-~=@@@##=~~;;;;:;~+++=*==;` .```'''\"\"\"\"\"\"\"\"\"\"\"\"\"''``..\n    .``'\",,:,\"':::,\"`..`\"\",\"\"',,::;;~-+===***#***=====++--*@@@@@@%%##*=+-+=%@@##*+'.``.`'\":\"''\"'\"\"\"\"\"\"\"\"'''`..\n    .``'\",,:,\"':::,\"''''\"\"'`..\",::;~~-+++=****#******+~~+*@@@@#*%@@@@@@@@@@@@@%%*=:` .`':*#:'\"\"\"\"\"\"\"\"\"\"\"\"'``..\n     .`'\",,::,',::,,\",,,,\"` `'\",::;~~--+++=*****###*+-=*++*%%@%~~*#%@@%%%%%@%%%#*=:....';=%;'\"\"\"\"\"\"\"\"\"\"\"\"'``..\n     .`'\",,::,'\":::,\"\",,,,\"`\"\"\"::;;~~~--++==***##*=-~-+~;;;;~~-%~~*#%%%%%##******=:...`'\":-,'\"\"\"\"\"\"\"\"\"\"\"\"'``..\n     .`'\",,:::\"\":::,\"\"\",,,,,:,,::;;~~~---++=*****===+,'`':::,`.\"--+*######*=++++=-\"'\"'`',:\"\"\"\"\"\"\"\"\"\"\"\"\"\"''``..\n     .`'\"\",:::,':::,\"''\",,,::;;;::~~~-----++==******+:;;:::,'..;%%+=******==+----: ','''\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"''`.. \n      .`'\",,::,',;:,,\"',,''\":;;;:;~~~------++=*#%#**+~~;::;;~-+@@@%#*=**===+---~-. \",```'\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"'``.  \n      .`'\",,::,',;::,\"',;\"..'\"\"':;~~~------++=*##**=+-~~;;;-=%@@@@@%#*==+++-----;`\";\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"'``..  \n       .`'\",:::\",;::,\"'\";~:\",\"\".,;~~--------++===+---~~;;;:,,;~=%==*#**=+----~-~::-;::,\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"'``.   \n       .`'\",,::\"\";::,,\"';~;\"\",,,:;~~--~------++++--~~~~~;;~~+=+:,:;-=*=++-~~~--~~~~::,,\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"''`..   \n        .`'\",::,':;::,\"':~~,\",,::;;~~~~------+++=**+--~~~;;;~~-+++-~-+++--~~~--\"\"\"\",::,\"\"\"\"\"\"\"\"\"\"\"\"\"\"''``.    \n         .`'\",,,\",;::,\"':~~:,,,:::;;~~~------++=*#*=+-~~~~:::,:+%%=--------~~+:\"\"\"\",::,,\"\"\"\"\"\",,\"\"\"\"\"'``.     \n         .`''\",,\",;::,\"',~,\",:,\",,;;~~~~-++-+++=**##*==*#%%%%%####=--~~~~~~~-~\"\"\"\"\",:::,\"\"\"\"\"\"\"\"\"\"\"\"''`..     \n          .`'\"\",\"\";::,,'\":'\",::,\",:;;~~~--+-+++++==*****==*%@@@@@#*+-~~~~;;~~,\"\"\"\"\",:::,\"\"\"\"\"\"\"\"\"\"\"''`..      \n           .`''\"\"'::::,\"\";\"\":;:,:::;;;~~~--------+---+---~~-=#%%%*+-~;;;;;;;:~,\"\"\"\"\":::,\"\"\"\"\"\"\"\"\"\"''`..       \n            .``''',::,,\"\";;,,::\":;;;~~~~~~~------+------~~~;:;~---~~~~;;:,,\"\";,\"\"\"\"\":::,,\"\"\"\"\"\"\"\"''`..        \n             ..```\"::,,\"';~;,:;::;;;;;~~~~~~~~-~---+---~~~~-+**#%@@@@@@@%#~'\":,\"\"\"\"\"::::,,,,\"\"\"\"'``.          \n               .`.',,,,\"':~:\":::;~~~;~~-~~~~~~--~~~~~~-+=#%@@@@@@@@@@@@@@##-\",,\"\"\"\"\",:::,\"\"\"\"\"''`..           \n                ..`'\"\"\"\"',~:\",:;;---~-----~~~~~---~~-======*#%######*==*%@@%*=;\"\"\"\"\",:::,\"\"\"''``..            \n                   `'''''\";:\",:;~--++++----~~~~----==;:;---++++++-~;;:::~~+@@@@:\"\"\"\",::,,\"\"''``.              \n                   ..``'`':;,\",;--+=====+---~~~~~-*=:'`,;;;~~~;;;:,,\"\",,:-%@@@@~\",\"\",::,\"'''`..               \n                     ..```,::\"\";~-+=****===--~:;=%@%*=,.\"::;;;:::,\",~=#%@@@@@@@:\"\"\"\"\",\"\"'``..                 \n                        ..'\",,,;~-+=*******+-~~~+**#%@%:`,;;;;:,\":-#@@@@@@@@@@+\"\"\"\"\"'''``..                   \n                       ..`'\"\"\",,;~-+=******==**;;--*%@@@%%%%#*=+=@@@@@@@@@@@@#,\"''''``..                      \n                         .`'\",,:::;~-+=***##*#+~;:+=*#%@@@@@@@@@@@@@@@@@@@%%#-\"''``..                         \n                            .`'\",::;~-+=*=+-~~\"`\",;;~+#%@@@@@@@@@@@@@@@%%#**+;'`..                            \n                                .`''\",,:,\"\",;~;'.'\":~+****##%%%%%###*===+-~~;,.                               \n                                       ..`',::::'`,:;~--~~--+==++++--~;;:,\"\"'`.                               \n                                         ....`````''\"\",,,,,,:;;:::,,,\"\"'``..                                  \n                                                   ....````````````....                                       \n                                                                                                              ";
+(function(){
+  var front = document.getElementById('headFront');
+  var back = document.getElementById('headBack');
+  if (front) front.textContent = DAVID_FRONT;
+  if (back) back.textContent = DAVID_BACK;
+})();
+</script>
+
+</body>
+</html>
