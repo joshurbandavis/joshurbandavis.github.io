@@ -8,7 +8,7 @@
  * page (palette inversion, typography system, viewport-level layout),
  * not a single element's corner radius. The counter is shared: which
  * thing is different right now is the same for every visitor, and it
- * never settles. Unlike decay/ and spacejam/, this one doesn't accumulate
+ * never settles. Unlike decay/ and palimpsest/, this one doesn't accumulate
  * and doesn't arrive anywhere — it just keeps being a different site.
  *
  * mutate.js picks exactly one `mu-N` class (N = shared step mod 14) and

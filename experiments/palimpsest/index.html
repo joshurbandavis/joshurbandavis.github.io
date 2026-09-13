@@ -30,7 +30,7 @@ body.debug #status{opacity:1}
 (function(){
 'use strict';
 const TOTAL=365;
-const KEY='dwt_spacejam_refresh_v2';
+const KEY='dwt_palimpsest_refresh_v2';
 const params=new URLSearchParams(location.search);
 if(params.has('reset')) localStorage.removeItem(KEY);
 let step=Number(localStorage.getItem(KEY)||0);

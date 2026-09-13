@@ -4,7 +4,7 @@
  * A full copy of the site where exactly one thing is different, and which
  * one thing keeps changing — one shared, ever-advancing counter (via
  * ../_shared/step-engine.js) picked mod 14 to index into the pool defined
- * in mutate.css. Not cumulative like spacejam/ or decay/: only ever one
+ * in mutate.css. Not cumulative like palimpsest/ or decay/: only ever one
  * `mu-N` class is applied, so it never accumulates and never arrives
  * anywhere — it just never stops being slightly different than itself.
  *

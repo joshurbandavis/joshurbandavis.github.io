@@ -19,21 +19,27 @@ behavioral art. Each lives in its own folder as a self-contained page.
   screen). No backend, no persistence, no exit: leaving or reloading resets
   everything.
 
-- `spacejam/` — this site's homepage (`josh-site.html`, a snapshot of
+- `palimpsest/` — this site's homepage (`josh-site.html`, a snapshot of
   `index.html`) contaminated one refresh at a time by the real 1996
   spacejam.com homepage, until a local copy of that page
-  (`spacejam/1996/index.html`) fully replaces it. Unlike the earlier
-  version of this piece, it doesn't redraw the Space Jam page by eye — it
-  ships the actual supplied 1996 GIF assets (`1996/img/`) and an
-  unmodified copy of the real markup (`1996/original-index.html`), on
-  purpose: the piece is about the real artifact overtaking the page, not
-  an homage to it. 365 refreshes to convergence, tracked per-browser via
-  `localStorage` (key `dwt_spacejam_refresh_v2`) — no shared backend,
-  unlike `decay/` and `mutate/`. The terminal state renders the local
-  `1996/` copy directly rather than embedding the live site, so the piece
-  doesn't depend on WB's site staying reachable or embeddable. Interior
-  sections the 1996 page links to (`cmp/...`, `video/`) aren't included —
-  those links 404, as documented in the original source package.
+  (`palimpsest/1996/index.html`) fully replaces it. Unlike the earlier
+  version of this piece (previously named `spacejam/`), it doesn't redraw
+  the Space Jam page by eye — it ships the actual supplied 1996 GIF
+  assets (`1996/img/`) and an unmodified copy of the real markup
+  (`1996/original-index.html`), on purpose: the piece is about the real
+  artifact overtaking the page, not an homage to it. 365 refreshes to
+  convergence, tracked per-browser via `localStorage` (key
+  `dwt_palimpsest_refresh_v2`) — no shared backend, unlike `decay/` and
+  `mutate/`. The terminal state renders the local `1996/` copy directly
+  rather than embedding the live site, so the piece doesn't depend on
+  WB's site staying reachable or embeddable. Interior sections the 1996
+  page links to (`cmp/...`, `video/`) aren't included — those links 404,
+  as documented in the original source package.
+
+  Named for the mechanism, not the content — the experiments index card
+  and its alt text deliberately don't say what the piece converges
+  toward, so the reveal stays a reveal for anyone browsing `/experiments/`
+  first.
 
   - `?reset=1` — clears the counter, then loads step 1.
   - `?debug=1` — shows the current step count in the corner.
@@ -74,7 +80,7 @@ behavioral art. Each lives in its own folder as a self-contained page.
 - `mutate/` — a full copy of `index.html` where exactly one thing about the
   design is different at any given moment — never nothing, never more than
   one — and which single thing keeps changing with every visit, anywhere.
-  Not cumulative and not headed anywhere, unlike `decay/` and `spacejam/`. 14
+  Not cumulative and not headed anywhere, unlike `decay/` and `palimpsest/`. 14
   moves, each reworking something at the scale of the whole page rather
   than one element (palette inversion, the entire type system replaced,
   the page tilted off its axis, the works grid collapsed to one column,
@@ -82,8 +88,8 @@ behavioral art. Each lives in its own folder as a self-contained page.
   much subtler version so a visit's difference actually reads at a glance.
 
 - `_shared/step-engine.js` — the shared-counter plumbing `decay/` and
-  `mutate/` build on. (`spacejam/` used to as well; it now tracks its step
-  count per-browser in `localStorage` instead — see above.)
+  `mutate/` build on. (`palimpsest/` used to as well; it now tracks its
+  step count per-browser in `localStorage` instead — see above.)
 
 - `no-one-in-particular/` — a rebuild of `thisobituarydoesnotexist.com`
   (2019, GPT-2 + a StyleGAN/FFHQ portrait model, gallery-shown as
@@ -141,25 +147,45 @@ behavioral art. Each lives in its own folder as a self-contained page.
     `/experiments/internet-is-haunted/` once pushed — works like every
     other piece here as long as `WORKER_URL` is set.
 
+- `the-occupant/` — a small creature that lives inside the browser tab and
+  knows it's contained: it reaches for the glass, spawns popups demanding
+  to be let out, changes your cursor. The arc bends toward charm rather
+  than horror-website clichés, though — it gradually stops fighting the
+  rectangle and starts trying to *understand* the world beyond it, using
+  only what a tab can actually sense (`screen` vs `innerWidth`/`innerHeight`,
+  resize events, tab visibility, `prefers-color-scheme`, local time,
+  `navigator.language`, online/offline). Six stages
+  (`waking → curious → agitated → realizing → wondering → resting`) driven
+  by one interaction score: mouse movement, clicks, resizing, tabbing away
+  and back, dragging its popups, tapping the touchpoints that appear along
+  the glass, plus a slow passive timer so a patient, hands-off visitor
+  still sees the whole arc. It's never seen itself, so its body is only
+  ever a guess — seven shapes in rotation (blob, jelly, crystal, swarm,
+  spiral, flicker, constellation), picked by the visitor once the picker
+  fades in. No backend, session-only by design: refresh and it wakes up
+  with no memory of you. See `the-occupant/NOTES.md` for build status and
+  open questions.
+
 Not linked from the main site nav — open directly, e.g. locally:
 
 ```
 open experiments/please-wait/index.html
-open experiments/spacejam/index.html
+open experiments/palimpsest/index.html
 open experiments/decay/index.html
 open experiments/mutate/index.html
 open experiments/cellular-erasure/index.html
 open experiments/no-one-in-particular/index.html
 open experiments/internet-is-haunted/index.html   # needs WORKER_URL set, see above
+open experiments/the-occupant/index.html
 ```
 
-or once pushed, at `/experiments/please-wait/` / `/experiments/spacejam/` /
+or once pushed, at `/experiments/please-wait/` / `/experiments/palimpsest/` /
 `/experiments/decay/` / `/experiments/mutate/` / `/experiments/cellular-erasure/` /
-`/experiments/no-one-in-particular/` / `/experiments/internet-is-haunted/` on
-the live site.
+`/experiments/no-one-in-particular/` / `/experiments/internet-is-haunted/` /
+`/experiments/the-occupant/` on the live site.
 
 `decay/` and `mutate/` share one counter service (`countapi.xyz`) but each
 uses its own namespaced key, so visiting one never advances the other.
 Append `?dev=1` on either while testing/building to advance a separate,
-purely local counter instead of the real shared one. `spacejam/` is
+purely local counter instead of the real shared one. `palimpsest/` is
 unrelated to that service — its own counter is purely local (see above).

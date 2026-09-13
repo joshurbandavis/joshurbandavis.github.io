@@ -1,7 +1,9 @@
 # the occupant — status
 
-Parked mid-build on 2026-09-13. Not wired into the experiments gallery
-(`../index.html`) or `../README.md` yet — see "calls to make" below.
+Parked mid-build on 2026-09-13; wired into the experiments gallery
+(`../index.html`) and `../README.md` on 2026-09-13. Committed and pushed
+(part of the same commit as the gallery itself). See "calls to make"
+below for what's still open.
 
 ## concept
 
@@ -42,15 +44,12 @@ That's a deliberate choice (amnesiac creature), not a missing feature.
 
 ## calls to make before this goes further
 
-1. **Gallery + README entry.** Every other experiment here has a card in
-   `../index.html` (with a `_shared/snapshots/<name>.jpg`) and a bullet in
-   `../README.md`. Deliberately left undone — didn't want to hand-wave a
-   snapshot or write the bullet before you'd seen the current build live.
-2. **Commit/push.** The whole `experiments/` folder is currently untracked
-   in git (checked before touching anything) — this file included. Not
-   committed or pushed. If this repo's default branch is what GitHub Pages
-   serves, a push makes it live at a real, findable URL even if it's not
-   linked from the gallery, so that's your call, not an assumed default.
+1. ~~**Gallery + README entry.**~~ Done 2026-09-13 — card 08 in
+   `../index.html` (`_shared/snapshots/the-occupant.jpg`, a static capture
+   taken partway through the arc: creature glowing, the "let me through"
+   popup up, shape picker visible) and a bullet in `../README.md`.
+2. ~~**Commit/push.**~~ Done — pushed to `master` as part of the same
+   commit as the gallery itself.
 3. **The artwork idea.** You mentioned having JPGs of your own art and
    asked whether one could work as a creature guess. Recommendation was:
    treat it as an 8th guess — "you showed me this. maybe i look like

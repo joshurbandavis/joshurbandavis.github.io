@@ -15,8 +15,8 @@
  * Usage:
  *   const { value, max, shared } = await StepEngine.getStep({
  *     namespace: 'joshurbandavis-github-io',
- *     key: 'spacejam-transform',
- *     max: 12
+ *     key: 'decay-erasure',
+ *     max: 106
  *   });
  *
  * Dev mode: append ?dev=1 to the URL to bump a separate, purely local
