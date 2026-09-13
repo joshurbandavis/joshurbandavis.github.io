@@ -561,6 +561,10 @@
 {
 "value": "Jupiter",
 "type": "planet"
+},
+{
+"value": "Sagittarius",
+"type": "zodiac"
 }
 ],
 "summary": "<image: DeviceRGB, width: 49, height: 59, bpc: 8> The Virtual World card signifies exploration and ex-pansion. The artwork, a digital distortion of natural elements, reflects the merging of reality and illusion. It represents the vast potential and boundless opportu-nities of a digital realm. This is the second of the Three Worlds and embodies the archetype of infinite potential and worlds yet to be invented. After Death and Rebirth, we begin the journey into new dimensions, the quest for higher knowledge, and speculative futures.",
@@ -2425,6 +2429,10 @@
 "type": "planet"
 },
 {
+"value": "Sagittarius",
+"type": "zodiac"
+},
+{
 "value": "Fire",
 "type": "element"
 }
@@ -2725,6 +2733,10 @@
 "type": "planet"
 },
 {
+"value": "Sagittarius",
+"type": "zodiac"
+},
+{
 "value": "Fire",
 "type": "element"
 }
@@ -2757,6 +2769,10 @@
 {
 "value": "Moon",
 "type": "planet"
+},
+{
+"value": "Sagittarius",
+"type": "zodiac"
 },
 {
 "value": "Fire",

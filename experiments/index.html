@@ -145,14 +145,13 @@ footer a:hover{opacity:1;color:var(--accent)}
   <p class="grid-note">Snapshots below, not live feeds: click through for the real thing.</p>
   <div class="grid">
 
-    <a class="card reveal" href="please-wait/index.html" target="_blank" rel="noopener">
-      <div class="card-shot"><img src="_shared/snapshots/please-wait.jpg" alt="Snapshot of the please-wait experiment: a fake Windows 95 System dialog with a progress bar and a log of unsettling status lines" loading="lazy"></div>
+    <a class="card reveal" href="cellular-erasure/index.html" target="_blank" rel="noopener">
+      <div class="card-shot"><img src="_shared/snapshots/cellular-erasure.jpg" alt="Snapshot of the cellular-erasure experiment: a found poem laid over a Game of Life grid" loading="lazy"></div>
       <div class="card-body">
-        <div class="card-head"><h2>please wait</h2><span class="tag">no backend</span></div>
-        <p class="card-desc">A fake Windows 95 dialog that never finishes loading: the progress
-          bar approaches 100% but never arrives. Stay, and a false, self-contradicting biography
-          accumulates in the log. The close button doesn't work. No save state; reload and it
-          starts over from zero.</p>
+        <div class="card-head"><h2>cellular erasure</h2><span class="tag">generative</span></div>
+        <p class="card-desc">A found poem seeded onto a Conway's Game of Life grid, one word
+          per cell. The automaton runs until it settles, then an "ending" switch decides:
+          lift the survivors out as a poem, or black out everything the grid marked as ink.</p>
         <div class="card-foot"><span>01</span><span class="go">open →</span></div>
       </div>
     </a>
@@ -171,6 +170,30 @@ footer a:hover{opacity:1;color:var(--accent)}
       </div>
     </a>
 
+    <a class="card reveal" href="internet-is-haunted/index.html" target="_blank" rel="noopener">
+      <div class="card-shot"><img src="_shared/snapshots/internet-is-haunted.jpg" alt="Snapshot of the internet-is-haunted experiment: a minimal input asking to paste a dead URL" loading="lazy"></div>
+      <div class="card-body">
+        <div class="card-head"><h2>the internet is haunted</h2><span class="tag local">needs worker url</span></div>
+        <p class="card-desc">Paste in a dead (or any) URL and get back a small memorial instead
+          of a 404: real capture dates and a fragment of real archived text, pulled live from
+          the Wayback Machine. archive.org's API sends no CORS header, so a static page can't
+          reach it directly: a small Cloudflare Worker sits in between.</p>
+        <div class="card-foot"><span>03</span><span class="go">open →</span></div>
+      </div>
+    </a>
+
+    <a class="card reveal" href="please-wait/index.html" target="_blank" rel="noopener">
+      <div class="card-shot"><img src="_shared/snapshots/please-wait.jpg" alt="Snapshot of the please-wait experiment: a fake Windows 95 System dialog with a progress bar and a log of unsettling status lines" loading="lazy"></div>
+      <div class="card-body">
+        <div class="card-head"><h2>please wait</h2><span class="tag">no backend</span></div>
+        <p class="card-desc">A fake Windows 95 dialog that never finishes loading: the progress
+          bar approaches 100% but never arrives. Stay, and a false, self-contradicting biography
+          accumulates in the log. The close button doesn't work. No save state; reload and it
+          starts over from zero.</p>
+        <div class="card-foot"><span>04</span><span class="go">open →</span></div>
+      </div>
+    </a>
+
     <a class="card reveal" href="decay/index.html" target="_blank" rel="noopener">
       <div class="card-shot"><img src="_shared/snapshots/decay.jpg" alt="Snapshot of the decay experiment partway through its collapse: the homepage missing its first name and most social icons, only the particle field and Urban Davis left" loading="lazy"></div>
       <div class="card-body">
@@ -180,30 +203,6 @@ footer a:hover{opacity:1;color:var(--accent)}
           shuffle mixes 105 elements, whole sections down to single photos and paragraphs, into
           one pool, so an unlucky early roll can still gut the page fast. 106 visits guarantee
           true blankness no matter how the randomness landed.</p>
-        <div class="card-foot"><span>03</span><span class="go">open →</span></div>
-      </div>
-    </a>
-
-    <a class="card reveal" href="mutate/index.html" target="_blank" rel="noopener">
-      <div class="card-shot"><img src="_shared/snapshots/mutate.jpg" alt="Snapshot of the mutate experiment: this site's homepage recolored lime green, one whole-page mutation among fourteen" loading="lazy"></div>
-      <div class="card-body">
-        <div class="card-head"><h2>mutate</h2><span class="tag live">shared · cyclical</span></div>
-        <p class="card-desc">A full copy of this site where exactly one thing is different, and
-          which one thing keeps changing: one shared counter, cycling through fourteen
-          page-wide moves (palette inverted, every typeface swapped, the whole page tilted
-          off its axis). Never cumulative, never arrives anywhere: it just never stops being
-          slightly different than itself.</p>
-        <div class="card-foot"><span>04</span><span class="go">open →</span></div>
-      </div>
-    </a>
-
-    <a class="card reveal" href="cellular-erasure/index.html" target="_blank" rel="noopener">
-      <div class="card-shot"><img src="_shared/snapshots/cellular-erasure.jpg" alt="Snapshot of the cellular-erasure experiment: a found poem laid over a Game of Life grid" loading="lazy"></div>
-      <div class="card-body">
-        <div class="card-head"><h2>cellular erasure</h2><span class="tag">generative</span></div>
-        <p class="card-desc">A found poem seeded onto a Conway's Game of Life grid, one word
-          per cell. The automaton runs until it settles, then an "ending" switch decides:
-          lift the survivors out as a poem, or black out everything the grid marked as ink.</p>
         <div class="card-foot"><span>05</span><span class="go">open →</span></div>
       </div>
     </a>
@@ -221,18 +220,6 @@ footer a:hover{opacity:1;color:var(--accent)}
       </div>
     </a>
 
-    <a class="card reveal" href="internet-is-haunted/index.html" target="_blank" rel="noopener">
-      <div class="card-shot"><img src="_shared/snapshots/internet-is-haunted.jpg" alt="Snapshot of the internet-is-haunted experiment: a minimal input asking to paste a dead URL" loading="lazy"></div>
-      <div class="card-body">
-        <div class="card-head"><h2>the internet is haunted</h2><span class="tag local">needs worker url</span></div>
-        <p class="card-desc">Paste in a dead (or any) URL and get back a small memorial instead
-          of a 404: real capture dates and a fragment of real archived text, pulled live from
-          the Wayback Machine. archive.org's API sends no CORS header, so a static page can't
-          reach it directly: a small Cloudflare Worker sits in between.</p>
-        <div class="card-foot"><span>07</span><span class="go">open →</span></div>
-      </div>
-    </a>
-
     <a class="card reveal" href="the-occupant/index.html" target="_blank" rel="noopener">
       <div class="card-shot"><img src="_shared/snapshots/the-occupant.jpg" alt="Snapshot of the-occupant experiment: a small glowing creature behind glass, mid-tantrum, with a popup demanding to be let out" loading="lazy"></div>
       <div class="card-body">
@@ -243,9 +230,23 @@ footer a:hover{opacity:1;color:var(--accent)}
           using only what a tab can actually sense, your screen size, when you look away and
           come back, dark mode, local time. Amnesiac by design: refresh and it wakes up with no
           memory of you.</p>
+        <div class="card-foot"><span>07</span><span class="go">open →</span></div>
+      </div>
+    </a>
+
+    <a class="card reveal" href="mutate/index.html" target="_blank" rel="noopener">
+      <div class="card-shot"><img src="_shared/snapshots/mutate.jpg" alt="Snapshot of the mutate experiment: this site's homepage recolored lime green, one whole-page mutation among fourteen" loading="lazy"></div>
+      <div class="card-body">
+        <div class="card-head"><h2>mutate</h2><span class="tag live">shared · cyclical</span></div>
+        <p class="card-desc">A full copy of this site where exactly one thing is different, and
+          which one thing keeps changing: one shared counter, cycling through fourteen
+          page-wide moves (palette inverted, every typeface swapped, the whole page tilted
+          off its axis). Never cumulative, never arrives anywhere: it just never stops being
+          slightly different than itself.</p>
         <div class="card-foot"><span>08</span><span class="go">open →</span></div>
       </div>
     </a>
+
 
   </div>
 </main>
