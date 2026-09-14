@@ -1,50 +1,52 @@
 <title>Cellular Erasure</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
+  /* one clinical surface for the whole page - a specimen under examination,
+     not a found manuscript. See sheet: (fixed --surface -> theme-aware
+     --surface) for the plate the poem sits on. */
   :root{
-    --bg:#EEF1EC;
-    --bg-raised:#E3E7DF;
-    --rule:#CBD2C5;
-    --ink:#1A1D18;
-    --ink-soft:#5C645A;
-    --accent:#8C2F22;
-    --accent-soft:#C24A34;
-    --accent-tint:#F3DDD5;
-    --paper:#F7F4EC;
-    --paper-ink:#201C16;
-    --paper-erase:#17140F;
-    --paper-rule:#DED6C4;
-    --paper-off-bg:#ECE6D8;
-    --paper-off-ink:#77705F;
-    --paper-alive-bg:#D7DBBF;
-    --paper-alive-border:#5F7A47;
-    --life:#5F7A47;
-    --focus:#8C2F22;
+    --bg:#FAFAF9;
+    --surface:#FFFFFF;
+    --ink:#121210;
+    --ink-soft:#6E6E68;
+    --rule:#E1E0DA;
+    --rule-strong:#B6B5AD;
+    --accent:#C6281B;
+    --accent-soft:#E0574B;
+    --life:#2F6B32;
+    --off-bg:#EDECE7;
+    --off-ink:#8B8A83;
+    --bg-raised:var(--surface);
+    --focus:var(--accent);
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg:#14160F;
-      --bg-raised:#1D2018;
-      --rule:#343A2E;
-      --ink:#E7EBE1;
-      --ink-soft:#9BA48F;
-      --accent:#E2694F;
-      --accent-soft:#F08A70;
-      --accent-tint:#3A241D;
-      --life:#8FBE6B;
+      --bg:#121210;
+      --surface:#1B1B18;
+      --ink:#F2F1EC;
+      --ink-soft:#9C9B93;
+      --rule:#333229;
+      --rule-strong:#4A4940;
+      --accent:#E2523E;
+      --accent-soft:#F0806D;
+      --life:#4E9A48;
+      --off-bg:#232320;
+      --off-ink:#6F6E67;
     }
   }
   :root[data-theme="dark"]{
-    --bg:#14160F;
-    --bg-raised:#1D2018;
-    --rule:#343A2E;
-    --ink:#E7EBE1;
-    --ink-soft:#9BA48F;
-    --accent:#E2694F;
-    --accent-soft:#F08A70;
-    --accent-tint:#3A241D;
-    --life:#8FBE6B;
+    --bg:#121210;
+    --surface:#1B1B18;
+    --ink:#F2F1EC;
+    --ink-soft:#9C9B93;
+    --rule:#333229;
+    --rule-strong:#4A4940;
+    --accent:#E2523E;
+    --accent-soft:#F0806D;
+    --life:#4E9A48;
+    --off-bg:#232320;
+    --off-ink:#6F6E67;
   }
 
   *{box-sizing:border-box;}
@@ -74,11 +76,11 @@
     padding-bottom:16px;
   }
   h1{
-    font-family:'Special Elite', 'Courier New', monospace;
-    font-size:clamp(1.5rem, 1.1rem + 1.4vw, 2.1rem);
-    font-weight:400;
+    font-family:'IBM Plex Sans', system-ui, sans-serif;
+    font-size:clamp(1.4rem, 1.1rem + 1.1vw, 1.9rem);
+    font-weight:600;
     margin:0;
-    letter-spacing:0.01em;
+    letter-spacing:-0.01em;
     text-wrap:balance;
   }
   header p{
@@ -113,21 +115,30 @@
   /* ---------- manuscript sheet (fixed paper look, both themes) ---------- */
   .manuscript-wrap{ grid-area:manuscript; }
   .sheet{
-    background:var(--paper);
-    color:var(--paper-ink);
-    border-radius:3px;
-    box-shadow:0 1px 2px rgba(0,0,0,0.18), 0 10px 28px -14px rgba(0,0,0,0.35);
-    padding:30px clamp(18px,4vw,42px);
+    background:var(--surface);
+    color:var(--ink);
+    border:1px solid var(--rule-strong);
+    padding:34px clamp(20px,4vw,44px);
     min-height:260px;
     position:relative;
   }
-  .sheet::before{
-    content:"";
-    position:absolute; inset:0;
-    border:1px solid var(--paper-rule);
-    border-radius:3px;
+  /* registration marks - a printed-plate convention marking a specimen
+     held under matched examination light, not a page lying on a desk */
+  .reg-mark{
+    position:absolute;
+    width:9px; height:9px;
+    color:var(--rule-strong);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    line-height:1;
     pointer-events:none;
+    user-select:none;
   }
+  .reg-mark::before{ content:"+"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+  .reg-tl{ top:8px; left:8px; }
+  .reg-tr{ top:8px; right:8px; }
+  .reg-bl{ bottom:8px; left:8px; }
+  .reg-br{ bottom:8px; right:8px; }
   .sheet-head{
     display:flex;
     flex-wrap:wrap;
@@ -135,7 +146,7 @@
     gap:12px;
     margin-bottom:20px;
     padding-bottom:10px;
-    border-bottom:1px dashed var(--paper-rule);
+    border-bottom:1px dashed var(--rule-strong);
     font-family:'IBM Plex Mono', monospace;
   }
   .sheet-head .byline{
@@ -143,12 +154,13 @@
     font-size:0.7rem;
     text-transform:uppercase;
     letter-spacing:0.08em;
-    color:var(--paper-ink);
+    color:var(--ink);
     opacity:0.55;
   }
   .sheet-head .title{
-    font-family:'Special Elite', monospace;
-    font-size:1rem;
+    font-family:'IBM Plex Serif', serif;
+    font-style:italic;
+    font-size:1.02rem;
   }
   .sheet-head button{
     font-family:'IBM Plex Mono', monospace;
@@ -156,18 +168,30 @@
     text-transform:uppercase;
     letter-spacing:0.06em;
     background:transparent;
-    border:1px solid var(--paper-rule);
-    color:var(--paper-ink);
+    border:1px solid var(--rule-strong);
+    color:var(--ink);
     padding:4px 9px;
     border-radius:3px;
     cursor:pointer;
   }
   .sheet-head button:hover{ border-color:var(--accent); }
   .sheet-head button:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .sheet-caption{
+    margin-top:20px;
+    padding-top:10px;
+    border-top:1px solid var(--rule);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    font-variant-numeric:tabular-nums;
+  }
+  .sheet-caption:empty{ display:none; }
   .poem-lines{
-    font-family:'Special Elite', 'Courier New', monospace;
-    font-size:1.05rem;
-    line-height:2.15;
+    font-family:'IBM Plex Serif', serif;
+    font-size:1.08rem;
+    line-height:2.05;
   }
   .poem-line{
     display:flex;
@@ -203,20 +227,20 @@
     gap:0.6em;
     margin-bottom:1.1em;
     padding-bottom:0.9em;
-    border-bottom:1px dashed var(--paper-rule);
+    border-bottom:1px dashed var(--rule-strong);
     font-family:'IBM Plex Mono', monospace;
     font-size:0.72rem;
-    color:var(--paper-ink);
+    color:var(--ink);
     opacity:0.85;
   }
   .extinction-banner .extinction-label{
     flex:none;
   }
   .extinction-notice .extinction-body{
-    font-family:'Special Elite', monospace;
+    font-family:'IBM Plex Serif', serif;
     font-size:1rem;
     line-height:1.6;
-    color:var(--paper-ink);
+    color:var(--ink);
     opacity:0.75;
     max-width:38ch;
   }
@@ -226,7 +250,7 @@
     padding:0.04em 0.4em;
     margin-right:0.15em;
     border-radius:2px;
-    color:var(--paper-ink);
+    color:var(--ink);
     background:transparent;
     white-space:pre;
   }
@@ -236,7 +260,7 @@
   /* a covered word stays in the reading flow under Erased - it just carries
      its black mark with it instead of disappearing */
   .word-cell.mode-read.redacted{
-    background:var(--paper-erase);
+    background:var(--ink);
     color:transparent;
     user-select:none;
   }
@@ -268,22 +292,22 @@
     letter-spacing:0.08em;
     text-transform:uppercase;
     font-weight:600;
-    color:var(--paper-ink);
-    background:var(--paper);
-    border:1px solid var(--paper-alive-border);
+    color:var(--ink);
+    background:var(--surface);
+    border:1px solid var(--life);
     border-radius:3px;
     padding:2px 7px;
   }
   .species-label a{
     font-family:'IBM Plex Mono', monospace;
     font-size:0.6rem;
-    color:var(--paper-alive-border);
+    color:var(--life);
     text-decoration:underline;
   }
   .species-leader{
     position:absolute;
     width:1px;
-    background:var(--paper-alive-border);
+    background:var(--life);
     opacity:0.7;
     z-index:2;
   }
@@ -301,9 +325,9 @@
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
-    border:1px solid var(--paper-rule);
+    border:1px solid var(--rule-strong);
     background:transparent;
-    color:var(--paper-ink);
+    color:var(--ink);
     transition:background-color .4s ease, border-color .4s ease, color .3s ease, opacity .28s ease, transform .28s ease;
   }
   /* alive: a moss wash of its own, not the oxblood accent - the automaton's
@@ -311,14 +335,15 @@
      accent mark for "this word was chosen," so it gets a different color.
      Visible enough that the pattern reads at a glance as it runs. */
   .word-cell.mode-grid.alive{
-    background:var(--paper-alive-bg);
-    border-color:var(--paper-alive-border);
+    background:var(--life);
+    border-color:var(--life);
+    color:#F6F5F1;
   }
   /* off: this cell died this run, but Life is reversible mid-simulation -
      so it stays legible, just faded, rather than being blacked out early */
   .word-cell.mode-grid.off{
-    background:var(--paper-off-bg);
-    color:var(--paper-off-ink);
+    background:var(--off-bg);
+    color:var(--off-ink);
   }
   /* Once the automaton settles, every real cell resolves to one of three
      final roles (which raw alive/dead state maps to which role depends on
@@ -328,19 +353,20 @@
        plain   - ordinary, legible, just not part of the poem (unstyled - it's
                  identical to the base .word-cell.mode-grid look) */
   .word-cell.mode-grid.chosen{
-    background:var(--accent-tint);
-    border-color:var(--accent-soft);
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#F6F5F1;
   }
   .word-cell.mode-grid.covered{
-    background:var(--paper-erase);
-    border-color:var(--paper-erase);
+    background:var(--ink);
+    border-color:var(--ink);
     color:transparent;
   }
   /* phantom: empty padding beyond a short line, filled in so the board reads
      as one rectangle instead of a ragged silhouette */
   .word-cell.mode-grid.phantom{
     border-style:dashed;
-    border-color:var(--paper-rule);
+    border-color:var(--rule-strong);
     opacity:.5;
   }
   .word-cell.mode-grid.cell-exit{
@@ -350,7 +376,7 @@
   /* a recognized still life gets a ring, so you can see where one is
      sitting on the board, not just read about it in the field notes */
   .word-cell.mode-grid.species{
-    box-shadow:0 0 0 2px var(--paper-alive-border);
+    box-shadow:0 0 0 2px var(--life);
   }
 
   /* ---------- control rail ---------- */
@@ -361,16 +387,15 @@
     gap:14px;
   }
   .panel{
-    background:var(--bg-raised);
-    border:1px solid var(--rule);
-    border-radius:4px;
-    padding:14px 16px;
+    border-top:1px solid var(--rule);
+    padding-top:14px;
   }
   .panel h2{
     margin:0 0 10px;
-    font-size:0.7rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
     text-transform:uppercase;
-    letter-spacing:0.1em;
+    letter-spacing:0.12em;
     color:var(--ink-soft);
     font-weight:600;
   }
@@ -459,8 +484,8 @@
   .legend{ display:flex; flex-direction:column; gap:6px; font-size:0.7rem; color:var(--ink-soft); }
   .legend .row{ display:flex; align-items:center; gap:8px; }
   .swatch{ width:14px; height:10px; border-radius:2px; flex:none; transition:background-color .3s ease, border-color .3s ease, box-shadow .3s ease; }
-  .swatch.chosen{ background:var(--accent-tint); box-shadow:inset 0 -2px 0 var(--accent); border:1px solid var(--accent-soft); }
-  .swatch.covered{ background:var(--paper-erase); border:1px solid var(--paper-erase); box-shadow:none; }
+  .swatch.chosen{ background:var(--accent); border:1px solid var(--accent); box-shadow:none; }
+  .swatch.covered{ background:var(--ink); border:1px solid var(--ink); box-shadow:none; }
   .swatch.plain{ background:transparent; border:1px solid var(--rule); box-shadow:none; }
   .file-label{
     display:inline-block; font-size:0.68rem; letter-spacing:0.05em; text-transform:uppercase;
@@ -489,10 +514,8 @@
 
   /* ---------- recovered poem ---------- */
   .recovered{
-    background:var(--bg-raised);
-    border:1px solid var(--rule);
-    border-radius:4px;
-    padding:20px 22px;
+    border-top:1px solid var(--rule-strong);
+    padding-top:18px;
   }
   .recovered h2{
     margin:0 0 4px;
@@ -504,13 +527,13 @@
   }
   .recovered .caption{ font-size:0.72rem; color:var(--ink-soft); margin-bottom:14px; }
   .recovered .found-text{
-    font-family:'Special Elite', monospace;
+    font-family:'IBM Plex Serif', serif;
     font-size:1.15rem;
     line-height:1.9;
     white-space:pre-wrap;
   }
   .recovered .found-text .word.covered{
-    background:var(--paper-erase);
+    background:var(--ink);
     color:transparent;
     border-radius:2px;
     padding:0 .3em;
@@ -537,12 +560,17 @@
 
     <div class="manuscript-wrap">
       <div class="sheet">
+        <span class="reg-mark reg-tl" aria-hidden="true"></span>
+        <span class="reg-mark reg-tr" aria-hidden="true"></span>
+        <span class="reg-mark reg-bl" aria-hidden="true"></span>
+        <span class="reg-mark reg-br" aria-hidden="true"></span>
         <div class="sheet-head">
           <span class="title" id="poemTitle">&mdash;</span>
           <button id="viewToggleBtn" type="button" hidden>View as grid</button>
           <span class="byline" id="poemByline">&mdash;</span>
         </div>
         <div class="poem-lines" id="poemSurface" aria-live="polite"></div>
+        <div class="sheet-caption" id="sheetCaption"></div>
       </div>
     </div>
 
@@ -1609,10 +1637,13 @@
     var dot = document.getElementById("statusDot");
     var text = document.getElementById("statusText");
     dot.className = "dot" + (statusWord === "running" ? " running" : statusWord === "stable" ? " stable" : "");
-    text.textContent = statusWord === "stable"
+    var statusLabel = statusWord === "stable"
       ? (alive === 0 ? "extinct" : (state.generation >= MAX_GENERATIONS ? "capped" : "stable"))
       : statusWord;
+    text.textContent = statusLabel;
     document.getElementById("runBtn").textContent = state.running ? "Pause" : "Run";
+    document.getElementById("sheetCaption").textContent =
+      "seed " + state.seed + " · gen " + state.generation + " · " + statusLabel + " · B3/S23";
   }
 
   function stopTimer(){
