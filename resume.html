@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Joshua Urban Davis — Resume</title>
+<style>
+  @page { size: letter; margin: 0.5in 0.65in 0.55in 0.65in; }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Calibri','Carlito','Helvetica Neue',Arial,sans-serif;
+    font-size:10.3pt; line-height:1.32; color:#111;
+    background:#e9e6e0;
+  }
+  .chrome{
+    position:sticky; top:0; z-index:10;
+    display:flex; flex-wrap:wrap; gap:.75rem; align-items:center; justify-content:space-between;
+    padding:.85rem 1.25rem; background:#1c1b19; color:#f2f0ec;
+    font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;
+  }
+  .chrome .who{font-size:.85rem; letter-spacing:.02em}
+  .chrome .who b{font-weight:700}
+  .chrome a.dl{
+    font-size:.78rem; font-weight:600; text-decoration:none; letter-spacing:.03em;
+    background:#c8a24a; color:#1c1b19; padding:.5rem 1rem; border-radius:5px;
+    white-space:nowrap;
+  }
+  .sheet-scroll{overflow-x:auto; padding:2rem 1rem}
+  .sheet{
+    background:#fff; width:8.5in; max-width:none; margin:0 auto;
+    box-shadow:0 8px 30px rgba(0,0,0,.18);
+    padding:0.5in 0.65in 0.55in 0.65in;
+  }
+  @media print{
+    body{background:#fff}
+    .chrome{display:none}
+    .sheet-scroll{overflow:visible; padding:0}
+    .sheet{box-shadow:none; margin:0; width:auto; padding:0}
+  }
+  h1{
+    font-family:'STIX Two Text',Georgia,'Times New Roman',serif;
+    font-weight:700; font-size:23pt; margin:0 0 2pt 0; letter-spacing:.2px;
+  }
+  .contact{font-size:9.7pt; margin:0 0 8pt 0}
+  .contact a{color:#1155cc; text-decoration:underline}
+  .summary{font-size:9.6pt; margin:0 0 7pt 0; text-align:justify}
+  .stackline{font-size:9.3pt; margin:0; line-height:1.42}
+  .stackline b{font-weight:700}
+  .rule{border:0; border-top:1.4pt solid #000; margin:8pt 0 8pt 0}
+  .job{display:grid; grid-template-columns:104px 1fr; column-gap:10px; margin-bottom:9pt; align-items:start}
+  .job-logo{display:flex; justify-content:center; align-items:flex-start}
+  .job-logo img{display:block; width:100%; height:auto; max-width:100%}
+  .job-main{}
+  .job-head{display:flex; justify-content:space-between; align-items:baseline; font-size:9.9pt}
+  .job-head .co{font-weight:700}
+  .job-head .loc{font-weight:400; white-space:nowrap}
+  .job-sub{display:flex; justify-content:space-between; align-items:baseline; font-size:9.6pt; font-style:italic; margin-bottom:2pt}
+  ul.bullets{margin:2pt 0 0 0; padding-left:16px}
+  ul.bullets li{margin-bottom:2.5pt; text-align:justify}
+  .section-title{font-weight:700; font-size:10.3pt; letter-spacing:.3px; margin:9pt 0 4pt 0}
+  .edu-row, .pat-row{display:flex; justify-content:space-between; font-size:9.7pt}
+  .pat-list{margin:2pt 0 0 0; padding-left:16px}
+  .pat-list li{margin-bottom:2pt}
+</style>
+</head>
+<body>
+
+<div class="chrome">
+  <span class="who"><b>Joshua Urban Davis</b> — Résumé</span>
+  <a class="dl" href="files/davis_joshua_resume_short_m_26.pdf" target="_blank">Download PDF</a>
+</div>
+<div class="sheet-scroll"><div class="sheet">
+
+  <h1>Joshua Urban Davis</h1>
+  <p class="contact"><a href="https://www.joshurbandavis.com">www.joshurbandavis.com</a> | San Francisco, CA 94110 | <a href="mailto:joshurbandavis@gmail.com">joshurbandavis@gmail.com</a></p>
+
+  <p class="summary">Computer Vision/Machine Learning Engineer &amp; CS PhD (Dartmouth) specializing in the intersection of <b>Real-Time Perception and Human-Centric AI</b>. 6 years of
+  experience building real-time end-to-end CV/ML systems at small startups and big tech (Meta Reality Labs) with a track record of translating high-level research into
+  production-ready systems (3 Patents, Meta Reality Labs, Adobe Research). Pre-PhD, worked at several startups including Bregmann Media Labs, Hex Plexus between
+  2013 - 2017.</p>
+
+  <p class="stackline"><b>Languages:</b> Python, C++, Swift, JavaScript, C#, MATLAB</p>
+  <p class="stackline"><b>Frameworks &amp; Libraries:</b> PyTorch, NumPy, OpenCV, MediaPipe, OpenGL, TensorFlow, scikit-learn, Pandas, ROS2, Reality Kit</p>
+  <p class="stackline"><b>Tools:</b> Git, Docker, Unity, Jira, CI/CD pipelines</p>
+  <p class="stackline"><b>Specialties:</b> 3D reconstruction, SLAM, lighting estimation, semantic scene understanding, on-device inference, generative AI, AR/VR</p>
+
+  <hr class="rule">
+
+  <!-- APPLE -->
+  <div class="job">
+    <div class="job-logo">
+      <img src="files/logos/apple.png" alt="Apple" style="width:39px; margin-top:0">
+    </div>
+    <div class="job-main">
+      <div class="job-head"><span class="co">APPLE</span><span class="loc">Cupertino, CA</span></div>
+      <div class="job-sub"><span>Applied AI Engineer</span><span>Jun 2026 - Present</span></div>
+      <ul class="bullets">
+        <li>Build <b>system software, frameworks, and end-user interfaces</b> in C++ to deliver <b>Apple Intelligence</b> features across the stack, from low-level infrastructure to user-facing experiences.</li>
+        <li>Evaluate, iterate, and integrate <b>AI/ML algorithms</b>, including <b>on-device inference</b>, for production deployment across Apple's ecosystem.</li>
+        <li>Collaborate cross-functionally with design, algorithms, privacy, security, performance, and hardware/silicon teams to engineer <b>end-to-end solutions</b> for features used by <b>millions of users</b>.</li>
+        <li>Apply UX intuition to identify experience opportunities, iterate with design, and translate customer needs into technical requirements.</li>
+        <li>Debug and triage complex <b>cross-device interactions</b> under strict <b>privacy and performance constraints</b>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- OVERLAY -->
+  <div class="job">
+    <div class="job-logo">
+      <img src="files/logos/overlay.png" alt="Overlay" style="width:100px; margin-top:2px">
+    </div>
+    <div class="job-main">
+      <div class="job-head"><span class="co">OVERLAY ROBOTS (pre-seed, stealth startup)</span><span class="loc">Oakland, CA</span></div>
+      <div class="job-sub"><span>Founding Computer Vision and Machine Learning Engineer (Lead)</span><span>Sept 2025 - June 2026</span></div>
+      <ul class="bullets">
+        <li>Architected and built the <b>end-to-end perception stack</b> as the <b>founding CV/ML engineer</b> for the world's first intelligent makeup robot</li>
+        <li>Drove sensor selection, sensor fusion, and camera calibration for real-time high precision <b>3D reconstruction</b>, <b>pose estimation, eye tracking, alignment,</b> and skin surface mapping deployed on <b>embedded hardware</b> (Nvidia [Jetson/Orin]) under strict latency and safety constraints.</li>
+        <li>Built <b>data collection, labeling, and evaluation infrastructure</b> from scratch: automated capture pipelines for face scans</li>
+        <li>Defined the <b>perception roadmap and prioritized technical investments</b> across 3D reconstruction, tracking, color perception, and safety monitoring, making architectural decisions that balanced prototype speed with production scalability as the system <b>moved from lab demos to manufacturing-ready hardware</b>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- META -->
+  <div class="job">
+    <div class="job-logo">
+      <img src="files/logos/meta.png" alt="Meta" style="width:48px; margin-top:0">
+    </div>
+    <div class="job-main">
+      <div class="job-head"><span class="co">META | REALITY LAB</span><span class="loc">Menlo Park, CA</span></div>
+      <div class="job-sub"><span>Research Scientist and Software Engineer</span><span>March 2024 - Sept 2025</span></div>
+      <ul class="bullets">
+        <li>Designed real-time <b>CV/ML lighting estimation</b> pipeline achieving 6-9ms inference <b>on device</b>, enabling photorealistic virtual object compositing at 72/90 FPS across 25+ indoor/outdoor scene categories in MR passthrough mode.</li>
+        <li>Research, design, and develop applied color perception algorithms for camera and AR applications including novel <b>metric development</b> and <b>key performance indicator evaluation</b> pipelines</li>
+        <li>Developed camera calibration and algorithms for <b>3D surface reconstruction and semantic scene understanding</b> for multi-sensor perception pipeline, fusing dToF and wide-angle RGB sensors to enable depth completion, sensor calibration, and cross-modal feature alignment</li>
+        <li>Implement and support <b>large video, audio, and depth dataset generation</b> (~15,000 samples) and processing for algorithm development (AI/ML) in new technology explorations.</li>
+        <li>Integrate <b>SLAM, pix2pix, and SIFT</b> algorithms for novel lighting estimation and developed evaluation pipelines for nightly benchmark runs in <b>C++, Python, OpenCV, and internal libraries.</b></li>
+        <li>Managed <b>full-lifecycle deployment,</b> from model training in PyTorch to high-performance C++ implementation on embedded targets.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ADOBE -->
+  <div class="job">
+    <div class="job-logo">
+      <img src="files/logos/adobe.png" alt="Adobe" style="width:48px; margin-top:0">
+    </div>
+    <div class="job-main">
+      <div class="job-head"><span class="co">ADOBE RESEARCH</span><span class="loc">San Jose, CA</span></div>
+      <div class="job-sub"><span>Research Assistant</span><span>2021 - 2024 Extended Collaboration</span></div>
+      <div class="job-sub" style="justify-content:flex-end"><span>2021 Summer Internship</span></div>
+      <ul class="bullets">
+        <li>Led the development of media augmented video conferencing <b>creativity tools</b> that leveraged <b>body pose recognition, gesture and speech detection</b> to deliver immersive experiences using <b>Python, Javascript, MediaPipe, and OpenCV</b>.</li>
+        <li>Designed and executed comprehensive <b>mixed-method qualitative and quantitative studies</b> involving 46 users and translated research findings into actionable recommendations.</li>
+        <li>Optimized models for <b>on-device object detection and 3D human understanding</b> running at 60/72 FPS on consumer laptops combining MediaPipe pose estimation, custom gesture classifier (94% accuracy on 18-class vocabulary), and speech-triggered augmentation with &lt;150ms end-to-end latency.</li>
+        <li>Moved work to publication and incorporated into thesis research.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- MICROSOFT (bleeds to page 2) -->
+  <div class="job">
+    <div class="job-logo">
+      <img src="files/logos/msresearch.png" alt="Microsoft Research" style="width:100px; margin-top:0">
+    </div>
+    <div class="job-main">
+      <div class="job-head"><span class="co">MICROSOFT RESEARCH</span><span class="loc">Redmond, WA</span></div>
+      <div class="job-sub"><span>Software Engineering and Research Intern</span><span>Summer 2020</span></div>
+      <ul class="bullets">
+        <li>Developed and implemented an interactive AR mask to display real-time video of the user's mouth on the mask's surface.</li>
+        <li>Developed perspective-corrected UV mapping algorithm compensating for mask curvature and viewer angle, achieving &lt;3 px distortion error at 72/90 FPS; optimized inference pipeline memory footprint by 40% for sustained on-device operation.</li>
+        <li>Led perception software integration with hardware and accessibility research teams to transition from research prototype to commercial-ready product, addressing thermal constraints, power budget, and sustained inference stability for continuous operation.</li>
+        <li>Led a mixed-methods user study with <b>18</b> participants utilizing a collaborative charades-style protocol, demonstrating a <b>40%</b> increase in communication accuracy and a <b>35%</b> reduction in task completion time compared to traditional opaque masks.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- AUTODESK -->
+  <div class="job">
+    <div class="job-logo">
+      <img src="files/logos/autodesk.png" alt="Autodesk" style="width:67px; margin-top:0">
+    </div>
+    <div class="job-main">
+      <div class="job-head"><span class="co">AUTODESK RESEARCH</span><span class="loc">Toronto, ON</span></div>
+      <div class="job-sub"><span>User Interface and Graphics Research Intern</span><span>Winter 2019</span></div>
+      <ul class="bullets">
+        <li>Spearheaded collaboration research across teams to pioneer cutting-edge techniques for <b>authoring 3D objects using generative AI</b> in VR. Leveraged <b>GANs, Transformers, and Autoencoders</b> to develop novel techniques for <b>human-AI collaboration</b></li>
+        <li>Prototyped and deployed interactive generative adversarial networks (GANs) specifically tailored for 3D design tasks in virtual reality. Employed tech stack including <b>pyTorch, Pandas, Numpy, and Unity</b> to create user-friendly generative AI authoring experiences.</li>
+        <li>Securing a patent for AI virtual reality interaction techniques and system design and published technical paper in peer-reviewed proceedings. (doi.org/10.1145/3450741.3465260)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-title">EDUCATION</div>
+  <div class="edu-row"><b>DARTMOUTH COLLEGE</b><span>Hanover, NH</span></div>
+  <div class="edu-row">Doctorate of Computer Sciences<span>2024</span></div>
+
+  <div class="section-title">PATENTS</div>
+  <ul class="pat-list">
+    <li>(Calliope) A System for Supporting Human-AI Collaboration in Virtual Environments. Josh Urban Davis, Fraser Anderson, George Fitzmaurice.</li>
+    <li>(TangibleCircuits) A System for Converting Circuit Diagrams to Tangible and Audio Interfaces. Josh Urban Davis, Xing-Dong Yang</li>
+    <li>(Circuit Style) A System for Peripherally Reinforcing Best Practices in Hardware Computing. Josh Urban Davis, Jun Gong, Xing-Dong Yang</li>
+  </ul>
+
+</div></div>
+</body>
+</html>
