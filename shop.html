@@ -210,12 +210,13 @@ footer .tagline{font-family:var(--serif);font-style:italic;font-size:.9rem;color
       <img src="images/IMG_8789.JPG" alt="Spread" class="active" onclick="swapImg(this)">
       <img src="images/IMG_3413.jpg" alt="Cards" onclick="swapImg(this)">
       <img src="images/IMG_8772.JPG" alt="Box" onclick="swapImg(this)">
-      <img src="images/IMG_8785.JPG" alt="The Moon" onclick="swapImg(this)">
+      <img src="images/IMG_8785.JPG" alt="The Moon" data-card="the-moon" onclick="swapImg(this)">
       <img src="images/IMG_8793.JPG" alt="Interior" onclick="swapImg(this)">
       <img src="images/IMG_8775.JPG" alt="Guidebook" onclick="swapImg(this)">
       <img src="images/IMG_8773.JPG" alt="Open box" onclick="swapImg(this)">
       <img src="images/octorococo.jpg" alt="Card detail" onclick="swapImg(this)">
     </div>
+    <a class="press-link" id="galleryCardLink" href="tarot-guidebook/" target="_blank" rel="noopener" style="align-self:flex-start;margin-top:4px;display:none"><i class="fa fa-book"></i> Browse in the guidebook</a>
   </div>
   <div class="product-info reveal reveal-delay-1">
     <div class="product-tag">Limited Edition — First Printing</div>
@@ -326,6 +327,16 @@ function swapImg(thumb) {
   document.getElementById('mainImg').src = thumb.src;
   document.querySelectorAll('.product-thumbs img').forEach(function(t) { t.classList.remove('active'); });
   thumb.classList.add('active');
+  // when the active photo is a specific card (e.g. "The Moon"), link
+  // straight to that card in the guidebook via its URL hash
+  var link = document.getElementById('galleryCardLink');
+  var cardId = thumb.getAttribute('data-card');
+  if (cardId) {
+    link.href = 'tarot-guidebook/#' + cardId;
+    link.style.display = 'flex';
+  } else {
+    link.style.display = 'none';
+  }
 }
 
 // LIGHTBOX
