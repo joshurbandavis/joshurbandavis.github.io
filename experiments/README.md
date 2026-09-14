@@ -77,15 +77,28 @@ behavioral art. Each lives in its own folder as a self-contained page.
   plus a final sweep that clears anything still standing — ending on a
   blank page with a one-line epitaph. No reset.
 
-- `mutate/` — a full copy of `index.html` where exactly one thing about the
-  design is different at any given moment — never nothing, never more than
-  one — and which single thing keeps changing with every visit, anywhere.
-  Not cumulative and not headed anywhere, unlike `decay/` and `palimpsest/`. 14
-  moves, each reworking something at the scale of the whole page rather
-  than one element (palette inversion, the entire type system replaced,
-  the page tilted off its axis, the works grid collapsed to one column,
-  the name grown until it barely fits...) — pushed up from an earlier,
-  much subtler version so a visit's difference actually reads at a glance.
+- `mutate/` — a full copy of `index.html` where mutations stack, shared
+  across every visitor: each visit randomly toggles one of 40 whole-page
+  moves (palette inversion, the entire type system replaced, the page
+  tilted off its axis, the whole page mirrored, every section run in
+  reverse order, the works grid collapsed to one column, the name grown
+  until it barely fits, the whole page trembling, the nav logo stuck
+  mid-scramble...) on or off, persistently — the first time a given move
+  is picked it turns on and stays on; the next time that same one gets
+  picked — at some unknown, unpatterned future visit — it turns back off.
+  Which move gets picked each visit is `hash(key + ':' + step) mod 40`, a
+  real hash function walked forward from step 1 on every load, not a
+  curated or round-robin sequence — no fixed period, no guaranteed "all
+  40 at once" moment; a given mutation might flip back off within a few
+  visits or stay on for a very long stretch (verified over 160 simulated
+  visits: all 40 got exercised, active count wandered between
+  3 and 27 at once). Several moves
+  redefine the same underlying property (light-mode vs. neon-takeover
+  both fight over the color variables; rounded vs. sharp corners both
+  fight over border-radius), so having both active at once means one
+  silently overrides the other — intentional, not a bug: some things
+  really do undo each other. Not headed anywhere like `decay/` and
+  `palimpsest/` are — it never stops moving, never settles.
 
 - `_shared/step-engine.js` — the shared-counter plumbing `decay/` and
   `mutate/` build on. (`palimpsest/` used to as well; it now tracks its

@@ -1,19 +1,24 @@
 /*
  * mutate.css
  *
- * A full copy of the site where exactly one thing about the design is
- * different — never nothing, never more than one, never the same thing
- * twice in a row (barring wraparound). Pushed toward bigger swings: each
- * of the 14 moves below now reworks something at the scale of the whole
- * page (palette inversion, typography system, viewport-level layout),
- * not a single element's corner radius. The counter is shared: which
- * thing is different right now is the same for every visitor, and it
- * never settles. Unlike decay/ and palimpsest/, this one doesn't accumulate
- * and doesn't arrive anywhere — it just keeps being a different site.
+ * A full copy of the site where mutations stack: each of the 40 moves
+ * below toggles on the first time it's selected and toggles back off the
+ * next time that same one comes up (see mutate.js) — so any number of
+ * them can be active together, persistently, shared across every visitor.
+ * Each reworks something at the scale of the whole page (palette
+ * inversion, typography system, viewport-level layout), not a single
+ * element's corner radius.
  *
- * mutate.js picks exactly one `mu-N` class (N = shared step mod 14) and
- * applies only that one to <html>. Loaded after the page's own <style>
- * block so these rules win outright.
+ * Because several of these rules redefine the same custom properties
+ * (mu-0 and mu-4 both set --bg/--fg/--dim/--accent; mu-8/mu-9 both set
+ * border-radius on the same elements) or the same transform property
+ * (mu-6/mu-7 both set `transform` on body), having both active at once
+ * means whichever rule is declared later in this file wins outright for
+ * that property — not a bug, that's the "sometimes undoing each other"
+ * the piece is built around. Order here is deliberate: it's the intended
+ * override order when moves collide.
+ *
+ * Loaded after the page's own <style> block so these rules win outright.
  */
 
 .mu-chrome{
@@ -89,3 +94,98 @@ html.mu-12 .hero-name{letter-spacing:.04em}
 /* 13 — the whole page narrows to a single centered column, on any screen */
 html.mu-13 body{max-width:420px;margin:0 auto;border-left:1px solid rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.08)}
 html.mu-13 nav{left:50%;transform:translateX(-50%);max-width:420px;width:100%}
+
+/* 14 — every photo's colors flip to their negative */
+html.mu-14 .works-grid img,html.mu-14 .about-right img{filter:invert(1)!important}
+
+/* 15 — the whole page mirrors; the meta chrome corrects itself back */
+html.mu-15 body{transform:scaleX(-1)}
+html.mu-15 .mu-chrome,html.mu-15 .mu-return{transform:scaleX(-1)}
+
+/* 16 — every section runs in reverse order (fixed-position elements are unaffected) */
+html.mu-16 body{display:flex;flex-direction:column-reverse}
+
+/* 17 — the ticker freezes mid-scroll */
+html.mu-17 .marquee-inner{animation-play-state:paused}
+
+/* 18 — nav links get divided by hairlines */
+html.mu-18 nav .nav-links a{border-right:1px solid rgba(255,255,255,.15);padding-right:1rem}
+html.mu-18 nav .nav-links a:last-child{border-right:none}
+
+/* 19 — the cursor becomes a permanent question mark */
+html.mu-19 body{cursor:help}
+
+/* 20 — every heading swaps its serif for a heavy sans */
+html.mu-20{--serif:'Inter',system-ui,sans-serif}
+html.mu-20 .section-head,html.mu-20 .proj-title,html.mu-20 .contact-big,html.mu-20 .hero-name{font-weight:800}
+
+/* 21 — the interactive glow is switched off */
+html.mu-21 #glow{display:none}
+
+/* 22 — every publication's links stay visible, not just on hover */
+html.mu-22 .pub-actions{opacity:1}
+
+/* 23 — the whole page sets tighter, condensed */
+html.mu-23 body{letter-spacing:-.02em}
+
+/* 24 — the grain overlay turns way up */
+html.mu-24 body::after{opacity:.22}
+
+/* 25 — everything casts a heavy shadow */
+html.mu-25 .pill,html.mu-25 .proj-media,html.mu-25 .proj-media img,html.mu-25 .works-grid img,html.mu-25 .about-right{box-shadow:0 14px 34px rgba(0,0,0,.5)}
+
+/* 26 — the whole page falls slightly out of focus */
+html.mu-26 body{filter:blur(1.4px)}
+
+/* 27 — the whole page goes sepia, like an old photograph */
+html.mu-27 body{filter:sepia(.65)}
+
+/* 28 — the whole page shifts to a cool blue duotone */
+html.mu-28 body{filter:grayscale(1) sepia(.4) hue-rotate(190deg) saturate(2.4)}
+
+/* 29 — running text goes justified, ragged blocks instead of a ragged edge */
+html.mu-29 .about-text p,html.mu-29 .proj-desc p{text-align:justify}
+
+/* 30 — every photo renders blocky, low-res */
+html.mu-30 .works-grid img,html.mu-30 .about-right img,html.mu-30 .proj-media img{image-rendering:pixelated}
+
+/* 31 — the whole page trembles, barely */
+@keyframes muJitter{
+  0%,100%{transform:translate(0,0)}
+  25%{transform:translate(.6px,-.5px)}
+  50%{transform:translate(-.5px,.6px)}
+  75%{transform:translate(.4px,.4px)}
+}
+html.mu-31 body{animation:muJitter .35s steps(2) infinite}
+
+/* 32 — headings flicker in and out */
+@keyframes muFlicker{
+  0%,89%,100%{opacity:1}
+  90%{opacity:.3}
+  91%{opacity:1}
+  95%{opacity:.5}
+  96%{opacity:1}
+}
+html.mu-32 .section-head,html.mu-32 .proj-title,html.mu-32 .contact-big{animation:muFlicker 3.4s infinite}
+
+/* 33 — the cursor disappears entirely */
+html.mu-33 body{cursor:none}
+
+/* 34 — every hairline on the page takes on the accent color */
+html.mu-34 .pub-item,html.mu-34 .proj-block{border-bottom-color:var(--accent)}
+html.mu-34 .pub-list{border-top-color:var(--accent)}
+
+/* 35 — every publication and project gets a flag across its top */
+html.mu-35 .pub-item,html.mu-35 .proj-block{border-top:3px solid var(--accent)}
+
+/* 36 — the ticker text shouts, in serif italic instead of its usual voice */
+html.mu-36 .marquee-inner span{font-family:var(--serif);font-style:italic;text-transform:uppercase;letter-spacing:.02em}
+
+/* 37 — section headings grow oversized, not just the hero name */
+html.mu-37 .section-head{font-size:clamp(3.5rem,8vw,7rem)}
+html.mu-37 .proj-title{font-size:clamp(2.5rem,5vw,4rem)}
+
+/* 38 — every heading and nav link gets underlined */
+html.mu-38 .section-head,html.mu-38 .proj-title,html.mu-38 .contact-big,html.mu-38 nav .nav-links a{text-decoration:underline}
+
+/* 39 — the logo won't stop scrambling; DOM effect in mutate.js does the actual triggering */
