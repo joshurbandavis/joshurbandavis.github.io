@@ -207,27 +207,42 @@ behavioral art. Each lives in its own folder as a self-contained page.
 
 - `untended/` — a real Dutch vanitas flower bouquet (`vanitas.jpg`), shared
   by every visitor, decaying like a miniature Telegarden (1995): that piece
-  was one real greenhouse tended remotely by whoever logged in, and the only
-  thing that keeps this painting looking like a painting is visits. Two
-  layers of damage:
+  was one real greenhouse tended remotely by whoever logged in — not just by
+  *visiting* a page, but by actually operating the thing (aiming a camera,
+  driving a robot arm, planting a seed). Two layers of damage, plus a real
+  gesture for tending it:
   - **Permanent scars** — real, shared, never undone. `worker.js` (a small
     Cloudflare Worker + KV, deploy instructions in its header comment)
     holds the one number that matters: how many full days (`SCAR_INTERVAL_MS`)
-    the garden has ever gone completely unvisited by anyone, folded
-    together, capped at 60. Each scar's exact look — which of six glitch
-    techniques, where, how strong — is derived from its own index through a
-    seeded PRNG rather than stored itself, the same "no extra storage,
-    deterministic replay" trick `decay/` and `mutate/` use for their own
-    step sequences. Tending the garden (visiting) resets the *clock*, not
-    what neglect already earned — vanitas paintings already carry this
-    exact idea in their own vocabulary (a wilting petal, an hourglass,
-    painted in as a reminder nothing stays this way); the scars are this
-    piece's version of that, written permanently into the bouquet itself.
+    the garden has ever gone completely untended, folded together, capped
+    at 60. Each scar's exact look — which of six glitch techniques, where,
+    how strong — is derived from its own index through a seeded PRNG
+    rather than stored itself, the same "no extra storage, deterministic
+    replay" trick `decay/` and `mutate/` use for their own step sequences.
+    Tending the garden resets the *clock*, not what neglect already
+    earned — vanitas paintings already carry this exact idea in their own
+    vocabulary (a wilting petal, an hourglass, painted in as a reminder
+    nothing stays this way); the scars are this piece's version of that,
+    written permanently into the bouquet itself.
   - **A live, ephemeral tremble** — never stored, genuinely re-randomized
     with `Math.random()` on every render (and again every few seconds while
     a sufficiently neglected page sits open and visible), scaled by how
     long the *current* drought has run. A garden tended an hour ago sits
     calm and still; one left alone a week visibly glitches while you watch.
+  - **Wiping is the only real tend.** Hovering (or, on touch, dragging)
+    across the canvas clears a wide patch that follows the cursor — the
+    real, undamaged painting showing through underneath the damage, like
+    wiping condensation off glass — and fogs back over slowly once you
+    stop, rather than snapping shut, so it reads as your attention holding
+    it clear rather than a toggle. Loading the page only ever peeks at the
+    shared state (`GET /state`) — nothing moves yet. Only once the cursor
+    has swept a real cumulative distance across the bouquet (`TEND_DISTANCE_PX`)
+    does the page call `POST /tend` and actually reset the shared clock.
+    A bare refresh, or a script that only ever GETs the page, now changes
+    nothing about the real garden — the earlier version's only interaction
+    *was* the page load, which made a refresh loop indistinguishable from
+    a real visit. What wiping can never do is touch the scars themselves;
+    it only ever reveals what's underneath for as long as you're looking.
 
   The six glitch techniques (`untended.js`) draw on both referenced
   folders: brightness-threshold run sorting is Kim Asendorf's ASDF Pixel
@@ -251,9 +266,13 @@ behavioral art. Each lives in its own folder as a self-contained page.
   `localStorage` instead, clearly labeled local-only in the corner readout
   — a missing/unreachable backend degrades the piece, never breaks it.
 
-  - `?dev=1` — local simulated garden, doesn't touch the real shared state.
-  - `?peek=1` — reads the current state without tending (advancing) it.
-  - `?drought=<hours>&?scars=<n>` — pure rendering preview, no network.
+  - `?dev=1` — local simulated garden; wiping still works, but tends the
+    local copy instead of the real shared state.
+  - `?peek=1` — disables tending for this view entirely, no matter how much
+    you wipe — every load already peeks by default now (see above), so
+    this is for guaranteeing a look never counts as a visit.
+  - `?drought=<hours>&?scars=<n>` — pure rendering preview, no network;
+    wiping still animates but can never tend.
 
 Not linked from the main site nav — open directly, e.g. locally:
 

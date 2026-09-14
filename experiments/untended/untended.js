@@ -2,44 +2,36 @@
  * untended.js
  *
  * A still life that only stays whole if someone keeps showing up. Telegarden
- * (1995) was one real greenhouse, tended remotely by whoever logged in;
- * this is the same shape in miniature — one shared painting, and the only
- * thing that keeps it looking like a painting is visits.
+ * (1995) was one real greenhouse, tended remotely by whoever logged in — not
+ * just by *visiting* a webpage, but by actually operating the thing: aiming
+ * a camera, driving a robot arm, planting a seed. This piece's first version
+ * only had the passive half of that (loading the page silently counted as
+ * "tending," which is also exactly the hole that makes a bare refresh, or a
+ * dumb script, indistinguishable from a real visit). This version closes
+ * that hole by making the tending itself something you do with your hand:
  *
- * Two layers of damage, on purpose:
+ *   - Hover/drag across the bouquet and a "cleared" patch follows your
+ *     cursor — the actual, undamaged painting showing through, like wiping
+ *     condensation off glass. It's wide and it lingers (fogs back over
+ *     slowly, not instantly) once you stop, rather than vanishing the
+ *     moment you look away — meant to feel like your attention is what's
+ *     holding it clear, not a toggle you flip once.
+ *   - That gesture is also the ONLY thing that can register as a real visit.
+ *     Loading the page just shows the truth of how things stand (a
+ *     read-only peek at the shared state) — nothing about the shared clock
+ *     moves yet. Only once you've swept the cursor some real distance across
+ *     the canvas does the page actually call worker.js's /tend and reset the
+ *     shared drought clock. A refresh, or a script that only ever GETs the
+ *     page, now does nothing at all to the real garden.
  *
- *   - PERMANENT SCARS — real, shared, never undone. Every full day (see
- *     SCAR_INTERVAL_MS) the garden went completely unvisited by anyone
- *     earns one scar, tracked as a single number in worker.js's KV store.
- *     Each scar's exact look (which glitch, where, how strong) is derived
- *     from its own index through a seeded PRNG — not stored itself, just
- *     replayed — the same "no extra storage, deterministic replay" trick
- *     ../decay and ../mutate use for their own step sequences. So the
- *     scars you see are always exactly reproducible from one integer, and
- *     they only ever accumulate: tending the garden resets the *clock*,
- *     it does not erase what neglect already earned. Vanitas still lifes
- *     already carry this exact idea in their own vocabulary — a wilting
- *     petal, an insect, an hourglass, painted into an otherwise perfect
- *     bouquet as a reminder that none of it stays this way. The scars are
- *     this piece's version of that: written into the bouquet itself,
- *     permanently, by real elapsed time.
- *
- *   - THE LIVE, EPHEMERAL TREMBLE — not stored anywhere, genuinely
- *     randomized with Math.random() on every render, and it eases the
- *     moment someone visits. Its strength tracks how long the *current*
- *     drought has run (real wall-clock time since the last visit, from
- *     worker.js's stored timestamp — never something this page invents).
- *     A garden tended an hour ago sits calm and still; one left alone for
- *     a week visibly trembles and re-glitches while you watch, on an
- *     unpredictable timer, because nothing is currently tending it either.
- *
- * No shared backend configured yet (WORKER_URL below still says
- * YOUR-SUBDOMAIN) → the page runs the exact same arithmetic against
- * localStorage instead, clearly labeled as local-only in the corner
- * readout. Same fallback philosophy as every other piece here: a third
- * party being down (or, here, simply not deployed yet) should degrade the
- * piece, never break it. See worker.js's header for why this needed a
- * dedicated Worker instead of another hosted counter service.
+ * What wiping can't do: touch the permanent scars. Those stay exactly what
+ * they always were — real, shared, derived from actual elapsed time nobody
+ * was here, never erased by anything short of that not having happened.
+ * Wiping only ever reveals what's underneath for as long as you're looking;
+ * it doesn't rewrite what the piece has already decided happened while
+ * nobody was there. Same vanitas logic as before, just at gesture scale
+ * instead of clock scale — see the top of worker.js for the permanent side
+ * of this.
  */
 (function () {
   var WORKER_URL = 'https://untended-garden.YOUR-SUBDOMAIN.workers.dev';
@@ -50,11 +42,18 @@
   var SCAR_CAP = 60; // must match worker.js
   var EPHEMERAL_FULL_MS = 7 * 24 * 60 * 60 * 1000; // one week of drought = live tremble maxed out
   var LIVE_TREMBLE_MIN_RATIO = 0.12; // below this, the piece just sits still
+  var TREMBLE_MIN_MS = 4000, TREMBLE_MAX_MS = 9000; // live re-glitch cadence while neglected
 
   var LOCAL_KEY = 'untended:state:v1';
   var LOCAL_DEV_KEY = 'untended:state:dev:v1';
 
   var INTERNAL_SIZE = 750; // source is 1500x1500; half-res keeps per-pixel passes fast
+
+  // ---------- the wipe/tend gesture ----------
+  var WIPE_RADIUS = 150; // internal px — wide, on purpose (see header)
+  var WIPE_STAMP_PER_SEC = 3.2; // how fast the cleared patch opens while hovering (opacity/sec)
+  var WIPE_FADE_PER_SEC = 0.09; // how slowly it fogs back over once you leave (~11s to clear)
+  var TEND_DISTANCE_PX = 3800; // cumulative cursor travel (internal px) needed to register a tend
 
   // ---------- seeded RNG (same mulberry32 + FNV-1a shape as decay.js/mutate.js) ----------
   function hash32(str) {
@@ -285,6 +284,7 @@
 
   // shared by the real local-fallback path and ?dev=1 — same arithmetic
   // worker.js runs server-side, just against localStorage instead of KV.
+  // peek=true only reads (never advances); peek=false is a real tend.
   function computeTend(storageKey, peek) {
     var raw;
     try { raw = localStorage.getItem(storageKey); } catch (e) { raw = null; }
@@ -298,16 +298,12 @@
     return { droughtMs: drought, scarCount: scarCount, now: now };
   }
 
-  function getGardenState() {
+  // kind: 'peek' (read-only, never advances anything) or 'tend' (the real
+  // visit — only called once the wipe gesture has earned it; see init()).
+  function fetchState(kind) {
     var params = new URLSearchParams(location.search);
     var dev = params.has('dev');
-    var peek = params.has('peek');
 
-    if (params.has('reset') && dev) {
-      try { localStorage.removeItem(LOCAL_DEV_KEY); } catch (e) { /* ignore */ }
-    }
-
-    // pure rendering overrides — never touch network or storage, just preview a state
     if (params.has('drought') || params.has('scars')) {
       var hours = parseFloat(params.get('drought') || '0') || 0;
       var scars = parseInt(params.get('scars') || '0', 10) || 0;
@@ -318,6 +314,8 @@
         preview: true,
       });
     }
+
+    var peek = kind === 'peek';
 
     if (dev) {
       return Promise.resolve(Object.assign(computeTend(LOCAL_DEV_KEY, peek), { shared: false, dev: true }));
@@ -386,46 +384,196 @@
       }
 
       canvas.width = INTERNAL_SIZE; canvas.height = INTERNAL_SIZE;
-      var ctx = canvas.getContext('2d');
+      var visCtx = canvas.getContext('2d');
 
-      getGardenState().then(function (state) {
-        // build the scarred (permanent) base once
+      // static layer: the real, undamaged painting — never touched again
+      var pristine = document.createElement('canvas');
+      pristine.width = INTERNAL_SIZE; pristine.height = INTERNAL_SIZE;
+      pristine.getContext('2d').putImageData(baseData, 0, 0);
+
+      // current full render (scars + whatever ephemeral trembling applies) —
+      // rebuilt on demand, never per-frame
+      var damaged = document.createElement('canvas');
+      damaged.width = INTERNAL_SIZE; damaged.height = INTERNAL_SIZE;
+      var damagedCtx = damaged.getContext('2d');
+
+      // the wipe "cleared glass" alpha mask — stamped while hovering, fades
+      // on its own; a temp canvas masks a copy of `pristine` against it
+      var mask = document.createElement('canvas');
+      mask.width = INTERNAL_SIZE; mask.height = INTERNAL_SIZE;
+      var maskCtx = mask.getContext('2d');
+      var maskTemp = document.createElement('canvas');
+      maskTemp.width = INTERNAL_SIZE; maskTemp.height = INTERNAL_SIZE;
+      var maskTempCtx = maskTemp.getContext('2d');
+      var maskDirty = false; // has anything ever been stamped? (skip compositing until so)
+
+      var params = new URLSearchParams(location.search);
+      var allowTend = !params.has('peek') && !params.has('drought') && !params.has('scars');
+
+      fetchState('peek').then(function (state) {
+        var scarCount = state.scarCount;
         var scarred = new ImageData(new Uint8ClampedArray(baseData.data), INTERNAL_SIZE, INTERNAL_SIZE);
-        for (var i = 1; i <= state.scarCount; i++) applyScar(scarred, i);
+        for (var i = 1; i <= scarCount; i++) applyScar(scarred, i);
 
         var ratio = Math.max(0, Math.min(1, state.droughtMs / EPHEMERAL_FULL_MS));
+        var tended = false;
+        var wipeDistance = 0;
+        var lastPointer = null; // {x,y} in internal canvas space, or null if not inside
+        var nextTrembleAt = 0;
+        var looping = false;
+        var lastTick = 0;
 
-        function renderFrame() {
+        function rebuildDamaged() {
           var frame = new ImageData(new Uint8ClampedArray(scarred.data), INTERNAL_SIZE, INTERNAL_SIZE);
           if (ratio > 0) applyEphemeralPass(frame, ratio);
-          ctx.putImageData(frame, 0, 0);
+          damagedCtx.putImageData(frame, 0, 0);
         }
-        renderFrame();
+        rebuildDamaged();
 
-        if (ratio >= LIVE_TREMBLE_MIN_RATIO) {
-          var scheduleNext = function () {
-            var delay = 4000 + Math.random() * 5000;
-            setTimeout(function () {
-              if (document.visibilityState === 'visible') renderFrame();
-              scheduleNext();
-            }, delay);
-          };
-          scheduleNext();
+        function composite() {
+          visCtx.clearRect(0, 0, INTERNAL_SIZE, INTERNAL_SIZE);
+          visCtx.drawImage(damaged, 0, 0);
+          if (maskDirty) {
+            maskTempCtx.clearRect(0, 0, INTERNAL_SIZE, INTERNAL_SIZE);
+            maskTempCtx.globalCompositeOperation = 'source-over';
+            maskTempCtx.drawImage(pristine, 0, 0);
+            maskTempCtx.globalCompositeOperation = 'destination-in';
+            maskTempCtx.drawImage(mask, 0, 0);
+            maskTempCtx.globalCompositeOperation = 'source-over';
+            visCtx.drawImage(maskTemp, 0, 0);
+          }
         }
 
-        if (chrome) {
+        function setChrome() {
+          if (!chrome) return;
           var bits = [];
           if (state.preview) {
-            bits.push('preview — ' + formatDuration(state.droughtMs) + ' drought, ' + state.scarCount + ' scars');
+            bits.push('preview — ' + formatDuration(state.droughtMs) + ' drought, ' + scarCount + ' scars');
           } else {
-            bits.push(state.droughtMs === 0 ? 'just tended' : 'unvisited ' + formatDuration(state.droughtMs) + ' before this');
-            bits.push(state.scarCount + ' of ' + SCAR_CAP + ' scars');
+            bits.push(tended
+              ? 'tended just now'
+              : (state.droughtMs === 0 ? 'just tended' : 'unvisited ' + formatDuration(state.droughtMs) + ' before this'));
+            bits.push(scarCount + ' of ' + SCAR_CAP + ' scars');
             if (state.dev) bits.push('dev — local only, not the real garden');
             else if (state.notConfigured) bits.push('local only — shared worker not deployed yet');
             else if (state.workerUnreachable) bits.push('local only — shared worker unreachable');
             else if (state.shared) bits.push('shared');
+            if (allowTend && !tended) {
+              bits.push(wipeDistance > 0 ? 'tending…' : 'wipe the bouquet to tend it');
+            }
           }
           chrome.textContent = bits.join(' · ');
+        }
+        setChrome();
+
+        function performTend() {
+          tended = true; // fire once
+          fetchState('tend').then(function (result) {
+            if (result.scarCount > scarCount) {
+              for (var i = scarCount + 1; i <= result.scarCount; i++) applyScar(scarred, i);
+              scarCount = result.scarCount;
+            }
+            ratio = 0; // tending resets the drought this visitor sees, going forward
+            rebuildDamaged();
+            state.shared = result.shared; state.dev = result.dev;
+            state.notConfigured = result.notConfigured; state.workerUnreachable = result.workerUnreachable;
+            setChrome();
+          });
+        }
+
+        function toInternal(evt) {
+          var rect = canvas.getBoundingClientRect();
+          return {
+            x: (evt.clientX - rect.left) * (INTERNAL_SIZE / rect.width),
+            y: (evt.clientY - rect.top) * (INTERNAL_SIZE / rect.height),
+          };
+        }
+
+        function stampMask(pt, amount) {
+          maskCtx.globalCompositeOperation = 'source-over';
+          var g = maskCtx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, WIPE_RADIUS);
+          g.addColorStop(0, 'rgba(255,255,255,' + amount + ')');
+          g.addColorStop(1, 'rgba(255,255,255,0)');
+          maskCtx.fillStyle = g;
+          maskCtx.fillRect(pt.x - WIPE_RADIUS, pt.y - WIPE_RADIUS, WIPE_RADIUS * 2, WIPE_RADIUS * 2);
+          maskDirty = true;
+        }
+
+        function ensureLoop() {
+          if (looping) return;
+          looping = true;
+          lastTick = performance.now();
+          requestAnimationFrame(tick);
+        }
+
+        function tick(now) {
+          var dt = Math.min(0.1, (now - lastTick) / 1000); // seconds, clamped so a tab-switch gap can't jump the mask
+          lastTick = now;
+
+          if (lastPointer) stampMask(lastPointer, WIPE_STAMP_PER_SEC * dt);
+
+          // fade the mask: a low-alpha destination-out wash, scaled by dt
+          maskCtx.globalCompositeOperation = 'destination-out';
+          maskCtx.fillStyle = 'rgba(0,0,0,' + Math.min(1, WIPE_FADE_PER_SEC * dt) + ')';
+          maskCtx.fillRect(0, 0, INTERNAL_SIZE, INTERNAL_SIZE);
+          maskCtx.globalCompositeOperation = 'source-over';
+
+          if (ratio >= LIVE_TREMBLE_MIN_RATIO && now >= nextTrembleAt) {
+            rebuildDamaged();
+            nextTrembleAt = now + TREMBLE_MIN_MS + Math.random() * (TREMBLE_MAX_MS - TREMBLE_MIN_MS);
+          }
+
+          composite();
+
+          var stillFading = maskDirty; // cheap proxy: once stamped, keep compositing until pointer's long gone
+          var stillNeedsLoop = lastPointer || (ratio >= LIVE_TREMBLE_MIN_RATIO) || stillFading;
+          if (stillNeedsLoop) {
+            requestAnimationFrame(tick);
+          } else {
+            looping = false;
+          }
+        }
+
+        // once the mask has had long enough to fully fade with nobody
+        // present, stop treating it as dirty so the loop can go idle
+        var fadeIdleTimer = null;
+        function noteFullyFaded() {
+          maskDirty = false;
+        }
+
+        canvas.style.touchAction = 'none';
+        canvas.addEventListener('pointerenter', function (evt) {
+          lastPointer = toInternal(evt);
+          ensureLoop();
+        });
+        canvas.addEventListener('pointermove', function (evt) {
+          var pt = toInternal(evt);
+          if (lastPointer) {
+            var dx = pt.x - lastPointer.x, dy = pt.y - lastPointer.y;
+            var dist = Math.sqrt(dx * dx + dy * dy);
+            if (allowTend && !tended) {
+              wipeDistance += dist;
+              if (wipeDistance >= TEND_DISTANCE_PX) performTend();
+              else setChrome();
+            }
+          }
+          lastPointer = pt;
+          ensureLoop();
+        });
+        function onLeave() {
+          lastPointer = null;
+          if (fadeIdleTimer) clearTimeout(fadeIdleTimer);
+          fadeIdleTimer = setTimeout(noteFullyFaded, Math.ceil(1000 / WIPE_FADE_PER_SEC) + 500);
+          ensureLoop();
+        }
+        canvas.addEventListener('pointerleave', onLeave);
+        canvas.addEventListener('pointercancel', onLeave);
+
+        if (ratio >= LIVE_TREMBLE_MIN_RATIO) {
+          nextTrembleAt = performance.now() + TREMBLE_MIN_MS;
+          ensureLoop();
+        } else {
+          composite();
         }
       });
     };
