@@ -1718,7 +1718,8 @@
     running: false,
     settled: false,
     timer: null,
-    lastPoemIndex: -1,
+    lastPoemIndex: -1,     // CORPUS index of the last pick, or -1 if it came from a SERIES fragment
+    lastGroupIndex: -1,    // which "work" (CORPUS index, or CORPUS.length+seriesIndex) was picked last
     viewMode: 'read',      // 'read' | 'grid'
     enteredGrid: false,
     outputMode: 'selected', // 'selected' | 'erased'
@@ -2007,13 +2008,71 @@
     });
   }
 
-  function pickPoem(forceDifferent){
-    var idx = Math.floor(Math.random() * CORPUS.length);
-    if (forceDifferent && CORPUS.length > 1){
-      while (idx === state.lastPoemIndex) idx = Math.floor(Math.random() * CORPUS.length);
+  // Two full public-domain texts (The Odyssey, tr. Samuel Butler; Ovid's
+  // Metamorphoses, tr. Henry Thomas Riley) are chunked into hundreds of
+  // ~150-word fragments each, in corpus-odyssey.json / corpus-
+  // metamorphoses.json rather than inlined here - fetched lazily, once,
+  // only if one of them actually gets picked. They're deliberately NOT
+  // just two more entries in CORPUS: with ~1,000-1,500 fragments each,
+  // a flat random pick across "CORPUS + all fragments" would return an
+  // Odyssey or Metamorphoses fragment the vast majority of the time,
+  // drowning out every short poem in CORPUS. Instead, selection is two
+  // levels: first pick uniformly among "works" - each CORPUS poem counts
+  // as one work, and the two big texts count as one work each, same odds
+  // as "Fog" or any other single poem - THEN, only if a big text was the
+  // work chosen, pick a random fragment from within it.
+  var SERIES = {
+    odyssey: { file: "corpus-odyssey.json", data: null, promise: null },
+    metamorphoses: { file: "corpus-metamorphoses.json", data: null, promise: null },
+  };
+
+  function loadSeries(key){
+    var s = SERIES[key];
+    if (s.data) return Promise.resolve(s.data);
+    if (!s.promise){
+      s.promise = fetch(s.file).then(function(res){
+        if (!res.ok) throw new Error("failed to load " + s.file + ": " + res.status);
+        return res.json();
+      }).then(function(data){
+        s.data = data;
+        return data;
+      }).catch(function(err){
+        console.error(err);
+        s.promise = null; // allow a retry on the next pick rather than staying broken
+        return null;
+      });
     }
-    state.lastPoemIndex = idx;
-    return CORPUS[idx];
+    return s.promise;
+  }
+
+  // returns a Promise<poem>, since a series pick may need to fetch its
+  // fragment file first.
+  function pickPoem(forceDifferent){
+    var seriesKeys = Object.keys(SERIES);
+    var groupCount = CORPUS.length + seriesKeys.length;
+    var groupIdx = Math.floor(Math.random() * groupCount);
+    if (forceDifferent && groupCount > 1){
+      while (groupIdx === state.lastGroupIndex) groupIdx = Math.floor(Math.random() * groupCount);
+    }
+    state.lastGroupIndex = groupIdx;
+
+    if (groupIdx < CORPUS.length){
+      state.lastPoemIndex = groupIdx;
+      return Promise.resolve(CORPUS[groupIdx]);
+    }
+
+    var seriesKey = seriesKeys[groupIdx - CORPUS.length];
+    return loadSeries(seriesKey).then(function(fragments){
+      if (!fragments || !fragments.length){
+        // the fetch failed - fall back to an ordinary CORPUS pick rather
+        // than leaving the button feeling broken
+        var idx = Math.floor(Math.random() * CORPUS.length);
+        state.lastPoemIndex = idx;
+        return CORPUS[idx];
+      }
+      state.lastPoemIndex = -1;
+      return fragments[Math.floor(Math.random() * fragments.length)];
+    });
   }
 
   function loadPoem(poem){
@@ -2532,7 +2591,16 @@
     reseed(Math.floor(Math.random() * 1e9));
   });
   document.getElementById("randomPoemBtn").addEventListener("click", function(){
-    loadPoem(pickPoem(true));
+    var btn = document.getElementById("randomPoemBtn");
+    var original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "…";
+    pickPoem(true).then(function(poem){
+      loadPoem(poem);
+    }).finally(function(){
+      btn.disabled = false;
+      btn.textContent = original;
+    });
   });
   document.getElementById("useCustomBtn").addEventListener("click", function(){
     var raw = document.getElementById("customText").value;
