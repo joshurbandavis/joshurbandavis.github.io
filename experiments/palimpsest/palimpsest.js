@@ -238,15 +238,22 @@
     window.__pxStopMarquee = true;
     window.__pxStopHeroCanvas = true;
     fetch('1996/index.html', { cache: 'no-store' })
-      .then(function (res) { return res.text(); })
-      .then(function (html) {
-        var doc = new DOMParser().parseFromString(html, 'text/html');
+      .then(function (res) { return res.text().then(function (html) { return { html: html, url: res.url }; }); })
+      .then(function (result) {
+        var doc = new DOMParser().parseFromString(result.html, 'text/html');
         var body = doc.body;
-        if (root && body) {
-          root.innerHTML = '';
-          root.appendChild(body);
-          jolt(root);
-        }
+        if (!root || !body) return;
+        // Moving `body` into the live document changes its owning document,
+        // so relative src/href attributes (e.g. "img/p-jamlogo.gif") would
+        // otherwise resolve against *this* page's URL, not 1996/index.html's
+        // — one directory too high, and every image 404s. Resolve each one
+        // to an absolute URL against the real fetched location first.
+        Array.prototype.forEach.call(body.querySelectorAll('img[src]'), function (im) {
+          im.setAttribute('src', new URL(im.getAttribute('src'), result.url).href);
+        });
+        root.innerHTML = '';
+        root.appendChild(body);
+        jolt(root);
       })
       .catch(function () {
         // Real page unreachable this load (offline dev, file:// without a

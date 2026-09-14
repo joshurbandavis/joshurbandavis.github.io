@@ -36,7 +36,7 @@
   position:fixed;inset:0;z-index:9999;background:#fff;
   opacity:0;pointer-events:none;
 }
-.px-event-flash.px-firing{opacity:.9;animation:px-flash-out .18s steps(2) 1}
+.px-event-flash.px-firing{animation:px-flash-out .18s steps(2) 1 forwards}
 @keyframes px-flash-out{
   0%{opacity:.9}
   60%{opacity:.9}

@@ -19,22 +19,47 @@ behavioral art. Each lives in its own folder as a self-contained page.
   screen). No backend, no persistence, no exit: leaving or reloading resets
   everything.
 
-- `palimpsest/` — this site's homepage (`josh-site.html`, a snapshot of
-  `index.html`) contaminated one refresh at a time by the real 1996
-  spacejam.com homepage, until a local copy of that page
-  (`palimpsest/1996/index.html`) fully replaces it. Unlike the earlier
-  version of this piece (previously named `spacejam/`), it doesn't redraw
-  the Space Jam page by eye — it ships the actual supplied 1996 GIF
-  assets (`1996/img/`) and an unmodified copy of the real markup
-  (`1996/original-index.html`), on purpose: the piece is about the real
-  artifact overtaking the page, not an homage to it. 365 refreshes to
-  convergence, tracked per-browser via `localStorage` (key
-  `dwt_palimpsest_refresh_v2`) — no shared backend, unlike `decay/` and
-  `mutate/`. The terminal state renders the local `1996/` copy directly
-  rather than embedding the live site, so the piece doesn't depend on
-  WB's site staying reachable or embeddable. Interior sections the 1996
-  page links to (`cmp/...`, `video/`) aren't included — those links 404,
-  as documented in the original source package.
+- `palimpsest/` — a full copy of `index.html` grafted with something older
+  and real, one genuine DOM mutation at a time: swapped text, swapped
+  images, removed nodes, never a CSS fade. Ships the actual supplied 1996
+  spacejam.com GIF assets (`1996/img/`) and an unmodified copy of the real
+  markup (`1996/original-index.html`), on purpose — the piece is about
+  the real artifact overtaking the page, not a redrawn homage to it.
+
+  This is the second design of this piece (previously named `spacejam/`,
+  and before that a two-iframe cross-fade). The first design continuously
+  eased CSS opacity/filters across 365 refreshes — legible as "a fade" by
+  the third visit, and out of step with `decay/` and `mutate/`, which
+  never blend, only cut. This version doesn't blend either:
+
+  - **24 moves, fixed narrative order, random timing.** `palimpsest.js`'s
+    `MOVES` array is hand-authored top to bottom (whispers → identity →
+    image intrusions → environment → structural collapse); *which* comes
+    first is authored, *when* each one lands is picked once by a seeded
+    PRNG scattering 24 positions across the 365-refresh span (long dead
+    stretches, then a move). A guaranteed 25th move — the terminal
+    graft — always lands exactly on step 365 regardless of the random
+    schedule, the same "guaranteed end state no matter how the randomness
+    landed" guarantee `decay/` makes.
+  - **A jolt, not a fade.** A visit that lands a new move gets a hard
+    flash the instant it settles (`.px-event-flash`/`.px-jolt` in
+    `palimpsest.css`) — full-viewport white cut in and out over ~180ms,
+    plus a quick invert on the specific element that changed. A visit
+    that lands nothing stays completely silent, no flash — most of the
+    365 refreshes are silent by design.
+  - **The terminal graft is real surgery, not an iframe.** At step 365,
+    `converge()` fetches `1996/index.html` and appends its actual `<body>`
+    into this document's own `#pxRoot` — the same document now literally
+    contains the other page's real markup, not an overlay of it. (Moved
+    nodes change owning document, so relative image paths get resolved to
+    absolute URLs against the real fetch location first — otherwise every
+    image 404s one directory too high, a real bug this design shipped
+    with briefly before catching it in verification.)
+
+  Tracked per-browser via `localStorage` (key `dwt_palimpsest_refresh_v3`)
+  — no shared backend, unlike `decay/` and `mutate/`. Interior sections
+  the 1996 page links to (`cmp/...`, `video/`) aren't included — those
+  links 404, as documented in the original source package.
 
   Named for the mechanism, not the content — the experiments index card
   and its alt text deliberately don't say what the piece converges
@@ -42,7 +67,8 @@ behavioral art. Each lives in its own folder as a self-contained page.
   first.
 
   - `?reset=1` — clears the counter, then loads step 1.
-  - `?debug=1` — shows the current step count in the corner.
+  - `?debug=1` — shows the current step count and moves-grafted count in
+    the corner.
   - Alt+R while viewing the page resets and reloads.
 
 - `cellular-erasure/`: a found poem seeded onto a Conway's Game of Life
@@ -178,6 +204,56 @@ behavioral art. Each lives in its own folder as a self-contained page.
   fades in. No backend, session-only by design: refresh and it wakes up
   with no memory of you. See `the-occupant/NOTES.md` for build status and
   open questions.
+
+- `untended/` — a real Dutch vanitas flower bouquet (`vanitas.jpg`), shared
+  by every visitor, decaying like a miniature Telegarden (1995): that piece
+  was one real greenhouse tended remotely by whoever logged in, and the only
+  thing that keeps this painting looking like a painting is visits. Two
+  layers of damage:
+  - **Permanent scars** — real, shared, never undone. `worker.js` (a small
+    Cloudflare Worker + KV, deploy instructions in its header comment)
+    holds the one number that matters: how many full days (`SCAR_INTERVAL_MS`)
+    the garden has ever gone completely unvisited by anyone, folded
+    together, capped at 60. Each scar's exact look — which of six glitch
+    techniques, where, how strong — is derived from its own index through a
+    seeded PRNG rather than stored itself, the same "no extra storage,
+    deterministic replay" trick `decay/` and `mutate/` use for their own
+    step sequences. Tending the garden (visiting) resets the *clock*, not
+    what neglect already earned — vanitas paintings already carry this
+    exact idea in their own vocabulary (a wilting petal, an hourglass,
+    painted in as a reminder nothing stays this way); the scars are this
+    piece's version of that, written permanently into the bouquet itself.
+  - **A live, ephemeral tremble** — never stored, genuinely re-randomized
+    with `Math.random()` on every render (and again every few seconds while
+    a sufficiently neglected page sits open and visible), scaled by how
+    long the *current* drought has run. A garden tended an hour ago sits
+    calm and still; one left alone a week visibly glitches while you watch.
+
+  The six glitch techniques (`untended.js`) draw on both referenced
+  folders: brightness-threshold run sorting is Kim Asendorf's ASDF Pixel
+  Sort (2010, `~/Desktop/ASDFPixelSort-master`) narrowed to one band
+  instead of the whole frame; the sinusoidal per-row wave displacement is
+  the same idea as the vertex displacement in
+  `~/Desktop/processing_poems/glitch_photo/mySketch.js`, applied to pixels
+  instead of a plotted line; RGB channel-slice, block corruption, and
+  scanline tear round out the set as standard glitch-art vocabulary.
+
+  `countapi.xyz` — the service `decay/` and `mutate/` depend on — no
+  longer resolves at all as of this writing; both pieces are almost
+  certainly running in their local-fallback mode in production right now,
+  not the shared mode their own sections above describe. Its closest
+  living replacement (Abacus) has no timestamp field and its counters
+  expire from inactivity, which would erase this piece's memory during
+  exactly the droughts that matter most — hence a dedicated Worker instead
+  of another hosted counter, the same choice `internet-is-haunted/` already
+  made for its own CORS problem. Until `WORKER_URL` in `untended.js` points
+  at a deployed `worker.js`, the page runs the identical arithmetic against
+  `localStorage` instead, clearly labeled local-only in the corner readout
+  — a missing/unreachable backend degrades the piece, never breaks it.
+
+  - `?dev=1` — local simulated garden, doesn't touch the real shared state.
+  - `?peek=1` — reads the current state without tending (advancing) it.
+  - `?drought=<hours>&?scars=<n>` — pure rendering preview, no network.
 
 Not linked from the main site nav — open directly, e.g. locally:
 
