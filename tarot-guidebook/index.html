@@ -350,7 +350,7 @@ function matches(card, q){
     card.heading, card.name, card.nameInv, card.suitLabel,
     card.summary, card.upright, card.reversed,
     card.upKeywords.join(' '), card.invKeywords.join(' '),
-    card.correspondences.join(' ')
+    card.correspondences.map(x => x.value).join(' ')
   ].join(' ').toLowerCase();
   return q.toLowerCase().split(/\s+/).filter(Boolean).every(tok => hay.includes(tok));
 }
@@ -530,6 +530,15 @@ document.getElementById('search').addEventListener('input', e => {
 const tipEl = document.getElementById('tooltip');
 let tipOpenFor = null;
 
+// A tap on a touch screen synthesizes mouseover -> focusin -> click in that
+// order, so without this the hover/focus handlers below would open the tip
+// and the click handler would immediately close it again, same gesture.
+// Track the real pointer type so touch/pen taps rely on the click toggle
+// only, while mouse hover and keyboard focus keep working as before.
+let lastPointerType = 'mouse';
+document.addEventListener('pointerdown', e => { lastPointerType = e.pointerType || 'mouse'; }, true);
+function isCoarsePointer(){ return lastPointerType === 'touch' || lastPointerType === 'pen'; }
+
 function showTip(trigger){
   const content = tipContent(trigger.dataset.tipType, trigger.dataset.tipValue);
   if(!content) return;
@@ -551,6 +560,7 @@ function hideTip(){
 }
 
 document.addEventListener('mouseover', e => {
+  if(isCoarsePointer()) return;
   const t = e.target.closest('.tip-trigger');
   if(t) showTip(t);
 });
@@ -559,6 +569,7 @@ document.addEventListener('mouseout', e => {
   if(t && !t.contains(e.relatedTarget)) hideTip();
 });
 document.addEventListener('focusin', e => {
+  if(isCoarsePointer()) return;
   const t = e.target.closest('.tip-trigger');
   if(t) showTip(t);
 });
