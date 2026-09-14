@@ -74,8 +74,13 @@ behavioral art. Each lives in its own folder as a self-contained page.
     Reverted on purpose: the real artifact overtaking the page should
     include its actual decay, broken links and all, not just its look.
 
-  Tracked per-browser via `localStorage` (key `dwt_palimpsest_refresh_v3`)
-  — no shared backend, unlike `decay/` and `mutate/`.
+  Shared via `../_shared/step-engine.js` (key `palimpsest-graft`), same as
+  `decay/` and `mutate/` — every visitor, on any device, anywhere,
+  advances the same counter. This piece originally tracked its own
+  refreshes privately per-browser in `localStorage`; switched to match its
+  siblings, one collective clock instead of a private one nobody else ever
+  saw. No reset, for the same reason `decay/` and `mutate/` have none — a
+  shared, cumulative counter isn't any single visitor's to clear.
 
   A small persistent disclaimer sits fixed to the bottom of the page from
   the first load onward, outside `#pxRoot` so the terminal graft's
@@ -89,10 +94,12 @@ behavioral art. Each lives in its own folder as a self-contained page.
   toward, so the reveal stays a reveal for anyone browsing `/experiments/`
   first.
 
-  - `?reset=1` — clears the counter, then loads step 1.
+  - `?dev=1` — advances a separate, purely local counter instead of the
+    real shared one; use this while testing so you don't burn through
+    real visits.
+  - `?peek=1` — reads the current shared value without advancing it.
   - `?debug=1` — shows the current step count and moves-grafted count in
     the corner.
-  - Alt+R while viewing the page resets and reloads.
 
 - `cellular-erasure/`: a found poem seeded onto a Conway's Game of Life
   grid, one word per cell; the automaton runs until it settles, then an
@@ -149,9 +156,8 @@ behavioral art. Each lives in its own folder as a self-contained page.
   really do undo each other. Not headed anywhere like `decay/` and
   `palimpsest/` are — it never stops moving, never settles.
 
-- `_shared/step-engine.js` — the shared-counter plumbing `decay/` and
-  `mutate/` build on. (`palimpsest/` used to as well; it now tracks its
-  step count per-browser in `localStorage` instead — see above.)
+- `_shared/step-engine.js` — the shared-counter plumbing `decay/`,
+  `mutate/`, and `palimpsest/` all build on.
 
 - `no-one-in-particular/` — a rebuild of `thisobituarydoesnotexist.com`
   (2019, GPT-2 + a StyleGAN/FFHQ portrait model, gallery-shown as
@@ -186,8 +192,9 @@ behavioral art. Each lives in its own folder as a self-contained page.
   recoverable, a real author tag and a fragment of real archived text,
   pulled live from the Wayback Machine's CDX API, not invented. Breaks the
   no-backend pattern above on purpose: archive.org's API sends no CORS
-  header, so unlike `decay`/`mutate`'s `countapi.xyz` calls this can't be
-  reached directly from a static page. Two front ends, one API contract:
+  header, so unlike `decay`/`mutate`/`palimpsest`'s shared-counter calls
+  this can't be reached directly from a static page. Two front ends, one
+  API contract:
   - `index.html` — the deployed page: calls a small Cloudflare Worker
     (`worker.js`, deploy instructions in its header comment) that does the
     CDX lookup and best-effort text salvage, then returns JSON with a
@@ -296,9 +303,10 @@ behavioral art. Each lives in its own folder as a self-contained page.
   instead of a plotted line; RGB channel-slice, block corruption, and
   scanline tear round out the set as standard glitch-art vocabulary.
 
-  `countapi.xyz` — the service `decay/` and `mutate/` depend on — no
-  longer resolves at all as of this writing; both pieces are almost
-  certainly running in their local-fallback mode in production right now,
+  `countapi.xyz` — the service `decay/`, `mutate/`, and `palimpsest/`
+  depend on — no longer resolves at all as of this writing; all three
+  pieces are almost certainly running in their local-fallback mode in
+  production right now,
   not the shared mode their own sections above describe. Its closest
   living replacement (Abacus) has no timestamp field and its counters
   expire from inactivity, which would erase this piece's memory during
@@ -339,8 +347,8 @@ or once pushed, at `/experiments/please-wait/` / `/experiments/palimpsest/` /
 `/experiments/no-one-in-particular/` / `/experiments/internet-is-haunted/` /
 `/experiments/the-occupant/` / `/experiments/untended/` on the live site.
 
-`decay/` and `mutate/` share one counter service (`countapi.xyz`) but each
-uses its own namespaced key, so visiting one never advances the other.
-Append `?dev=1` on either while testing/building to advance a separate,
-purely local counter instead of the real shared one. `palimpsest/` is
-unrelated to that service — its own counter is purely local (see above).
+`decay/`, `mutate/`, and `palimpsest/` all share one counter service (a
+small Cloudflare Worker + Durable Object, see `_shared/step-engine.js`)
+but each uses its own namespaced key, so visiting one never advances the
+others. Append `?dev=1` on any of the three while testing/building to
+advance a separate, purely local counter instead of the real shared one.

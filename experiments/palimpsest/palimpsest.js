@@ -18,7 +18,7 @@
  *
  *  1. Sparse, irregular timing. 24 moves are scattered across the full
  *     365-refresh span at positions picked once by a seeded PRNG (seeded
- *     from KEY, so reproducible/auditable, not hand-picked) — long dead
+ *     from SEED, so reproducible/auditable, not hand-picked) — long dead
  *     stretches where a refresh changes nothing, then a move landing.
  *     Moves apply in a fixed, authored order (whispers → identity →
  *     intrusion → environment → collapse); only *when* each one lands is
@@ -30,21 +30,30 @@
  *     completely silent, including no flash — most refreshes are silent
  *     by design (24 events across 365 visits).
  *
- * Cumulative and local, like the first design: tracked per-browser via
- * localStorage (key below), no shared backend. Every load re-derives the
- * full current state from scratch (same pattern as decay.js) by re-running
- * every move whose position <= the current step against a fresh copy of
- * the page — it does not persist mutated DOM between visits, since a
- * reload always starts from this file's original markup.
+ * Shared, like decay/ and mutate/: every visitor, on any device, anywhere,
+ * advances the same counter via ../_shared/step-engine.js — this piece's
+ * own refreshes used to be counted privately per-browser in localStorage,
+ * which meant no two visitors ever saw the same state. Switched to match
+ * its siblings: one collective clock, same as them. (No reset, same as
+ * them too — a shared, cumulative counter has no business being clearable
+ * by any single visitor; ?dev=1 advances a separate, purely local counter
+ * instead, for testing without burning through real visits.) Every load
+ * re-derives the full current state from scratch (same pattern as
+ * decay.js) by re-running every move whose position <= the current step
+ * against a fresh copy of the page — it does not persist mutated DOM
+ * between visits, since a reload always starts from this file's original
+ * markup.
  */
 (function () {
-  var KEY = 'dwt_palimpsest_refresh_v3';
+  var SEED = 'dwt_palimpsest_refresh_v3'; // unchanged from the local-only design, so the move schedule doesn't reshuffle
+  var NAMESPACE = 'joshurbandavis-github-io';
+  var STEP_KEY = 'palimpsest-graft';
   var TOTAL = 365;
   var TERMINAL_STEP = TOTAL;
 
   // ---- seeded PRNG + shuffle (same mulberry32-style approach as decay.js,
   // so the schedule is genuinely randomized by code, once, not hand-picked,
-  // and reproducible from KEY rather than an arbitrary magic order). ----
+  // and reproducible from SEED rather than an arbitrary magic order). ----
   function seededRng(seedStr) {
     var h = 1779033703 ^ seedStr.length;
     for (var k = 0; k < seedStr.length; k++) {
@@ -222,7 +231,7 @@
   var SCHEDULE_MAX = TOTAL - 5;
   var range = [];
   for (var i = SCHEDULE_MIN; i <= SCHEDULE_MAX; i++) range.push(i);
-  var POSITIONS = seededShuffle(range, KEY).slice(0, MOVES.length)
+  var POSITIONS = seededShuffle(range, SEED).slice(0, MOVES.length)
     .sort(function (a, b) { return a - b; });
 
   function appliedCount(step) {
@@ -291,12 +300,13 @@
       });
   }
 
-  function renderChrome(step, count, debug) {
+  function renderChrome(step, count, debug, result) {
     var chrome = document.getElementById('pxChrome');
     if (!chrome) return;
     var text = 'step ' + step + ' / ' + TOTAL;
     if (debug) text += ' — ' + count + '/' + MOVES.length + ' moves grafted';
     if (step >= TERMINAL_STEP) text = 'converged — step ' + step + ' / ' + TOTAL;
+    if (!result.shared && !result.dev) text += ' (local — shared counter unreachable)';
     chrome.textContent = text;
   }
 
@@ -311,45 +321,29 @@
   function init() {
     var params = new URLSearchParams(location.search);
     var debug = params.has('debug');
-    if (params.has('reset')) localStorage.removeItem(KEY);
 
-    var prevStep = Number(localStorage.getItem(KEY) || 0);
-    if (!Number.isFinite(prevStep)) prevStep = 0;
-    var step = Math.min(prevStep + 1, TOTAL);
-    localStorage.setItem(KEY, String(step));
+    StepEngine.getStep({ namespace: NAMESPACE, key: STEP_KEY, max: TOTAL }).then(function (result) {
+      var step = result.value;
+      var prevStep = Math.max(0, step - 1); // StepEngine always hits by exactly 1, so this visit's "before" is just one less
 
-    var countBefore = appliedCount(prevStep);
-    var countNow = appliedCount(step);
+      var countBefore = appliedCount(prevStep);
+      var countNow = appliedCount(step);
 
-    // Re-derive full current state from scratch: apply every move whose
-    // position has been reached, in order — same "replay from zero every
-    // load" model as decay.js. Only the moves newly reached *this* visit
-    // get the jolt/flash treatment; earlier ones apply silently, already
-    // settled.
-    for (var i = 0; i < countNow; i++) {
-      if (i >= countBefore) {
-        MOVES[i].apply();
-      } else {
-        // Apply quietly: same function, just don't let it jolt anything
-        // freshly — jolt() is only called from inside apply(), so we
-        // can't suppress it per-call without threading a flag through
-        // every move. Simpler: let it jolt; a jolt on an element that's
-        // already in its final state is visually a no-op glitch-flash,
-        // not a reversion, so replaying it silently is harmless.
+      // Re-derive full current state from scratch: apply every move whose
+      // position has been reached, in order — same "replay from zero every
+      // load" model as decay.js. Every move in range gets applied on every
+      // load regardless of countBefore (jolt() on an already-settled
+      // element is a harmless no-op re-flash) — only whether the *overall*
+      // visit landed something new (countNow > countBefore) decides
+      // whether the full-page event flash fires.
+      for (var i = 0; i < countNow; i++) {
         MOVES[i].apply();
       }
-    }
-    if (step >= TERMINAL_STEP) converge();
+      if (step >= TERMINAL_STEP) converge();
 
-    if (countNow > countBefore || step >= TERMINAL_STEP) fireEventFlash();
+      if (countNow > countBefore || step >= TERMINAL_STEP) fireEventFlash();
 
-    renderChrome(step, countNow, debug);
-
-    window.addEventListener('keydown', function (e) {
-      if (e.altKey && e.key.toLowerCase() === 'r') {
-        localStorage.removeItem(KEY);
-        location.reload();
-      }
+      renderChrome(step, countNow, debug, result);
     });
   }
 
