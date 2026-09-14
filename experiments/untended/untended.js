@@ -9,10 +9,13 @@
  * Hovering (or, on touch, dragging) across the bouquet is a second,
  * separate thing: a "cleared" patch follows the cursor — the actual,
  * undamaged painting showing through, like wiping condensation off glass —
- * bounded by a visible ring that shows exactly how wide its reach is. It's
- * wide, it opens fast, and it lingers well after you stop before fogging
- * back over, so it reads as your attention holding it clear rather than a
- * toggle you flip once. This is purely cosmetic and purely local: it never
+ * bounded by a solid, high-contrast ring (.ut-halo, a real DOM element,
+ * not a canvas overlay) that marks exactly how wide its reach is and where
+ * its center is, so the gesture is legible the instant you touch the
+ * canvas rather than something you have to already know to look for. It
+ * opens almost instantly and fades back out quickly and predictably once
+ * you stop — a slow, lingering fade tried here first just read as broken
+ * rather than atmospheric. This is purely cosmetic and purely local: it never
  * calls the worker, never advances anything, and resets the moment you
  * reload. It can't touch the permanent scars either way — those come from
  * real elapsed time nobody was here, and nothing short of that not having
@@ -37,13 +40,15 @@
 
   // ---------- the wipe gesture (cosmetic only — see header) ----------
   var WIPE_RADIUS = 210; // internal px (of 750) — wide, on purpose
-  var WIPE_STAMP_PER_SEC = 6; // resting-hover stamp rate (opacity/sec) — keeps a held-still patch topped up
+  var WIPE_STAMP_PER_SEC = 14; // resting-hover stamp rate (opacity/sec) — near-instant so it reads as responsive
   var WIPE_MOVE_STAMP = 0.55; // stamp strength per interpolated step while actively moving — opens fast
   var WIPE_STEP_PX = WIPE_RADIUS * 0.35; // interpolation spacing so a fast sweep leaves no gaps
   // destination-out compositing removes a *fraction* of what's there each
-  // frame, not a fixed amount — so this decays roughly exponentially, not
-  // linearly. At 0.05/sec: ~63% still visible after 20s, ~10% left by 45s.
-  var WIPE_FADE_PER_SEC = 0.05;
+  // frame, not a fixed amount, so this decays exponentially, not linearly:
+  // at 1.3/sec, ~27% is left after 1s and it's effectively gone by ~2.5s.
+  // A slower fade here read as the mask just not working right, not as
+  // "lingering" — quick and predictable beat generous.
+  var WIPE_FADE_PER_SEC = 1.3;
 
   // ---------- seeded RNG (same mulberry32 + FNV-1a shape as decay.js/mutate.js) ----------
   function hash32(str) {
