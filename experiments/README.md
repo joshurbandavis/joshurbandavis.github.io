@@ -59,18 +59,20 @@ behavioral art. Each lives in its own folder as a self-contained page.
     `<body background= bgcolor= text=>` attributes, which only ever apply to
     a document's *actual* `<body>`, not a plain child of `#pxRoot` — silently
     never rendered until converted to the equivalent inline styles.
-  - **Every real button still goes somewhere real, all the way through.**
-    The 10 real "planet" buttons on the actual 1996 page point at interior
-    sections this package doesn't include (`cmp/...`) or off to Warner
-    Bros' own store — dead ends either way. `CONVERGED_LINKS` in
-    `palimpsest.js` re-points each one at a real destination on this site
-    instead (paired with whichever modern element that same GIF already
-    replaced earlier in `MOVES`, where one exists, so the mapping is at
-    least internally consistent). The five relabeled nav links earlier in
-    the sequence (`Jam Central`, `Planet B-Ball`, etc.) get the same
-    treatment — pointed at the *live* homepage's real anchors rather than
-    this copy's own local ones, so a later collapse move removing that
-    local section can't turn a relabeled link into a dead scroll-to-nothing.
+  - **Committed to the decay — no safety net.** The five relabeled nav
+    links (`Jam Central`, `Planet B-Ball`, etc.) keep their original local
+    anchor hrefs; a later collapse move removes the section each one
+    points to, so the link quietly goes dead — scrolls to nothing, same as
+    a piece of `decay/` that's simply gone. The real 1996 page's own 10
+    "planet" buttons are left exactly as fetched too: they point at
+    interior sections this package doesn't include (`cmp/...`, real
+    404s) or off to Warner Bros' own store. An earlier version of this
+    design re-routed all of these to real destinations on this site so
+    nothing ever dead-ended — tidier, but it meant the terminal state
+    always had an escape hatch back to safety, which undercuts the
+    finality `decay/`'s own ending commits to (no reset, nowhere to go).
+    Reverted on purpose: the real artifact overtaking the page should
+    include its actual decay, broken links and all, not just its look.
 
   Tracked per-browser via `localStorage` (key `dwt_palimpsest_refresh_v3`)
   — no shared backend, unlike `decay/` and `mutate/`.
