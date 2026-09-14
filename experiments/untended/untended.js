@@ -1,37 +1,23 @@
 /*
  * untended.js
  *
- * A still life that only stays whole if someone keeps showing up. Telegarden
- * (1995) was one real greenhouse, tended remotely by whoever logged in — not
- * just by *visiting* a webpage, but by actually operating the thing: aiming
- * a camera, driving a robot arm, planting a seed. This piece's first version
- * only had the passive half of that (loading the page silently counted as
- * "tending," which is also exactly the hole that makes a bare refresh, or a
- * dumb script, indistinguishable from a real visit). This version closes
- * that hole by making the tending itself something you do with your hand:
+ * A still life that only stays whole if someone keeps showing up. Loading
+ * the page is the real tend — same measure decay.js and mutate.js use for
+ * their own shared counters, via worker.js's /tend (or the identical local
+ * fallback when no worker is configured; see below).
  *
- *   - Hover/drag across the bouquet and a "cleared" patch follows your
- *     cursor — the actual, undamaged painting showing through, like wiping
- *     condensation off glass. It's wide and it lingers (fogs back over
- *     slowly, not instantly) once you stop, rather than vanishing the
- *     moment you look away — meant to feel like your attention is what's
- *     holding it clear, not a toggle you flip once.
- *   - That gesture is also the ONLY thing that can register as a real visit.
- *     Loading the page just shows the truth of how things stand (a
- *     read-only peek at the shared state) — nothing about the shared clock
- *     moves yet. Only once you've swept the cursor some real distance across
- *     the canvas does the page actually call worker.js's /tend and reset the
- *     shared drought clock. A refresh, or a script that only ever GETs the
- *     page, now does nothing at all to the real garden.
- *
- * What wiping can't do: touch the permanent scars. Those stay exactly what
- * they always were — real, shared, derived from actual elapsed time nobody
- * was here, never erased by anything short of that not having happened.
- * Wiping only ever reveals what's underneath for as long as you're looking;
- * it doesn't rewrite what the piece has already decided happened while
- * nobody was there. Same vanitas logic as before, just at gesture scale
- * instead of clock scale — see the top of worker.js for the permanent side
- * of this.
+ * Hovering (or, on touch, dragging) across the bouquet is a second,
+ * separate thing: a "cleared" patch follows the cursor — the actual,
+ * undamaged painting showing through, like wiping condensation off glass —
+ * bounded by a visible ring that shows exactly how wide its reach is. It's
+ * wide, it opens fast, and it lingers well after you stop before fogging
+ * back over, so it reads as your attention holding it clear rather than a
+ * toggle you flip once. This is purely cosmetic and purely local: it never
+ * calls the worker, never advances anything, and resets the moment you
+ * reload. It can't touch the permanent scars either way — those come from
+ * real elapsed time nobody was here, and nothing short of that not having
+ * happened erases them. Wiping only ever shows you what's underneath for
+ * as long as you're looking.
  */
 (function () {
   var WORKER_URL = 'https://untended-garden.YOUR-SUBDOMAIN.workers.dev';
@@ -49,11 +35,15 @@
 
   var INTERNAL_SIZE = 750; // source is 1500x1500; half-res keeps per-pixel passes fast
 
-  // ---------- the wipe/tend gesture ----------
-  var WIPE_RADIUS = 150; // internal px — wide, on purpose (see header)
-  var WIPE_STAMP_PER_SEC = 3.2; // how fast the cleared patch opens while hovering (opacity/sec)
-  var WIPE_FADE_PER_SEC = 0.09; // how slowly it fogs back over once you leave (~11s to clear)
-  var TEND_DISTANCE_PX = 3800; // cumulative cursor travel (internal px) needed to register a tend
+  // ---------- the wipe gesture (cosmetic only — see header) ----------
+  var WIPE_RADIUS = 210; // internal px (of 750) — wide, on purpose
+  var WIPE_STAMP_PER_SEC = 6; // resting-hover stamp rate (opacity/sec) — keeps a held-still patch topped up
+  var WIPE_MOVE_STAMP = 0.55; // stamp strength per interpolated step while actively moving — opens fast
+  var WIPE_STEP_PX = WIPE_RADIUS * 0.35; // interpolation spacing so a fast sweep leaves no gaps
+  // destination-out compositing removes a *fraction* of what's there each
+  // frame, not a fixed amount — so this decays roughly exponentially, not
+  // linearly. At 0.05/sec: ~63% still visible after 20s, ~10% left by 45s.
+  var WIPE_FADE_PER_SEC = 0.05;
 
   // ---------- seeded RNG (same mulberry32 + FNV-1a shape as decay.js/mutate.js) ----------
   function hash32(str) {
@@ -298,8 +288,8 @@
     return { droughtMs: drought, scarCount: scarCount, now: now };
   }
 
-  // kind: 'peek' (read-only, never advances anything) or 'tend' (the real
-  // visit — only called once the wipe gesture has earned it; see init()).
+  // kind: 'tend' (the real visit — the default on every load) or 'peek'
+  // (read-only, never advances anything — only when ?peek=1 is set).
   function fetchState(kind) {
     var params = new URLSearchParams(location.search);
     var dev = params.has('dev');
@@ -407,17 +397,23 @@
       var maskTempCtx = maskTemp.getContext('2d');
       var maskDirty = false; // has anything ever been stamped? (skip compositing until so)
 
-      var params = new URLSearchParams(location.search);
-      var allowTend = !params.has('peek') && !params.has('drought') && !params.has('scars');
+      // a visible ring showing exactly how wide the wipe's reach is —
+      // created here rather than in the markup since it's pure interaction
+      // chrome, sized in real screen pixels and positioned in fixed/screen
+      // space (so it never needs to know about the canvas's internal
+      // 750px coordinate space at all)
+      var halo = document.createElement('div');
+      halo.className = 'ut-halo';
+      document.body.appendChild(halo);
 
-      fetchState('peek').then(function (state) {
+      var params = new URLSearchParams(location.search);
+
+      fetchState(params.has('peek') ? 'peek' : 'tend').then(function (state) {
         var scarCount = state.scarCount;
         var scarred = new ImageData(new Uint8ClampedArray(baseData.data), INTERNAL_SIZE, INTERNAL_SIZE);
         for (var i = 1; i <= scarCount; i++) applyScar(scarred, i);
 
         var ratio = Math.max(0, Math.min(1, state.droughtMs / EPHEMERAL_FULL_MS));
-        var tended = false;
-        var wipeDistance = 0;
         var lastPointer = null; // {x,y} in internal canvas space, or null if not inside
         var nextTrembleAt = 0;
         var looping = false;
@@ -450,42 +446,22 @@
           if (state.preview) {
             bits.push('preview — ' + formatDuration(state.droughtMs) + ' drought, ' + scarCount + ' scars');
           } else {
-            bits.push(tended
-              ? 'tended just now'
-              : (state.droughtMs === 0 ? 'just tended' : 'unvisited ' + formatDuration(state.droughtMs) + ' before this'));
+            bits.push(state.droughtMs === 0 ? 'just tended' : 'unvisited ' + formatDuration(state.droughtMs) + ' before this');
             bits.push(scarCount + ' of ' + SCAR_CAP + ' scars');
             if (state.dev) bits.push('dev — local only, not the real garden');
             else if (state.notConfigured) bits.push('local only — shared worker not deployed yet');
             else if (state.workerUnreachable) bits.push('local only — shared worker unreachable');
             else if (state.shared) bits.push('shared');
-            if (allowTend && !tended) {
-              bits.push(wipeDistance > 0 ? 'tending…' : 'wipe the bouquet to tend it');
-            }
           }
           chrome.textContent = bits.join(' · ');
         }
         setChrome();
 
-        function performTend() {
-          tended = true; // fire once
-          fetchState('tend').then(function (result) {
-            if (result.scarCount > scarCount) {
-              for (var i = scarCount + 1; i <= result.scarCount; i++) applyScar(scarred, i);
-              scarCount = result.scarCount;
-            }
-            ratio = 0; // tending resets the drought this visitor sees, going forward
-            rebuildDamaged();
-            state.shared = result.shared; state.dev = result.dev;
-            state.notConfigured = result.notConfigured; state.workerUnreachable = result.workerUnreachable;
-            setChrome();
-          });
-        }
-
-        function toInternal(evt) {
+        function toInternal(clientX, clientY) {
           var rect = canvas.getBoundingClientRect();
           return {
-            x: (evt.clientX - rect.left) * (INTERNAL_SIZE / rect.width),
-            y: (evt.clientY - rect.top) * (INTERNAL_SIZE / rect.height),
+            x: (clientX - rect.left) * (INTERNAL_SIZE / rect.width),
+            y: (clientY - rect.top) * (INTERNAL_SIZE / rect.height),
           };
         }
 
@@ -499,6 +475,26 @@
           maskDirty = true;
         }
 
+        // interpolate along the path since the last event, so a fast sweep
+        // still leaves a continuous cleared trail instead of sparse dots
+        function stampAlong(from, to) {
+          var dx = to.x - from.x, dy = to.y - from.y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          var steps = Math.max(1, Math.ceil(dist / WIPE_STEP_PX));
+          for (var s = 1; s <= steps; s++) {
+            var t = s / steps;
+            stampMask({ x: from.x + dx * t, y: from.y + dy * t }, WIPE_MOVE_STAMP);
+          }
+        }
+
+        function updateHalo(clientX, clientY) {
+          var rect = canvas.getBoundingClientRect();
+          var displayRadius = WIPE_RADIUS * (rect.width / INTERNAL_SIZE);
+          halo.style.width = halo.style.height = (displayRadius * 2) + 'px';
+          halo.style.left = clientX + 'px';
+          halo.style.top = clientY + 'px';
+        }
+
         function ensureLoop() {
           if (looping) return;
           looping = true;
@@ -510,6 +506,7 @@
           var dt = Math.min(0.1, (now - lastTick) / 1000); // seconds, clamped so a tab-switch gap can't jump the mask
           lastTick = now;
 
+          // gently keeps a held-still cursor topped up between move events
           if (lastPointer) stampMask(lastPointer, WIPE_STAMP_PER_SEC * dt);
 
           // fade the mask: a low-alpha destination-out wash, scaled by dt
@@ -543,25 +540,21 @@
 
         canvas.style.touchAction = 'none';
         canvas.addEventListener('pointerenter', function (evt) {
-          lastPointer = toInternal(evt);
+          lastPointer = toInternal(evt.clientX, evt.clientY);
+          updateHalo(evt.clientX, evt.clientY);
+          halo.classList.add('visible');
           ensureLoop();
         });
         canvas.addEventListener('pointermove', function (evt) {
-          var pt = toInternal(evt);
-          if (lastPointer) {
-            var dx = pt.x - lastPointer.x, dy = pt.y - lastPointer.y;
-            var dist = Math.sqrt(dx * dx + dy * dy);
-            if (allowTend && !tended) {
-              wipeDistance += dist;
-              if (wipeDistance >= TEND_DISTANCE_PX) performTend();
-              else setChrome();
-            }
-          }
+          var pt = toInternal(evt.clientX, evt.clientY);
+          if (lastPointer) stampAlong(lastPointer, pt);
           lastPointer = pt;
+          updateHalo(evt.clientX, evt.clientY);
           ensureLoop();
         });
         function onLeave() {
           lastPointer = null;
+          halo.classList.remove('visible');
           if (fadeIdleTimer) clearTimeout(fadeIdleTimer);
           fadeIdleTimer = setTimeout(noteFullyFaded, Math.ceil(1000 / WIPE_FADE_PER_SEC) + 500);
           ensureLoop();

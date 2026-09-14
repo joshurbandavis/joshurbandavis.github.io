@@ -55,6 +55,22 @@ html,body{
 }
 .ut-banner code{background:#14120d;padding:1px 5px;border-radius:3px}
 
+/* the wipe brush's reach, made visible — a ring in real screen pixels,
+   positioned/sized from JS. difference blend keeps it readable against
+   both the black background and the bright bouquet without needing its
+   own color logic. */
+.ut-halo{
+  position:fixed;top:0;left:0;width:0;height:0;
+  transform:translate(-50%,-50%);
+  border:1.5px solid rgba(255,255,255,.7);
+  border-radius:50%;
+  pointer-events:none;
+  mix-blend-mode:difference;
+  opacity:0;transition:opacity .15s ease;
+  z-index:50;
+}
+.ut-halo.visible{opacity:1}
+
 @media (max-width:520px){
   .ut-stage{padding:2.2rem 1rem;gap:1.1rem}
 }
