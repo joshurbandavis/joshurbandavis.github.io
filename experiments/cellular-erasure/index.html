@@ -18,7 +18,7 @@
     --off-bg:#EDECE7;
     --off-ink:#8B8A83;
     --bg-raised:var(--surface);
-    --grid-line:rgba(18,18,16,0.05);
+    --grid-line:rgba(18,18,16,0.11);
     --focus:var(--accent);
   }
   @media (prefers-color-scheme: dark){
@@ -34,7 +34,7 @@
       --life:#4E9A48;
       --off-bg:#232320;
       --off-ink:#6F6E67;
-      --grid-line:rgba(242,241,236,0.055);
+      --grid-line:rgba(242,241,236,0.10);
     }
   }
   :root[data-theme="dark"]{
@@ -49,7 +49,7 @@
     --life:#4E9A48;
     --off-bg:#232320;
     --off-ink:#6F6E67;
-    --grid-line:rgba(242,241,236,0.055);
+    --grid-line:rgba(242,241,236,0.10);
   }
 
   *{box-sizing:border-box;}
@@ -75,8 +75,8 @@
       linear-gradient(var(--grid-line) 1px, transparent 1px),
       linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size:34px 34px;
-    -webkit-mask-image:radial-gradient(ellipse 65% 55% at 50% 0%, #000 35%, transparent 82%);
-    mask-image:radial-gradient(ellipse 65% 55% at 50% 0%, #000 35%, transparent 82%);
+    -webkit-mask-image:radial-gradient(ellipse 90% 85% at 50% 0%, #000 45%, transparent 100%);
+    mask-image:radial-gradient(ellipse 90% 85% at 50% 0%, #000 45%, transparent 100%);
   }
   .page{
     position:relative;
@@ -894,6 +894,41 @@
         "Each singing what belongs to him or her and to none else,",
         "The day what belongs to the day - at night the party of young fellows, robust, friendly,",
         "Singing with open mouths their strong melodious songs."
+      ]
+    },
+    {
+      title: "The Sick Rose",
+      author: "William Blake",
+      lines: [
+        "O Rose thou art sick.",
+        "The invisible worm,",
+        "That flies in the night",
+        "In the howling storm:",
+        "",
+        "Has found out thy bed",
+        "Of crimson joy:",
+        "And his dark secret love",
+        "Does thy life destroy."
+      ]
+    },
+    {
+      title: "Remember",
+      author: "Christina Rossetti",
+      lines: [
+        "Remember me when I am gone away,",
+        "Gone far away into the silent land;",
+        "When you can no more hold me by the hand,",
+        "Nor I half turn to go yet turning stay.",
+        "Remember me when no more day by day",
+        "You tell me of our future that you plann'd:",
+        "Only remember me; you understand",
+        "It will be late to counsel then or pray.",
+        "Yet if you should forget me for a while",
+        "And afterwards remember, do not grieve:",
+        "For if the darkness and corruption leave",
+        "A vestige of the thoughts that once I had,",
+        "Better by far you should forget and smile",
+        "Than that you should remember and be sad."
       ]
     }
   ];
