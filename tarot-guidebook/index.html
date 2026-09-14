@@ -46,7 +46,10 @@ nav .shop-link{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;tex
 nav .shop-link:hover{background:#d4b85c;box-shadow:0 0 15px var(--gold-glow),0 0 40px rgba(201,168,76,.15)}
 
 /* ---- hero ---- */
-.gb-hero{padding:5rem 3rem 3rem;max-width:1300px;display:grid;grid-template-columns:1.3fr 1fr;gap:3rem;align-items:center}
+.gb-hero{padding:4rem 3rem 3rem;max-width:900px}
+.gb-hero-art{position:relative;width:100%;max-width:280px;margin:0 auto 2rem;display:flex;align-items:center;justify-content:center}
+.gb-hero-art::before{content:'';position:absolute;inset:-15%;background:radial-gradient(ellipse at center,rgba(201,168,76,.22) 0%,rgba(155,114,207,.1) 45%,transparent 72%);filter:blur(6px);z-index:0}
+.gb-hero-art img{position:relative;z-index:1;width:100%;display:block}
 .gb-kicker{font-family:var(--mono);font-size:.68rem;letter-spacing:.35em;text-transform:uppercase;color:var(--accent);margin-bottom:1.2rem;display:block}
 .gb-title{font-family:var(--serif);font-weight:400;font-size:clamp(2.6rem,6vw,4.6rem);line-height:1.02;letter-spacing:-.01em;margin-bottom:1.1rem}
 .gb-title em{font-style:italic;color:var(--gold)}
@@ -54,10 +57,6 @@ nav .shop-link:hover{background:#d4b85c;box-shadow:0 0 15px var(--gold-glow),0 0
 .gb-sub a{color:var(--fg);border-bottom:1px solid var(--dim);transition:.3s}
 .gb-sub a:hover{color:var(--gold);border-color:var(--gold)}
 .gb-divider{width:60px;height:1px;background:linear-gradient(to right,var(--accent),var(--gold),transparent);margin:2rem 0 0;opacity:.6}
-.gb-hero-art{position:relative;margin:0 0 0 auto;max-width:320px;transform:rotate(-2deg);transition:transform .4s}
-.gb-hero-art:hover{transform:rotate(0deg) scale(1.015)}
-.gb-hero-art img{width:100%;display:block;border-radius:10px;border:1px solid rgba(255,42,109,.18);box-shadow:0 25px 60px -20px rgba(0,0,0,.75),0 0 50px -12px rgba(201,168,76,.2);filter:sepia(.12) saturate(.85) contrast(1.04)}
-.gb-hero-art figcaption{margin-top:.8rem;text-align:center;font-family:var(--serif);font-style:italic;font-size:.85rem;color:var(--dim2);opacity:.8}
 
 /* ---- controls ---- */
 .gb-controls{position:sticky;top:57px;z-index:120;background:rgba(8,7,16,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:1.25rem 3rem}
@@ -124,6 +123,7 @@ nav .shop-link:hover{background:#d4b85c;box-shadow:0 0 15px var(--gold-glow),0 0
 .elem-chip{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--mono);font-size:.56rem;letter-spacing:.06em;text-transform:uppercase;color:var(--dim2);border:1px solid rgba(255,42,109,.12);border-radius:100px;padding:.2rem .65rem .2rem .4rem}
 .elem-glyph{width:16px;height:16px;flex-shrink:0;color:var(--c,var(--gold))}
 .elem-glyph.small{width:13px;height:13px}
+.astro-glyph{font-size:.85rem;line-height:1;color:var(--c,var(--gold));flex-shrink:0}
 .p-num.tip-trigger{padding:.1rem .4rem;margin-right:.5rem}
 #tooltip{position:fixed;z-index:400;max-width:260px;background:#0d0b16;border:1px solid var(--gold);border-radius:10px;padding:.85rem 1rem;font-family:var(--sans);font-size:.78rem;line-height:1.55;color:var(--fg);box-shadow:0 10px 30px -8px rgba(0,0,0,.7);opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s;pointer-events:none}
 #tooltip.show{opacity:1;transform:translateY(0)}
@@ -141,10 +141,6 @@ nav .shop-link:hover{background:#d4b85c;box-shadow:0 0 15px var(--gold-glow),0 0
 .gb-footer a{color:var(--dim2);border-bottom:1px solid var(--dim);transition:.3s}
 .gb-footer a:hover{color:var(--gold);border-color:var(--gold)}
 
-@media(max-width:860px){
-  .gb-hero{grid-template-columns:1fr;gap:2rem}
-  .gb-hero-art{margin:0 auto;max-width:220px;order:-1}
-}
 @media(max-width:640px){
   nav{padding:1rem 1.25rem}
   nav .logo{display:none}
@@ -167,16 +163,13 @@ nav .shop-link:hover{background:#d4b85c;box-shadow:0 0 15px var(--gold-glow),0 0
 </nav>
 
 <header class="gb-hero">
-  <div class="gb-hero-text">
-    <span class="gb-kicker">Deleted World Tarot — Companion Guidebook</span>
-    <h1 class="gb-title">Atlas of <em>Deleted Worlds</em></h1>
-    <p class="gb-sub">All 79 cards of the Deleted World Tarot, searchable and browsable — upright and reversed meanings, keywords, and correspondences, drawn from the print guidebook <em>Atlas of Deleted Worlds</em> written &amp; illustrated by <a href="../index.html">Josh Urban Davis</a>.</p>
-    <div class="gb-divider"></div>
+  <div class="gb-hero-art">
+    <img src="images/atlas-figure.png" alt="Atlas, illustration from the Atlas of Deleted Worlds title page" loading="eager">
   </div>
-  <figure class="gb-hero-art">
-    <img src="images/atlas-cover.jpg" alt="The printed Atlas of Deleted Worlds guidebook, held open to its title page" loading="eager">
-    <figcaption>The printed guidebook, first edition</figcaption>
-  </figure>
+  <span class="gb-kicker">Deleted World Tarot — Companion Guidebook</span>
+  <h1 class="gb-title">Atlas of <em>Deleted Worlds</em></h1>
+  <p class="gb-sub">All 79 cards of the Deleted World Tarot, searchable and browsable — upright and reversed meanings, keywords, and correspondences, drawn from the print guidebook <em>Atlas of Deleted Worlds</em> written &amp; illustrated by <a href="../index.html">Josh Urban Davis</a>.</p>
+  <div class="gb-divider"></div>
 </header>
 
 <div class="gb-controls">
@@ -280,6 +273,16 @@ const ZODIAC_INFO = {
   Capricorn: 'Earth, ambition; embodies the crystallization of goals and structure.',
   Aquarius: 'Air, innovation; symbolizes the alchemical distillation of universal knowledge.',
   Pisces: 'Water, dissolution; relates to spiritual alchemy and merging with the collective.'
+};
+// Standard astrological glyphs (Unicode, not custom-drawn like the elements --
+// these are already universal symbols, unlike the alchemical triangles).
+const PLANET_SYMBOL = {
+  Sun: '☉', Moon: '☽', Mercury: '☿', Venus: '♀', Mars: '♂',
+  Jupiter: '♃', Saturn: '♄', Uranus: '♅', Neptune: '♆', Pluto: '♇'
+};
+const ZODIAC_SYMBOL = {
+  Aries: '♈', Taurus: '♉', Gemini: '♊', Cancer: '♋', Leo: '♌', Virgo: '♍',
+  Libra: '♎', Scorpio: '♏', Sagittarius: '♐', Capricorn: '♑', Aquarius: '♒', Pisces: '♓'
 };
 const NUMBER_INFO = {
   '0': 'Completion and beginning, enlightenment, the beginning and the end, ouroboros.',
@@ -405,6 +408,10 @@ function corrItemHTML(item){
   const tripClass = content ? ' tip-trigger' : '';
   if(type === 'element'){
     return `<span class="elem-chip${tripClass}" ${tipAttrs}>${elementGlyphSVG(value)}<span>${esc(value)}</span></span>`;
+  }
+  const astro = type === 'planet' ? PLANET_SYMBOL[value] : type === 'zodiac' ? ZODIAC_SYMBOL[value] : null;
+  if(astro){
+    return `<span class="elem-chip${tripClass}" ${tipAttrs}><span class="astro-glyph" aria-hidden="true">${astro}</span><span>${esc(value)}</span></span>`;
   }
   return `<span class="chip${tripClass}" ${tipAttrs}>${esc(value)}</span>`;
 }
