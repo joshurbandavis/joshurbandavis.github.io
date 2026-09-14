@@ -12,10 +12,12 @@
  * bounded by a solid, high-contrast ring (.ut-halo, a real DOM element,
  * not a canvas overlay) that marks exactly how wide its reach is and where
  * its center is, so the gesture is legible the instant you touch the
- * canvas rather than something you have to already know to look for. It
- * opens almost instantly and fades back out quickly and predictably once
- * you stop — a slow, lingering fade tried here first just read as broken
- * rather than atmospheric. This is purely cosmetic and purely local: it never
+ * canvas rather than something you have to already know to look for — the
+ * ring itself appears instantly; the reveal underneath it eases in and out
+ * over a fraction of a second rather than flipping on/off, which is what
+ * an earlier, too-instant version of this actually did (it read as the
+ * whole thing "snapping" rather than wiping). This is purely cosmetic and
+ * purely local: it never
  * calls the worker, never advances anything, and resets the moment you
  * reload. It can't touch the permanent scars either way — those come from
  * real elapsed time nobody was here, and nothing short of that not having
@@ -39,16 +41,22 @@
   var INTERNAL_SIZE = 750; // source is 1500x1500; half-res keeps per-pixel passes fast
 
   // ---------- the wipe gesture (cosmetic only — see header) ----------
+  // The cursor ring (.ut-halo, CSS) is a separate, instant indicator — it
+  // should pop in immediately. The actual reveal underneath should NOT:
+  // making both the reveal-in and fade-out near-instant (an earlier pass
+  // at this) turned it into a hard flip between fully-damaged and
+  // fully-clear rather than a wipe, which read as the whole thing
+  // "snapping." These are tuned to ease visibly instead.
   var WIPE_RADIUS = 210; // internal px (of 750) — wide, on purpose
-  var WIPE_STAMP_PER_SEC = 14; // resting-hover stamp rate (opacity/sec) — near-instant so it reads as responsive
-  var WIPE_MOVE_STAMP = 0.55; // stamp strength per interpolated step while actively moving — opens fast
+  var WIPE_STAMP_PER_SEC = 5; // resting-hover stamp rate (opacity/sec) — ramps in over ~0.4-0.5s
+  var WIPE_MOVE_STAMP = 0.22; // stamp strength per interpolated step — takes a few passes to fully open, not one touch
   var WIPE_STEP_PX = WIPE_RADIUS * 0.35; // interpolation spacing so a fast sweep leaves no gaps
   // destination-out compositing removes a *fraction* of what's there each
   // frame, not a fixed amount, so this decays exponentially, not linearly:
-  // at 1.3/sec, ~27% is left after 1s and it's effectively gone by ~2.5s.
-  // A slower fade here read as the mask just not working right, not as
-  // "lingering" — quick and predictable beat generous.
-  var WIPE_FADE_PER_SEC = 1.3;
+  // at 0.6/sec, roughly half is gone after ~1.2s and it's fully faded by
+  // ~4-5s — quick enough to feel responsive, slow enough to read as a
+  // fade rather than a cut.
+  var WIPE_FADE_PER_SEC = 0.6;
 
   // ---------- seeded RNG (same mulberry32 + FNV-1a shape as decay.js/mutate.js) ----------
   function hash32(str) {
