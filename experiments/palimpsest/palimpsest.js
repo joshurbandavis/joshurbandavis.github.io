@@ -91,9 +91,16 @@
     a.appendChild(im);
     jolt(a);
   }
-  function relabelNav(href, label) {
+  function relabelNav(href, label, newHref) {
     setAll('a[href="' + href + '"]', function (a) {
       a.textContent = label;
+      // Point at the real, live homepage rather than this copy's own local
+      // anchor — a later move can remove the section that anchor targets
+      // (see the "collapse" moves below), which would otherwise turn a
+      // relabeled nav link into a dead scroll-to-nothing. Pointing at the
+      // real site means every relabeled link keeps going somewhere real,
+      // all the way through the terminal state.
+      if (newHref) a.setAttribute('href', newHref);
       jolt(a);
     });
   }
@@ -125,11 +132,11 @@
     }},
 
     // -- identity: the nav starts speaking a different language --
-    { id: 'nav-about', label: 'About → Jam Central', apply: function () { relabelNav('#about', 'Jam Central'); }},
-    { id: 'nav-research', label: 'Research → Planet B-Ball', apply: function () { relabelNav('#pubs', 'Planet B-Ball'); }},
-    { id: 'nav-design', label: 'Design → Lunar Tunes', apply: function () { relabelNav('#projects', 'Lunar Tunes'); }},
-    { id: 'nav-shop', label: 'Shop → Jump Station', apply: function () { relabelNav('http://73f7b8-3.myshopify.com', 'Jump Station'); }},
-    { id: 'nav-contact', label: 'Contact → Junior Jam', apply: function () { relabelNav('#contact', 'Junior Jam'); }},
+    { id: 'nav-about', label: 'About → Jam Central', apply: function () { relabelNav('#about', 'Jam Central', '../../index.html#about'); }},
+    { id: 'nav-research', label: 'Research → Planet B-Ball', apply: function () { relabelNav('#pubs', 'Planet B-Ball', '../../index.html#pubs'); }},
+    { id: 'nav-design', label: 'Design → Lunar Tunes', apply: function () { relabelNav('#projects', 'Lunar Tunes', '../../index.html#projects'); }},
+    { id: 'nav-shop', label: 'Shop → Jump Station', apply: function () { relabelNav('http://73f7b8-3.myshopify.com', 'Jump Station'); }}, // already a real, external, working link — nothing to redirect
+    { id: 'nav-contact', label: 'Contact → Junior Jam', apply: function () { relabelNav('#contact', 'Junior Jam', '../../index.html#contact'); }},
 
     // -- intrusion: real 1996 images replacing real icons, one at a time --
     { id: 'icon-scholar', label: 'the Scholar icon is a real 1996 GIF now', apply: function () { swapIcon('Google Scholar', 'p-pressbox.gif', 'Press Box Shuttle'); }},
@@ -227,6 +234,30 @@
     return n;
   }
 
+  // The real page's 10 "planet" buttons + the studio-store link all point
+  // to either interior sections this package doesn't include (cmp/...,
+  // real 404s) or off to Warner Bros' own store — dead ends for a visitor
+  // either way. Re-pointed at real destinations on this site instead, so
+  // the nav stays functional straight through the terminal state — every
+  // button still goes somewhere real, just dressed as a different planet.
+  // Paired up with whichever modern element that same GIF already replaced
+  // earlier in MOVES, where one exists (icon-scholar's pressbox.gif here
+  // becomes the real Scholar link again, etc.) so the mapping is at least
+  // internally consistent, not arbitrary.
+  var CONVERGED_LINKS = [
+    ['cmp/pressbox/pressboxframes.html', 'https://scholar.google.com/citations?user=_GBal-0AAAAJ&hl=en'],
+    ['cmp/jamcentral/jamcentralframes.html', '../../index.html#about'],
+    ['cmp/bball/bballframes.html', '../../index.html#pubs'],
+    ['cmp/tunes/tunesframes.html', '../../index.html#projects'],
+    ['cmp/lineup/lineupframes.html', '../../index.html'],
+    ['cmp/jump/jumpframes.html', 'http://73f7b8-3.myshopify.com'],
+    ['cmp/junior/juniorframes.html', '../../index.html#contact'],
+    ['https://shop.looneytunes.com/spacejam96?utm_source=SpaceJam1996&utm_medium=Website&utm_campaign=Theatrical2021', 'https://github.com/joshurbandavis'],
+    ['cmp/souvenirs/souvenirsframes.html', 'https://www.instagram.com/joshurbandavis'],
+    ['cmp/sitemap.html', 'https://twitter.com/joshurbandavis'],
+    ['cmp/behind/behindframes.html', 'https://www.linkedin.com/in/joshurbandavis/']
+  ];
+
   // ---- the terminal graft: real, one-way DOM surgery. Fetches the actual
   // 1996 page and replaces whatever remains of pxRoot with its real body
   // markup, verbatim — the same document now literally contains the other
@@ -250,6 +281,32 @@
         // to an absolute URL against the real fetched location first.
         Array.prototype.forEach.call(body.querySelectorAll('img[src]'), function (im) {
           im.setAttribute('src', new URL(im.getAttribute('src'), result.url).href);
+        });
+        // The real page sets its background/colors via legacy <body> HTML
+        // attributes (background=, bgcolor=, text=), not CSS. Those only
+        // ever apply to a document's actual <body> element — this one is
+        // about to become a plain child of #pxRoot, so the browser won't
+        // honor them at all (the background silently never renders).
+        // Convert each to the equivalent inline style, same URL-resolution
+        // treatment as the images above, before it loses "real body" status.
+        var bg = body.getAttribute('background');
+        if (bg) {
+          body.style.backgroundImage = 'url(' + new URL(bg, result.url).href + ')';
+          body.removeAttribute('background');
+        }
+        var bgcolor = body.getAttribute('bgcolor');
+        if (bgcolor) { body.style.backgroundColor = bgcolor; body.removeAttribute('bgcolor'); }
+        var textColor = body.getAttribute('text');
+        if (textColor) { body.style.color = textColor; body.removeAttribute('text'); }
+        // Re-point the real planet buttons at real destinations on this
+        // site (see CONVERGED_LINKS above) instead of the unincluded
+        // cmp/... interior pages or off-site to Warner Bros' own store.
+        CONVERGED_LINKS.forEach(function (pair) {
+          var a = body.querySelector('a[href="' + pair[0] + '"]');
+          if (!a) return;
+          a.setAttribute('href', pair[1]);
+          if (/^https?:/.test(pair[1])) a.setAttribute('target', '_blank');
+          else a.removeAttribute('target');
         });
         root.innerHTML = '';
         root.appendChild(body);

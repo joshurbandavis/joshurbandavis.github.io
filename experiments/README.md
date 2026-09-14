@@ -50,16 +50,37 @@ behavioral art. Each lives in its own folder as a self-contained page.
   - **The terminal graft is real surgery, not an iframe.** At step 365,
     `converge()` fetches `1996/index.html` and appends its actual `<body>`
     into this document's own `#pxRoot` — the same document now literally
-    contains the other page's real markup, not an overlay of it. (Moved
-    nodes change owning document, so relative image paths get resolved to
-    absolute URLs against the real fetch location first — otherwise every
-    image 404s one directory too high, a real bug this design shipped
-    with briefly before catching it in verification.)
+    contains the other page's real markup, not an overlay of it. Moving
+    that `<body>` into the live document changes its owning document, which
+    broke two things briefly before catching them in verification: relative
+    image paths (`img/p-jamlogo.gif`) resolved one directory too high (every
+    image 404'd) until resolved to an absolute URL against the real fetch
+    location first, and the real page's background/colors — set via legacy
+    `<body background= bgcolor= text=>` attributes, which only ever apply to
+    a document's *actual* `<body>`, not a plain child of `#pxRoot` — silently
+    never rendered until converted to the equivalent inline styles.
+  - **Every real button still goes somewhere real, all the way through.**
+    The 10 real "planet" buttons on the actual 1996 page point at interior
+    sections this package doesn't include (`cmp/...`) or off to Warner
+    Bros' own store — dead ends either way. `CONVERGED_LINKS` in
+    `palimpsest.js` re-points each one at a real destination on this site
+    instead (paired with whichever modern element that same GIF already
+    replaced earlier in `MOVES`, where one exists, so the mapping is at
+    least internally consistent). The five relabeled nav links earlier in
+    the sequence (`Jam Central`, `Planet B-Ball`, etc.) get the same
+    treatment — pointed at the *live* homepage's real anchors rather than
+    this copy's own local ones, so a later collapse move removing that
+    local section can't turn a relabeled link into a dead scroll-to-nothing.
 
   Tracked per-browser via `localStorage` (key `dwt_palimpsest_refresh_v3`)
-  — no shared backend, unlike `decay/` and `mutate/`. Interior sections
-  the 1996 page links to (`cmp/...`, `video/`) aren't included — those
-  links 404, as documented in the original source package.
+  — no shared backend, unlike `decay/` and `mutate/`.
+
+  A small persistent disclaimer sits fixed to the bottom of the page from
+  the first load onward, outside `#pxRoot` so the terminal graft's
+  wholesale innerHTML swap can't take it with it: unofficial fan project,
+  not affiliated with or endorsed by Warner Bros., real assets credited to
+  their actual rights holder. The experiments index card carries the same
+  note.
 
   Named for the mechanism, not the content — the experiments index card
   and its alt text deliberately don't say what the piece converges

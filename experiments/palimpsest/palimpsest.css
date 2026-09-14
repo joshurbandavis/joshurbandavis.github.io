@@ -9,17 +9,30 @@
  * mutation lands, the opposite of a fade: a jolt, not a dissolve.
  */
 .px-chrome{
-  position:fixed;bottom:14px;left:16px;z-index:9998;
+  position:fixed;bottom:34px;left:16px;z-index:9998;
   font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;
   color:#5a564f;opacity:.4;text-transform:lowercase;pointer-events:none;
 }
 .px-return{
-  position:fixed;bottom:14px;right:16px;z-index:9998;
+  position:fixed;bottom:34px;right:16px;z-index:9998;
   font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.12em;
   color:#5a564f;opacity:.35;text-decoration:none;text-transform:lowercase;
   transition:opacity .4s;
 }
 .px-return:hover{opacity:.8}
+
+/* Persistent, present from the first load and never removed by any move —
+   it lives outside #pxRoot, so the terminal graft's wholesale innerHTML
+   swap can't take it with it. Deliberately legible, not corner-tiny like
+   .px-chrome: this is the one piece of text on the page that isn't part
+   of the piece. */
+.px-disclaimer{
+  position:fixed;left:0;right:0;bottom:0;z-index:9997;
+  padding:6px 16px;text-align:center;
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.03em;
+  line-height:1.5;color:#8a8578;background:rgba(5,5,5,.7);
+  pointer-events:none;
+}
 
 /* A single mutated element gets this for ~260ms right after it changes:
    a hard invert-and-settle, not a fade in. */
