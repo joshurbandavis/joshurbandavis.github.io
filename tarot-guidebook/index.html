@@ -47,11 +47,12 @@ nav .shop-link:hover{background:#d4b85c;box-shadow:0 0 15px var(--gold-glow),0 0
 
 /* ---- hero ---- */
 .gb-hero{padding:4rem 3rem 3rem;max-width:900px}
-.gb-hero-art{position:relative;width:100%;max-width:280px;margin:0 auto 2rem;display:flex;align-items:center;justify-content:center}
-.gb-hero-art::before{content:'';position:absolute;inset:-15%;background:radial-gradient(ellipse at center,rgba(201,168,76,.22) 0%,rgba(155,114,207,.1) 45%,transparent 72%);filter:blur(6px);z-index:0}
+.gb-title-row{display:flex;align-items:center;gap:1.5rem;margin-bottom:1.1rem}
+.gb-hero-art{position:relative;flex-shrink:0;width:clamp(70px,9vw,110px);display:flex;align-items:center;justify-content:center}
+.gb-hero-art::before{content:'';position:absolute;inset:-40%;background:radial-gradient(ellipse at center,rgba(201,168,76,.28) 0%,rgba(155,114,207,.12) 45%,transparent 72%);filter:blur(8px);z-index:0}
 .gb-hero-art img{position:relative;z-index:1;width:100%;display:block}
 .gb-kicker{font-family:var(--mono);font-size:.68rem;letter-spacing:.35em;text-transform:uppercase;color:var(--accent);margin-bottom:1.2rem;display:block}
-.gb-title{font-family:var(--serif);font-weight:400;font-size:clamp(2.6rem,6vw,4.6rem);line-height:1.02;letter-spacing:-.01em;margin-bottom:1.1rem}
+.gb-title{font-family:var(--serif);font-weight:400;font-size:clamp(2.6rem,6vw,4.6rem);line-height:1.02;letter-spacing:-.01em;margin:0}
 .gb-title em{font-style:italic;color:var(--gold)}
 .gb-sub{color:var(--dim2);font-size:.95rem;line-height:1.75;max-width:560px}
 .gb-sub a{color:var(--fg);border-bottom:1px solid var(--dim);transition:.3s}
@@ -145,6 +146,9 @@ nav .shop-link:hover{background:#d4b85c;box-shadow:0 0 15px var(--gold-glow),0 0
   nav{padding:1rem 1.25rem}
   nav .logo{display:none}
   .gb-hero{padding:3rem 1.25rem 2rem}
+  .gb-title-row{gap:.9rem}
+  .gb-hero-art{width:56px}
+  .gb-title{font-size:clamp(2rem,11vw,2.6rem)}
   .gb-controls{padding:1rem 1.25rem}
   .gb-grid{padding:1.75rem 1.25rem 4rem;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.7rem}
   .gb-panel{padding:2.8rem 1.4rem 2rem}
@@ -163,11 +167,13 @@ nav .shop-link:hover{background:#d4b85c;box-shadow:0 0 15px var(--gold-glow),0 0
 </nav>
 
 <header class="gb-hero">
-  <div class="gb-hero-art">
-    <img src="images/atlas-figure.png" alt="Atlas, illustration from the Atlas of Deleted Worlds title page" loading="eager">
-  </div>
   <span class="gb-kicker">Deleted World Tarot — Companion Guidebook</span>
-  <h1 class="gb-title">Atlas of <em>Deleted Worlds</em></h1>
+  <div class="gb-title-row">
+    <div class="gb-hero-art">
+      <img src="images/atlas-figure.png" alt="Atlas, illustration from the Atlas of Deleted Worlds title page" loading="eager">
+    </div>
+    <h1 class="gb-title">Atlas of <em>Deleted Worlds</em></h1>
+  </div>
   <p class="gb-sub">All 79 cards of the Deleted World Tarot, searchable and browsable — upright and reversed meanings, keywords, and correspondences, drawn from the print guidebook <em>Atlas of Deleted Worlds</em> written &amp; illustrated by <a href="../index.html">Josh Urban Davis</a>.</p>
   <div class="gb-divider"></div>
 </header>
