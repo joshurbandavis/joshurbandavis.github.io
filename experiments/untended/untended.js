@@ -7,22 +7,25 @@
  * fallback when no worker is configured; see below).
  *
  * Hovering (or, on touch, dragging) across the bouquet is a second,
- * separate thing: a "cleared" patch follows the cursor — the actual,
- * undamaged painting showing through, like wiping condensation off glass —
- * bounded by a solid, high-contrast ring (.ut-halo, a real DOM element,
- * not a canvas overlay) that marks exactly how wide its reach is and where
- * its center is, so the gesture is legible the instant you touch the
- * canvas rather than something you have to already know to look for — the
- * ring itself appears instantly; the reveal underneath it eases in and out
- * over a fraction of a second rather than flipping on/off, which is what
- * an earlier, too-instant version of this actually did (it read as the
- * whole thing "snapping" rather than wiping). This is purely cosmetic and
- * purely local: it never
- * calls the worker, never advances anything, and resets the moment you
- * reload. It can't touch the permanent scars either way — those come from
- * real elapsed time nobody was here, and nothing short of that not having
- * happened erases them. Wiping only ever shows you what's underneath for
- * as long as you're looking.
+ * separate thing: a "cleared" patch follows the cursor, like wiping
+ * condensation off glass — bounded by a solid, high-contrast ring
+ * (.ut-halo, a real DOM element, not a canvas overlay) that marks exactly
+ * how wide its reach is and where its center is, so the gesture is legible
+ * the instant you touch the canvas. The ring appears instantly; the reveal
+ * underneath eases in and out over a fraction of a second rather than
+ * flipping on/off (an earlier, too-instant version of this read as the
+ * whole thing "snapping" rather than wiping).
+ *
+ * What it actually reveals matters: the scarred painting as it really
+ * stands, with only the live ephemeral trembling wiped away — never the
+ * never-scarred original (`revealBase`, built from `scarred`, not
+ * `baseData` — an earlier version of this got that backwards, which read
+ * as "wiping erases the scars," exactly the thing this piece isn't
+ * supposed to let you do). This is purely cosmetic and purely local: it
+ * never calls the worker, never advances anything, and resets the moment
+ * you reload. It can't touch the permanent scars either way — those come
+ * from real elapsed time nobody was here, and nothing short of that not
+ * having happened erases them.
  */
 (function () {
   var WORKER_URL = 'https://untended-garden.YOUR-SUBDOMAIN.workers.dev';
@@ -389,10 +392,15 @@
       canvas.width = INTERNAL_SIZE; canvas.height = INTERNAL_SIZE;
       var visCtx = canvas.getContext('2d');
 
-      // static layer: the real, undamaged painting — never touched again
-      var pristine = document.createElement('canvas');
-      pristine.width = INTERNAL_SIZE; pristine.height = INTERNAL_SIZE;
-      pristine.getContext('2d').putImageData(baseData, 0, 0);
+      // what wiping reveals: the scarred painting AS IT REALLY STANDS, with
+      // only the live ephemeral trembling removed — never the never-scarred
+      // original. Permanent scars are real elapsed time; showing them
+      // gone, even locally and temporarily, would contradict the one thing
+      // this piece is supposed to be honest about. Built once real scar
+      // count is known, below.
+      var revealBase = document.createElement('canvas');
+      revealBase.width = INTERNAL_SIZE; revealBase.height = INTERNAL_SIZE;
+      var revealBaseCtx = revealBase.getContext('2d');
 
       // current full render (scars + whatever ephemeral trembling applies) —
       // rebuilt on demand, never per-frame
@@ -401,7 +409,7 @@
       var damagedCtx = damaged.getContext('2d');
 
       // the wipe "cleared glass" alpha mask — stamped while hovering, fades
-      // on its own; a temp canvas masks a copy of `pristine` against it
+      // on its own; a temp canvas masks a copy of `revealBase` against it
       var mask = document.createElement('canvas');
       mask.width = INTERNAL_SIZE; mask.height = INTERNAL_SIZE;
       var maskCtx = mask.getContext('2d');
@@ -425,6 +433,7 @@
         var scarCount = state.scarCount;
         var scarred = new ImageData(new Uint8ClampedArray(baseData.data), INTERNAL_SIZE, INTERNAL_SIZE);
         for (var i = 1; i <= scarCount; i++) applyScar(scarred, i);
+        revealBaseCtx.putImageData(scarred, 0, 0);
 
         var ratio = Math.max(0, Math.min(1, state.droughtMs / EPHEMERAL_FULL_MS));
         var lastPointer = null; // {x,y} in internal canvas space, or null if not inside
@@ -445,7 +454,7 @@
           if (maskDirty) {
             maskTempCtx.clearRect(0, 0, INTERNAL_SIZE, INTERNAL_SIZE);
             maskTempCtx.globalCompositeOperation = 'source-over';
-            maskTempCtx.drawImage(pristine, 0, 0);
+            maskTempCtx.drawImage(revealBase, 0, 0);
             maskTempCtx.globalCompositeOperation = 'destination-in';
             maskTempCtx.drawImage(mask, 0, 0);
             maskTempCtx.globalCompositeOperation = 'source-over';

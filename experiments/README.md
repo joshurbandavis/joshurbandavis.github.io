@@ -257,23 +257,35 @@ behavioral art. Each lives in its own folder as a self-contained page.
     shared pieces, not a hole to close.
   - **Wiping is a separate, purely cosmetic gesture.** Hovering (or, on
     touch, dragging) across the canvas clears a wide patch that follows
-    the cursor — the real, undamaged painting showing through the damage,
-    like wiping condensation off glass — bounded by a visible ring
-    (`.ut-halo`, a real screen-space DOM element, `mix-blend-mode:
-    difference` so it reads against anything underneath) showing exactly
-    how far the effect reaches. It opens fast and interpolates along the
-    cursor's path so a quick sweep still leaves a continuous cleared trail
-    rather than sparse dots, and fades back over roughly a minute once you
-    stop — slow enough to read as lingering, not a toggle. None of this
-    calls the worker or writes anything anywhere; reload and it's gone.
-    It can't touch the permanent scars either way — those come from real
-    elapsed time, and nothing short of that not having happened erases
-    them. An earlier version of this piece tried making the wipe gesture
-    itself the only way to register a tend (closing the "refresh does
-    nothing" gap decay/mutate already accept); in practice the tuning
-    needed to make that feel good fought with just making the gesture
-    satisfying on its own, so it's cosmetic now and the refresh-based
-    measure stands.
+    the cursor, like wiping condensation off glass, bounded by a solid,
+    high-contrast ring (`.ut-halo` — a real screen-space DOM element, a
+    stacked light/dark outline rather than a blend mode, plus a small dot
+    marking the exact center) showing precisely how far the effect
+    reaches and where. It interpolates along the cursor's path so a quick
+    sweep still leaves a continuous cleared trail rather than sparse dots,
+    eases in over roughly half a second, and fades back out over a few
+    seconds once you stop — quick enough to feel responsive, not so
+    instant that it flips between states like a toggle instead of reading
+    as a wipe (an early pass at both the indicator and the timing got this
+    wrong twice: first too subtle and slow to register as doing anything,
+    then overcorrected into flipping instantly, which just looked like
+    the whole piece "snapping"). None of this calls the worker or writes
+    anything anywhere; reload and it's gone.
+
+    What it reveals matters, too: the scarred painting exactly as it
+    stands, with only the live ephemeral trembling cleared away — never
+    the never-scarred original. An early implementation built the reveal
+    layer from the untouched source image instead of the scarred one,
+    which meant wiping visibly erased permanent scars, if only locally
+    and temporarily — exactly the one thing this piece is supposed to be
+    honest about never doing. Fixed by building the reveal layer from the
+    scarred canvas once the real scar count is known, not the raw image.
+
+    An earlier version of this piece tried making the wipe gesture itself
+    the only way to register a tend (closing the "refresh does nothing"
+    gap decay/mutate already accept); in practice the tuning needed to
+    make that feel good fought with just making the gesture satisfying on
+    its own, so it's cosmetic now and the refresh-based measure stands.
 
   The six glitch techniques (`untended.js`) draw on both referenced
   folders: brightness-threshold run sorting is Kim Asendorf's ASDF Pixel
