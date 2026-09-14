@@ -54,6 +54,13 @@ body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;o
   .hs-9,.hs-10,.hs-11{display:none}
 }
 
+/* ---- the same specimens, cascading on past the hero: a randomized
+   field spanning from where the hero ends to the bottom of the page,
+   regenerated on load and on resize so it never repeats the same way
+   twice. Sits behind the card grid's own opaque background ---- */
+.page-specimens{position:absolute;left:0;width:100%;z-index:0;overflow:hidden;pointer-events:none}
+.page-specimens img{position:absolute;filter:drop-shadow(0 8px 18px rgba(0,0,0,.5))}
+
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.5rem 3rem;display:flex;align-items:center;justify-content:space-between}
 nav .logo{font-family:var(--mono);font-size:.8rem;letter-spacing:.2em;text-transform:uppercase}
 nav .crumb{font-family:var(--mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim)}
@@ -74,9 +81,18 @@ nav .crumb .sep{margin:0 .6em;opacity:.4}
 
 /* ---- hero centerpiece: an engraving of Atlas, straining under a
    cluster of the same stones scattered through the field around him,
-   from the Deleted World Atlas assets ---- */
-.hero-atlas-wrap{position:relative;z-index:2;display:flex;justify-content:center;margin-bottom:.6rem}
-.hero-atlas-wrap img{height:clamp(170px,20vw,300px);width:auto;filter:drop-shadow(0 14px 26px rgba(0,0,0,.6))}
+   from the Deleted World Atlas assets. Set beside the title rather
+   than stacked above it, the same figure-and-text pairing the Design
+   section on the main page and this page's own cards already use ---- */
+.hero-composed{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:2.8rem;max-width:820px}
+.hero-atlas-side{flex-shrink:0}
+.hero-atlas-side img{height:clamp(160px,20vw,280px);width:auto;filter:drop-shadow(0 16px 30px rgba(0,0,0,.6))}
+.hero-composed .hero-top{text-align:left;max-width:460px;padding:0;background:none}
+@media(max-width:820px){
+  .hero-composed{flex-direction:column;gap:1.2rem;max-width:520px}
+  .hero-composed .hero-top{text-align:center;max-width:none}
+  .hero-atlas-side img{height:clamp(140px,32vw,220px)}
+}
 .hero-scroll{position:relative;z-index:2;margin-top:.5rem;font-family:var(--mono);font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);opacity:.6}
 
 /* ---- grid: one elongated row per piece, alternating sides like the
@@ -140,6 +156,7 @@ footer a:hover{opacity:1;color:var(--accent)}
 <body>
 
 <div class="cursor-glow" id="glow"></div>
+<div class="page-specimens" id="pageSpecimens"></div>
 
 <nav>
   <a href="../index.html" class="logo">JUD</a>
@@ -161,16 +178,17 @@ footer a:hover{opacity:1;color:var(--accent)}
     <img class="hs-11" src="_shared/hero/stone_7.png" alt="" loading="eager">
   </div>
 
-  <div class="hero-atlas-wrap"><img src="_shared/hero/atlas_figure.png" alt="A classical engraving of Atlas, straining under a cluster of stones"></div>
-
-  <div class="hero-top">
-    <p class="hero-kicker">experiments</p>
-    <h1 class="hero-title">A Collection of <em>Strange</em> Systems</h1>
-    <p class="hero-lede">This is a collection of small net art projects, started in 2020 and
-      maintained ever since. Each one lives in its own folder and does one strange thing: waits
-      with you, slowly turns into a different website, loses a piece of itself every time
-      someone visits. None of them are useful. Most of them aren't linked from anywhere else
-      on this site.</p>
+  <div class="hero-composed">
+    <div class="hero-atlas-side"><img src="_shared/hero/atlas_figure.png" alt="A classical engraving of Atlas, straining under a cluster of stones"></div>
+    <div class="hero-top">
+      <p class="hero-kicker">experiments</p>
+      <h1 class="hero-title">A Collection of <em>Strange</em> Systems</h1>
+      <p class="hero-lede">This is a collection of small net art projects, started in 2020 and
+        maintained ever since. Each one lives in its own folder and does one strange thing: waits
+        with you, slowly turns into a different website, loses a piece of itself every time
+        someone visits. None of them are useful. Most of them aren't linked from anywhere else
+        on this site.</p>
+    </div>
   </div>
 
   <p class="hero-scroll">scroll / poke around</p>
@@ -285,11 +303,11 @@ footer a:hover{opacity:1;color:var(--accent)}
       <div class="card-body">
         <div class="card-head"><h2>untended</h2><span class="tag local">needs worker url</span></div>
         <p class="card-desc">A real Dutch vanitas bouquet, shared by every visitor, like a
-          miniature Telegarden: one real "last tended" clock decides how neglected it looks.
-          Every full day it goes completely untended earns one permanent scar, never undone.
-          Hover or drag across it and a clear patch follows your cursor, the real painting
-          showing through — and only that gesture, swept far enough, counts as tending; a
-          bare refresh now changes nothing. Enough scars and it stops reading as a painting.</p>
+          miniature Telegarden: one real "last visited" clock decides how neglected it looks.
+          Every full day it goes completely unvisited earns one permanent scar, never undone.
+          Hover or drag across it and a clear patch follows your cursor inside a visible ring,
+          the real painting showing through — purely cosmetic, fogging back over on its own.
+          Enough scars and it stops reading as a painting at all.</p>
         <div class="card-foot"><span>09</span><span class="go">open →</span></div>
       </div>
       <div class="card-shot"><img src="_shared/snapshots/untended.jpg" alt="Snapshot of the untended experiment: a Dutch vanitas flower bouquet partway glitched — pixel-sorted bands and RGB channel tearing consuming its lower half" loading="lazy"></div>
@@ -312,6 +330,58 @@ footer a:hover{opacity:1;color:var(--accent)}
   document.addEventListener('mousemove', function(e){
     glow.style.left = e.clientX + 'px';
     glow.style.top = e.clientY + 'px';
+  });
+})();
+
+// ---- the specimen field, cascading past the hero: a randomized
+// scatter of the same eight stone photographs running from the
+// bottom of the hero down to the bottom of the page. Edge-biased so
+// it mostly clears the card column and shows in the margins either
+// side, the way the hero's own corner stones do. Regenerates on load
+// and (debounced) on resize, since the page's total height and the
+// hero's height both depend on viewport size ----
+(function(){
+  var container = document.getElementById('pageSpecimens');
+  var hero = document.querySelector('.hero');
+  if (!container || !hero) return;
+  var sources = ['stone_1.png','stone_2.png','stone_3.png','stone_4.png','stone_5.png','stone_6.png','stone_7.png','stone_8.png'];
+
+  function populate(){
+    var heroBottom = hero.offsetTop + hero.offsetHeight;
+    var pageHeight = document.documentElement.scrollHeight;
+    var span = Math.max(0, pageHeight - heroBottom);
+    container.style.top = heroBottom + 'px';
+    container.style.height = span + 'px';
+    container.innerHTML = '';
+    if (span < 200) return;
+
+    var count = Math.round(span / 340); // roughly one every ~340px of page
+    for (var i = 0; i < count; i++){
+      var img = document.createElement('img');
+      img.src = '_shared/hero/' + sources[Math.floor(Math.random() * sources.length)];
+      img.alt = '';
+      img.loading = 'lazy';
+      var size = 55 + Math.random() * 140;
+      var onLeft = Math.random() < 0.5;
+      var edgeOffset = Math.random() * 14; // percent in from whichever edge
+      var y = Math.random() * span;
+      var rot = Math.random() * 32 - 16;
+      var op = 0.16 + Math.random() * 0.42;
+      img.style.width = size.toFixed(0) + 'px';
+      if (onLeft) { img.style.left = edgeOffset.toFixed(1) + '%'; }
+      else { img.style.right = edgeOffset.toFixed(1) + '%'; }
+      img.style.top = y.toFixed(0) + 'px';
+      img.style.transform = 'rotate(' + rot.toFixed(1) + 'deg)';
+      img.style.opacity = op.toFixed(2);
+      container.appendChild(img);
+    }
+  }
+
+  window.addEventListener('load', populate);
+  var resizeTimer;
+  window.addEventListener('resize', function(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(populate, 350);
   });
 })();
 
