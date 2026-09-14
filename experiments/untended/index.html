@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Untended</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A vanitas bouquet, shared by every visitor. Go too long without one and it starts to glitch — some of it permanently.">
+<link rel="apple-touch-icon" sizes="180x180" href="../../logo_personalweb_favicon_io/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../../logo_personalweb_favicon_io/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../../logo_personalweb_favicon_io/favicon-16x16.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="untended.css">
+</head>
+<body>
+
+<a class="ut-return" href="../../index.html">return</a>
+
+<div class="ut-stage">
+  <!-- Shows only until WORKER_URL in untended.js is pointed at a deployed
+       worker.js (see that file's header) — until then this page still
+       works, just as a private, per-browser simulation of the same idea. -->
+  <div class="ut-banner" id="utBanner" hidden>
+    no shared worker configured yet — this is a local, private simulation
+    of the garden, not the real shared one. Deploy <code>worker.js</code>
+    (instructions at the top of that file) and set <code>WORKER_URL</code>
+    near the top of <code>untended.js</code>.
+  </div>
+
+  <canvas id="gardenCanvas" aria-label="A vanitas still life of a flower bouquet, its condition reflecting how recently anyone has visited this page"></canvas>
+
+  <figure class="ut-caption">
+    <p>Vase of Flowers, after the Dutch manner.</p>
+    <p class="ut-sub">Kept only by whoever visits. Left alone, it does not wait.</p>
+  </figure>
+
+  <div class="ut-chrome" id="utChrome" title="permanent damage is one shared, real number — how many full days this page has ever gone completely unvisited, folded together. the live tremble on top of it is genuinely random every time and eases shortly after a visit."></div>
+</div>
+
+<script src="untended.js"></script>
+</body>
+</html>

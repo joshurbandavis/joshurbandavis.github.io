@@ -266,12 +266,17 @@ open experiments/cellular-erasure/index.html
 open experiments/no-one-in-particular/index.html
 open experiments/internet-is-haunted/index.html   # needs WORKER_URL set, see above
 open experiments/the-occupant/index.html
+open experiments/untended/index.html   # needs WORKER_URL set, see above — and a real
+                                        # http(s) origin: `file://` taints the canvas and
+                                        # blocks pixel reads, so serve this one locally
+                                        # (e.g. `python3 -m http.server` from this folder)
+                                        # rather than double-clicking it.
 ```
 
 or once pushed, at `/experiments/please-wait/` / `/experiments/palimpsest/` /
 `/experiments/decay/` / `/experiments/mutate/` / `/experiments/cellular-erasure/` /
 `/experiments/no-one-in-particular/` / `/experiments/internet-is-haunted/` /
-`/experiments/the-occupant/` on the live site.
+`/experiments/the-occupant/` / `/experiments/untended/` on the live site.
 
 `decay/` and `mutate/` share one counter service (`countapi.xyz`) but each
 uses its own namespaced key, so visiting one never advances the other.

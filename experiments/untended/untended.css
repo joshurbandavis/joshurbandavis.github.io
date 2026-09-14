@@ -1,0 +1,60 @@
+/*
+ * untended.css
+ *
+ * One painting, centered on a black field — the vanitas genre's own
+ * backdrop, kept as the page background rather than styled over. Almost
+ * everything else here is the same restrained meta-chrome pattern as
+ * decay.css/mutate.css: a tiny fixed corner readout, a quiet return link,
+ * nothing that competes with the canvas itself.
+ */
+
+*{box-sizing:border-box}
+html,body{
+  margin:0;height:100%;background:#050505;color:#ddd8d0;
+  font-family:'Space Mono',monospace;
+}
+
+.ut-stage{
+  min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1.4rem;padding:3rem 1.2rem;
+}
+
+#gardenCanvas{
+  width:min(88vw,640px);height:min(88vw,640px);
+  background:#000;box-shadow:0 30px 70px -30px rgba(0,0,0,.8);
+  border-radius:2px;
+}
+
+.ut-caption{margin:0;text-align:center;max-width:36rem}
+.ut-caption p{margin:0}
+.ut-caption p:first-child{
+  font-family:'Instrument Serif',Georgia,serif;font-style:italic;
+  font-size:clamp(1rem,2vw,1.25rem);color:#ddd8d0;opacity:.82;
+}
+.ut-caption .ut-sub{
+  margin-top:.4rem;font-size:.72rem;letter-spacing:.04em;color:#8f8b84;opacity:.7;
+}
+
+.ut-chrome{
+  font-size:9px;letter-spacing:.1em;color:#5a564f;opacity:.55;text-transform:lowercase;
+  text-align:center;max-width:30rem;
+}
+
+.ut-return{
+  position:fixed;top:20px;right:24px;z-index:9998;
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.12em;
+  color:#5a564f;opacity:.5;text-decoration:none;text-transform:lowercase;
+  transition:opacity .4s;
+}
+.ut-return:hover{opacity:.9}
+
+.ut-banner{
+  max-width:34rem;margin:0 auto;padding:14px 16px;
+  background:#241f16;border:1px solid #4a3c1f;border-radius:6px;
+  font-family:'Inter',system-ui,sans-serif;font-size:12px;line-height:1.7;color:#c9a559;
+}
+.ut-banner code{background:#14120d;padding:1px 5px;border-radius:3px}
+
+@media (max-width:520px){
+  .ut-stage{padding:2.2rem 1rem;gap:1.1rem}
+}
