@@ -18,6 +18,7 @@
     --off-bg:#EDECE7;
     --off-ink:#8B8A83;
     --bg-raised:var(--surface);
+    --grid-line:rgba(18,18,16,0.05);
     --focus:var(--accent);
   }
   @media (prefers-color-scheme: dark){
@@ -33,6 +34,7 @@
       --life:#4E9A48;
       --off-bg:#232320;
       --off-ink:#6F6E67;
+      --grid-line:rgba(242,241,236,0.055);
     }
   }
   :root[data-theme="dark"]{
@@ -47,6 +49,7 @@
     --life:#4E9A48;
     --off-bg:#232320;
     --off-ink:#6F6E67;
+    --grid-line:rgba(242,241,236,0.055);
   }
 
   *{box-sizing:border-box;}
@@ -58,8 +61,26 @@
     padding-block:28px;
     display:flex;
     justify-content:center;
+    position:relative;
+  }
+  /* a faint grid across the whole page, fading out from the header - the
+     automaton runs on a grid, so the page it lives on gets one too */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size:34px 34px;
+    -webkit-mask-image:radial-gradient(ellipse 65% 55% at 50% 0%, #000 35%, transparent 82%);
+    mask-image:radial-gradient(ellipse 65% 55% at 50% 0%, #000 35%, transparent 82%);
   }
   .page{
+    position:relative;
+    z-index:1;
     width:100%;
     max-width:1040px;
     display:flex;
@@ -509,7 +530,10 @@
     letter-spacing:0.05em; text-transform:uppercase; color:var(--ink-soft);
     font-variant-numeric:tabular-nums;
   }
+  .fn-name-row{ display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
   .fn-name{ font-weight:600; color:var(--life); }
+  .fn-link{ font-size:0.66rem; color:var(--ink-soft); text-decoration:underline; }
+  .fn-link:hover{ color:var(--life); }
   .fn-words{ color:var(--ink-soft); }
 
   /* ---------- recovered poem ---------- */
@@ -1044,14 +1068,24 @@
     var genSpan = document.createElement("span");
     genSpan.className = "fn-gen";
     genSpan.textContent = "gen " + state.generation;
+    var nameRow = document.createElement("span");
+    nameRow.className = "fn-name-row";
     var nameSpan = document.createElement("span");
     nameSpan.className = "fn-name";
     nameSpan.textContent = name;
+    var linkEl = document.createElement("a");
+    linkEl.className = "fn-link";
+    linkEl.href = SPECIES_WIKI_BASE + encodeURIComponent(name);
+    linkEl.target = "_blank";
+    linkEl.rel = "noopener noreferrer";
+    linkEl.textContent = "what is this?";
+    nameRow.appendChild(nameSpan);
+    nameRow.appendChild(linkEl);
     var wordsSpan = document.createElement("span");
     wordsSpan.className = "fn-words";
     wordsSpan.textContent = words.length ? ("on " + words.join(", ")) : "(no word beneath it)";
     li.appendChild(genSpan);
-    li.appendChild(nameSpan);
+    li.appendChild(nameRow);
     li.appendChild(wordsSpan);
     list.insertBefore(li, list.firstChild);
     while (list.children.length > 20) list.removeChild(list.lastChild);
