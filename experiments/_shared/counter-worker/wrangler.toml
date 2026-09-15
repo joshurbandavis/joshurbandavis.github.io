@@ -1,0 +1,11 @@
+name = "jud-experiments-counter"
+main = "counter-worker.js"
+compatibility_date = "2025-01-01"
+
+[exports.Counter]
+type = "durable-object"
+storage = "sqlite"
+
+[[durable_objects.bindings]]
+name = "COUNTER"
+class_name = "Counter"
