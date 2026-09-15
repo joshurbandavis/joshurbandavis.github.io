@@ -601,6 +601,12 @@
 
         canvas.style.touchAction = 'none';
         canvas.addEventListener('pointerenter', function (evt) {
+          // a leave immediately followed by a re-entry (within the fade
+          // window below) would otherwise let the stale idle-timer from
+          // that leave fire mid-gesture and wrongly mark the mask as no
+          // longer dirty — self-corrects within one frame either way (the
+          // tick loop re-stamps immediately), but no reason to let it happen.
+          if (fadeIdleTimer) { clearTimeout(fadeIdleTimer); fadeIdleTimer = null; }
           lastPointer = toInternal(evt.clientX, evt.clientY);
           updateHalo(evt.clientX, evt.clientY);
           halo.classList.add('visible');

@@ -256,6 +256,16 @@
         var doc = new DOMParser().parseFromString(result.html, 'text/html');
         var body = doc.body;
         if (!root || !body) return;
+        // Only `body` gets grafted below, but the real page's own <head>
+        // can carry real rules too (a trivial one today - a footer-link
+        // margin - but the fetched file could gain more later, and there's
+        // no reason for those to silently stop applying just because they
+        // happened to live in <head>). Carry every <style> block over
+        // as-is; parsed from a fetch response, not authored here, so
+        // nothing about this write depends on the specific rules inside.
+        Array.prototype.forEach.call(doc.head ? doc.head.querySelectorAll('style') : [], function (styleEl) {
+          document.head.appendChild(styleEl.cloneNode(true));
+        });
         // Moving `body` into the live document changes its owning document,
         // so relative src/href attributes (e.g. "img/p-jamlogo.gif") would
         // otherwise resolve against *this* page's URL, not 1996/index.html's
