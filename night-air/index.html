@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>the night air</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A collaborative pandemic-era poem, revived. Answer five prompts and your words join everyone else's in one collective piece.">
+<link rel="icon" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="na-nav">
+  <a class="na-brand" href="index.html">
+    <img src="images/moon-mark.png" alt="">
+    <span>the night air</span>
+  </a>
+  <div class="na-links">
+    <a href="index.html" class="active">Create</a>
+    <a href="about.html">About</a>
+    <a href="read.html">Read</a>
+  </div>
+</nav>
+
+<main class="na-main">
+
+  <div id="formView">
+    <img src="images/logo-full.png" alt="the night air — a crescent moon cradling an olive branch" class="na-hero-logo">
+    <div class="na-eyebrow">a collaborative poem · revived</div>
+    <h1 class="na-h1">Add your line<br>to <em>the night air</em>.</h1>
+    <p class="na-lede">
+      <b>the night air</b> is a community poem built the way the French surrealists
+      built <i>Exquisite Corpse</i> — everyone contributes a small piece blind, without
+      seeing where anyone else's fits, and the whole only exists once it's read together.
+      Answer the five prompts below in a word or two each. They'll be woven into
+      <a href="read.html" style="color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(212,168,67,.3)">the growing poem</a>
+      alongside everyone who's answered since 2020.
+    </p>
+
+    <form id="naForm">
+      <div class="na-q">
+        <label><b>Q1</b>How were you feeling during the pandemic?</label>
+        <input type="text" id="adjective1" placeholder="an adjective" autocomplete="off" required maxlength="60">
+        <div class="na-hint"><b>adjective</b> — a word describing a quality: <i>hollow, restless, tender…</i></div>
+      </div>
+      <div class="na-q">
+        <label><b>Q2</b>What was important to you before that no longer feels essential?</label>
+        <input type="text" id="noun1" placeholder="a noun" autocomplete="off" required maxlength="60">
+        <div class="na-hint"><b>noun</b> — a person, place, or thing: <i>commute, small talk, the gym…</i></div>
+      </div>
+      <div class="na-q">
+        <label><b>Q3</b>What ritual or behavior from that time have you carried forward?</label>
+        <input type="text" id="verb" placeholder="a verb" autocomplete="off" required maxlength="60">
+        <div class="na-hint"><b>verb</b> — an action: <i>linger, check in, slow down…</i></div>
+      </div>
+      <div class="na-q">
+        <label><b>Q4</b>Describe your experience of isolation.</label>
+        <input type="text" id="adjective2" placeholder="an adjective" autocomplete="off" required maxlength="60">
+        <div class="na-hint"><b>adjective</b> — a word describing a quality: <i>quiet, endless, strange…</i></div>
+      </div>
+      <div class="na-q">
+        <label><b>Q5</b>What's the most important thing in your life now?</label>
+        <input type="text" id="noun2" placeholder="a noun" autocomplete="off" required maxlength="60">
+        <div class="na-hint"><b>noun</b> — a person, place, or thing: <i>my sister, the garden, sleep…</i></div>
+      </div>
+
+      <!-- honeypot, left empty by real visitors -->
+      <div style="position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden" aria-hidden="true">
+        <input type="text" id="naHoneypot" tabindex="-1" autocomplete="off">
+      </div>
+
+      <label class="na-agree">
+        <input type="checkbox" id="naAgree" required>
+        <span>I'm okay with these five words being published anonymously as part of the collective poem.</span>
+      </label>
+
+      <button class="na-btn" type="submit" id="naSubmit">Add my line →</button>
+      <div class="na-note" id="naConfigWarning" hidden>
+        This page hasn't been wired up to a form yet — see <code>night-air/SETUP.md</code>.
+        Submitting right now won't save anywhere.
+      </div>
+    </form>
+  </div>
+
+  <div class="na-thanks" id="thanksView">
+    <div class="na-eyebrow">added</div>
+    <h1 class="na-h1">Your line is<br>in <em>the air</em>.</h1>
+    <p class="na-lede">It'll appear in the poem within a minute or two — Google Sheets needs a
+      moment to catch up. <a href="read.html" style="color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(212,168,67,.3)">Go read the whole thing →</a></p>
+  </div>
+
+  <div class="na-moon-divider"><img src="images/moon-mark.png" alt=""></div>
+</main>
+
+<footer class="na-foot">
+  <img src="images/logotype.png" alt="the night air" class="na-foot-logotype">
+  <span>Sarah Sudhoff + <a href="https://joshurbandavis.com">Josh Urban Davis</a> · Houston Arts Alliance grant, 2020 · revived 2026</span>
+</footer>
+
+<!-- Hidden iframe target so the form POST doesn't navigate this page away.
+     This is the standard headless-Google-Forms submission trick: a normal
+     <form> POST to the form's /formResponse endpoint, targeted at an
+     invisible iframe instead of the current tab. -->
+<iframe name="naHiddenFrame" id="naHiddenFrame" style="display:none"></iframe>
+<form id="naGoogleForm" action="" method="POST" target="naHiddenFrame" style="display:none">
+  <input type="text" name="" id="gEntry_adjective1">
+  <input type="text" name="" id="gEntry_noun1">
+  <input type="text" name="" id="gEntry_verb">
+  <input type="text" name="" id="gEntry_adjective2">
+  <input type="text" name="" id="gEntry_noun2">
+</form>
+
+<script src="config.js"></script>
+<script>
+(function(){
+  const cfg = window.NIGHT_AIR_CONFIG || {};
+  const configured = cfg.formId && cfg.entries && cfg.entries.adjective1 &&
+    cfg.entries.noun1 && cfg.entries.verb && cfg.entries.adjective2 && cfg.entries.noun2;
+
+  const submitBtn = document.getElementById('naSubmit');
+  const warning = document.getElementById('naConfigWarning');
+  if (!configured) warning.hidden = false;
+
+  const gForm = document.getElementById('naGoogleForm');
+  if (configured) {
+    gForm.action = 'https://docs.google.com/forms/d/e/' + cfg.formId + '/formResponse';
+    document.getElementById('gEntry_adjective1').name = cfg.entries.adjective1;
+    document.getElementById('gEntry_noun1').name = cfg.entries.noun1;
+    document.getElementById('gEntry_verb').name = cfg.entries.verb;
+    document.getElementById('gEntry_adjective2').name = cfg.entries.adjective2;
+    document.getElementById('gEntry_noun2').name = cfg.entries.noun2;
+  }
+
+  document.getElementById('naForm').addEventListener('submit', function(e){
+    e.preventDefault();
+
+    // honeypot: bots fill every field, humans never see this one
+    if (document.getElementById('naHoneypot').value) return;
+
+    if (!configured) {
+      alert("This page isn't wired up to a live form yet — see night-air/SETUP.md.");
+      return;
+    }
+
+    document.getElementById('gEntry_adjective1').value = document.getElementById('adjective1').value.trim();
+    document.getElementById('gEntry_noun1').value = document.getElementById('noun1').value.trim();
+    document.getElementById('gEntry_verb').value = document.getElementById('verb').value.trim();
+    document.getElementById('gEntry_adjective2').value = document.getElementById('adjective2').value.trim();
+    document.getElementById('gEntry_noun2').value = document.getElementById('noun2').value.trim();
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Adding…';
+    gForm.submit();
+
+    setTimeout(function(){
+      document.getElementById('formView').style.display = 'none';
+      document.getElementById('thanksView').classList.add('show');
+    }, 600);
+  });
+})();
+</script>
+
+</body>
+</html>

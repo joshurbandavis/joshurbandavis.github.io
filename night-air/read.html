@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>read — the night air</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="na-nav">
+  <a class="na-brand" href="index.html">
+    <img src="images/moon-mark.png" alt="">
+    <span>the night air</span>
+  </a>
+  <div class="na-links">
+    <a href="index.html">Create</a>
+    <a href="about.html">About</a>
+    <a href="read.html" class="active">Read</a>
+  </div>
+</nav>
+
+<main class="na-main">
+  <div class="na-eyebrow">the poem, as it stands</div>
+  <h1 class="na-h1">Everyone's line,<br>read as <em>one</em>.</h1>
+  <p class="na-lede">
+    Every line below came from a different, anonymous visitor answering the same
+    five prompts. The small connecting words — <i>a, the, some, that…</i> — are
+    chosen at random each time this page loads, the same way the original did it,
+    so the poem never reads quite the same way twice.
+  </p>
+
+  <hr class="na-rule">
+
+  <div id="naPoem" class="na-poem">
+    <div class="na-loading">gathering the poem…</div>
+  </div>
+
+  <div class="na-count" id="naCount" hidden></div>
+
+  <div class="na-moon-divider"><img src="images/moon-mark.png" alt=""></div>
+</main>
+
+<footer class="na-foot">
+  <img src="images/logotype.png" alt="the night air" class="na-foot-logotype">
+  <span>Sarah Sudhoff + <a href="https://joshurbandavis.com">Josh Urban Davis</a> · Houston Arts Alliance grant, 2020 · revived 2026</span>
+</footer>
+
+<script src="config.js"></script>
+<script>
+(function(){
+  const cfg = window.NIGHT_AIR_CONFIG || {};
+  const poemEl = document.getElementById('naPoem');
+  const countEl = document.getElementById('naCount');
+
+  const ARTICLES = ['a', 'the', 'those', 'that', 'some'];
+  function randomArticle(){
+    return ARTICLES[Math.floor(Math.random() * ARTICLES.length)];
+  }
+
+  // Minimal CSV line parser: handles quoted fields, embedded commas,
+  // and "" as an escaped quote — enough for what Sheets exports.
+  function parseCsv(text){
+    const rows = [];
+    let row = [], field = '', inQuotes = false;
+    for (let i = 0; i < text.length; i++){
+      const c = text[i], next = text[i + 1];
+      if (inQuotes){
+        if (c === '"' && next === '"'){ field += '"'; i++; }
+        else if (c === '"'){ inQuotes = false; }
+        else field += c;
+      } else {
+        if (c === '"') inQuotes = true;
+        else if (c === ','){ row.push(field); field = ''; }
+        else if (c === '\r'){ /* skip */ }
+        else if (c === '\n'){ row.push(field); rows.push(row); row = []; field = ''; }
+        else field += c;
+      }
+    }
+    if (field.length || row.length){ row.push(field); rows.push(row); }
+    return rows.filter(r => r.some(cell => cell.trim() !== ''));
+  }
+
+  function renderLines(entries){
+    if (!entries.length){
+      poemEl.innerHTML = '<div class="na-empty">No lines yet — <a href="index.html" style="color:var(--accent)">be the first to add one</a>.</div>';
+      countEl.hidden = true;
+      return;
+    }
+    poemEl.innerHTML = '';
+    entries.forEach(function(e, i){
+      const line = document.createElement('span');
+      line.className = 'na-line';
+      line.style.animationDelay = (Math.min(i, 40) * 0.05) + 's';
+      line.innerHTML =
+        '<span class="na-art">' + randomArticle() + '</span> ' + e.adjective1 + ' ' + e.noun1 + ' ' + e.verb + ' ' +
+        '<span class="na-art">' + randomArticle() + '</span> ' + e.adjective2 + ' ' + e.noun2;
+      poemEl.appendChild(line);
+    });
+    countEl.hidden = false;
+    countEl.textContent = entries.length + (entries.length === 1 ? ' line' : ' lines') + ' woven in so far';
+  }
+
+  const SAMPLE = [
+    { adjective1: 'hollow', noun1: 'the commute', verb: 'call my mother', adjective2: 'endless', noun2: 'the garden' },
+    { adjective1: 'restless', noun1: 'small talk', verb: 'bake bread', adjective2: 'quiet', noun2: 'my sister' },
+    { adjective1: 'tender', noun1: 'the gym', verb: 'slow down', adjective2: 'strange', noun2: 'sleep' },
+  ];
+
+  if (!cfg.sheetCsvUrl){
+    poemEl.innerHTML = '<div class="na-empty">Demo mode — showing sample lines. Wire up night-air/config.js (see night-air/SETUP.md) to read the real, growing poem.</div>';
+    setTimeout(function(){ renderLines(SAMPLE); }, 300);
+    return;
+  }
+
+  fetch(cfg.sheetCsvUrl)
+    .then(function(res){
+      if (!res.ok) throw new Error('sheet fetch failed: ' + res.status);
+      return res.text();
+    })
+    .then(function(text){
+      const rows = parseCsv(text);
+      // first row is the header (Timestamp, Q1..Q5); columns 1-5 are the answers
+      const dataRows = rows.slice(1);
+      const entries = dataRows.map(function(r){
+        return {
+          adjective1: (r[1] || '').trim(),
+          noun1: (r[2] || '').trim(),
+          verb: (r[3] || '').trim(),
+          adjective2: (r[4] || '').trim(),
+          noun2: (r[5] || '').trim(),
+        };
+      }).filter(function(e){ return e.adjective1 && e.noun1 && e.verb && e.adjective2 && e.noun2; });
+      renderLines(entries);
+    })
+    .catch(function(err){
+      poemEl.innerHTML = '<div class="na-empty">Couldn\'t load the poem right now (' + err.message + '). Try refreshing in a moment.</div>';
+    });
+})();
+</script>
+
+</body>
+</html>
