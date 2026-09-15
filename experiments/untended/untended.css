@@ -19,10 +19,24 @@ html,body{
   gap:1.4rem;padding:3rem 1.2rem;
 }
 
+/* the frame starts loose/incomplete (dashed, faint) and restores to a
+   solid line once this visit's own tending sweep settles (.settled,
+   toggled from untended.js) — a small, concrete "you did this" reward
+   distinct from the wipe reveal itself, which stays smooth on purpose;
+   this one is allowed to land with a definite click. */
 #gardenCanvas{
   width:min(88vw,640px);height:min(88vw,640px);
   background:#000;box-shadow:0 30px 70px -30px rgba(0,0,0,.8);
   border-radius:2px;cursor:pointer;touch-action:none;
+  border:1px dashed rgba(221,216,208,.22);
+}
+#gardenCanvas.settled{
+  border:1px solid rgba(221,216,208,.6);
+  animation:ut-settle .8s ease-out;
+}
+@keyframes ut-settle{
+  0%{box-shadow:0 30px 70px -30px rgba(0,0,0,.8),0 0 0 2px rgba(221,216,208,.55);}
+  100%{box-shadow:0 30px 70px -30px rgba(0,0,0,.8),0 0 0 16px rgba(221,216,208,0);}
 }
 
 .ut-caption{margin:0;text-align:center;max-width:36rem}

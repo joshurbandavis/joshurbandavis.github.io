@@ -26,6 +26,18 @@
  * you reload. It can't touch the permanent scars either way — those come
  * from real elapsed time nobody was here, and nothing short of that not
  * having happened erases them.
+ *
+ * Sweeping enough of it (SWEEP_SETTLE_PX, purely a local session tally,
+ * not the real backend threshold from the earlier gesture-gated design)
+ * settles the view: live trembling stops, the reveal stops fading, and
+ * the canvas's own frame — dashed and faint until then — snaps to a
+ * solid line (see .settled in untended.css). This exists because the
+ * real tend already happened silently on load, but the piece kept
+ * visibly drifting for the rest of the visit regardless, which undercut
+ * the feeling that anything had actually been tended. Settling is a
+ * one-time, this-visit-only acknowledgment layered on top of the real
+ * tend, not a second gate on it — the corner readout also switches from
+ * inviting the sweep to naming when to come back.
  */
 (function () {
   var WORKER_URL = 'https://untended-garden.YOUR-SUBDOMAIN.workers.dev';
@@ -60,6 +72,14 @@
   // ~4-5s — quick enough to feel responsive, slow enough to read as a
   // fade rather than a cut.
   var WIPE_FADE_PER_SEC = 0.6;
+  // cumulative internal-px sweep distance before THIS VISIT's tending is
+  // considered "done" — a purely local, session-only ritual on top of the
+  // already-real tend that already fired on load (see header). Once
+  // crossed, the view settles: no more live trembling, the reveal stops
+  // fading, and the border restores — reads as "you tended it," rather
+  // than the piece continuing to visibly drift for the rest of your visit
+  // even though you already (just by loading it) tended the real thing.
+  var SWEEP_SETTLE_PX = 3200;
 
   // ---------- seeded RNG (same mulberry32 + FNV-1a shape as decay.js/mutate.js) ----------
   function hash32(str) {
@@ -440,6 +460,8 @@
         var nextTrembleAt = 0;
         var looping = false;
         var lastTick = 0;
+        var sweepDistance = 0;
+        var settled = false; // this visit's own tending ritual — see SWEEP_SETTLE_PX above
 
         function rebuildDamaged() {
           var frame = new ImageData(new Uint8ClampedArray(scarred.data), INTERNAL_SIZE, INTERNAL_SIZE);
@@ -449,6 +471,12 @@
         rebuildDamaged();
 
         function composite() {
+          if (settled) {
+            // stays put: the calm, scarred-but-untrembling state, final
+            visCtx.clearRect(0, 0, INTERNAL_SIZE, INTERNAL_SIZE);
+            visCtx.drawImage(revealBase, 0, 0);
+            return;
+          }
           visCtx.clearRect(0, 0, INTERNAL_SIZE, INTERNAL_SIZE);
           visCtx.drawImage(damaged, 0, 0);
           if (maskDirty) {
@@ -460,6 +488,14 @@
             maskTempCtx.globalCompositeOperation = 'source-over';
             visCtx.drawImage(maskTemp, 0, 0);
           }
+        }
+
+        function settle() {
+          settled = true;
+          ratio = 0; // stop future live trembling for the rest of this visit
+          canvas.classList.add('settled');
+          setChrome();
+          composite();
         }
 
         function setChrome() {
@@ -474,6 +510,9 @@
             else if (state.notConfigured) bits.push('local only — shared worker not deployed yet');
             else if (state.workerUnreachable) bits.push('local only — shared worker unreachable');
             else if (state.shared) bits.push('shared');
+            bits.push(settled
+              ? 'tended — come back within a day to keep it from scarring further'
+              : 'sweep across the bouquet to tend it');
           }
           chrome.textContent = bits.join(' · ');
         }
@@ -569,7 +608,12 @@
         });
         canvas.addEventListener('pointermove', function (evt) {
           var pt = toInternal(evt.clientX, evt.clientY);
-          if (lastPointer) stampAlong(lastPointer, pt);
+          if (lastPointer && !settled) {
+            stampAlong(lastPointer, pt);
+            var dx = pt.x - lastPointer.x, dy = pt.y - lastPointer.y;
+            sweepDistance += Math.sqrt(dx * dx + dy * dy);
+            if (sweepDistance >= SWEEP_SETTLE_PX) settle();
+          }
           lastPointer = pt;
           updateHalo(evt.clientX, evt.clientY);
           ensureLoop();
