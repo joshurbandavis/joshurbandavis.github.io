@@ -3,9 +3,17 @@
  * The Internet Is Haunted — a tiny local prototype.
  *
  * Serves a static frontend and one API route, /api/memorial, that looks a
- * URL up in the Internet Archive's Wayback Machine (the CDX API for real
- * capture dates, plus a best-effort scrape of the last capture for an
- * author tag and a fragment of real text) and returns a memorial record.
+ * URL up in the Internet Archive's Wayback Machine (the Availability API
+ * for real capture dates, plus a best-effort scrape of the last capture
+ * for an author tag and a fragment of real text) and returns a memorial
+ * record.
+ *
+ * Uses the Availability API, not the CDX Search API — across a full night
+ * of testing, CDX was by far the least reliable of archive.org's services
+ * (429s, 521s, 503s, multi-minute outages), while the Availability API —
+ * the same one the Wayback Machine's own calendar UI calls — stayed
+ * responsive throughout. See getSnapshot() below for how it stands in for
+ * CDX's first/last-capture lookup.
  *
  * No dependencies — just Node's built-ins and the global fetch.
  */
@@ -94,18 +102,25 @@ async function fetchWithTimeout(url, opts, timeoutMs) {
   });
 }
 
-// The Wayback CDX API. limit=1 gets the earliest capture (ascending default
-// order); limit=-1 asks the server for the last line instead of paging
-// through everything. archive.org itself is often the slow part — a plain
-// curl to it can take 10+ seconds even when it's working — so the timeout
-// here has to sit comfortably above that, or a perfectly good slow response
-// reads as "the archive is unreachable" when it wasn't. One attempt, no
-// retry: retrying just doubles the wait for the same eventual answer.
-async function cdxQuery(targetUrl, limit) {
-  const api = `https://web.archive.org/cdx/search/cdx?url=${encodeURIComponent(targetUrl)}&output=json&limit=${limit}`;
-  const res = await fetchWithTimeout(api, {}, 32000);
-  const text = await res.text();
-  return JSON.parse(text);
+// A timestamp from before the web existed returns the closest snapshot to
+// it (the earliest capture, since nothing real predates it); a timestamp
+// safely in the future returns the closest to now (the latest capture).
+// Never omit the timestamp or pass today's actual date for "latest" —
+// confirmed by testing that archive.org's "closest" lookup can return
+// empty specifically when the query timestamp lands too near the most
+// recent real capture (reproduced live: passing today's date on a
+// constantly-archived site came back empty, while a far-future timestamp
+// correctly found today's own capture). Returns null when archive.org has
+// never captured this URL at all. One attempt, no retry: retrying just
+// doubles the wait for the same eventual answer.
+async function getSnapshot(targetUrl, timestamp) {
+  const api = `https://archive.org/wayback/available?url=${encodeURIComponent(targetUrl)}&timestamp=${timestamp}`;
+  const res = await fetchWithTimeout(api, {}, 15000);
+  const data = await res.json();
+  const closest = data && data.archived_snapshots && data.archived_snapshots.closest;
+  if (!closest || !closest.available) return null;
+  const match = /^https?:\/\/web\.archive\.org\/web\/\d+\/(.+)$/.exec(closest.url || '');
+  return { timestamp: closest.timestamp, originalUrl: match ? match[1] : targetUrl };
 }
 
 // Cookie banners, GDPR notices, and legal boilerplate on a domain still
@@ -164,29 +179,22 @@ async function buildMemorial(targetUrl) {
 
   let first, last;
   try {
-    [first, last] = await Promise.all([cdxQuery(targetUrl, 1), cdxQuery(targetUrl, -1)]);
+    [first, last] = await Promise.all([getSnapshot(targetUrl, '19960101'), getSnapshot(targetUrl, '22000101')]);
   } catch (err) {
     return { ok: false, error: 'archive_unreachable' };
   }
 
-  if (!first || first.length < 2 || !last || last.length < 2) {
+  if (!first || !last) {
     const data = { ok: true, url: targetUrl, archived: false };
     CACHE.set(targetUrl, { time: Date.now(), data });
     saveCache();
     return data;
   }
 
-  const cols = first[0];
-  const tIdx = cols.indexOf('timestamp');
-  const oIdx = cols.indexOf('original');
-  const firstRow = first[1];
-  const lastRow = last[last.length - 1];
-
-  const firstTimestamp = firstRow[tIdx];
-  const lastTimestamp = lastRow[tIdx];
-  const firstYear = parseInt(firstTimestamp.slice(0, 4), 10);
-  const lastYear = parseInt(lastTimestamp.slice(0, 4), 10);
-  const originalUrl = lastRow[oIdx] || targetUrl;
+  const firstYear = parseInt(first.timestamp.slice(0, 4), 10);
+  const lastYear = parseInt(last.timestamp.slice(0, 4), 10);
+  const originalUrl = last.originalUrl || targetUrl;
+  const lastTimestamp = last.timestamp;
   const lastSnapshotUrl = `https://web.archive.org/web/${lastTimestamp}/${originalUrl}`;
 
   let author = null, title = null, fragment = null;
