@@ -51,6 +51,8 @@
 
 const ALLOWED_ORIGINS = [
   'https://joshurbandavis.github.io',
+  'https://joshurbandavis.com',
+  'https://www.joshurbandavis.com',
 ];
 
 const STATE_KEY = 'garden-state';
