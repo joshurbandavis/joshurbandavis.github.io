@@ -36,6 +36,11 @@
 
   <hr class="na-rule">
 
+  <div id="naDemoBanner" class="na-empty" hidden>
+    Demo mode — showing sample lines below. Wire up <code>night-air/config.js</code>
+    (see <code>night-air/SETUP.md</code>) to read the real, growing poem.
+  </div>
+
   <div id="naPoem" class="na-poem">
     <div class="na-loading">gathering the poem…</div>
   </div>
@@ -85,7 +90,7 @@
     return rows.filter(r => r.some(cell => cell.trim() !== ''));
   }
 
-  function renderLines(entries){
+  function renderLines(entries, isDemo){
     if (!entries.length){
       poemEl.innerHTML = '<div class="na-empty">No lines yet — <a href="index.html" style="color:var(--accent)">be the first to add one</a>.</div>';
       countEl.hidden = true;
@@ -102,18 +107,20 @@
       poemEl.appendChild(line);
     });
     countEl.hidden = false;
-    countEl.textContent = entries.length + (entries.length === 1 ? ' line' : ' lines') + ' woven in so far';
+    countEl.textContent = isDemo
+      ? entries.length + ' sample ' + (entries.length === 1 ? 'line' : 'lines') + ' — not real submissions'
+      : entries.length + (entries.length === 1 ? ' line' : ' lines') + ' woven in so far';
   }
 
   const SAMPLE = [
-    { adjective1: 'hollow', noun1: 'the commute', verb: 'call my mother', adjective2: 'endless', noun2: 'the garden' },
-    { adjective1: 'restless', noun1: 'small talk', verb: 'bake bread', adjective2: 'quiet', noun2: 'my sister' },
-    { adjective1: 'tender', noun1: 'the gym', verb: 'slow down', adjective2: 'strange', noun2: 'sleep' },
+    { adjective1: 'hollow', noun1: 'commute', verb: 'call my mother', adjective2: 'endless', noun2: 'garden' },
+    { adjective1: 'restless', noun1: 'small talk', verb: 'bake bread', adjective2: 'quiet', noun2: 'sister' },
+    { adjective1: 'tender', noun1: 'gym', verb: 'slow down', adjective2: 'strange', noun2: 'sleep' },
   ];
 
   if (!cfg.sheetCsvUrl){
-    poemEl.innerHTML = '<div class="na-empty">Demo mode — showing sample lines. Wire up night-air/config.js (see night-air/SETUP.md) to read the real, growing poem.</div>';
-    setTimeout(function(){ renderLines(SAMPLE); }, 300);
+    document.getElementById('naDemoBanner').hidden = false;
+    renderLines(SAMPLE, true);
     return;
   }
 
