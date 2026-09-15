@@ -226,8 +226,14 @@ export default {
       data = { ok: false, error: 'server_error' };
     }
 
-    const response = json(request, data, 200, { 'Cache-Control': 'public, max-age=86400' });
-    ctx.waitUntil(cache.put(cacheKey, response.clone()));
-    return response;
+    // Only cache a real answer (archived or genuinely not-archived) — never
+    // a transient failure. archive.org being briefly unreachable shouldn't
+    // get baked in as this URL's answer for the next 24 hours.
+    if (data.ok) {
+      const response = json(request, data, 200, { 'Cache-Control': 'public, max-age=86400' });
+      ctx.waitUntil(cache.put(cacheKey, response.clone()));
+      return response;
+    }
+    return json(request, data, 200, { 'Cache-Control': 'no-store' });
   },
 };
