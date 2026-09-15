@@ -6,11 +6,15 @@
  * step unlocks one more irreversible change: something removed, something
  * altered, something transformed toward a target.
  *
- * Backed by countapi.xyz (free, no auth — a single GET increments a named
- * counter and returns the new value). If that service is unreachable, this
- * quietly falls back to a local per-browser counter in localStorage, so a
- * dead third party never breaks the page — the piece just temporarily loses
- * its "shared" quality until the service comes back.
+ * Backed by a small Cloudflare Worker + Durable Object (see
+ * ../_shared/counter-worker/ for the code and deploy steps) — a genuinely
+ * atomic counter, not eventually-consistent. This replaces countapi.xyz,
+ * which is now permanently dead (DNS doesn't resolve at all). If the
+ * Worker is unreachable — including because COUNTER_WORKER_URL below is
+ * still the placeholder, i.e. it hasn't been deployed yet — this quietly
+ * falls back to a local per-browser counter in localStorage, so a dead or
+ * unconfigured backend never breaks the page; the piece just temporarily
+ * loses its "shared" quality.
  *
  * Usage:
  *   const { value, max, shared } = await StepEngine.getStep({
@@ -27,6 +31,13 @@
  * incrementing it — use this to check where the piece is without advancing it.
  */
 (function (global) {
+  // Set this once the Worker in ../counter-worker/ is deployed (its URL
+  // looks like https://jud-experiments-counter.YOUR-SUBDOMAIN.workers.dev).
+  // Left as the placeholder, every getStep() call below fails fast and
+  // falls back to local-only counting — same safe behavior as a genuinely
+  // dead backend, not a special case.
+  var COUNTER_WORKER_URL = 'https://jud-experiments-counter.joshurbandavis.workers.dev';
+
   function storageKey(namespace, key, suffix) {
     return 'stepengine:' + namespace + ':' + key + (suffix ? ':' + suffix : '');
   }
@@ -71,7 +82,7 @@
 
     if (peek) {
       try {
-        var peekRes = await fetchWithTimeout('https://api.countapi.xyz/get/' + namespace + '/' + key, 2500);
+        var peekRes = await fetchWithTimeout(COUNTER_WORKER_URL + '/get/' + namespace + '/' + key, 2500);
         if (!peekRes.ok) throw new Error('bad status');
         var peekData = await peekRes.json();
         var peekVal = peekData.value || 0;
@@ -83,7 +94,7 @@
     }
 
     try {
-      var res = await fetchWithTimeout('https://api.countapi.xyz/hit/' + namespace + '/' + key, 2500);
+      var res = await fetchWithTimeout(COUNTER_WORKER_URL + '/hit/' + namespace + '/' + key, 2500);
       if (!res.ok) throw new Error('bad status');
       var data = await res.json();
       var newVal = data.value;
