@@ -28,7 +28,7 @@
  * having happened erases them.
  */
 (function () {
-  var WORKER_URL = 'https://untended-garden.YOUR-SUBDOMAIN.workers.dev';
+  var WORKER_URL = 'https://untended-garden.joshurbandavis.workers.dev';
   var CONFIGURED = !!WORKER_URL && WORKER_URL.indexOf('YOUR-SUBDOMAIN') === -1;
 
   var SEED_KEY = 'joshurbandavis-github-io:untended-garden';
