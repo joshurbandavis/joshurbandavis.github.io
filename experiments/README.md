@@ -112,6 +112,68 @@ behavioral art. Each lives in its own folder as a self-contained page.
   were. Same automaton and seed under both; only which cell state means
   "kept" flips. No backend: random or pasted/uploaded text, all client-side.
 
+- `cellular-breath/` — the same found-poem premise as `cellular-erasure/`,
+  run on [Lenia](https://en.wikipedia.org/wiki/Lenia) instead of Conway's
+  Game of Life: a continuous field (`A' = clip(A + dt·G(K*A), 0, 1)`, the
+  real Chan 2018 update — a normalized ring kernel `K` and a Gaussian
+  growth mapping `G` centered on `mu` with width `sigma`) in place of a
+  binary birth/survival table. Prototyped in response to being asked
+  whether cellular-poetry could run on Lenia or another well-known
+  artificial-life algorithm instead of Life.
+  - **Resolution is deliberately decoupled from the poem.** Life gives
+    each word exactly one cell; Lenia needs far more resolution than a
+    word-count grid to glide or breathe convincingly, so the simulation
+    runs on its own fine toroidal field (96×54) rendered as a soft duotone
+    canvas, and the poem sits on top in normal flowing text. Each word
+    reads its own weight, blur and color from whatever the field's value
+    is directly underneath it (bilinear-sampled from the word's actual
+    on-screen center every step), so the found-text layout drives nothing
+    about the simulation — it's just where the reading happens to sit.
+  - **It doesn't settle — Life's whole ending mechanic doesn't port.**
+    Verified in Node before writing a line of UI: with tight growth
+    parameters almost every random seed dies to a flat zero within a few
+    hundred steps; wider parameters find a sustained, speckled,
+    never-quite-static plateau instead (confirmed moving cell-to-cell
+    between snapshots 50 steps apart, even while the *aggregate* mean
+    average was already flat) instead of a discrete fixed point. So there
+    are three real end states instead of one settle event: **quiet**
+    (mean activity holds under 2% — the field faded out under every
+    word), **flooded** (holds over 40% — most of the page lit at once),
+    or, the common case, never resolving on its own at all — for that
+    one, **Capture this breath** freezes whatever the current instant
+    looks like into a dated, re-readable snapshot below the poem, on the
+    visitor's own call rather than the automaton's.
+  - **Presets are honestly labeled as tuned starting points, not a
+    published catalog.** `mu`/`sigma`/`R` are live sliders; Bloom, Fade,
+    and Flood are just three hand-found parameter sets (verified in Node
+    to actually reach a sustained plateau / heat-death / flood
+    respectively) rather than a claim to reproduce a specific named
+    Lenia creature like orbium — no orbium cell matrix is hard-coded here,
+    on purpose, since it couldn't be verified precisely enough to claim.
+  - **First pass read as noise, not as shapes — fixed by separating the
+    simulation from the display.** The original default (`R:11`) was
+    mathematically fine but visually a fine, flickering speckle: too
+    small a kernel radius relative to the field integrates over too
+    little area per step, so the growth equation settles into
+    high-frequency texture instead of coherent forms. Bloom's radius
+    moved to 14 (confirmed in Node: same seed, R11 gives scattered
+    single-cell dots, R14 gives closed rings and blobs, and the pattern
+    moves *more* between snapshots, not less — more alive, not less).
+    On top of that, `updateDisplayField()` now runs a two-pass 3×3 box
+    blur over a **copy** of the field after every step, used only for
+    the canvas render and the word sampling — the real simulation state
+    (`state.field`) stays the unmodified Lenia update, so this can't
+    change the dynamics, only how legible they are. Canvas alpha also
+    now uses gamma 1.2 instead of 0.85 so faint background activity
+    fades toward invisible instead of flickering everywhere at once.
+  - Not yet linked from the experiments gallery card grid or given a
+    snapshot image — it's a first-pass prototype pending a fuller look
+    in an actual browser (verified so far via Node: kernel
+    normalization, step performance at ~15-18ms/step for the full field
+    at the larger radius, boundedness across parameter sweeps, and now
+    the blurred/gamma-adjusted display output — not yet verified
+    interactively end to end in a live browser).
+
 - `decay/` — a full copy of `index.html` that permanently deletes one real,
   randomly-chosen piece of itself with every visit, anywhere (the direct
   temporary.cc reference). Real destruction — actual DOM `.remove()`, not a
@@ -294,6 +356,21 @@ behavioral art. Each lives in its own folder as a self-contained page.
     make that feel good fought with just making the gesture satisfying on
     its own, so it's cosmetic now and the refresh-based measure stands.
 
+  - **Sweeping enough of it settles the visit.** The real tend already
+    happened silently on load, but the piece kept visibly trembling for
+    the rest of the visit regardless, which undercut the sense that
+    anything had actually been tended. Once the cursor has swept a
+    cumulative distance across the canvas (`SWEEP_SETTLE_PX` — purely a
+    local, this-session tally, unrelated to the real backend threshold
+    the earlier gesture-gated design used), the view settles for good:
+    live trembling stops, the reveal stops fading and just stays clear,
+    and the canvas's own frame — dashed and faint until then — snaps
+    solid (`.settled` in `untended.css`, with a brief outward pulse). The
+    corner readout switches from inviting the sweep ("sweep across the
+    bouquet to tend it") to naming when to come back ("tended — come back
+    within a day to keep it from scarring further"). One settle per page
+    load; reload and the invitation starts over.
+
   The six glitch techniques (`untended.js`) draw on both referenced
   folders: brightness-threshold run sorting is Kim Asendorf's ASDF Pixel
   Sort (2010, `~/Desktop/ASDFPixelSort-master`) narrowed to one band
@@ -332,6 +409,7 @@ open experiments/palimpsest/index.html
 open experiments/decay/index.html
 open experiments/mutate/index.html
 open experiments/cellular-erasure/index.html
+open experiments/cellular-breath/index.html
 open experiments/no-one-in-particular/index.html
 open experiments/internet-is-haunted/index.html   # needs WORKER_URL set, see above
 open experiments/the-occupant/index.html
@@ -344,6 +422,7 @@ open experiments/untended/index.html   # needs WORKER_URL set, see above — and
 
 or once pushed, at `/experiments/please-wait/` / `/experiments/palimpsest/` /
 `/experiments/decay/` / `/experiments/mutate/` / `/experiments/cellular-erasure/` /
+`/experiments/cellular-breath/` /
 `/experiments/no-one-in-particular/` / `/experiments/internet-is-haunted/` /
 `/experiments/the-occupant/` / `/experiments/untended/` on the live site.
 
