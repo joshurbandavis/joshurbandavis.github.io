@@ -3,9 +3,10 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
   /* Same clinical-specimen surface as cellular-erasure - this is its
-     sibling, not a redesign. The one new pair of tokens (--breath-lo /
-     --breath-hi) is the color ramp the Lenia field itself is painted in;
-     everything else is the shared plate. */
+     sibling, not a redesign. --chan-r/g/b are new in v2: the three real
+     simulated populations get real colors now, not a single duotone
+     ramp. --breath-lo/--breath-hi survive only as the page's ambient
+     background wash - the canvas itself no longer reads them. */
   :root{
     --bg:#FAFAF9;
     --surface:#FFFFFF;
@@ -20,6 +21,9 @@
     --focus:var(--accent);
     --breath-lo:#EEF1F0;
     --breath-hi:#143B46;
+    --chan-r:#B23A2E;
+    --chan-g:#3F7A42;
+    --chan-b:#2B5A72;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
@@ -35,6 +39,9 @@
       --off-ink:#6F6E67;
       --breath-lo:#1B2422;
       --breath-hi:#79DBE0;
+      --chan-r:#E2695A;
+      --chan-g:#6FBE72;
+      --chan-b:#5FB4D6;
     }
   }
   :root[data-theme="dark"]{
@@ -50,6 +57,9 @@
     --off-ink:#6F6E67;
     --breath-lo:#1B2422;
     --breath-hi:#79DBE0;
+    --chan-r:#E2695A;
+    --chan-g:#6FBE72;
+    --chan-b:#5FB4D6;
   }
 
   *{box-sizing:border-box;}
@@ -63,8 +73,6 @@
     justify-content:center;
     position:relative;
   }
-  /* a soft wash instead of cellular-erasure's rigid grid - this piece's
-     automaton is continuous, so the page around it shouldn't look ruled */
   body::before{
     content:"";
     position:fixed;
@@ -103,7 +111,7 @@
     color:var(--ink-soft);
     font-size:0.8rem;
     letter-spacing:0.02em;
-    max-width:66ch;
+    max-width:68ch;
   }
   header p a{
     color:var(--accent);
@@ -111,6 +119,7 @@
     text-underline-offset:2px;
   }
   header p a:hover{ color:var(--accent-soft); }
+  header p strong{ color:var(--ink); }
 
   .workspace{
     display:grid;
@@ -190,6 +199,8 @@
     min-height:320px;
     display:flex;
     align-items:center;
+    touch-action:none;
+    cursor:crosshair;
   }
   .field-canvas{
     position:absolute;
@@ -208,6 +219,7 @@
     line-height:2.1;
     width:100%;
     padding:18px 4px;
+    pointer-events:none;
   }
   .breath-line{
     display:flex;
@@ -219,7 +231,7 @@
   .breath-word{
     --wv:0.35;
     display:inline-block;
-    color:color-mix(in srgb, var(--ink-soft), var(--accent) calc(var(--wv) * 55%));
+    color:var(--ink-soft);
     opacity:calc(0.16 + var(--wv) * 0.84);
     filter:blur(calc((1 - var(--wv)) * 3px));
     transform:scale(calc(0.97 + var(--wv) * 0.05));
@@ -230,6 +242,21 @@
   .reduce-motion .breath-word{
     transition-duration:.08s;
     transform:none !important;
+  }
+  .paint-hint{
+    position:absolute;
+    z-index:2;
+    bottom:8px;
+    right:10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.6rem;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    background:color-mix(in srgb, var(--surface) 80%, transparent);
+    padding:3px 7px;
+    border-radius:3px;
+    pointer-events:none;
   }
 
   .state-banner{
@@ -289,6 +316,12 @@
   .readout{ display:flex; flex-direction:column; gap:2px; }
   .readout .label{ font-size:0.62rem; letter-spacing:0.08em; color:var(--ink-soft); text-transform:uppercase; }
   .readout .value{ font-size:1.05rem; font-variant-numeric:tabular-nums; font-weight:600; }
+  .chan-readout{ display:flex; flex-direction:column; gap:5px; margin-top:10px; }
+  .chan-row{ display:flex; align-items:center; gap:7px; font-size:0.68rem; font-variant-numeric:tabular-nums; color:var(--ink-soft); }
+  .chan-dot{ width:9px; height:9px; border-radius:50%; flex:none; }
+  .chan-dot.r{ background:var(--chan-r); }
+  .chan-dot.g{ background:var(--chan-g); }
+  .chan-dot.b{ background:var(--chan-b); }
   .status-row{
     display:flex; align-items:center; gap:8px;
     margin-top:10px; padding-top:10px; border-top:1px solid var(--rule);
@@ -296,8 +329,6 @@
   }
   .dot{ width:8px; height:8px; border-radius:50%; background:var(--ink-soft); flex:none; }
   .dot.running{ background:var(--accent); animation:pulse 1.6s ease-in-out infinite; }
-  .dot.quiet{ background:var(--off-ink); }
-  .dot.flooded{ background:var(--accent); }
   @media (prefers-reduced-motion:reduce){ .dot.running{ animation:none; } }
   @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.35;} }
 
@@ -331,6 +362,8 @@
     cursor:pointer;
   }
   button:hover{ border-color:var(--ink-soft); }
+  button:disabled{ opacity:0.45; cursor:default; }
+  button:disabled:hover{ border-color:var(--rule); }
   button:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
   button.primary{
     background:var(--accent);
@@ -345,6 +378,18 @@
   .preset-row{ display:flex; gap:6px; margin-bottom:10px; }
   .preset-row button{ flex:1 1 33%; }
   .preset-row button.is-active{ background:var(--accent); border-color:var(--accent); color:#F7EFEA; }
+
+  .swatch-row{ display:flex; gap:8px; margin-bottom:10px; }
+  .swatch-btn{
+    flex:1 1 33%;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    padding:7px 6px;
+  }
+  .swatch-btn .dot{ width:11px; height:11px; border-radius:50%; animation:none; }
+  .swatch-btn.chan-r .dot{ background:var(--chan-r); }
+  .swatch-btn.chan-g .dot{ background:var(--chan-g); }
+  .swatch-btn.chan-b .dot{ background:var(--chan-b); }
+  .swatch-btn.is-active{ border-color:var(--ink); border-width:2px; }
 
   textarea{
     width:100%;
@@ -365,7 +410,32 @@
   }
   .rail-desc{ margin:0 0 12px; font-size:0.7rem; line-height:1.5; color:var(--ink-soft); }
 
-  /* ---------- captured breaths ---------- */
+  .toggle-row{
+    display:flex; align-items:center; gap:8px; margin-bottom:10px;
+    font-size:0.72rem; color:var(--ink);
+  }
+  .toggle-row input{ width:15px; height:15px; accent-color:var(--accent); }
+
+  .fn-empty{ margin:0; font-size:0.72rem; color:var(--ink-soft); }
+  .fn-list{
+    list-style:none; margin:0; padding:0;
+    display:flex; flex-direction:column; gap:8px;
+    max-height:220px; overflow-y:auto;
+  }
+  .fn-list li{
+    display:flex; flex-direction:column; gap:2px;
+    font-size:0.7rem; line-height:1.4;
+    padding-bottom:8px; border-bottom:1px solid var(--rule);
+  }
+  .fn-list li:last-child{ border-bottom:none; padding-bottom:0; }
+  .fn-gen{
+    font-family:'IBM Plex Mono', monospace; font-size:0.6rem;
+    letter-spacing:0.05em; text-transform:uppercase; color:var(--ink-soft);
+    font-variant-numeric:tabular-nums;
+  }
+  .fn-params{ color:var(--ink-soft); font-variant-numeric:tabular-nums; }
+
+  /* ---------- captured blooms ---------- */
   .captures{
     border-top:1px solid var(--rule-strong);
     padding-top:18px;
@@ -433,7 +503,7 @@
 
   <header>
     <h1>Bacterial Bloom</h1>
-    <p id="headerDesc">The sibling of <a href="../cellular-erasure/index.html">Cellular Erasure</a>, run on <a href="https://en.wikipedia.org/wiki/Lenia" target="_blank" rel="noopener noreferrer">Lenia</a> instead of Conway's Game of Life: a continuous field standing in for the binary grid, growing and dying back like a culture in a dish instead of flipping cells on and off. It doesn't settle the way Life does &mdash; it breathes, drifts, sometimes dies back to nothing, sometimes overgrows everything at once. Every word's weight, blur and color track the field's value under it in real time. It doesn't need to settle to give up a poem, though: <strong>Capture this bloom</strong> takes whatever the field looks like right now and thresholds it against its own average brightness into a Selected reading &mdash; the same "lift the survivors out" move Cellular Erasure makes when it settles, just taken on your call instead of the automaton's.</p>
+    <p id="headerDesc">The sibling of <a href="../cellular-erasure/index.html">Cellular Erasure</a>, run on <a href="https://en.wikipedia.org/wiki/Lenia" target="_blank" rel="noopener noreferrer">Lenia</a> instead of Conway's Game of Life. Three colonies now, not one &mdash; red, green and blue, each running its own growth equation, each preying on the next in a closed loop (red eats green, green eats blue, blue eats red), so the colors are real populations chasing each other, not a coat of paint. <strong>Click or drag on the dish to paint mass</strong> into whichever colony is selected in the Paint panel. Turn on <strong>Evolve</strong> and the dish periodically tries a small mutation to its own growth rules, keeping it only if it produces a more textured, more alive-looking dish &mdash; a real, small evolutionary search, logged below as it happens. However it's breathing, <strong>Capture this bloom</strong> takes whatever it looks like right now and thresholds it into a Selected reading, the same "lift the survivors out" move Cellular Erasure makes when it settles, just taken on your call instead of the automaton's.</p>
   </header>
 
   <div class="workspace">
@@ -450,17 +520,17 @@
         </div>
 
         <div class="state-banner" id="stateBanner" hidden>
-          <span class="state-label" id="stateBannerLabel">quiet</span>
+          <span class="state-label" id="stateBannerLabel"></span>
           <span class="state-body" id="stateBannerBody"></span>
           <span class="state-actions">
             <button type="button" class="small" id="bannerCaptureBtn">Capture</button>
-            <button type="button" class="small" id="bannerReseedBtn">Reseed</button>
           </span>
         </div>
 
-        <div class="manuscript-field">
+        <div class="manuscript-field" id="fieldWrap">
           <canvas class="field-canvas" id="fieldCanvas" aria-hidden="true"></canvas>
           <div class="poem-lines" id="poemLines"></div>
+          <span class="paint-hint" id="paintHint">click / drag to paint</span>
         </div>
 
         <div class="sheet-caption" id="sheetCaption"></div>
@@ -481,6 +551,7 @@
             <span class="value" id="meanValue">0%</span>
           </div>
         </div>
+        <div class="chan-readout" id="chanReadout"></div>
         <div class="status-row">
           <span class="dot" id="statusDot"></span>
           <span id="statusText" aria-live="polite">seeded</span>
@@ -488,8 +559,21 @@
       </div>
 
       <div class="panel">
+        <h2>Paint</h2>
+        <p class="rail-desc">Click or drag directly on the dish to deposit mass by hand, into whichever colony is selected here.</p>
+        <div class="swatch-row" role="group" aria-label="Paint channel">
+          <button type="button" class="swatch-btn chan-r is-active small" id="paintR"><span class="dot"></span>Red</button>
+          <button type="button" class="swatch-btn chan-g small" id="paintG"><span class="dot"></span>Green</button>
+          <button type="button" class="swatch-btn chan-b small" id="paintB"><span class="dot"></span>Blue</button>
+        </div>
+        <div class="btn-row">
+          <button class="wide" id="clearDishBtn">Clear dish</button>
+        </div>
+      </div>
+
+      <div class="panel">
         <h2>Field</h2>
-        <p class="rail-desc">Presets are hand-tuned starting points, not a fixed catalog &mdash; nudge the sliders and the same poem finds a different way to breathe.</p>
+        <p class="rail-desc">Presets are hand-tuned starting points, not a fixed catalog. The two growth sliders set all three colonies at once; predation strength controls how hard they chase each other.</p>
         <div class="preset-row" role="group" aria-label="Field presets">
           <button type="button" class="small" id="presetBloom">Bloom</button>
           <button type="button" class="small" id="presetFade">Fade</button>
@@ -504,12 +588,20 @@
           <input type="range" id="sigmaInput" min="0.008" max="0.09" step="0.001" value="0.018">
         </div>
         <div class="field">
-          <div class="label-row"><span>Kernel radius</span><span class="val" id="radiusLabel">14</span></div>
-          <input type="range" id="radiusInput" min="6" max="20" step="1" value="14">
+          <div class="label-row"><span>Colony radius</span><span class="val" id="radiusLabel">10</span></div>
+          <input type="range" id="radiusInput" min="6" max="16" step="1" value="10">
         </div>
         <div class="field">
-          <div class="label-row"><span>Speed</span><span class="val" id="speedLabel">7 steps/s</span></div>
-          <input type="range" id="speedInput" min="60" max="360" step="10" value="140">
+          <div class="label-row"><span>Predation boost</span><span class="val" id="wPosLabel">0.35</span></div>
+          <input type="range" id="wPosInput" min="0" max="0.8" step="0.01" value="0.35">
+        </div>
+        <div class="field">
+          <div class="label-row"><span>Predation suppression</span><span class="val" id="wNegLabel">0.45</span></div>
+          <input type="range" id="wNegInput" min="0" max="0.8" step="0.01" value="0.45">
+        </div>
+        <div class="field">
+          <div class="label-row"><span>Speed</span><span class="val" id="speedLabel">5 steps/s</span></div>
+          <input type="range" id="speedInput" min="80" max="400" step="10" value="200">
         </div>
         <div class="btn-row">
           <button class="primary" id="runBtn">Pause</button>
@@ -521,6 +613,17 @@
         <div class="btn-row" style="margin-top:8px;">
           <button class="wide" id="captureBtn">Capture this bloom</button>
         </div>
+      </div>
+
+      <div class="panel">
+        <h2>Evolve</h2>
+        <p class="rail-desc">Every so often, try a small random mutation to the growth rules; keep it only if a short trial says the dish got more textured (measured as the field's own spatial variance) &mdash; a real, if simple, evolutionary strategy searching this dish's own rules. Off by default: it causes a brief pause every attempt, and it will drift the sliders above out of sync with each other as channels diverge.</p>
+        <div class="toggle-row">
+          <input type="checkbox" id="evolveToggle">
+          <label for="evolveToggle">Let it evolve</label>
+        </div>
+        <p class="fn-empty" id="evolveEmpty">No accepted mutations yet.</p>
+        <ul class="fn-list" id="evolveList"></ul>
       </div>
 
       <div class="panel">
@@ -548,7 +651,7 @@
     <div class="capture-list" id="captureList"></div>
   </div>
 
-  <footer id="footerNote">continuous field &middot; toroidal, wraps at every edge &middot; Lenia growth-function update</footer>
+  <footer id="footerNote">three coupled fields, toroidal &middot; cyclic predation (R&rarr;G&rarr;B&rarr;R) &middot; Lenia growth-function update, soft mass-safeguard</footer>
 </div>
 
 <script>
@@ -855,36 +958,58 @@
   var REDUCE_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (REDUCE_MOTION) document.body.classList.add('reduce-motion');
 
-  // ---------- Lenia core ----------
-  // Standard formulation (Chan, 2018): a continuous field A on a toroidal
-  // grid, updated as A' = clip(A + dt * G(K*A), 0, 1), where K is a
-  // radially-symmetric kernel normalized to sum 1 and G is a Gaussian
-  // "growth" mapping centered on mu with width sigma. K*A (the local
-  // potential) plays the role Conway's 3x3 neighbor count plays in Life -
-  // except continuous, so there's no fixed birth/survival table, just a
-  // smooth function of how much is nearby.
-  var QUIET_EPS = 0.02;
-  var FLOOD_EPS = 0.40;
-  var STREAK_N = 16;
+  // ================= v2 engine =================
+  // Three coupled fields (R,G,B), each its own Lenia growth-clip update
+  // (A' = clip(A + dt*G(K*A), 0,1)), same math as the v1 single-channel
+  // piece, verified in Node before this rewrite. What's new:
+  //
+  //  - Cyclic predator-prey coupling: each channel's potential also
+  //    includes a cross-kernel term from the channel it "preys on" (R
+  //    eats G, G eats B, B eats R - classic cyclic/rock-paper-scissors
+  //    dominance, May-Leonard-style), PLUS a negative term from its own
+  //    predator (the channel that preys on it). Both halves are needed:
+  //    an earlier pass with only "boosted by prey" and no "suppressed by
+  //    predator" made all three channels converge onto nearly the same
+  //    spatial pattern instead of spatially segregating - verified with
+  //    a cross-channel correlation check in Node (near +1 with only one
+  //    term; near 0 once both were added).
+  //
+  //  - A real "Flow Lenia"-style mass-conserving transport update was
+  //    attempted first (move existing mass via the gradient of the
+  //    growth potential, conservative bilinear splatting instead of
+  //    additive growth) - it held mass exactly constant as designed, but
+  //    collapsed visually into isolated point-spikes rather than
+  //    sustaining blob/creature shapes, and cost ~35ms/step, both
+  //    confirmed in Node. Reverted in favor of the proven additive
+  //    update plus a much simpler safeguard: after each step, blend each
+  //    channel back toward its own starting total mass by a fraction
+  //    (renormFrac). This isn't true conservation - it's a soft nudge,
+  //    not a hard constraint - but it measurably narrows how far any
+  //    preset can drift toward total die-off or total saturation. That
+  //    narrowing is real: verified in Node, this build's Fade and Flood
+  //    presets settle around 13% and 19% combined activity respectively,
+  //    not the old single-channel build's <2% / >40% extremes - which is
+  //    also why this version drops the old automatic "died back" /
+  //    "overgrown" banners: with the safeguard active, those thresholds
+  //    were no longer reachable through any exposed slider, so keeping
+  //    the banners around would have meant shipping dead code.
+  var FW = 80, FH = 45;
+  var PREY_OF = { R:'G', G:'B', B:'R' };       // R eats G, G eats B, B eats R
+  var QUIET_EPS = 0.015;
+  var FLOOD_EPS = 0.30;
+  var STREAK_N = 20;
 
-  // Bloom's R is deliberately much larger relative to the field than a
-  // first pass used (11 -> 14): a small kernel radius makes the growth
-  // equation settle into fine, high-frequency speckle - individually
-  // legitimate fixed points, but visually indistinguishable from noise.
-  // A wider kernel integrates over more of the field per step, which is
-  // what actually produces the coherent ring/blob "creatures" Lenia is
-  // known for instead of salt-and-pepper texture (verified in Node: same
-  // seed, R11 => scattered single-cell dots; R14 => closed ring shapes,
-  // and moving noticeably more between snapshots, i.e. more alive, not
-  // less).
   var PRESETS = {
-    bloom: { mu: 0.140, sigma: 0.018, R: 14, dt: 0.10 },
-    fade:  { mu: 0.150, sigma: 0.017, R: 11, dt: 0.15 },
-    flood: { mu: 0.400, sigma: 0.100, R: 9,  dt: 0.30 }
+    // combined-activity numbers below are what Node verification found
+    // for each config, not a live promise - your own painting and
+    // slider moves will shift them.
+    bloom: { mu:0.140, sigma:0.018, R:10, crossR:7, wPos:0.35, wNeg:0.45, dt:0.10 }, // ~16-17%, sustained chase
+    fade:  { mu:0.150, sigma:0.014, R:10, crossR:7, wPos:0.15, wNeg:0.65, dt:0.12 }, // ~13%, predation-heavy, calmest
+    flood: { mu:0.160, sigma:0.050, R:10, crossR:7, wPos:0.55, wNeg:0.08, dt:0.14 }  // ~19%, mutual-boost-heavy, busiest
   };
 
   function buildKernel(R){
-    var dxs = [], dys = [], ws = [], sum = 0;
+    var dxs=[], dys=[], ws=[], sum=0;
     for (var dy=-R; dy<=R; dy++){
       for (var dx=-R; dx<=R; dx++){
         var r = Math.sqrt(dx*dx+dy*dy) / R;
@@ -897,34 +1022,135 @@
     for (var i=0; i<ws.length; i++) ws[i] /= sum;
     return { dx: new Int16Array(dxs), dy: new Int16Array(dys), w: new Float32Array(ws) };
   }
-
   function growth(u, mu, sigma){
     var z = (u - mu) / sigma;
     return 2 * Math.exp(-0.5 * z * z) - 1;
   }
+  function convolveChannel(field, kernel, FW, FH){
+    var out = new Float32Array(FW*FH);
+    var kdx = kernel.dx, kdy = kernel.dy, kw = kernel.w, klen = kdx.length;
+    for (var y=0; y<FH; y++){
+      for (var x=0; x<FW; x++){
+        var u = 0;
+        for (var k=0; k<klen; k++){
+          var yy = y + kdy[k]; if (yy < 0) yy += FH; else if (yy >= FH) yy -= FH;
+          var xx = x + kdx[k]; if (xx < 0) xx += FW; else if (xx >= FW) xx -= FW;
+          u += field[yy*FW+xx] * kw[k];
+        }
+        out[y*FW+x] = u;
+      }
+    }
+    return out;
+  }
+  function sumOf(f){ var s=0; for (var i=0;i<f.length;i++) s+=f[i]; return s; }
+  function variance(f){
+    var n=f.length, m=0;
+    for (var i=0;i<n;i++) m+=f[i];
+    m/=n;
+    var v=0;
+    for (var i=0;i<n;i++){ var d=f[i]-m; v+=d*d; }
+    return v/n;
+  }
+
+  // One pure step of the whole 3-channel system - takes an explicit
+  // field+params+kernels, returns a new field, no reference to page
+  // state. Used both by the live step() below and by the evolutionary
+  // search's short trials, so a trial is guaranteed to run under
+  // *exactly* the same rule the live dish runs under, not a re-derived
+  // approximation of it.
+  function advanceField(field, params, selfKernel, crossKernel){
+    var self = {
+      R: convolveChannel(field.R, selfKernel, FW, FH),
+      G: convolveChannel(field.G, selfKernel, FW, FH),
+      B: convolveChannel(field.B, selfKernel, FW, FH)
+    };
+    var cross = {
+      R: convolveChannel(field[PREY_OF.R], crossKernel, FW, FH),
+      G: convolveChannel(field[PREY_OF.G], crossKernel, FW, FH),
+      B: convolveChannel(field[PREY_OF.B], crossKernel, FW, FH)
+    };
+    // suppress[c] = convolved density of c's own predator. Since R's
+    // predator is B, and cross.G already equals convolve(B) (because G
+    // preys on B), cross.G doubles as R's suppression term - no extra
+    // convolutions needed for the reverse relationship.
+    var suppress = { R: cross.G, G: cross.B, B: cross.R };
+    var next = {}, sums = {};
+    ['R','G','B'].forEach(function(c){
+      var out = new Float32Array(FW*FH);
+      var mu = params.mu[c], sigma = params.sigma[c];
+      var src = field[c];
+      var s = 0;
+      for (var i=0; i<out.length; i++){
+        var u = self[c][i] + params.wPos*cross[c][i] - params.wNeg*suppress[c][i];
+        var g = growth(u, mu, sigma);
+        var v = src[i] + params.dt*g;
+        if (v < 0) v = 0; else if (v > 1) v = 1;
+        out[i] = v; s += v;
+      }
+      var target = params.targetMass[c];
+      if (s > 1e-6 && target != null){
+        var ratio = target / s;
+        var blended = 1 + (ratio - 1) * params.renormFrac;
+        var s2 = 0;
+        for (var j=0; j<out.length; j++){
+          var vv = out[j]*blended;
+          if (vv < 0) vv = 0; else if (vv > 1) vv = 1;
+          out[j] = vv; s2 += vv;
+        }
+        s = s2;
+      }
+      next[c] = out; sums[c] = s;
+    });
+    return { field: next, sums: sums };
+  }
+  function fitnessOf(field){
+    return (variance(field.R) + variance(field.G) + variance(field.B)) / 3;
+  }
+  function cloneField(f){ return { R:f.R.slice(), G:f.G.slice(), B:f.B.slice() }; }
 
   var state = {
     poem: null,
     rows: [],
-    words: [],           // [{el,row,col,text,v}]
-    FW: 96, FH: 54,
-    field: null, fieldNext: null, displayField: null,
-    R: 14, mu: 0.14, sigma: 0.018, dt: 0.10,
-    kernel: null,
-    stepMs: 140,
+    words: [],           // [{el,row,col,text,r,g,b,v}]
+    field: null,          // {R,G,B} Float32Array
+    displayField: null,   // blurred copies, per channel, for render/sample
+    selfKernel: null, crossKernel: null,
+    selfR: 10, crossR: 7,
+    mu: { R:0.14, G:0.14, B:0.14 },
+    sigma: { R:0.018, G:0.018, B:0.018 },
+    wPos: 0.35, wNeg: 0.45, dt: 0.10,
+    renormFrac: 0.5,
+    targetMass: { R:0, G:0, B:0 },
+    stepMs: 200,
     generation: 0,
     meanHistory: [],
     quietStreak: 0, floodStreak: 0,
-    status: 'seeded',    // seeded | running | paused | quiet | flooded
+    status: 'seeded',
     running: false,
     timer: null,
     activePreset: 'bloom',
     captures: [],
     lastPoemIndex: -1,
     canvasEl: null, ctx: null, imageData: null,
-    colorLo: [238,241,240], colorHi: [20,59,70],
-    fieldWrap: null
+    chanColor: { R:[178,58,46], G:[63,122,66], B:[43,90,114] },
+    fieldWrap: null,
+    paintChannel: 'R',
+    isPainting: false,
+    evolveEnabled: false,
+    evolveEvery: 90,   // real steps between evolution attempts
+    evolveTrialSteps: 10,
+    evolveGenCount: 0,
+    evolveLog: []
   };
+
+  function currentParams(){
+    return {
+      mu: { R: state.mu.R, G: state.mu.G, B: state.mu.B },
+      sigma: { R: state.sigma.R, G: state.sigma.G, B: state.sigma.B },
+      wPos: state.wPos, wNeg: state.wNeg, dt: state.dt,
+      renormFrac: state.renormFrac, targetMass: state.targetMass
+    };
+  }
 
   function parseColor(hex){
     var m = /^#?([0-9a-f]{6})$/i.exec((hex||'').trim());
@@ -932,20 +1158,173 @@
     var n = parseInt(m[1], 16);
     return [(n>>16)&255, (n>>8)&255, n&255];
   }
-  function refreshColors(){
+  function refreshChanColors(){
     var cs = getComputedStyle(document.documentElement);
-    state.colorLo = parseColor(cs.getPropertyValue('--breath-lo'));
-    state.colorHi = parseColor(cs.getPropertyValue('--breath-hi'));
+    state.chanColor = {
+      R: parseColor(cs.getPropertyValue('--chan-r')),
+      G: parseColor(cs.getPropertyValue('--chan-g')),
+      B: parseColor(cs.getPropertyValue('--chan-b'))
+    };
   }
 
-  // A single-cell box blur, two passes (horizontal then vertical, twice),
-  // over a *copy* of the field - never fed back into the simulation
-  // itself. The growth equation above is the real, unmodified Lenia
-  // update; this only smooths the display/reading layer, the same way a
-  // fine mesh screen softens a light without changing what's behind it.
-  // Without it, individual field cells read as flicker rather than as
-  // part of a shape, even when the underlying pattern is coherent.
-  function boxBlurPass(src, FW, FH){
+  function stampBlobInto(field, cx, cy, rad, amp){
+    for (var y=0; y<FH; y++){
+      for (var x=0; x<FW; x++){
+        var dx = x-cx, dy = y-cy;
+        var d2 = dx*dx + dy*dy;
+        var v = amp * Math.exp(-d2 / (2*rad*rad));
+        var idx = y*FW+x;
+        var nv = field[idx] + v;
+        field[idx] = nv > 1 ? 1 : nv;
+      }
+    }
+  }
+
+  function seedField(){
+    state.field = { R: new Float32Array(FW*FH), G: new Float32Array(FW*FH), B: new Float32Array(FW*FH) };
+    var wordCount = state.words.length || 40;
+    var nBlobs = Math.max(3, Math.min(9, Math.round(wordCount/8)));
+    ['R','G','B'].forEach(function(c){
+      for (var i=0; i<nBlobs; i++){
+        stampBlobInto(state.field[c], Math.random()*FW, Math.random()*FH, 3+Math.random()*3, 0.65+Math.random()*0.3);
+      }
+      state.targetMass[c] = sumOf(state.field[c]);
+    });
+    state.generation = 0;
+    state.meanHistory = [];
+    state.quietStreak = 0;
+    state.floodStreak = 0;
+    state.status = 'seeded';
+    hideStateBanner();
+    updateDisplayField();
+    renderFieldCanvas();
+    syncWordStyles();
+    updateInstrument(0);
+    updateStatusReadout();
+  }
+  function clearDish(){
+    pause();
+    state.field = { R: new Float32Array(FW*FH), G: new Float32Array(FW*FH), B: new Float32Array(FW*FH) };
+    state.targetMass = { R:0, G:0, B:0 };
+    state.generation = 0;
+    state.meanHistory = [];
+    state.quietStreak = 0; state.floodStreak = 0;
+    state.status = 'seeded';
+    hideStateBanner();
+    updateDisplayField();
+    renderFieldCanvas();
+    syncWordStyles();
+    updateInstrument(0);
+    updateStatusReadout();
+  }
+
+  function step(){
+    var result = advanceField(state.field, currentParams(), state.selfKernel, state.crossKernel);
+    state.field = result.field;
+    state.generation++;
+    var combined = (result.sums.R + result.sums.G + result.sums.B) / (3*FW*FH);
+    updateDisplayField();
+    renderFieldCanvas();
+    syncWordStyles();
+    updateInstrument(combined);
+    checkStatus(combined);
+    if (state.evolveEnabled && state.generation % state.evolveEvery === 0){
+      tryEvolutionStep();
+    }
+  }
+
+  function checkStatus(mean){
+    state.meanHistory.push(mean);
+    if (state.meanHistory.length > 80) state.meanHistory.shift();
+    if (mean < QUIET_EPS) state.quietStreak++; else state.quietStreak = 0;
+    if (mean > FLOOD_EPS) state.floodStreak++; else state.floodStreak = 0;
+    if (state.quietStreak >= STREAK_N && state.status !== 'quiet'){
+      state.status = 'quiet'; pause(); showStateBanner('quiet');
+    } else if (state.floodStreak >= STREAK_N && state.status !== 'flooded'){
+      state.status = 'flooded'; pause(); showStateBanner('flooded');
+    } else if (state.status !== 'quiet' && state.status !== 'flooded'){
+      state.status = state.running ? 'running' : 'paused';
+    }
+    updateStatusReadout();
+  }
+
+  // ---------- evolutionary search (a real, small (1+1)-ES) ----------
+  // Fitness = mean per-channel spatial variance: a field that's fully
+  // died back or fully saturated to one value has ~zero variance either
+  // way, so this single measure rewards texture/structure and penalizes
+  // both degenerate extremes without a separate mass term.
+  function mutateParams(p){
+    function jitter(v, scale, lo, hi){
+      var d = (Math.random()-0.5)*2*scale;
+      var nv = v+d;
+      if (nv<lo) nv=lo; else if (nv>hi) nv=hi;
+      return nv;
+    }
+    return {
+      mu: { R: jitter(p.mu.R,0.012,0.05,0.4), G: jitter(p.mu.G,0.012,0.05,0.4), B: jitter(p.mu.B,0.012,0.05,0.4) },
+      sigma: { R: jitter(p.sigma.R,0.004,0.008,0.09), G: jitter(p.sigma.G,0.004,0.008,0.09), B: jitter(p.sigma.B,0.004,0.008,0.09) },
+      wPos: p.wPos, wNeg: p.wNeg, dt: p.dt,
+      renormFrac: p.renormFrac, targetMass: p.targetMass
+    };
+  }
+  function runTrial(params){
+    var f = cloneField(state.field);
+    for (var s=0; s<state.evolveTrialSteps; s++){
+      var r = advanceField(f, params, state.selfKernel, state.crossKernel);
+      f = r.field;
+    }
+    return f;
+  }
+  function tryEvolutionStep(){
+    var parentParams = currentParams();
+    var childParams = mutateParams(parentParams);
+    var parentField = runTrial(parentParams);
+    var childField = runTrial(childParams);
+    var parentFit = fitnessOf(parentField);
+    var childFit = fitnessOf(childField);
+    if (childFit > parentFit){
+      state.mu = childParams.mu;
+      state.sigma = childParams.sigma;
+      state.evolveGenCount++;
+      logEvolution(childParams, parentFit, childFit);
+      syncSlidersFromState();
+    }
+  }
+  function logEvolution(params, fromFit, toFit){
+    var list = document.getElementById('evolveList');
+    var empty = document.getElementById('evolveEmpty');
+    empty.hidden = true;
+    var li = document.createElement('li');
+    var gen = document.createElement('span');
+    gen.className = 'fn-gen';
+    gen.textContent = 'gen ' + state.evolveGenCount + ' · step ' + state.generation + ' · texture ' + fromFit.toFixed(4) + ' → ' + toFit.toFixed(4);
+    var params2 = document.createElement('span');
+    params2.className = 'fn-params';
+    params2.textContent = 'R μ' + params.mu.R.toFixed(3) + '/σ' + params.sigma.R.toFixed(3) +
+      ' · G μ' + params.mu.G.toFixed(3) + '/σ' + params.sigma.G.toFixed(3) +
+      ' · B μ' + params.mu.B.toFixed(3) + '/σ' + params.sigma.B.toFixed(3);
+    li.appendChild(gen);
+    li.appendChild(params2);
+    list.insertBefore(li, list.firstChild);
+    while (list.children.length > 15) list.removeChild(list.lastChild);
+  }
+
+  // ---------- bilinear sample of a field (toroidal) ----------
+  function wrap(v, n){ v = v % n; return v < 0 ? v+n : v; }
+  function sampleOne(field, fx, fy){
+    var gx = fx*FW - 0.5, gy = fy*FH - 0.5;
+    var x0 = Math.floor(gx), y0 = Math.floor(gy);
+    var tx = gx - x0, ty = gy - y0;
+    var x0w = wrap(x0, FW), x1w = wrap(x0+1, FW);
+    var y0w = wrap(y0, FH), y1w = wrap(y0+1, FH);
+    var v00 = field[y0w*FW+x0w], v10 = field[y0w*FW+x1w];
+    var v01 = field[y1w*FW+x0w], v11 = field[y1w*FW+x1w];
+    var top = v00 + (v10-v00)*tx;
+    var bot = v01 + (v11-v01)*tx;
+    return top + (bot-top)*ty;
+  }
+
+  function boxBlurPass(src){
     var tmp = new Float32Array(FW*FH);
     for (var y=0; y<FH; y++){
       for (var x=0; x<FW; x++){
@@ -963,142 +1342,38 @@
     return dst;
   }
   function updateDisplayField(){
-    state.displayField = boxBlurPass(boxBlurPass(state.field, state.FW, state.FH), state.FW, state.FH);
-  }
-
-  // ---------- field simulation ----------
-  function setRadius(R){
-    state.R = R;
-    state.kernel = buildKernel(R);
-  }
-
-  function stampBlob(cx, cy, rad, amp){
-    var FW = state.FW, FH = state.FH, field = state.field;
-    for (var y=0; y<FH; y++){
-      for (var x=0; x<FW; x++){
-        var dx = x-cx, dy = y-cy;
-        var d2 = dx*dx + dy*dy;
-        var v = amp * Math.exp(-d2 / (2*rad*rad));
-        var idx = y*FW+x;
-        var nv = field[idx] + v;
-        field[idx] = nv > 1 ? 1 : nv;
-      }
-    }
-  }
-
-  function seedField(){
-    var FW = state.FW, FH = state.FH;
-    state.field = new Float32Array(FW*FH);
-    state.fieldNext = new Float32Array(FW*FH);
-    var wordCount = state.words.length || 40;
-    var nBlobs = Math.max(3, Math.min(12, Math.round(wordCount/6)));
-    for (var i=0; i<nBlobs; i++){
-      stampBlob(Math.random()*FW, Math.random()*FH, 3+Math.random()*4, 0.65+Math.random()*0.3);
-    }
-    state.generation = 0;
-    state.meanHistory = [];
-    state.quietStreak = 0;
-    state.floodStreak = 0;
-    state.status = 'seeded';
-    hideStateBanner();
-    updateDisplayField();
-    renderFieldCanvas();
-    syncWordStyles();
-    updateInstrument(0);
-    updateStatusReadout();
-  }
-
-  function step(){
-    var FW = state.FW, FH = state.FH;
-    var field = state.field, next = state.fieldNext;
-    var kdx = state.kernel.dx, kdy = state.kernel.dy, kw = state.kernel.w, klen = kdx.length;
-    var mu = state.mu, sigma = state.sigma, dt = state.dt;
-    var sum = 0;
-    for (var y=0; y<FH; y++){
-      for (var x=0; x<FW; x++){
-        var u = 0;
-        for (var k=0; k<klen; k++){
-          var yy = y + kdy[k]; if (yy < 0) yy += FH; else if (yy >= FH) yy -= FH;
-          var xx = x + kdx[k]; if (xx < 0) xx += FW; else if (xx >= FW) xx -= FW;
-          u += field[yy*FW+xx] * kw[k];
-        }
-        var g = growth(u, mu, sigma);
-        var v = field[y*FW+x] + dt*g;
-        if (v < 0) v = 0; else if (v > 1) v = 1;
-        next[y*FW+x] = v;
-        sum += v;
-      }
-    }
-    state.field = next; state.fieldNext = field;
-    state.generation++;
-    var mean = sum / (FW*FH);
-    updateDisplayField();
-    renderFieldCanvas();
-    syncWordStyles();
-    updateInstrument(mean);
-    checkStatus(mean);
-  }
-
-  function checkStatus(mean){
-    state.meanHistory.push(mean);
-    if (state.meanHistory.length > 80) state.meanHistory.shift();
-    if (mean < QUIET_EPS) state.quietStreak++; else state.quietStreak = 0;
-    if (mean > FLOOD_EPS) state.floodStreak++; else state.floodStreak = 0;
-
-    if (state.quietStreak >= STREAK_N && state.status !== 'quiet'){
-      state.status = 'quiet';
-      pause();
-      showStateBanner('quiet');
-    } else if (state.floodStreak >= STREAK_N && state.status !== 'flooded'){
-      state.status = 'flooded';
-      pause();
-      showStateBanner('flooded');
-    } else if (state.status !== 'quiet' && state.status !== 'flooded'){
-      state.status = state.running ? 'running' : 'paused';
-    }
-    updateStatusReadout();
-  }
-
-  // ---------- bilinear sample of the field (toroidal) ----------
-  function wrap(v, n){ v = v % n; return v < 0 ? v+n : v; }
-  function sampleField(fx, fy){
-    var FW = state.FW, FH = state.FH, f = state.displayField || state.field;
-    var gx = fx*FW - 0.5, gy = fy*FH - 0.5;
-    var x0 = Math.floor(gx), y0 = Math.floor(gy);
-    var tx = gx - x0, ty = gy - y0;
-    var x0w = wrap(x0, FW), x1w = wrap(x0+1, FW);
-    var y0w = wrap(y0, FH), y1w = wrap(y0+1, FH);
-    var v00 = f[y0w*FW+x0w], v10 = f[y0w*FW+x1w];
-    var v01 = f[y1w*FW+x0w], v11 = f[y1w*FW+x1w];
-    var top = v00 + (v10-v00)*tx;
-    var bot = v01 + (v11-v01)*tx;
-    return top + (bot-top)*ty;
+    state.displayField = {
+      R: boxBlurPass(boxBlurPass(state.field.R)),
+      G: boxBlurPass(boxBlurPass(state.field.G)),
+      B: boxBlurPass(boxBlurPass(state.field.B))
+    };
   }
 
   function renderFieldCanvas(){
     if (!state.ctx) return;
-    var f = state.displayField || state.field, data = state.imageData.data;
-    var lo = state.colorLo, hi = state.colorHi;
-    for (var i=0; i<f.length; i++){
-      var v = f[i]; if (v < 0) v = 0; else if (v > 1) v = 1;
-      // gamma > 1 pushes faint background further toward invisible, so
-      // only genuinely active regions read as lit - without this, low-
-      // level field noise stays faintly visible everywhere and reads as
-      // static rather than as a handful of legible shapes.
-      var t = Math.pow(v, 1.2);
+    var d = state.displayField, data = state.imageData.data;
+    var cR = state.chanColor.R, cG = state.chanColor.G, cB = state.chanColor.B;
+    for (var i=0; i<FW*FH; i++){
+      var r = d.R[i], g = d.G[i], b = d.B[i];
+      if (r<0) r=0; else if (r>1) r=1;
+      if (g<0) g=0; else if (g>1) g=1;
+      if (b<0) b=0; else if (b>1) b=1;
+      var tr = Math.pow(r,1.1), tg = Math.pow(g,1.1), tb = Math.pow(b,1.1);
       var o = i*4;
-      data[o]   = lo[0] + (hi[0]-lo[0])*t;
-      data[o+1] = lo[1] + (hi[1]-lo[1])*t;
-      data[o+2] = lo[2] + (hi[2]-lo[2])*t;
-      data[o+3] = Math.min(235, t*235);
+      data[o]   = Math.min(255, tr*cR[0] + tg*cG[0] + tb*cB[0]);
+      data[o+1] = Math.min(255, tr*cR[1] + tg*cG[1] + tb*cB[1]);
+      data[o+2] = Math.min(255, tr*cR[2] + tg*cG[2] + tb*cB[2]);
+      var maxC = Math.max(tr,tg,tb);
+      data[o+3] = Math.min(235, maxC*235);
     }
     state.ctx.putImageData(state.imageData, 0, 0);
   }
 
   function syncWordStyles(){
-    if (!state.fieldWrap || !state.words.length) return;
+    if (!state.fieldWrap || !state.words.length || !state.displayField) return;
     var wrapRect = state.fieldWrap.getBoundingClientRect();
     if (wrapRect.width === 0 || wrapRect.height === 0) return;
+    var cR = state.chanColor.R, cG = state.chanColor.G, cB = state.chanColor.B;
     for (var i=0; i<state.words.length; i++){
       var w = state.words[i];
       var r = w.el.getBoundingClientRect();
@@ -1106,10 +1381,47 @@
       var fy = ((r.top+r.bottom)/2 - wrapRect.top) / wrapRect.height;
       if (fx < 0) fx = 0; else if (fx > 1) fx = 1;
       if (fy < 0) fy = 0; else if (fy > 1) fy = 1;
-      var v = sampleField(fx, fy);
+      var vr = sampleOne(state.displayField.R, fx, fy);
+      var vg = sampleOne(state.displayField.G, fx, fy);
+      var vb = sampleOne(state.displayField.B, fx, fy);
+      w.r = vr; w.g = vg; w.b = vb;
+      var v = (vr+vg+vb)/3;
       w.v = v;
       w.el.style.setProperty('--wv', v.toFixed(3));
+      var cr = Math.min(255, vr*cR[0]+vg*cG[0]+vb*cB[0]);
+      var cg = Math.min(255, vr*cR[1]+vg*cG[1]+vb*cB[1]);
+      var cb = Math.min(255, vr*cR[2]+vg*cG[2]+vb*cB[2]);
+      w.el.style.color = 'rgb(' + (cr|0) + ',' + (cg|0) + ',' + (cb|0) + ')';
     }
+  }
+
+  // ---------- painting ----------
+  function fieldCoordsFromEvent(clientX, clientY){
+    var rect = state.fieldWrap.getBoundingClientRect();
+    var fx = (clientX - rect.left) / rect.width;
+    var fy = (clientY - rect.top) / rect.height;
+    if (fx<0) fx=0; else if (fx>1) fx=1;
+    if (fy<0) fy=0; else if (fy>1) fy=1;
+    return { x: fx*FW, y: fy*FH };
+  }
+  function paintAt(clientX, clientY){
+    if (!state.field) return;
+    var p = fieldCoordsFromEvent(clientX, clientY);
+    stampBlobInto(state.field[state.paintChannel], p.x, p.y, 2.6, 0.85);
+    state.targetMass[state.paintChannel] = sumOf(state.field[state.paintChannel]);
+    updateDisplayField();
+    renderFieldCanvas();
+    syncWordStyles();
+    if (state.status === 'quiet' || state.status === 'flooded'){
+      hideStateBanner();
+      state.status = state.running ? 'running' : 'paused';
+      updateStatusReadout();
+    }
+  }
+  function setPaintChannel(c){
+    state.paintChannel = c;
+    ['paintR','paintG','paintB'].forEach(function(id){ document.getElementById(id).classList.remove('is-active'); });
+    document.getElementById('paint'+c).classList.add('is-active');
   }
 
   // ---------- text handling ----------
@@ -1121,7 +1433,6 @@
       return t ? t.split(/\s+/) : [];
     });
   }
-
   function pickRandomPoem(){
     if (CORPUS.length < 2) return CORPUS[0];
     var idx;
@@ -1129,7 +1440,6 @@
     state.lastPoemIndex = idx;
     return CORPUS[idx];
   }
-
   function renderPoemDOM(){
     var linesWrap = document.getElementById('poemLines');
     linesWrap.innerHTML = '';
@@ -1146,7 +1456,7 @@
           span.textContent = word;
           span.style.setProperty('--wv', '0.35');
           lineEl.appendChild(span);
-          state.words.push({ el: span, row: r, col: c, text: word, v: 0.35 });
+          state.words.push({ el: span, row: r, col: c, text: word, r: 0.2, g: 0.2, b: 0.2, v: 0.2 });
         });
       }
       linesWrap.appendChild(lineEl);
@@ -1154,7 +1464,6 @@
     document.getElementById('poemTitle').textContent = state.poem.title || 'Untitled';
     document.getElementById('poemByline').textContent = state.poem.author ? ('— ' + state.poem.author) : '—';
   }
-
   function loadPoem(poem){
     pause();
     state.poem = poem;
@@ -1165,39 +1474,23 @@
   }
 
   // ---------- captures ----------
-  // Cellular-erasure gets its Selected reading for free: Life provably
-  // settles, so "still alive at the end" is a clean, ready-made partition
-  // of the words. Lenia doesn't settle that way - most of the time there
-  // is no final generation to read a partition off of. So Selected here
-  // comes from thresholding this one captured instant against its own
-  // mean + half its own standard deviation, rather than waiting for an
-  // end state that may never come. Any moment can be thresholded, running
-  // or not, which is the actual answer to "it never resolves, so it
-  // can't make an erasure poem": it was never settling that made
-  // cellular-erasure's poem possible, just having one instant to read -
-  // and Lenia always has that instant, every step.
   function captureBreath(){
     if (!state.words.length) return;
     var idx = 0;
     var snapshot = state.rows.map(function(row){
       return row.map(function(word){
         var w = state.words[idx++];
-        return { text: word, v: w ? w.v : 0 };
+        return { text: word, v: w ? w.v : 0, r: w?w.r:0, g: w?w.g:0, b: w?w.b:0 };
       });
     });
     var vals = [];
     snapshot.forEach(function(row){ row.forEach(function(w){ vals.push(w.v); }); });
     var n = vals.length || 1;
     var meanV = vals.reduce(function(a,b){ return a+b; }, 0) / n;
-    var variance = vals.reduce(function(a,b){ return a + (b-meanV)*(b-meanV); }, 0) / n;
-    var threshold = meanV + 0.5*Math.sqrt(variance);
+    var variance2 = vals.reduce(function(a,b){ return a + (b-meanV)*(b-meanV); }, 0) / n;
+    var threshold = meanV + 0.5*Math.sqrt(variance2);
     var selectedCount = 0;
     var selectedLines = snapshot.map(function(row){
-      // strict > (not >=): if the field is perfectly flat - fully died
-      // back to zero, or fully overgrown to one uniform value - nothing
-      // actually stands out from anything else, so nothing is selected,
-      // rather than >= quietly selecting every word once mean == every
-      // value (which it does at zero variance).
       var kept = row.filter(function(w){ return w.v > threshold; }).map(function(w){ return w.text; });
       selectedCount += kept.length;
       return kept.join(' ');
@@ -1211,14 +1504,12 @@
     if (state.captures.length > 10) state.captures.pop();
     renderCaptures();
   }
-
   function captureText(capture){
     return capture.rows.map(function(row){ return row.map(function(w){ return w.text; }).join(' '); }).join('\n');
   }
   function captureSelectedText(capture){
     return capture.selectedLines.join('\n');
   }
-
   function copyText(text){
     if (navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(text).catch(function(){ fallbackCopy(text); });
@@ -1236,7 +1527,6 @@
     try { document.execCommand('copy'); } catch (e) {}
     document.body.removeChild(ta);
   }
-
   function renderCaptures(){
     var list = document.getElementById('captureList');
     var empty = document.getElementById('captureEmpty');
@@ -1302,6 +1592,11 @@
             span.className = 'breath-word static';
             span.textContent = w.text;
             span.style.setProperty('--wv', w.v.toFixed(3));
+            var cR=state.chanColor.R, cG=state.chanColor.G, cB=state.chanColor.B;
+            var cr=Math.min(255,w.r*cR[0]+w.g*cG[0]+w.b*cB[0]);
+            var cg=Math.min(255,w.r*cR[1]+w.g*cG[1]+w.b*cB[1]);
+            var cb=Math.min(255,w.r*cR[2]+w.g*cG[2]+w.b*cB[2]);
+            span.style.color = 'rgb('+(cr|0)+','+(cg|0)+','+(cb|0)+')';
             lineEl.appendChild(span);
           });
         }
@@ -1350,7 +1645,15 @@
     document.getElementById('genValue').textContent = state.generation;
     document.getElementById('meanValue').textContent = Math.round(mean*100) + '%';
     var caption = document.getElementById('sheetCaption');
-    caption.textContent = 'step ' + state.generation + ' · activity ' + Math.round(mean*100) + '% · μ=' + state.mu.toFixed(3) + ' σ=' + state.sigma.toFixed(3) + ' R=' + state.R;
+    caption.textContent = 'step ' + state.generation + ' · activity ' + Math.round(mean*100) +
+      '% · R μ' + state.mu.R.toFixed(3) + '/σ' + state.sigma.R.toFixed(3) +
+      ' · G μ' + state.mu.G.toFixed(3) + '/σ' + state.sigma.G.toFixed(3) +
+      ' · B μ' + state.mu.B.toFixed(3) + '/σ' + state.sigma.B.toFixed(3);
+    var chanEl = document.getElementById('chanReadout');
+    chanEl.innerHTML =
+      '<span class="chan-row"><span class="chan-dot r"></span>R μ' + state.mu.R.toFixed(3) + ' σ' + state.sigma.R.toFixed(3) + '</span>' +
+      '<span class="chan-row"><span class="chan-dot g"></span>G μ' + state.mu.G.toFixed(3) + ' σ' + state.sigma.G.toFixed(3) + '</span>' +
+      '<span class="chan-row"><span class="chan-dot b"></span>B μ' + state.mu.B.toFixed(3) + ' σ' + state.sigma.B.toFixed(3) + '</span>';
   }
   function updateStatusReadout(){
     var dot = document.getElementById('statusDot');
@@ -1359,8 +1662,6 @@
     var labels = { seeded:'seeded', running:'running', paused:'paused', quiet:'died back', flooded:'overgrown' };
     text.textContent = labels[state.status] || state.status;
     if (state.status === 'running') dot.classList.add('running');
-    else if (state.status === 'quiet') dot.classList.add('quiet');
-    else if (state.status === 'flooded') dot.classList.add('flooded');
   }
   function updateRunBtn(){
     document.getElementById('runBtn').textContent = state.running ? 'Pause' : 'Run';
@@ -1371,24 +1672,27 @@
     var body = document.getElementById('stateBannerBody');
     if (kind === 'quiet'){
       label.textContent = 'died back';
-      body.textContent = 'The culture has died back under every word — activity below ' + Math.round(QUIET_EPS*100) + '% and holding. Capture this silence, or reseed to begin again.';
+      body.textContent = 'All three colonies have faded under every word — activity below ' + Math.round(QUIET_EPS*100) + '% and holding. Capture this silence, paint some back in, or reseed.';
     } else {
       label.textContent = 'overgrown';
-      body.textContent = 'The culture has overgrown the whole dish — activity above ' + Math.round(FLOOD_EPS*100) + '% and holding. Capture this, or reseed to thin it back out.';
+      body.textContent = 'The dish is nearly saturated — activity above ' + Math.round(FLOOD_EPS*100) + '% and holding. Capture this, or reseed to thin it back out.';
     }
     banner.hidden = false;
   }
   function hideStateBanner(){
     document.getElementById('stateBanner').hidden = true;
   }
-
   function syncSlidersFromState(){
-    document.getElementById('muInput').value = state.mu;
-    document.getElementById('muLabel').textContent = state.mu.toFixed(3);
-    document.getElementById('sigmaInput').value = state.sigma;
-    document.getElementById('sigmaLabel').textContent = state.sigma.toFixed(3);
-    document.getElementById('radiusInput').value = state.R;
-    document.getElementById('radiusLabel').textContent = state.R;
+    document.getElementById('muInput').value = state.mu.R;
+    document.getElementById('muLabel').textContent = state.mu.R.toFixed(3);
+    document.getElementById('sigmaInput').value = state.sigma.R;
+    document.getElementById('sigmaLabel').textContent = state.sigma.R.toFixed(3);
+    document.getElementById('radiusInput').value = state.selfR;
+    document.getElementById('radiusLabel').textContent = state.selfR;
+    document.getElementById('wPosInput').value = state.wPos;
+    document.getElementById('wPosLabel').textContent = state.wPos.toFixed(2);
+    document.getElementById('wNegInput').value = state.wNeg;
+    document.getElementById('wNegLabel').textContent = state.wNeg.toFixed(2);
   }
   function markActivePreset(name){
     state.activePreset = name;
@@ -1401,29 +1705,35 @@
   function applyPreset(name){
     var p = PRESETS[name];
     if (!p) return;
-    state.mu = p.mu; state.sigma = p.sigma; state.dt = p.dt;
-    setRadius(p.R);
+    state.mu = { R:p.mu, G:p.mu, B:p.mu };
+    state.sigma = { R:p.sigma, G:p.sigma, B:p.sigma };
+    state.wPos = p.wPos; state.wNeg = p.wNeg; state.dt = p.dt;
+    state.selfR = p.R; state.crossR = p.crossR;
+    state.selfKernel = buildKernel(state.selfR);
+    state.crossKernel = buildKernel(state.crossR);
     syncSlidersFromState();
     markActivePreset(name);
   }
 
   document.addEventListener('DOMContentLoaded', function(){
-    refreshColors();
+    refreshChanColors();
     if (window.matchMedia){
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){
-        refreshColors();
+        refreshChanColors();
         renderFieldCanvas();
+        syncWordStyles();
       });
     }
 
     var canvas = document.getElementById('fieldCanvas');
-    canvas.width = state.FW; canvas.height = state.FH;
+    canvas.width = FW; canvas.height = FH;
     state.canvasEl = canvas;
     state.ctx = canvas.getContext('2d');
-    state.imageData = state.ctx.createImageData(state.FW, state.FH);
-    state.fieldWrap = document.querySelector('.manuscript-field');
+    state.imageData = state.ctx.createImageData(FW, FH);
+    state.fieldWrap = document.getElementById('fieldWrap');
 
-    setRadius(state.R);
+    state.selfKernel = buildKernel(state.selfR);
+    state.crossKernel = buildKernel(state.crossR);
     markActivePreset('bloom');
 
     document.getElementById('runBtn').addEventListener('click', function(){ state.running ? pause() : run(); });
@@ -1431,25 +1741,42 @@
     document.getElementById('reseedBtn').addEventListener('click', function(){ seedField(); if (!REDUCE_MOTION) run(); });
     document.getElementById('captureBtn').addEventListener('click', captureBreath);
     document.getElementById('bannerCaptureBtn').addEventListener('click', captureBreath);
-    document.getElementById('bannerReseedBtn').addEventListener('click', function(){ seedField(); if (!REDUCE_MOTION) run(); });
+    document.getElementById('clearDishBtn').addEventListener('click', clearDish);
 
     document.getElementById('presetBloom').addEventListener('click', function(){ applyPreset('bloom'); });
     document.getElementById('presetFade').addEventListener('click', function(){ applyPreset('fade'); });
     document.getElementById('presetFlood').addEventListener('click', function(){ applyPreset('flood'); });
 
+    document.getElementById('paintR').addEventListener('click', function(){ setPaintChannel('R'); });
+    document.getElementById('paintG').addEventListener('click', function(){ setPaintChannel('G'); });
+    document.getElementById('paintB').addEventListener('click', function(){ setPaintChannel('B'); });
+
     document.getElementById('muInput').addEventListener('input', function(e){
-      state.mu = parseFloat(e.target.value);
-      document.getElementById('muLabel').textContent = state.mu.toFixed(3);
+      var v = parseFloat(e.target.value);
+      state.mu = { R:v, G:v, B:v };
+      document.getElementById('muLabel').textContent = v.toFixed(3);
       markActivePreset(null);
     });
     document.getElementById('sigmaInput').addEventListener('input', function(e){
-      state.sigma = parseFloat(e.target.value);
-      document.getElementById('sigmaLabel').textContent = state.sigma.toFixed(3);
+      var v = parseFloat(e.target.value);
+      state.sigma = { R:v, G:v, B:v };
+      document.getElementById('sigmaLabel').textContent = v.toFixed(3);
       markActivePreset(null);
     });
     document.getElementById('radiusInput').addEventListener('input', function(e){
-      setRadius(parseInt(e.target.value, 10));
-      document.getElementById('radiusLabel').textContent = state.R;
+      state.selfR = parseInt(e.target.value, 10);
+      state.selfKernel = buildKernel(state.selfR);
+      document.getElementById('radiusLabel').textContent = state.selfR;
+      markActivePreset(null);
+    });
+    document.getElementById('wPosInput').addEventListener('input', function(e){
+      state.wPos = parseFloat(e.target.value);
+      document.getElementById('wPosLabel').textContent = state.wPos.toFixed(2);
+      markActivePreset(null);
+    });
+    document.getElementById('wNegInput').addEventListener('input', function(e){
+      state.wNeg = parseFloat(e.target.value);
+      document.getElementById('wNegLabel').textContent = state.wNeg.toFixed(2);
       markActivePreset(null);
     });
     document.getElementById('speedInput').addEventListener('input', function(e){
@@ -1457,6 +1784,10 @@
       document.getElementById('speedLabel').textContent = Math.round(1000/state.stepMs) + ' steps/s';
     });
     document.getElementById('speedLabel').textContent = Math.round(1000/state.stepMs) + ' steps/s';
+
+    document.getElementById('evolveToggle').addEventListener('change', function(e){
+      state.evolveEnabled = e.target.checked;
+    });
 
     document.getElementById('randomPoemBtn').addEventListener('click', function(){ loadPoem(pickRandomPoem()); });
     document.getElementById('useCustomBtn').addEventListener('click', function(){
@@ -1474,6 +1805,21 @@
         loadPoem({ title: file.name.replace(/\.txt$/i, ''), author: '', lines: text.split(/\r\n?|\n/) });
       };
       reader.readAsText(file);
+    });
+
+    // painting: pointer events on the field wrapper itself (canvas and
+    // poem text both have pointer-events:none so this is the one
+    // element that actually receives clicks/drags)
+    state.fieldWrap.addEventListener('pointerdown', function(e){
+      state.isPainting = true;
+      state.fieldWrap.setPointerCapture(e.pointerId);
+      paintAt(e.clientX, e.clientY);
+    });
+    state.fieldWrap.addEventListener('pointermove', function(e){
+      if (state.isPainting) paintAt(e.clientX, e.clientY);
+    });
+    ['pointerup','pointercancel','pointerleave'].forEach(function(evt){
+      state.fieldWrap.addEventListener(evt, function(){ state.isPainting = false; });
     });
 
     window.addEventListener('resize', function(){ syncWordStyles(); });

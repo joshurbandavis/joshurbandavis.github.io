@@ -192,6 +192,78 @@ behavioral art. Each lives in its own folder as a self-contained page.
     page) rather than hand-captured, then cropped to the same 1280×800
     frame every other card uses.
 
+  **v2 — three colonies, paint, and a real (if small) evolutionary
+  search.** Prompted by being asked what else could be pulled in from
+  actual Lenia research and demos: interactive variations, intuitive
+  tunables, real color (not a repaint), and visible evolution.
+  - **Three coupled fields instead of one, in a closed predation loop.**
+    R, G and B each run their own Lenia growth-clip update, but each
+    channel's potential also includes a cross-kernel term from the
+    channel it preys on (R eats G, G eats B, B eats R — cyclic dominance,
+    the same shape as May & Leonard's classic three-species competition
+    model) *and* a negative term from its own predator. Both halves
+    matter: a first pass with only "boosted by prey" and no "suppressed
+    by predator" made all three channels converge onto nearly the same
+    spatial pattern — caught with a cross-channel correlation check in
+    Node (≈+1 with one term, ≈0 once both were added, confirming genuine
+    spatial segregation rather than three overlapping copies of the same
+    texture). Color is now literal: canvas and word tint are both a
+    weighted mix of three real per-channel base hues by each channel's
+    actual sampled intensity, not a single duotone ramp.
+  - **A real "Flow Lenia"-style transport update was tried first, and
+    dropped.** Instead of adding growth directly (which creates/destroys
+    mass), the plan was to move existing mass via the gradient of the
+    growth potential, deposited conservatively with bilinear splatting —
+    verified in Node to hold total mass *exactly* constant across 300
+    steps. But it visually collapsed into isolated point-spikes rather
+    than sustaining blob/creature shapes, and cost ~35ms/step, both
+    confirmed before it went anywhere near the page. Reverted to the
+    proven additive update plus a much cheaper safeguard: after each
+    step, blend each channel back toward its own starting total mass by
+    a fraction (`renormFrac`, 0.5) — a soft nudge, not a hard conservation
+    law. It's real enough to matter: Node-verified Fade and Flood presets
+    now settle around 13% and 19% combined activity, not the old
+    single-channel build's <2%/>40% extremes — which is also why the
+    automatic "died back"/"overgrown" banners were retired as *displayed
+    text* wording only (the detection code stays, tightened, mostly for
+    what happens under extreme manual slider settings) rather than kept
+    describing failure modes the new engine rarely reaches on its own.
+  - **Paint-to-seed**, the single most-cited Lenia demo interaction:
+    click or drag directly on the dish to deposit mass by hand into
+    whichever of the three colonies is selected, plus a "Clear dish"
+    button so a visitor can paint a creature from nothing rather than
+    only reshaping a random seed. Painting updates the *live* field and
+    its own mass target immediately (so the safeguard defends the new
+    paint, not erodes it back toward the old baseline), independent of
+    whether the automaton is currently running or paused.
+  - **A real, small (1+1) evolutionary strategy.** Toggled off by
+    default (`Evolve`). Every `evolveEvery` steps, it mutates the six
+    growth parameters (mu/sigma × 3 channels) by a small random jitter,
+    runs a short cloned trial under both the current and mutated rules,
+    and keeps whichever produces higher fitness — fitness being the
+    field's own mean per-channel spatial variance, which rewards texture
+    and penalizes both degenerate extremes (a fully flat field, died back
+    or overgrown, has ~zero variance either way) without a separate mass
+    term. Accepted mutations are logged live with their new μ/σ per
+    channel. The manual growth sliders set all three channels identically
+    (one "temperament" control); evolution is the only thing that can
+    make the three colonies drift into distinct personalities from each
+    other, and the Instrument panel shows each channel's current μ/σ
+    separately so that divergence is visible once it happens.
+  - Verified before any of this touched the page: the exact shipped
+    `advanceField()`/`mutateParams()`/`fitnessOf()` functions were
+    extracted from the real file and run standalone in Node (not just
+    the earlier prototype) — no NaN across 300 steps, ~17–21ms/step,
+    activity in the expected band, a trial genuinely diverging from its
+    parent. Then checked visually via two headless-Chrome screenshots
+    (`chrome --headless=new --virtual-time-budget=... --screenshot=...`)
+    with stderr grepped for uncaught exceptions — real color segregation
+    confirmed, no console errors. Paint's pointer-event wiring reuses the
+    exact same `getBoundingClientRect()` coordinate transform already
+    verified working for word-sampling, but the gesture itself hasn't
+    been interactively click-tested yet (no live browser access this
+    session) — worth a real test pass before calling it fully done.
+
 - `decay/` — a full copy of `index.html` that permanently deletes one real,
   randomly-chosen piece of itself with every visit, anywhere (the direct
   temporary.cc reference). Real destruction — actual DOM `.remove()`, not a
