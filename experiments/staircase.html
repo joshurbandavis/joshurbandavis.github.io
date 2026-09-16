@@ -22,11 +22,11 @@
   --mono:'Space Mono',monospace;
   --sans:'Inter',system-ui,sans-serif;
 
-  --riser:#0c0c0b;
-  --tread:#161613;
-  --side:#121210;
-  --back:#121210;
-  --bottom:#080807;
+  --riser:#332e26;
+  --tread:#4e4736;
+  --side:#26221b;
+  --back:#26221b;
+  --bottom:#181410;
   --step-height:15svh;
 }
 
@@ -171,11 +171,11 @@ main{
   contain:layout style;
   transform:translateY(
       calc(
-        var(--i) * var(--step-height) + var(--i) * 0.5px - 10 *
+        var(--i) * var(--step-height) + var(--i) * 0.5px - 12 *
           var(--step-height)
       )
     )
-    rotateY(calc(var(--i) * -36deg + 181deg));
+    rotateY(calc(var(--i) * -30deg + 181deg));
 }
 
 .step:first-child .outer-end,
@@ -195,12 +195,18 @@ main{
   align-items:center;
   column-gap:1rem;
   border-top:1px solid var(--tread);
-  background:var(--riser);
+  background:color-mix(in srgb, var(--riser), var(--accent) 18%);
+  transition:background 350ms ease;
+}
+.step.flush .riser,
+.step.expanded .riser,
+.step:hover .riser{
+  background:color-mix(in srgb, var(--riser), var(--accent) 34%);
 }
 
 .riser-text{display:grid; min-width:0}
 
-.riser > *{opacity:.4; transition:opacity 350ms ease, color 350ms ease}
+.riser > *{opacity:.7; transition:opacity 350ms ease, color 350ms ease}
 .step.flush .riser > *,
 .step.expanded .riser > *,
 .step:hover .riser > *{opacity:1}
@@ -355,7 +361,7 @@ main{
       <div class="bottom"></div>
     </a>
 
-    <a class="step" data-cls="cellular-erasure" data-img="_shared/snapshots/cellular-erasure.jpg" href="cellular-erasure/index.html" target="_blank" rel="noopener" style="--i:10">
+    <a class="step" data-cls="cellular-erasure" data-img="_shared/snapshots/cellular-erasure.jpg" href="cellular-erasure/index.html" target="_blank" rel="noopener" style="--i:12">
       <div class="riser">
         <span class="step-num">01</span>
         <div class="riser-text"><span class="step-title">cellular erasure</span><span class="step-phrase">A poem is just the words the system didn't erase.</span></div>
@@ -367,7 +373,7 @@ main{
       <div class="bottom"></div>
     </a>
 
-    <a class="step" data-cls="creep" data-img="_shared/snapshots/creep.jpg" href="creep/index.html" target="_blank" rel="noopener" style="--i:9">
+    <a class="step" data-cls="creep" data-img="_shared/snapshots/creep.jpg" href="creep/index.html" target="_blank" rel="noopener" style="--i:11">
       <div class="riser">
         <span class="step-num">02</span>
         <div class="riser-text"><span class="step-title">creep</span><span class="step-phrase">Something older is quietly overtaking this page, forever.</span></div>
@@ -379,7 +385,7 @@ main{
       <div class="bottom"></div>
     </a>
 
-    <a class="step" data-cls="internet-is-haunted" data-img="_shared/snapshots/internet-is-haunted.jpg" href="internet-is-haunted/index.html" target="_blank" rel="noopener" style="--i:8">
+    <a class="step" data-cls="internet-is-haunted" data-img="_shared/snapshots/internet-is-haunted.jpg" href="internet-is-haunted/index.html" target="_blank" rel="noopener" style="--i:10">
       <div class="riser">
         <span class="step-num">03</span>
         <div class="riser-text"><span class="step-title">the internet is haunted</span><span class="step-phrase">What's left of a link after the page is gone?</span></div>
@@ -391,7 +397,7 @@ main{
       <div class="bottom"></div>
     </a>
 
-    <a class="step" data-cls="please-wait" data-img="_shared/snapshots/please-wait.jpg" href="please-wait/index.html" target="_blank" rel="noopener" style="--i:7">
+    <a class="step" data-cls="please-wait" data-img="_shared/snapshots/please-wait.jpg" href="please-wait/index.html" target="_blank" rel="noopener" style="--i:9">
       <div class="riser">
         <span class="step-num">04</span>
         <div class="riser-text"><span class="step-title">please wait</span><span class="step-phrase">A progress bar that was never going to finish.</span></div>
@@ -403,7 +409,7 @@ main{
       <div class="bottom"></div>
     </a>
 
-    <a class="step" data-cls="decay" data-img="_shared/snapshots/decay.jpg" href="decay/index.html" target="_blank" rel="noopener" style="--i:6">
+    <a class="step" data-cls="decay" data-img="_shared/snapshots/decay.jpg" href="decay/index.html" target="_blank" rel="noopener" style="--i:8">
       <div class="riser">
         <span class="step-num">05</span>
         <div class="riser-text"><span class="step-title">decay</span><span class="step-phrase">A homepage that only ever learns how to disappear.</span></div>
@@ -415,7 +421,7 @@ main{
       <div class="bottom"></div>
     </a>
 
-    <a class="step" data-cls="no-one-in-particular" data-img="_shared/snapshots/no-one-in-particular.jpg" href="no-one-in-particular/index.html" target="_blank" rel="noopener" style="--i:5">
+    <a class="step" data-cls="no-one-in-particular" data-img="_shared/snapshots/no-one-in-particular.jpg" href="no-one-in-particular/index.html" target="_blank" rel="noopener" style="--i:7">
       <div class="riser">
         <span class="step-num">06</span>
         <div class="riser-text"><span class="step-title">no one in particular</span><span class="step-phrase">An obituary, written for someone who never lived.</span></div>
@@ -427,7 +433,7 @@ main{
       <div class="bottom"></div>
     </a>
 
-    <a class="step" data-cls="the-occupant" data-img="_shared/snapshots/the-occupant.jpg" href="the-occupant/index.html" target="_blank" rel="noopener" style="--i:4">
+    <a class="step" data-cls="the-occupant" data-img="_shared/snapshots/the-occupant.jpg" href="the-occupant/index.html" target="_blank" rel="noopener" style="--i:6">
       <div class="riser">
         <span class="step-num">07</span>
         <div class="riser-text"><span class="step-title">the occupant</span><span class="step-phrase">Something small is trapped in here, and it knows it.</span></div>
@@ -439,7 +445,7 @@ main{
       <div class="bottom"></div>
     </a>
 
-    <a class="step" data-cls="mutate" data-img="_shared/snapshots/mutate.jpg" href="mutate/index.html" target="_blank" rel="noopener" style="--i:3">
+    <a class="step" data-cls="mutate" data-img="_shared/snapshots/mutate.jpg" href="mutate/index.html" target="_blank" rel="noopener" style="--i:5">
       <div class="riser">
         <span class="step-num">08</span>
         <div class="riser-text"><span class="step-title">mutate</span><span class="step-phrase">Forty possible mutations, each one stacked on the last.</span></div>
@@ -451,7 +457,7 @@ main{
       <div class="bottom"></div>
     </a>
 
-    <a class="step" data-cls="untended" data-img="_shared/snapshots/untended.jpg" href="untended/index.html" target="_blank" rel="noopener" style="--i:2">
+    <a class="step" data-cls="untended" data-img="_shared/snapshots/untended.jpg" href="untended/index.html" target="_blank" rel="noopener" style="--i:4">
       <div class="riser">
         <span class="step-num">09</span>
         <div class="riser-text"><span class="step-title">untended</span><span class="step-phrase">A painting that remembers exactly how long you left it alone.</span></div>
@@ -463,10 +469,34 @@ main{
       <div class="bottom"></div>
     </a>
 
-    <a class="step" data-cls="bacterial-bloom" data-img="_shared/snapshots/bacterial-bloom.jpg" href="bacterial-bloom/index.html" target="_blank" rel="noopener" style="--i:1">
+    <a class="step" data-cls="bacterial-bloom" data-img="_shared/snapshots/bacterial-bloom.jpg" href="bacterial-bloom/index.html" target="_blank" rel="noopener" style="--i:3">
       <div class="riser">
         <span class="step-num">10</span>
         <div class="riser-text"><span class="step-title">bacterial bloom</span><span class="step-phrase">A poem grown like a culture, not typed like one.</span></div>
+      </div>
+      <div class="tread"></div>
+      <div class="outer-end"></div>
+      <div class="inner-end"></div>
+      <div class="back"></div>
+      <div class="bottom"></div>
+    </a>
+
+    <a class="step" data-cls="checker-sequencer" data-img="_shared/snapshots/checker-sequencer.jpg" href="checker-sequencer/index.html" target="_blank" rel="noopener" style="--i:2">
+      <div class="riser">
+        <span class="step-num">11</span>
+        <div class="riser-text"><span class="step-title">checker sequencer</span><span class="step-phrase">Every move you make, the board sings back.</span></div>
+      </div>
+      <div class="tread"></div>
+      <div class="outer-end"></div>
+      <div class="inner-end"></div>
+      <div class="back"></div>
+      <div class="bottom"></div>
+    </a>
+
+    <a class="step" data-cls="chess-sequencer" data-img="_shared/snapshots/chess-sequencer.jpg" href="chess-sequencer/index.html" target="_blank" rel="noopener" style="--i:1">
+      <div class="riser">
+        <span class="step-num">12</span>
+        <div class="riser-text"><span class="step-title">chess sequencer</span><span class="step-phrase">Six pieces, six instruments, always mid-song.</span></div>
       </div>
       <div class="tread"></div>
       <div class="outer-end"></div>
@@ -550,7 +580,7 @@ const findFlushStep = (groupAngle) => {
   let bestDist = Infinity;
   for (const step of steps) {
     const i = parseFloat(step.style.getPropertyValue('--i'));
-    const total = ((groupAngle + (i * -36 + 181)) % 360 + 360) % 360;
+    const total = ((groupAngle + (i * -30 + 181)) % 360 + 360) % 360;
     const dist = Math.min(total, 360 - total);
     if (dist < bestDist) { bestDist = dist; best = step; }
   }
@@ -559,7 +589,7 @@ const findFlushStep = (groupAngle) => {
 
 const update = () => {
   const y = cachedScrollY;
-  const groupAngle = 179 + y * (-36 / 168);
+  const groupAngle = 179 + y * (-30 / 168);
   staircase.style.transform = `translateY(${y * cachedHeight / 168}px) rotateY(${groupAngle}deg)`;
 
   const flush = findFlushStep(groupAngle);
