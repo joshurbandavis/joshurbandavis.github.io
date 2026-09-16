@@ -140,6 +140,20 @@ footer.na-foot{
 footer.na-foot a{color:var(--dim);text-decoration:none}
 footer.na-foot a:hover{color:var(--accent)}
 
+/* sponsor logos — the grants that funded the original 2020 project.
+   HAA and TCA provide official reverse (white/color-on-dark) marks that
+   sit directly on the page; ALH only publishes a black-on-white mark, so
+   it gets its own light chip rather than being recolored. */
+.na-sponsors{margin-bottom:2rem}
+.na-sponsors-label{display:block;font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;color:var(--dimmer);margin-bottom:1.2rem}
+.na-sponsor-row{display:flex;align-items:center;justify-content:center;gap:2.4rem;flex-wrap:wrap}
+.na-sponsor-row a{display:inline-flex;align-items:center}
+.na-sponsor-logo{height:34px;width:auto;opacity:.8;transition:opacity .3s}
+.na-sponsor-logo:hover{opacity:1}
+.na-sponsor-chip{display:inline-flex;align-items:center;background:var(--fg);padding:.5rem .9rem;border-radius:6px;line-height:0;transition:opacity .3s;opacity:.9}
+.na-sponsor-chip:hover{opacity:1}
+.na-sponsor-chip .na-sponsor-logo{height:24px;opacity:1}
+
 /* the full moon+wordmark lockup — the one image the original site ever
    showed live, and it showed it large (300x270 in its sidebar) on every
    single page. Same idea here: one consistent, generously-sized mark at
