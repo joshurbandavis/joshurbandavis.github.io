@@ -112,7 +112,7 @@ behavioral art. Each lives in its own folder as a self-contained page.
   were. Same automaton and seed under both; only which cell state means
   "kept" flips. No backend: random or pasted/uploaded text, all client-side.
 
-- `cellular-breath/` — the same found-poem premise as `cellular-erasure/`,
+- `bacterial-bloom/` — the same found-poem premise as `cellular-erasure/`,
   run on [Lenia](https://en.wikipedia.org/wiki/Lenia) instead of Conway's
   Game of Life: a continuous field (`A' = clip(A + dt·G(K*A), 0, 1)`, the
   real Chan 2018 update — a normalized ring kernel `K` and a Gaussian
@@ -136,11 +136,11 @@ behavioral art. Each lives in its own folder as a self-contained page.
     never-quite-static plateau instead (confirmed moving cell-to-cell
     between snapshots 50 steps apart, even while the *aggregate* mean
     average was already flat) instead of a discrete fixed point. So there
-    are three real end states instead of one settle event: **quiet**
-    (mean activity holds under 2% — the field faded out under every
-    word), **flooded** (holds over 40% — most of the page lit at once),
+    are three real end states instead of one settle event: **died back**
+    (mean activity holds under 2% — the culture faded out under every
+    word), **overgrown** (holds over 40% — most of the page lit at once),
     or, the common case, never resolving on its own at all — for that
-    one, **Capture this breath** freezes whatever the current instant
+    one, **Capture this bloom** freezes whatever the current instant
     looks like into a dated, re-readable snapshot below the poem, on the
     visitor's own call rather than the automaton's.
   - **Presets are honestly labeled as tuned starting points, not a
@@ -166,13 +166,31 @@ behavioral art. Each lives in its own folder as a self-contained page.
     change the dynamics, only how legible they are. Canvas alpha also
     now uses gamma 1.2 instead of 0.85 so faint background activity
     fades toward invisible instead of flickering everywhere at once.
-  - Not yet linked from the experiments gallery card grid or given a
-    snapshot image — it's a first-pass prototype pending a fuller look
-    in an actual browser (verified so far via Node: kernel
-    normalization, step performance at ~15-18ms/step for the full field
-    at the larger radius, boundedness across parameter sweeps, and now
-    the blurred/gamma-adjusted display output — not yet verified
-    interactively end to end in a live browser).
+  - **"It never resolves, so it can't make an erasure poem" — it doesn't
+    need to.** Cellular-erasure's Selected reading is only possible
+    because Life provably settles: "still alive at the end" is a clean,
+    ready-made partition, free from the automaton's own convergence.
+    Lenia mostly doesn't converge like that, so **Capture this bloom**
+    computes Selected differently — thresholding that one captured
+    instant's own words against its own mean + half its own standard
+    deviation, strictly greater-than so a perfectly flat field (fully
+    died back, or fully overgrown to one uniform value) correctly
+    selects nothing rather than `>=` quietly selecting every word once
+    variance hits zero. Verified in Node against representative
+    snapshots (a varied capture, an all-zero field, a near-uniform
+    flooded field) before wiring it into the UI. Each capture shows this
+    Selected reading — with its own "Copy selected" — above the full
+    styled snapshot, not just the re-styled snapshot alone.
+  - Renamed from `cellular-breath/` to `bacterial-bloom/` — leans into
+    what the field actually looks like (small glowing colonies growing,
+    drifting and dying back) rather than the more abstract "breath"
+    framing, and pairs "Bloom" (the default preset name) with the real
+    ecological term for a population explosion of microorganisms.
+  - Now linked from the experiments gallery card grid (10th card) with a
+    real snapshot, generated headlessly (`chrome --headless=new
+    --virtual-time-budget=3000 --screenshot=...` against the actual
+    page) rather than hand-captured, then cropped to the same 1280×800
+    frame every other card uses.
 
 - `decay/` — a full copy of `index.html` that permanently deletes one real,
   randomly-chosen piece of itself with every visit, anywhere (the direct
@@ -408,7 +426,7 @@ open experiments/creep/index.html
 open experiments/decay/index.html
 open experiments/mutate/index.html
 open experiments/cellular-erasure/index.html
-open experiments/cellular-breath/index.html
+open experiments/bacterial-bloom/index.html
 open experiments/no-one-in-particular/index.html
 open experiments/internet-is-haunted/index.html   # needs WORKER_URL set, see above
 open experiments/the-occupant/index.html
@@ -421,7 +439,7 @@ open experiments/untended/index.html   # needs WORKER_URL set, see above — and
 
 or once pushed, at `/experiments/please-wait/` / `/experiments/creep/` /
 `/experiments/decay/` / `/experiments/mutate/` / `/experiments/cellular-erasure/` /
-`/experiments/cellular-breath/` /
+`/experiments/bacterial-bloom/` /
 `/experiments/no-one-in-particular/` / `/experiments/internet-is-haunted/` /
 `/experiments/the-occupant/` / `/experiments/untended/` on the live site.
 

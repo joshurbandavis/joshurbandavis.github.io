@@ -1,4 +1,4 @@
-<title>Cellular Breath</title>
+<title>Bacterial Bloom</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
@@ -389,6 +389,31 @@
     margin-bottom:10px; font-variant-numeric:tabular-nums;
   }
   .capture-meta .go{ margin-left:auto; }
+  .capture-selected{
+    background:var(--off-bg);
+    border:1px solid var(--rule);
+    border-radius:3px;
+    padding:12px 14px;
+    margin-bottom:14px;
+  }
+  .capture-selected-head{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    font-size:0.62rem; letter-spacing:0.05em; text-transform:uppercase; color:var(--ink-soft);
+    margin-bottom:8px;
+  }
+  .capture-selected-head button{ margin-left:auto; }
+  .capture-selected-text{
+    font-family:'IBM Plex Serif', serif;
+    font-style:italic;
+    font-size:1.05rem;
+    line-height:1.7;
+    color:var(--accent);
+  }
+  .capture-selected-text.empty{
+    font-style:normal;
+    font-size:0.78rem;
+    color:var(--ink-soft);
+  }
   .capture-body{
     font-family:'IBM Plex Serif', serif;
     font-size:1.05rem;
@@ -407,8 +432,8 @@
 <div class="page">
 
   <header>
-    <h1>Cellular Breath</h1>
-    <p id="headerDesc">The sibling of <a href="../cellular-erasure/index.html">Cellular Erasure</a>, run on <a href="https://en.wikipedia.org/wiki/Lenia" target="_blank" rel="noopener noreferrer">Lenia</a> instead of Conway's Game of Life: a continuous automaton, one smoothed field laid under a found poem instead of one binary cell per word. It doesn't settle the way Life does &mdash; it breathes, drifts, sometimes fades to nothing, sometimes floods everything at once. Every word's weight, blur and color track the field's value under it in real time. Nothing here is authored; you're watching a growth equation read the poem to you.</p>
+    <h1>Bacterial Bloom</h1>
+    <p id="headerDesc">The sibling of <a href="../cellular-erasure/index.html">Cellular Erasure</a>, run on <a href="https://en.wikipedia.org/wiki/Lenia" target="_blank" rel="noopener noreferrer">Lenia</a> instead of Conway's Game of Life: a continuous field standing in for the binary grid, growing and dying back like a culture in a dish instead of flipping cells on and off. It doesn't settle the way Life does &mdash; it breathes, drifts, sometimes dies back to nothing, sometimes overgrows everything at once. Every word's weight, blur and color track the field's value under it in real time. It doesn't need to settle to give up a poem, though: <strong>Capture this bloom</strong> takes whatever the field looks like right now and thresholds it against its own average brightness into a Selected reading &mdash; the same "lift the survivors out" move Cellular Erasure makes when it settles, just taken on your call instead of the automaton's.</p>
   </header>
 
   <div class="workspace">
@@ -494,7 +519,7 @@
           <button class="wide" id="reseedBtn">Reseed, same poem</button>
         </div>
         <div class="btn-row" style="margin-top:8px;">
-          <button class="wide" id="captureBtn">Capture this breath</button>
+          <button class="wide" id="captureBtn">Capture this bloom</button>
         </div>
       </div>
 
@@ -517,8 +542,8 @@
   </div>
 
   <div class="captures">
-    <h2>Captured breaths</h2>
-    <div class="caption">The field never settles the way Life does, so nothing here declares a final poem on its own &mdash; capture freezes one instant of the reading, on your call, the way a second reading of any poem is really just one more pass through it.</div>
+    <h2>Captured blooms</h2>
+    <div class="caption">The field never settles the way Life does, so there's no single generation to declare final. Capture freezes one instant instead &mdash; and from that instant alone, thresholds it against its own average brightness into a Selected reading, the same "lift the survivors out" move cellular-erasure makes at its own settle point. It just doesn't need the field to stop breathing first.</div>
     <p class="capture-empty" id="captureEmpty">No captures yet.</p>
     <div class="capture-list" id="captureList"></div>
   </div>
@@ -1140,6 +1165,17 @@
   }
 
   // ---------- captures ----------
+  // Cellular-erasure gets its Selected reading for free: Life provably
+  // settles, so "still alive at the end" is a clean, ready-made partition
+  // of the words. Lenia doesn't settle that way - most of the time there
+  // is no final generation to read a partition off of. So Selected here
+  // comes from thresholding this one captured instant against its own
+  // mean + half its own standard deviation, rather than waiting for an
+  // end state that may never come. Any moment can be thresholded, running
+  // or not, which is the actual answer to "it never resolves, so it
+  // can't make an erasure poem": it was never settling that made
+  // cellular-erasure's poem possible, just having one instant to read -
+  // and Lenia always has that instant, every step.
   function captureBreath(){
     if (!state.words.length) return;
     var idx = 0;
@@ -1149,14 +1185,38 @@
         return { text: word, v: w ? w.v : 0 };
       });
     });
+    var vals = [];
+    snapshot.forEach(function(row){ row.forEach(function(w){ vals.push(w.v); }); });
+    var n = vals.length || 1;
+    var meanV = vals.reduce(function(a,b){ return a+b; }, 0) / n;
+    var variance = vals.reduce(function(a,b){ return a + (b-meanV)*(b-meanV); }, 0) / n;
+    var threshold = meanV + 0.5*Math.sqrt(variance);
+    var selectedCount = 0;
+    var selectedLines = snapshot.map(function(row){
+      // strict > (not >=): if the field is perfectly flat - fully died
+      // back to zero, or fully overgrown to one uniform value - nothing
+      // actually stands out from anything else, so nothing is selected,
+      // rather than >= quietly selecting every word once mean == every
+      // value (which it does at zero variance).
+      var kept = row.filter(function(w){ return w.v > threshold; }).map(function(w){ return w.text; });
+      selectedCount += kept.length;
+      return kept.join(' ');
+    }).filter(function(line){ return line.length > 0; });
+
     var lastMean = state.meanHistory.length ? state.meanHistory[state.meanHistory.length-1] : 0;
-    state.captures.unshift({ gen: state.generation, mean: lastMean, rows: snapshot, at: Date.now() });
+    state.captures.unshift({
+      gen: state.generation, mean: lastMean, rows: snapshot, at: Date.now(),
+      selectedLines: selectedLines, selectedCount: selectedCount, totalWords: n
+    });
     if (state.captures.length > 10) state.captures.pop();
     renderCaptures();
   }
 
   function captureText(capture){
     return capture.rows.map(function(row){ return row.map(function(w){ return w.text; }).join(' '); }).join('\n');
+  }
+  function captureSelectedText(capture){
+    return capture.selectedLines.join('\n');
   }
 
   function copyText(text){
@@ -1196,13 +1256,38 @@
       var goBtn = document.createElement('button');
       goBtn.type = 'button';
       goBtn.className = 'small';
-      goBtn.textContent = 'Copy text';
+      goBtn.textContent = 'Copy full text';
       goBtn.style.marginLeft = 'auto';
       goBtn.addEventListener('click', function(){ copyText(captureText(cap)); });
       var metaGo = document.createElement('span');
       metaGo.className = 'go';
       metaGo.appendChild(goBtn);
       meta.appendChild(metaGo);
+
+      var selected = document.createElement('div');
+      selected.className = 'capture-selected';
+      var selHead = document.createElement('div');
+      selHead.className = 'capture-selected-head';
+      var selLabel = document.createElement('span');
+      selLabel.textContent = 'Selected · ' + cap.selectedCount + ' of ' + cap.totalWords + ' words, brighter than this moment’s own average';
+      var selCopyBtn = document.createElement('button');
+      selCopyBtn.type = 'button';
+      selCopyBtn.className = 'small';
+      selCopyBtn.textContent = 'Copy selected';
+      selCopyBtn.disabled = cap.selectedLines.length === 0;
+      selCopyBtn.addEventListener('click', function(){ copyText(captureSelectedText(cap)); });
+      selHead.appendChild(selLabel);
+      selHead.appendChild(selCopyBtn);
+      selected.appendChild(selHead);
+      var selText = document.createElement('div');
+      selText.className = 'capture-selected-text';
+      if (cap.selectedLines.length){
+        selText.textContent = cap.selectedLines.join(' / ');
+      } else {
+        selText.classList.add('empty');
+        selText.textContent = 'Nothing cleared the bar this time — every word was equally dim.';
+      }
+      selected.appendChild(selText);
 
       var body = document.createElement('div');
       body.className = 'capture-body';
@@ -1224,6 +1309,7 @@
       });
 
       entry.appendChild(meta);
+      entry.appendChild(selected);
       entry.appendChild(body);
       list.appendChild(entry);
     });
@@ -1270,7 +1356,7 @@
     var dot = document.getElementById('statusDot');
     var text = document.getElementById('statusText');
     dot.className = 'dot';
-    var labels = { seeded:'seeded', running:'running', paused:'paused', quiet:'gone quiet', flooded:'flooded' };
+    var labels = { seeded:'seeded', running:'running', paused:'paused', quiet:'died back', flooded:'overgrown' };
     text.textContent = labels[state.status] || state.status;
     if (state.status === 'running') dot.classList.add('running');
     else if (state.status === 'quiet') dot.classList.add('quiet');
@@ -1284,11 +1370,11 @@
     var label = document.getElementById('stateBannerLabel');
     var body = document.getElementById('stateBannerBody');
     if (kind === 'quiet'){
-      label.textContent = 'quiet';
-      body.textContent = 'The field has faded under every word — activity below ' + Math.round(QUIET_EPS*100) + '% and holding. Capture this silence, or reseed to begin again.';
+      label.textContent = 'died back';
+      body.textContent = 'The culture has died back under every word — activity below ' + Math.round(QUIET_EPS*100) + '% and holding. Capture this silence, or reseed to begin again.';
     } else {
-      label.textContent = 'flooded';
-      body.textContent = 'Most of the field is lit at once — activity above ' + Math.round(FLOOD_EPS*100) + '% and holding. Capture this, or reseed to thin it back out.';
+      label.textContent = 'overgrown';
+      body.textContent = 'The culture has overgrown the whole dish — activity above ' + Math.round(FLOOD_EPS*100) + '% and holding. Capture this, or reseed to thin it back out.';
     }
     banner.hidden = false;
   }
