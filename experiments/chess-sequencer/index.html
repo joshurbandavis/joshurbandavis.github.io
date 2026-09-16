@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>chess sequencer</title>
+<meta name="description" content="Full-rules chess where every move sweeps a bar once across the board. Piece type picks the instrument, color picks the register, and you choose the sound palette.">
+<link rel="apple-touch-icon" sizes="180x180" href="../../logo_personalweb_favicon_io/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../../logo_personalweb_favicon_io/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../../logo_personalweb_favicon_io/favicon-16x16.png">
+<link rel="manifest" href="../../logo_personalweb_favicon_io/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Share+Tech+Mono&family=Space+Grotesk:wght@400;500;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tone@14/build/Tone.js"></script>
+<style>
+:root{
+  --bg:#050505;--fg:#ddd8d0;--dim:#5a564f;--dim2:#39362f;
+  --accent:#c8ff2e;--accent2:#ff5e5b;--accent3:#d4a843;
+  --serif:'Instrument Serif',Georgia,serif;
+  --mono:'Space Mono',monospace;
+  --light-sq:#242019;--dark-sq:#0e0c09;
+  --piece-light:#f2ede0;--piece-dark:#131110;
+}
+
+/* ---- skins: everything below only ever overrides the tokens above (plus a few
+   signature touches per skin) -- component rules never hardcode a skin's colors ---- */
+:root[data-skin="light"]{
+  --bg:#f6f2ea;--fg:#211f1a;--dim:#8b8577;--dim2:#d8d2c4;
+  --accent:#2f6b3d;--accent2:#b3392b;--accent3:#a67c2e;
+  --light-sq:#efe9db;--dark-sq:#c9c0aa;
+  --piece-light:#ffffff;
+}
+[data-skin="light"] body{cursor:default}
+[data-skin="light"] .panel{background:rgba(0,0,0,.02);box-shadow:none}
+[data-skin="light"] .board{box-shadow:0 14px 30px -20px rgba(0,0,0,.25)}
+[data-skin="light"] .sweep-bar{background:linear-gradient(180deg,rgba(47,107,61,.18),rgba(47,107,61,.04));border-color:rgba(47,107,61,.4)}
+
+:root[data-skin="neon"]{
+  --bg:#07060f;--fg:#eef0ff;--dim:#6b6a8a;--dim2:#211f3a;
+  --accent:#4dfcff;--accent2:#ff4dd8;--accent3:#b46dff;
+  --light-sq:#161328;--dark-sq:#0a081a;
+}
+[data-skin="neon"] .panel{background:rgba(24,20,48,.45);backdrop-filter:blur(10px);border-color:rgba(180,109,255,.25);border-radius:16px;box-shadow:0 0 30px -18px rgba(77,252,255,.3)}
+[data-skin="neon"] button:hover{box-shadow:0 0 16px -4px rgba(77,252,255,.65)}
+[data-skin="neon"] .board{box-shadow:0 0 50px -16px rgba(180,109,255,.4)}
+[data-skin="neon"] .sweep-bar{background:linear-gradient(180deg,rgba(77,252,255,.22),rgba(180,109,255,.05));border-color:rgba(77,252,255,.6);box-shadow:0 0 20px rgba(77,252,255,.4)}
+
+:root[data-skin="alien"]{
+  --bg:#020604;--fg:#d8ffe9;--dim:#3d6e57;--dim2:#0c2018;
+  --accent:#7dffb3;--accent2:#c86bff;--accent3:#38e6c8;
+  --light-sq:#0c2a1c;--dark-sq:#03110a;
+}
+[data-skin="alien"] h1,[data-skin="alien"] .kicker,[data-skin="alien"] nav .logo{font-family:'Orbitron',var(--mono);letter-spacing:.05em}
+[data-skin="alien"] .panel{border-radius:22px 8px 22px 8px;border-color:rgba(125,255,179,.25);box-shadow:0 0 24px -14px rgba(125,255,179,.4)}
+[data-skin="alien"] .board{border-radius:16px;box-shadow:0 0 50px -16px rgba(125,255,179,.45)}
+[data-skin="alien"] .sweep-bar{animation:alienPulse 1.6s ease-in-out infinite}
+@keyframes alienPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.6)}}
+
+:root[data-skin="tr808"]{
+  --bg:#161616;--fg:#f0ede6;--dim:#8a8a86;--dim2:#2b2b2b;
+  --accent:#ff6a00;--accent2:#ff2b2b;--accent3:#ffb400;
+  --light-sq:#2a2a2a;--dark-sq:#141414;
+}
+[data-skin="tr808"] .panel{border-radius:6px;border-color:rgba(255,106,0,.3)}
+[data-skin="tr808"] button{border-radius:4px;letter-spacing:.1em}
+[data-skin="tr808"] .tempo-val,[data-skin="tr808"] #tempoVal,[data-skin="tr808"] .turn-indicator{
+  font-family:'Share Tech Mono',var(--mono);color:var(--accent2);text-shadow:0 0 6px rgba(255,43,43,.55);
+}
+[data-skin="tr808"] .board{border-radius:4px}
+
+:root[data-skin="tb303"]{
+  --bg:#cfc9b4;--fg:#231f18;--dim:#7a7460;--dim2:#b7b096;
+  --accent:#2a5fb0;--accent2:#c98a00;--accent3:#555049;
+  --light-sq:#e4dfcb;--dark-sq:#b7b096;
+  --piece-light:#ffffff;
+}
+[data-skin="tb303"] body{cursor:default}
+[data-skin="tb303"] .panel{background:#e4dfcb;border-color:#9a917a;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+[data-skin="tb303"] .board{border-color:#9a917a;box-shadow:0 14px 30px -20px rgba(0,0,0,.3)}
+
+:root[data-skin="modular"]{
+  --bg:#1b1310;--fg:#efe6d2;--dim:#a08a63;--dim2:#3a2a1a;
+  --accent:#d4a843;--accent2:#b5651d;--accent3:#8a6a3e;
+  --light-sq:#3a2a1a;--dark-sq:#1b1310;
+}
+[data-skin="modular"] body{background:repeating-linear-gradient(90deg,#1b1310 0 3px,#221810 3px 6px)}
+[data-skin="modular"] .panel{--fg:#2a1f14;--dim:#6b5636;background:#efe6d2;border-color:#8a6a3e}
+
+:root[data-skin="op1"]{
+  --bg:#f2f2f0;--fg:#1a1a1a;--dim:#8f8f8a;--dim2:#e2e2de;
+  --accent:#ff7a45;--accent2:#4d8fee;--accent3:#39b37a;
+  --light-sq:#e8e8e4;--dark-sq:#cfcfc9;
+  --piece-light:#ffffff;
+}
+[data-skin="op1"] body{cursor:default}
+[data-skin="op1"] h1,[data-skin="op1"] .kicker,[data-skin="op1"] nav .logo{font-family:'Space Grotesk',var(--mono)}
+[data-skin="op1"] .panel{border-radius:10px;box-shadow:none}
+[data-skin="op1"] button{border-radius:8px}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--fg);font-family:var(--mono);
+  min-height:100vh;display:flex;flex-direction:column;
+}
+nav{display:flex;align-items:center;gap:.6rem;padding:1.2rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.05)}
+nav a{color:var(--fg);opacity:.6;text-decoration:none;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;transition:opacity .3s}
+nav a:hover{opacity:1;color:var(--accent)}
+nav .logo{font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;opacity:1}
+nav .sep{opacity:.35;font-size:.65rem}
+
+main{flex:1;display:flex;align-items:flex-start;justify-content:center;gap:2.4rem;padding:2.4rem 1.5rem 4rem;flex-wrap:wrap}
+
+.title-block{width:100%;max-width:980px;margin:0 auto 1.6rem;text-align:center}
+.kicker{font-size:.62rem;letter-spacing:.35em;text-transform:uppercase;color:var(--dim);margin-bottom:.7rem}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(1.8rem,4vw,2.6rem);margin:0 0 .6rem;letter-spacing:-.01em}
+h1 em{font-style:italic;color:var(--accent)}
+.lede{max-width:640px;margin:0 auto;font-size:.85rem;line-height:1.7;color:var(--fg);opacity:.62}
+
+.layout{display:flex;gap:2.4rem;align-items:flex-start;flex-wrap:wrap;justify-content:center;width:100%}
+
+.board-wrap{position:relative;width:min(92vw,520px);flex-shrink:0}
+.board{
+  position:relative;width:100%;aspect-ratio:1/1;
+  display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);
+  border:1px solid rgba(255,255,255,.08);border-radius:6px;overflow:hidden;
+  box-shadow:0 30px 60px -30px rgba(0,0,0,.8);
+}
+.sq{position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.sq.light{background:var(--light-sq)}
+.sq.dark{background:var(--dark-sq)}
+.sq.movable::after{
+  content:'';position:absolute;inset:6%;border-radius:50%;
+  border:1px dashed rgba(200,255,46,.3);pointer-events:none;
+}
+.sq.dest::before{
+  content:'';position:absolute;width:20%;height:20%;border-radius:50%;
+  background:rgba(200,255,46,.55);box-shadow:0 0 10px 2px rgba(200,255,46,.5);
+}
+.sq.dest.capture::before{content:none}
+.sq.dest.capture::after{
+  content:'';position:absolute;inset:4%;border-radius:6px;
+  border:3px solid rgba(255,94,91,.75);box-shadow:0 0 10px 1px rgba(255,94,91,.4);pointer-events:none;
+}
+.sq.selected{background:#20190f}
+.sq.check-square{box-shadow:inset 0 0 0 3px rgba(255,94,91,.8),0 0 14px 2px rgba(255,94,91,.5)}
+
+.piece-glyph{
+  position:relative;font-size:min(7.5vw,42px);line-height:1;user-select:none;
+  transition:transform .15s ease;paint-order:stroke fill;
+}
+.piece-glyph.white{color:var(--piece-light);-webkit-text-stroke:1.3px rgba(0,0,0,.6);text-stroke:1.3px rgba(0,0,0,.6)}
+.piece-glyph.black{color:var(--piece-dark);-webkit-text-stroke:1.3px rgba(255,255,255,.22);text-stroke:1.3px rgba(255,255,255,.22)}
+.piece-glyph.selected{transform:scale(1.12)}
+.piece-glyph.pulse{animation:pulse .3s ease}
+@keyframes pulse{0%{filter:brightness(1.8)}100%{filter:brightness(1)}}
+
+.sweep-bar{
+  position:absolute;top:0;bottom:0;width:12.5%;left:0;
+  background:linear-gradient(180deg,rgba(200,255,46,.16),rgba(200,255,46,.03));
+  border-left:1px solid rgba(200,255,46,.45);border-right:1px solid rgba(200,255,46,.45);
+  transition:left .06s linear;pointer-events:none;opacity:0;
+}
+.sweep-bar.on{opacity:1}
+
+.sidebar{width:min(92vw,300px);display:flex;flex-direction:column;gap:1.4rem}
+.panel{border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:1.1rem 1.2rem;background:rgba(255,255,255,.015)}
+.panel h2{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin:0 0 .8rem;font-weight:400}
+
+.turn-indicator{display:flex;align-items:center;gap:.6rem;font-size:.85rem}
+.turn-dot{width:12px;height:12px;border-radius:50%}
+.turn-dot.white{background:#f2ede0}
+.turn-dot.black{background:#131110;border:1px solid rgba(255,255,255,.2)}
+.check-flag{margin-top:.6rem;font-size:.68rem;color:var(--accent2);opacity:.9;letter-spacing:.03em}
+.game-over{margin-top:.6rem;font-size:.85rem;color:var(--accent3)}
+
+button{
+  font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;
+  background:transparent;color:var(--fg);border:1px solid rgba(255,255,255,.18);
+  border-radius:100px;padding:.6em 1.1em;cursor:pointer;transition:border-color .3s,color .3s,background .3s;
+}
+button:hover{border-color:rgba(200,255,46,.5);color:var(--accent)}
+button:disabled{opacity:.35;cursor:default}
+button:disabled:hover{border-color:rgba(255,255,255,.18);color:var(--fg)}
+.btn-row{display:flex;gap:.6rem;flex-wrap:wrap}
+
+select{
+  width:100%;font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
+  background:var(--bg);color:var(--fg);border:1px solid rgba(255,255,255,.18);
+  border-radius:8px;padding:.6em .8em;cursor:pointer;
+}
+
+.palette-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(200,255,46,.08)}
+
+.slider-row{display:flex;align-items:center;gap:.7rem;font-size:.68rem;color:var(--dim)}
+input[type=range]{flex:1;accent-color:var(--accent)}
+.tempo-val{color:var(--fg);width:3.2em;text-align:right}
+
+.legend{font-size:.72rem;line-height:1.8;color:var(--fg);opacity:.7}
+.legend-grid{display:grid;grid-template-columns:auto 1fr;gap:.25rem .6rem;margin-top:.4rem}
+.legend-grid span:first-child{opacity:.85}
+
+.gate,.promo-overlay{
+  position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
+  background:rgba(5,5,5,.85);backdrop-filter:blur(2px);border-radius:6px;
+  flex-direction:column;gap:.9rem;text-align:center;padding:1rem;
+}
+.gate p,.promo-overlay p{max-width:280px;font-size:.72rem;line-height:1.6;color:var(--fg);opacity:.65;margin:0}
+.gate.hidden,.promo-overlay.hidden{display:none}
+.promo-choices{display:flex;gap:.7rem}
+.promo-choices button{font-size:1.6rem;padding:.4em .6em;line-height:1;paint-order:stroke fill}
+.promo-choices button.white{color:#f2ede0;-webkit-text-stroke:1px rgba(0,0,0,.6)}
+.promo-choices button.black{color:#131110;-webkit-text-stroke:1px rgba(255,255,255,.3)}
+
+footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1em;color:var(--dim);text-transform:uppercase}
+
+@media(max-width:760px){
+  .layout{flex-direction:column;align-items:center}
+  .sidebar{width:min(92vw,520px)}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="../../index.html" class="logo">JUD</a>
+  <span class="sep">/</span>
+  <a href="../index.html">experiments</a>
+  <span class="sep">/</span>
+  <a href="#" style="opacity:1;color:var(--accent)">chess sequencer</a>
+</nav>
+
+<main>
+  <div class="title-block">
+    <div class="kicker">two-player · full rules · no backend</div>
+    <h1>chess, played as a <em>sequencer</em></h1>
+    <p class="lede">Full standard chess — check, checkmate, stalemate, castling, en passant, promotion —
+      with every move sweeping a bar once across the eight files, left to right. Piece type picks the
+      instrument, color picks the register, rank picks the pitch. Pick a sound palette and see how the
+      same game sounds completely different.</p>
+  </div>
+
+  <div class="layout">
+    <div class="board-wrap">
+      <div class="board" id="board">
+        <div class="sweep-bar" id="sweepBar"></div>
+      </div>
+      <div class="gate" id="gate">
+        <p>Sound needs a tap to start (browser rule, not ours).</p>
+        <button id="startBtn">▶ enable sound</button>
+      </div>
+      <div class="promo-overlay hidden" id="promoOverlay">
+        <p>Promote pawn to:</p>
+        <div class="promo-choices" id="promoChoices">
+          <button data-type="queen">♛</button>
+          <button data-type="rook">♜</button>
+          <button data-type="bishop">♝</button>
+          <button data-type="knight">♞</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="panel">
+        <h2>skin</h2>
+        <select id="skinSelect">
+          <option value="dark" selected>Dark (default)</option>
+          <option value="light">Light / paper</option>
+          <option value="neon">Glassy neon</option>
+          <option value="alien">Alien</option>
+          <option value="tr808">Roland TR-808</option>
+          <option value="tb303">Roland TB-303</option>
+          <option value="modular">Modular / Moog</option>
+          <option value="op1">Teenage Engineering OP-1</option>
+        </select>
+      </div>
+
+      <div class="panel">
+        <h2>turn</h2>
+        <div class="turn-indicator"><span class="turn-dot" id="turnDot"></span><span id="turnLabel">white to move</span></div>
+        <div class="check-flag" id="checkFlag" style="display:none">check!</div>
+        <div class="game-over" id="gameOver" style="display:none"></div>
+        <div class="btn-row" style="margin-top:1rem">
+          <button id="newGameBtn">new game</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>sound palette</h2>
+        <div class="btn-row" id="palettePicker">
+          <button class="palette-btn" data-palette="orchestral">orchestral</button>
+          <button class="palette-btn" data-palette="electronic">electronic</button>
+          <button class="palette-btn" data-palette="percussive">percussive</button>
+        </div>
+        <div class="slider-row" style="margin-top:1rem">
+          <span>tempo</span>
+          <input type="range" id="tempoSlider" min="60" max="170" value="104" step="1">
+          <span class="tempo-val"><span id="tempoVal">104</span> bpm</span>
+        </div>
+        <p style="margin:.8rem 0 0;font-size:.68rem;line-height:1.6;color:var(--fg);opacity:.6">
+          Every move sweeps the board once, left to right.
+        </p>
+      </div>
+
+      <div class="panel legend">
+        <h2>how it sounds</h2>
+        <div>rank picks pitch · color picks register (white lower, black higher octave) ·
+          piece type picks the instrument, defined by the current palette.</div>
+        <div class="legend-grid">
+          <span>♟ pawn</span><span>light, quick</span>
+          <span>♞ knight</span><span>short, percussive</span>
+          <span>♝ bishop</span><span>gliding, sustained</span>
+          <span>♜ rook</span><span>solid, blocky</span>
+          <span>♛ queen</span><span>rich, elaborate</span>
+          <span>♚ king</span><span>deep, resonant</span>
+        </div>
+        <div style="margin-top:.6rem;opacity:.75">everything's drawn from one pentatonic scale,
+          so no combination of pieces ever clashes. a king in check adds a short alert flourish.</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>joshurbandavis — chess sequencer</footer>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- chess rules engine ---------------- */
+const SIZE = 8;
+const KNIGHT_DELTAS = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+const KING_DELTAS = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+const BISHOP_DIRS = [[-1,-1],[-1,1],[1,-1],[1,1]];
+const ROOK_DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
+const QUEEN_DIRS = BISHOP_DIRS.concat(ROOK_DIRS);
+const BACK_RANK = ['rook','knight','bishop','queen','king','bishop','knight','rook'];
+
+let board, currentPlayer, selected, legalMoves, enPassantTarget, gameOver, movable, inCheck, pendingPromotion;
+
+function inBounds(r,c){ return r>=0 && r<SIZE && c>=0 && c<SIZE; }
+function opponent(color){ return color==='white' ? 'black' : 'white'; }
+
+function cloneBoard(b){
+  return b.map(row => row.map(p => p ? {type:p.type, color:p.color, hasMoved:p.hasMoved} : null));
+}
+
+function attacksFrom(b,r,c){
+  const piece = b[r][c]; if(!piece) return [];
+  const res = [];
+  if(piece.type==='pawn'){
+    const dir = piece.color==='white' ? -1 : 1;
+    for(const dc of [-1,1]){
+      const nr=r+dir, nc=c+dc;
+      if(inBounds(nr,nc)) res.push({r:nr,c:nc});
+    }
+  } else if(piece.type==='knight'){
+    for(const [dr,dc] of KNIGHT_DELTAS){
+      const nr=r+dr, nc=c+dc;
+      if(inBounds(nr,nc)) res.push({r:nr,c:nc});
+    }
+  } else if(piece.type==='king'){
+    for(const [dr,dc] of KING_DELTAS){
+      const nr=r+dr, nc=c+dc;
+      if(inBounds(nr,nc)) res.push({r:nr,c:nc});
+    }
+  } else {
+    const dirs = piece.type==='bishop' ? BISHOP_DIRS : piece.type==='rook' ? ROOK_DIRS : QUEEN_DIRS;
+    for(const [dr,dc] of dirs){
+      let nr=r+dr, nc=c+dc;
+      while(inBounds(nr,nc)){
+        res.push({r:nr,c:nc});
+        if(b[nr][nc]) break;
+        nr+=dr; nc+=dc;
+      }
+    }
+  }
+  return res;
+}
+
+function isSquareAttacked(b,tr,tc,byColor){
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+    const p = b[r][c];
+    if(p && p.color===byColor && attacksFrom(b,r,c).some(sq=>sq.r===tr && sq.c===tc)) return true;
+  }
+  return false;
+}
+
+function findKing(b,color){
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+    const p = b[r][c];
+    if(p && p.type==='king' && p.color===color) return {r,c};
+  }
+  return null;
+}
+
+function isInCheck(b,color){
+  const k = findKing(b,color);
+  if(!k) return false;
+  return isSquareAttacked(b,k.r,k.c,opponent(color));
+}
+
+function pseudoMovesFor(b,r,c,epTarget){
+  const piece = b[r][c]; if(!piece) return [];
+  const res = [];
+  const opp = opponent(piece.color);
+
+  if(piece.type==='pawn'){
+    const dir = piece.color==='white' ? -1 : 1;
+    const startRow = piece.color==='white' ? 6 : 1;
+    const lastRow = piece.color==='white' ? 0 : 7;
+    const oneR = r+dir;
+    if(inBounds(oneR,c) && b[oneR][c]===null){
+      res.push({to:{r:oneR,c}, promotion: oneR===lastRow});
+      const twoR = r+2*dir;
+      if(!piece.hasMoved && r===startRow && b[twoR][c]===null){
+        res.push({to:{r:twoR,c}, doubleStep:true});
+      }
+    }
+    for(const dc of [-1,1]){
+      const nr=oneR, nc=c+dc;
+      if(!inBounds(nr,nc)) continue;
+      const target = b[nr][nc];
+      if(target && target.color===opp){
+        res.push({to:{r:nr,c:nc}, capture:true, promotion: nr===lastRow});
+      } else if(!target && epTarget && epTarget.r===nr && epTarget.c===nc){
+        res.push({to:{r:nr,c:nc}, capture:true, enPassant:true});
+      }
+    }
+  } else if(piece.type==='knight'){
+    for(const [dr,dc] of KNIGHT_DELTAS){
+      const nr=r+dr, nc=c+dc;
+      if(!inBounds(nr,nc)) continue;
+      const target = b[nr][nc];
+      if(!target) res.push({to:{r:nr,c:nc}});
+      else if(target.color===opp) res.push({to:{r:nr,c:nc}, capture:true});
+    }
+  } else if(piece.type==='king'){
+    for(const [dr,dc] of KING_DELTAS){
+      const nr=r+dr, nc=c+dc;
+      if(!inBounds(nr,nc)) continue;
+      const target = b[nr][nc];
+      if(!target) res.push({to:{r:nr,c:nc}});
+      else if(target.color===opp) res.push({to:{r:nr,c:nc}, capture:true});
+    }
+    if(!piece.hasMoved && !isSquareAttacked(b,r,c,opp)){
+      const rookK = b[r][7];
+      if(rookK && rookK.type==='rook' && rookK.color===piece.color && !rookK.hasMoved
+         && b[r][5]===null && b[r][6]===null
+         && !isSquareAttacked(b,r,5,opp) && !isSquareAttacked(b,r,6,opp)){
+        res.push({to:{r,c:6}, castle:'king'});
+      }
+      const rookQ = b[r][0];
+      if(rookQ && rookQ.type==='rook' && rookQ.color===piece.color && !rookQ.hasMoved
+         && b[r][1]===null && b[r][2]===null && b[r][3]===null
+         && !isSquareAttacked(b,r,3,opp) && !isSquareAttacked(b,r,2,opp)){
+        res.push({to:{r,c:2}, castle:'queen'});
+      }
+    }
+  } else {
+    const dirs = piece.type==='bishop' ? BISHOP_DIRS : piece.type==='rook' ? ROOK_DIRS : QUEEN_DIRS;
+    for(const [dr,dc] of dirs){
+      let nr=r+dr, nc=c+dc;
+      while(inBounds(nr,nc)){
+        const target = b[nr][nc];
+        if(!target){ res.push({to:{r:nr,c:nc}}); }
+        else { if(target.color===opp) res.push({to:{r:nr,c:nc}, capture:true}); break; }
+        nr+=dr; nc+=dc;
+      }
+    }
+  }
+  return res;
+}
+
+function makeMove(b,from,move,promoType){
+  const piece = b[from.r][from.c];
+  b[from.r][from.c] = null;
+
+  if(move.enPassant){
+    b[from.r][move.to.c] = null;
+  }
+
+  if(move.castle){
+    const row = from.r;
+    if(move.castle==='king'){
+      const rook = b[row][7];
+      b[row][7] = null; b[row][5] = rook;
+      if(rook) rook.hasMoved = true;
+    } else {
+      const rook = b[row][0];
+      b[row][0] = null; b[row][3] = rook;
+      if(rook) rook.hasMoved = true;
+    }
+  }
+
+  piece.hasMoved = true;
+  if(move.promotion){
+    b[move.to.r][move.to.c] = {type: promoType || 'queen', color: piece.color, hasMoved:true};
+  } else {
+    b[move.to.r][move.to.c] = piece;
+  }
+}
+
+function legalMovesFor(b,r,c,epTarget){
+  const piece = b[r][c]; if(!piece) return [];
+  const pseudo = pseudoMovesFor(b,r,c,epTarget);
+  const legal = [];
+  for(const mv of pseudo){
+    const test = cloneBoard(b);
+    makeMove(test, {r,c}, mv, 'queen');
+    if(!isInCheck(test, piece.color)) legal.push(mv);
+  }
+  return legal;
+}
+
+function computeAllLegal(b,color,epTarget){
+  const pieces = [];
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+    const p = b[r][c];
+    if(p && p.color===color){
+      const moves = legalMovesFor(b,r,c,epTarget);
+      if(moves.length) pieces.push({r,c,moves});
+    }
+  }
+  return pieces;
+}
+
+function initBoard(){
+  board = Array.from({length:SIZE}, ()=>Array(SIZE).fill(null));
+  for(let c=0;c<SIZE;c++){
+    board[0][c] = {type:BACK_RANK[c], color:'black', hasMoved:false};
+    board[1][c] = {type:'pawn', color:'black', hasMoved:false};
+    board[6][c] = {type:'pawn', color:'white', hasMoved:false};
+    board[7][c] = {type:BACK_RANK[c], color:'white', hasMoved:false};
+  }
+}
+
+function resetGame(){
+  initBoard();
+  currentPlayer = 'white';
+  selected = null; legalMoves = []; enPassantTarget = null; gameOver = null; pendingPromotion = null;
+  movable = computeAllLegal(board, currentPlayer, enPassantTarget);
+  inCheck = isInCheck(board, currentPlayer);
+  render();
+}
+
+function finishTurn(){
+  currentPlayer = opponent(currentPlayer);
+  movable = computeAllLegal(board, currentPlayer, enPassantTarget);
+  inCheck = isInCheck(board, currentPlayer);
+  if(movable.length===0){
+    gameOver = { result: inCheck ? 'checkmate' : 'stalemate', winner: inCheck ? opponent(currentPlayer) : null };
+  }
+  render();
+  sweepOnce();
+}
+
+function completeMove(from, move, promoType){
+  const wasDoubleStep = !!move.doubleStep;
+  makeMove(board, from, move, promoType);
+  enPassantTarget = wasDoubleStep ? {r:(from.r+move.to.r)/2, c:from.c} : null;
+  selected = null; legalMoves = []; pendingPromotion = null;
+  finishTurn();
+}
+
+function applyMove(from, move){
+  if(move.promotion){
+    pendingPromotion = { from, move };
+    selected = null; legalMoves = [];
+    render();
+    return;
+  }
+  completeMove(from, move, null);
+}
+
+function resolvePromotion(pieceType){
+  if(!pendingPromotion) return;
+  const { from, move } = pendingPromotion;
+  completeMove(from, move, pieceType);
+}
+
+function handleSquareClick(r,c){
+  if(gameOver || pendingPromotion) return;
+
+  if(selected){
+    const mv = legalMoves.find(m=>m.to.r===r && m.to.c===c);
+    if(mv){ applyMove(selected, mv); return; }
+  }
+
+  const entry = movable.find(p=>p.r===r && p.c===c);
+  if(entry){
+    if(selected && selected.r===r && selected.c===c){
+      selected = null; legalMoves = [];
+    } else {
+      selected = {r,c};
+      legalMoves = entry.moves;
+    }
+    render();
+    return;
+  }
+
+  selected = null; legalMoves = [];
+  render();
+}
+
+/* ---------------- board DOM ---------------- */
+const boardEl = document.getElementById('board');
+const sweepBar = document.getElementById('sweepBar');
+const squareEls = [];
+
+function isDarkSquare(r,c){ return (r+c)%2===1; }
+
+for(let r=0;r<SIZE;r++){
+  squareEls.push([]);
+  for(let c=0;c<SIZE;c++){
+    const sq = document.createElement('div');
+    sq.className = 'sq ' + (isDarkSquare(r,c) ? 'dark' : 'light');
+    sq.addEventListener('click', ()=>handleSquareClick(r,c));
+    boardEl.appendChild(sq);
+    squareEls[r].push(sq);
+  }
+}
+boardEl.appendChild(sweepBar);
+
+const turnDot = document.getElementById('turnDot');
+const turnLabel = document.getElementById('turnLabel');
+const checkFlag = document.getElementById('checkFlag');
+const gameOverEl = document.getElementById('gameOver');
+const promoOverlay = document.getElementById('promoOverlay');
+
+const PIECE_GLYPH = { pawn:'♟', knight:'♞', bishop:'♝', rook:'♜', queen:'♛', king:'♚' };
+
+function render(){
+  const kingPos = inCheck ? findKing(board, currentPlayer) : null;
+
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+    const sq = squareEls[r][c];
+    sq.classList.remove('movable','dest','capture','selected','check-square');
+    sq.innerHTML = '';
+
+    const isMovable = !gameOver && !pendingPromotion && movable.some(p=>p.r===r && p.c===c);
+    if(isMovable) sq.classList.add('movable');
+
+    const destMove = legalMoves.find(m=>m.to.r===r && m.to.c===c);
+    if(destMove){
+      sq.classList.add('dest');
+      if(destMove.capture) sq.classList.add('capture');
+    }
+
+    if(kingPos && kingPos.r===r && kingPos.c===c) sq.classList.add('check-square');
+
+    const piece = board[r][c];
+    if(piece){
+      const pEl = document.createElement('div');
+      pEl.className = 'piece-glyph ' + piece.color;
+      pEl.textContent = PIECE_GLYPH[piece.type];
+      if(selected && selected.r===r && selected.c===c) pEl.classList.add('selected');
+      pEl.dataset.r = r; pEl.dataset.c = c;
+      sq.appendChild(pEl);
+      if(selected && selected.r===r && selected.c===c) sq.classList.add('selected');
+    }
+  }
+
+  turnDot.className = 'turn-dot ' + currentPlayer;
+  if(gameOver){
+    turnLabel.textContent = 'game over';
+    checkFlag.style.display = 'none';
+    gameOverEl.style.display = 'block';
+    gameOverEl.textContent = gameOver.result==='checkmate'
+      ? (gameOver.winner + ' wins by checkmate')
+      : 'draw by stalemate';
+  } else {
+    turnLabel.textContent = currentPlayer + ' to move';
+    gameOverEl.style.display = 'none';
+    checkFlag.style.display = inCheck ? 'block' : 'none';
+  }
+
+  promoOverlay.classList.toggle('hidden', !pendingPromotion);
+  if(pendingPromotion){
+    const promoColor = board[pendingPromotion.from.r][pendingPromotion.from.c].color;
+    Array.from(promoChoiceButtons).forEach(b=>{
+      b.classList.remove('white','black');
+      b.classList.add(promoColor);
+    });
+  }
+}
+
+/* ---------------- audio / sequencer ---------------- */
+const BLACK_NOTES = ["C5","A4","G4","E4","D4","C4","A3","G3"]; // row 0 (top) .. row 7 (bottom)
+const WHITE_NOTES  = ["C4","A3","G3","E3","D3","C3","A2","G2"]; // same pentatonic degrees, one octave down
+
+const PALETTES = {
+  orchestral: { label:'Orchestral', make: () => ({
+    pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'triangle'}, envelope:{attack:0.004,decay:0.18,sustain:0.02,release:0.3}}),
+    knight: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.08,sustain:0,release:0.12}}),
+    bishop: new Tone.PolySynth(Tone.AMSynth, {harmonicity:1.5, oscillator:{type:'sine'}, envelope:{attack:0.25,decay:0.2,sustain:0.4,release:0.9}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.3,decay:0.1,sustain:0.8,release:0.5}}),
+    rook:   new Tone.PolySynth(Tone.FMSynth, {harmonicity:1, modulationIndex:2, envelope:{attack:0.01,decay:0.3,sustain:0.3,release:0.5}, modulationEnvelope:{attack:0.02,decay:0.2,sustain:0.1,release:0.3}}),
+    queen:  new Tone.PolySynth(Tone.FMSynth, {harmonicity:4, modulationIndex:8, envelope:{attack:0.01,decay:0.4,sustain:0.3,release:1.0}, modulationEnvelope:{attack:0.02,decay:0.3,sustain:0.2,release:0.6}}),
+    king:   new Tone.PolySynth(Tone.AMSynth, {harmonicity:0.5, oscillator:{type:'sine'}, envelope:{attack:0.4,decay:0.4,sustain:0.5,release:1.4}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.5,decay:0.2,sustain:0.6,release:0.8}}),
+  })},
+  electronic: { label:'Electronic', make: () => ({
+    pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.08,sustain:0,release:0.08}}),
+    knight: new Tone.PolySynth(Tone.FMSynth, {harmonicity:2, modulationIndex:10, envelope:{attack:0.001,decay:0.1,sustain:0,release:0.15}, modulationEnvelope:{attack:0.001,decay:0.05,sustain:0,release:0.1}}),
+    bishop: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'sawtooth'}, envelope:{attack:0.15,decay:0.2,sustain:0.3,release:0.6}}),
+    rook:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'pulse', width:0.2}, envelope:{attack:0.005,decay:0.2,sustain:0.2,release:0.3}}),
+    queen:  new Tone.PolySynth(Tone.FMSynth, {harmonicity:2.01, modulationIndex:12, envelope:{attack:0.01,decay:0.3,sustain:0.3,release:0.8}, modulationEnvelope:{attack:0.02,decay:0.2,sustain:0.2,release:0.4}}),
+    king:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'sine'}, envelope:{attack:0.3,decay:0.3,sustain:0.6,release:1.2}}),
+  })},
+  percussive: { label:'Percussive', make: () => ({
+    pawn:   new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.008, octaves:1.5, envelope:{attack:0.001,decay:0.12,sustain:0,release:0.08}}),
+    knight: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.06,sustain:0,release:0.06}}),
+    bishop: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'sawtooth'}, envelope:{attack:0.01,decay:0.2,sustain:0.05,release:0.3}}),
+    rook:   new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.025, octaves:2.5, envelope:{attack:0.001,decay:0.25,sustain:0.05,release:0.25}}),
+    queen:  new Tone.PolySynth(Tone.Synth, {oscillator:{type:'pulse', width:0.15}, envelope:{attack:0.005,decay:0.3,sustain:0.15,release:0.5}}),
+    king:   new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.05, octaves:3.5, envelope:{attack:0.005,decay:0.5,sustain:0.08,release:0.6}}),
+  })},
+};
+
+let paletteSynths = null, alertSynth = null, reverb = null;
+let currentPalette = 'orchestral';
+let started = false, sweepEndTimer = null;
+
+function playColumn(col, time){
+  for(let r=0;r<SIZE;r++){
+    const p = board[r][col];
+    if(!p) continue;
+    const synth = paletteSynths[p.type];
+    const notes = p.color==='white' ? WHITE_NOTES : BLACK_NOTES;
+    const note = notes[r];
+    synth.triggerAttackRelease(note, "8n", time, 0.8);
+  }
+}
+
+function setActiveColumn(col){
+  sweepBar.style.left = (col * 12.5) + '%';
+  for(let r=0;r<SIZE;r++){
+    const p = board[r][col];
+    if(!p) continue;
+    const pEl = squareEls[r][col].querySelector('.piece-glyph');
+    if(pEl){
+      pEl.classList.remove('pulse');
+      void pEl.offsetWidth;
+      pEl.classList.add('pulse');
+    }
+  }
+}
+
+function sweepOnce(){
+  if(!started || !paletteSynths) return;
+  const bpm = Number(tempoSlider.value);
+  const stepDur = (60 / bpm) / 2; // one eighth note, in seconds
+  const startTime = Tone.now() + 0.03;
+
+  sweepBar.classList.add('on');
+  if(inCheck && alertSynth){
+    alertSynth.triggerAttackRelease(["C6","D6"], "16n", startTime, 0.5);
+  }
+  for(let col=0; col<SIZE; col++){
+    const t = startTime + col * stepDur;
+    playColumn(col, t);
+    Tone.Draw.schedule(()=>setActiveColumn(col), t);
+  }
+
+  clearTimeout(sweepEndTimer);
+  const totalMs = (SIZE * stepDur + 0.15) * 1000;
+  sweepEndTimer = setTimeout(()=>{ sweepBar.classList.remove('on'); }, totalMs);
+}
+
+const gate = document.getElementById('gate');
+const startBtn = document.getElementById('startBtn');
+const tempoSlider = document.getElementById('tempoSlider');
+const tempoVal = document.getElementById('tempoVal');
+const promoChoiceButtons = document.querySelectorAll('#promoChoices button');
+const paletteButtons = document.querySelectorAll('.palette-btn');
+
+function rebuildSynths(){
+  if(!reverb) return; // audio not started yet -- startAudio() will build with currentPalette
+  if(paletteSynths) Object.values(paletteSynths).forEach(s=>s.dispose());
+  paletteSynths = PALETTES[currentPalette].make();
+  Object.values(paletteSynths).forEach(s=>s.connect(reverb));
+}
+
+function updatePaletteUI(){
+  paletteButtons.forEach(b => b.classList.toggle('active', b.dataset.palette===currentPalette));
+}
+
+function startAudio(){
+  if(started) return;
+  started = true;
+  Tone.start().then(()=>{
+    reverb = new Tone.Reverb({decay:1.8, wet:0.22}).toDestination();
+    alertSynth = new Tone.PolySynth(Tone.Synth, {
+      oscillator:{type:'sawtooth'}, envelope:{attack:0.001,decay:0.15,sustain:0,release:0.1}
+    }).connect(reverb);
+    rebuildSynths();
+    gate.classList.add('hidden');
+    sweepOnce();
+  });
+}
+
+startBtn.addEventListener('click', startAudio);
+tempoSlider.addEventListener('input', ()=>{
+  tempoVal.textContent = tempoSlider.value;
+});
+document.getElementById('newGameBtn').addEventListener('click', resetGame);
+paletteButtons.forEach(b => b.addEventListener('click', ()=>{
+  currentPalette = b.dataset.palette;
+  updatePaletteUI();
+  rebuildSynths();
+}));
+promoChoiceButtons.forEach(b => b.addEventListener('click', ()=>{
+  resolvePromotion(b.dataset.type);
+}));
+document.getElementById('skinSelect').addEventListener('change', (e)=>{
+  document.documentElement.dataset.skin = e.target.value;
+});
+
+updatePaletteUI();
+resetGame();
+})();
+</script>
+</body>
+</html>

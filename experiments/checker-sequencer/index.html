@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>checker sequencer</title>
+<meta name="description" content="Checkers where every move sweeps a bar once across the board, sonifying whatever pieces are sitting on each column as it passes.">
+<link rel="apple-touch-icon" sizes="180x180" href="../../logo_personalweb_favicon_io/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../../logo_personalweb_favicon_io/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../../logo_personalweb_favicon_io/favicon-16x16.png">
+<link rel="manifest" href="../../logo_personalweb_favicon_io/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Share+Tech+Mono&family=Space+Grotesk:wght@400;500;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tone@14/build/Tone.js"></script>
+<style>
+:root{
+  --bg:#050505;--fg:#ddd8d0;--dim:#5a564f;--dim2:#39362f;
+  --accent:#c8ff2e;--accent2:#ff5e5b;--accent3:#d4a843;
+  --serif:'Instrument Serif',Georgia,serif;
+  --mono:'Space Mono',monospace;
+  --light-sq:#141310;--dark-sq:#0a0908;
+}
+
+/* ---- skins: everything below only ever overrides the tokens above (plus a few
+   signature touches per skin) -- component rules never hardcode a skin's colors ---- */
+:root[data-skin="light"]{
+  --bg:#f6f2ea;--fg:#211f1a;--dim:#8b8577;--dim2:#d8d2c4;
+  --accent:#2f6b3d;--accent2:#b3392b;--accent3:#a67c2e;
+  --light-sq:#efe9db;--dark-sq:#c9c0aa;
+}
+[data-skin="light"] body{cursor:default}
+[data-skin="light"] .panel{background:rgba(0,0,0,.02);box-shadow:none}
+[data-skin="light"] .board{box-shadow:0 14px 30px -20px rgba(0,0,0,.25)}
+[data-skin="light"] .sweep-bar{background:linear-gradient(180deg,rgba(47,107,61,.18),rgba(47,107,61,.04));border-color:rgba(47,107,61,.4)}
+
+:root[data-skin="neon"]{
+  --bg:#07060f;--fg:#eef0ff;--dim:#6b6a8a;--dim2:#211f3a;
+  --accent:#4dfcff;--accent2:#ff4dd8;--accent3:#b46dff;
+  --light-sq:#161328;--dark-sq:#0a081a;
+}
+[data-skin="neon"] .panel{background:rgba(24,20,48,.45);backdrop-filter:blur(10px);border-color:rgba(180,109,255,.25);border-radius:16px;box-shadow:0 0 30px -18px rgba(77,252,255,.3)}
+[data-skin="neon"] button:hover{box-shadow:0 0 16px -4px rgba(77,252,255,.65)}
+[data-skin="neon"] .board{box-shadow:0 0 50px -16px rgba(180,109,255,.4)}
+[data-skin="neon"] .sweep-bar{background:linear-gradient(180deg,rgba(77,252,255,.22),rgba(180,109,255,.05));border-color:rgba(77,252,255,.6);box-shadow:0 0 20px rgba(77,252,255,.4)}
+
+:root[data-skin="alien"]{
+  --bg:#020604;--fg:#d8ffe9;--dim:#3d6e57;--dim2:#0c2018;
+  --accent:#7dffb3;--accent2:#c86bff;--accent3:#38e6c8;
+  --light-sq:#0c2a1c;--dark-sq:#03110a;
+}
+[data-skin="alien"] h1,[data-skin="alien"] .kicker,[data-skin="alien"] nav .logo{font-family:'Orbitron',var(--mono);letter-spacing:.05em}
+[data-skin="alien"] .panel{border-radius:22px 8px 22px 8px;border-color:rgba(125,255,179,.25);box-shadow:0 0 24px -14px rgba(125,255,179,.4)}
+[data-skin="alien"] .board{border-radius:16px;box-shadow:0 0 50px -16px rgba(125,255,179,.45)}
+[data-skin="alien"] .sweep-bar{animation:alienPulse 1.6s ease-in-out infinite}
+@keyframes alienPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.6)}}
+
+:root[data-skin="tr808"]{
+  --bg:#161616;--fg:#f0ede6;--dim:#8a8a86;--dim2:#2b2b2b;
+  --accent:#ff6a00;--accent2:#ff2b2b;--accent3:#ffb400;
+  --light-sq:#2a2a2a;--dark-sq:#141414;
+}
+[data-skin="tr808"] .panel{border-radius:6px;border-color:rgba(255,106,0,.3)}
+[data-skin="tr808"] button{border-radius:4px;letter-spacing:.1em}
+[data-skin="tr808"] .tempo-val,[data-skin="tr808"] #tempoVal,[data-skin="tr808"] .turn-indicator{
+  font-family:'Share Tech Mono',var(--mono);color:var(--accent2);text-shadow:0 0 6px rgba(255,43,43,.55);
+}
+[data-skin="tr808"] .board{border-radius:4px}
+
+:root[data-skin="tb303"]{
+  --bg:#cfc9b4;--fg:#231f18;--dim:#7a7460;--dim2:#b7b096;
+  --accent:#2a5fb0;--accent2:#c98a00;--accent3:#555049;
+  --light-sq:#e4dfcb;--dark-sq:#b7b096;
+}
+[data-skin="tb303"] body{cursor:default}
+[data-skin="tb303"] .panel{background:#e4dfcb;border-color:#9a917a;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+[data-skin="tb303"] .board{border-color:#9a917a;box-shadow:0 14px 30px -20px rgba(0,0,0,.3)}
+
+:root[data-skin="modular"]{
+  --bg:#1b1310;--fg:#efe6d2;--dim:#a08a63;--dim2:#3a2a1a;
+  --accent:#d4a843;--accent2:#b5651d;--accent3:#8a6a3e;
+  --light-sq:#3a2a1a;--dark-sq:#1b1310;
+}
+[data-skin="modular"] body{background:repeating-linear-gradient(90deg,#1b1310 0 3px,#221810 3px 6px)}
+[data-skin="modular"] .panel{--fg:#2a1f14;--dim:#6b5636;background:#efe6d2;border-color:#8a6a3e}
+
+:root[data-skin="op1"]{
+  --bg:#f2f2f0;--fg:#1a1a1a;--dim:#8f8f8a;--dim2:#e2e2de;
+  --accent:#ff7a45;--accent2:#4d8fee;--accent3:#39b37a;
+  --light-sq:#e8e8e4;--dark-sq:#cfcfc9;
+}
+[data-skin="op1"] body{cursor:default}
+[data-skin="op1"] h1,[data-skin="op1"] .kicker,[data-skin="op1"] nav .logo{font-family:'Space Grotesk',var(--mono)}
+[data-skin="op1"] .panel{border-radius:10px;box-shadow:none}
+[data-skin="op1"] button{border-radius:8px}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--fg);font-family:var(--mono);
+  min-height:100vh;display:flex;flex-direction:column;
+}
+nav{display:flex;align-items:center;gap:.6rem;padding:1.2rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.05)}
+nav a{color:var(--fg);opacity:.6;text-decoration:none;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;transition:opacity .3s}
+nav a:hover{opacity:1;color:var(--accent)}
+nav .logo{font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;opacity:1}
+nav .sep{opacity:.35;font-size:.65rem}
+
+main{flex:1;display:flex;align-items:flex-start;justify-content:center;gap:2.4rem;padding:2.4rem 1.5rem 4rem;flex-wrap:wrap}
+
+.title-block{width:100%;max-width:980px;margin:0 auto 1.6rem;text-align:center}
+.kicker{font-size:.62rem;letter-spacing:.35em;text-transform:uppercase;color:var(--dim);margin-bottom:.7rem}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(1.8rem,4vw,2.6rem);margin:0 0 .6rem;letter-spacing:-.01em}
+h1 em{font-style:italic;color:var(--accent)}
+.lede{max-width:640px;margin:0 auto;font-size:.85rem;line-height:1.7;color:var(--fg);opacity:.62}
+
+.layout{display:flex;gap:2.4rem;align-items:flex-start;flex-wrap:wrap;justify-content:center;width:100%}
+
+.board-wrap{position:relative;width:min(92vw,520px);flex-shrink:0}
+.board{
+  position:relative;width:100%;aspect-ratio:1/1;
+  display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);
+  border:1px solid rgba(255,255,255,.08);border-radius:6px;overflow:hidden;
+  box-shadow:0 30px 60px -30px rgba(0,0,0,.8);
+}
+.sq{position:relative;display:flex;align-items:center;justify-content:center}
+.sq.light{background:var(--light-sq)}
+.sq.dark{background:var(--dark-sq);cursor:pointer}
+.sq.dark.movable::after{
+  content:'';position:absolute;inset:5%;border-radius:50%;
+  border:1px dashed rgba(200,255,46,.35);pointer-events:none;
+}
+.sq.dark.dest::before{
+  content:'';position:absolute;width:22%;height:22%;border-radius:50%;
+  background:rgba(200,255,46,.55);box-shadow:0 0 10px 2px rgba(200,255,46,.5);
+}
+.sq.dark.dest.capture::before{background:rgba(255,94,91,.7);box-shadow:0 0 12px 3px rgba(255,94,91,.6)}
+.sq.dark.selected{background:#181510}
+
+.piece{
+  position:relative;width:72%;height:72%;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .15s ease;
+  box-shadow:inset 0 2px 4px rgba(255,255,255,.15),inset 0 -3px 6px rgba(0,0,0,.5),0 3px 8px rgba(0,0,0,.5);
+}
+.piece.red{background:linear-gradient(160deg,color-mix(in srgb,var(--accent2) 45%,white),var(--accent2) 60%,color-mix(in srgb,var(--accent2) 65%,black))}
+.piece.black{background:linear-gradient(160deg,color-mix(in srgb,var(--dim2) 65%,white),var(--dim2) 55%,color-mix(in srgb,var(--bg) 55%,black))}
+.piece.king::after{content:'♛';font-family:var(--serif);font-size:1.1rem;color:var(--accent3);text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.piece.selected{transform:scale(1.08);box-shadow:0 0 0 2px var(--accent),inset 0 2px 4px rgba(255,255,255,.2),0 3px 10px rgba(0,0,0,.6)}
+.piece.pulse{animation:pulse .3s ease}
+@keyframes pulse{0%{filter:brightness(2.1)}100%{filter:brightness(1)}}
+
+.sweep-bar{
+  position:absolute;top:0;bottom:0;width:12.5%;left:0;
+  background:linear-gradient(180deg,rgba(200,255,46,.16),rgba(200,255,46,.03));
+  border-left:1px solid rgba(200,255,46,.45);border-right:1px solid rgba(200,255,46,.45);
+  transition:left .06s linear;pointer-events:none;opacity:0;
+}
+.sweep-bar.on{opacity:1}
+
+.sidebar{width:min(92vw,300px);display:flex;flex-direction:column;gap:1.4rem}
+.panel{border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:1.1rem 1.2rem;background:rgba(255,255,255,.015)}
+.panel h2{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin:0 0 .8rem;font-weight:400}
+
+.turn-indicator{display:flex;align-items:center;gap:.6rem;font-size:.85rem}
+.turn-dot{width:12px;height:12px;border-radius:50%}
+.turn-dot.red{background:var(--accent2)}
+.turn-dot.black{background:#3a382f;border:1px solid rgba(255,255,255,.2)}
+.must-capture{margin-top:.6rem;font-size:.68rem;color:var(--accent);opacity:.85;letter-spacing:.03em}
+.game-over{margin-top:.6rem;font-size:.85rem;color:var(--accent3)}
+
+button{
+  font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;
+  background:transparent;color:var(--fg);border:1px solid rgba(255,255,255,.18);
+  border-radius:100px;padding:.6em 1.1em;cursor:pointer;transition:border-color .3s,color .3s,background .3s;
+}
+button:hover{border-color:rgba(200,255,46,.5);color:var(--accent)}
+button:disabled{opacity:.35;cursor:default}
+button:disabled:hover{border-color:rgba(255,255,255,.18);color:var(--fg)}
+.btn-row{display:flex;gap:.6rem;flex-wrap:wrap}
+
+select{
+  width:100%;font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
+  background:var(--bg);color:var(--fg);border:1px solid rgba(255,255,255,.18);
+  border-radius:8px;padding:.6em .8em;cursor:pointer;
+}
+
+.color-btn.active{border-color:var(--accent2);color:var(--accent2);background:rgba(255,94,91,.08)}
+.color-btn.active:hover{border-color:var(--accent2);color:var(--accent2)}
+.color-btn[data-color="black"].active{border-color:var(--fg);color:var(--fg);background:rgba(255,255,255,.06)}
+.voice-btn{font-size:.6rem;padding:.5em .9em}
+.voice-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(200,255,46,.08)}
+.field-label{font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin-bottom:.5rem}
+
+.slider-row{display:flex;align-items:center;gap:.7rem;font-size:.68rem;color:var(--dim)}
+input[type=range]{flex:1;accent-color:var(--accent)}
+.tempo-val{color:var(--fg);width:3.2em;text-align:right}
+
+.legend{font-size:.72rem;line-height:1.8;color:var(--fg);opacity:.7}
+.legend .sw{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:.5em}
+.legend .sw.red{background:var(--accent2)}
+.legend .sw.black{background:#3a382f;border:1px solid rgba(255,255,255,.25)}
+
+.gate{
+  position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
+  background:rgba(5,5,5,.82);backdrop-filter:blur(2px);border-radius:6px;
+  flex-direction:column;gap:.9rem;text-align:center;padding:1rem;
+}
+.gate p{max-width:280px;font-size:.72rem;line-height:1.6;color:var(--fg);opacity:.65;margin:0}
+.gate.hidden{display:none}
+
+footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1em;color:var(--dim);text-transform:uppercase}
+
+@media(max-width:760px){
+  .layout{flex-direction:column;align-items:center}
+  .sidebar{width:min(92vw,520px)}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="../../index.html" class="logo">JUD</a>
+  <span class="sep">/</span>
+  <a href="../index.html">experiments</a>
+  <span class="sep">/</span>
+  <a href="#" style="opacity:1;color:var(--accent)">checker sequencer</a>
+</nav>
+
+<main>
+  <div class="title-block">
+    <div class="kicker">two-player · full rules · no backend</div>
+    <h1>checkers, played as a <em>sequencer</em></h1>
+    <p class="lede">Standard American checkers — diagonal moves, mandatory jumps, kinging — with a twist:
+      every move sweeps a bar once across the eight columns, left to right, and sings whatever
+      pieces are sitting on each column as it passes. Row picks the pitch, color picks the voice.</p>
+  </div>
+
+  <div class="layout">
+    <div class="board-wrap">
+      <div class="board" id="board">
+        <div class="sweep-bar" id="sweepBar"></div>
+      </div>
+      <div class="gate" id="gate">
+        <p>Sound needs a tap to start (browser rule, not ours).</p>
+        <button id="startBtn">▶ enable sound</button>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="panel">
+        <h2>skin</h2>
+        <select id="skinSelect">
+          <option value="dark" selected>Dark (default)</option>
+          <option value="light">Light / paper</option>
+          <option value="neon">Glassy neon</option>
+          <option value="alien">Alien</option>
+          <option value="tr808">Roland TR-808</option>
+          <option value="tb303">Roland TB-303</option>
+          <option value="modular">Modular / Moog</option>
+          <option value="op1">Teenage Engineering OP-1</option>
+        </select>
+      </div>
+
+      <div class="panel">
+        <h2>you're playing</h2>
+        <div class="btn-row" id="colorPicker">
+          <button class="color-btn" data-color="red">red</button>
+          <button class="color-btn" data-color="black">black</button>
+        </div>
+        <div style="margin-top:1rem">
+          <div class="field-label">your voice</div>
+          <div class="btn-row" id="voicePicker">
+            <button class="voice-btn" data-preset="pluck">pluck</button>
+            <button class="voice-btn" data-preset="bell">bell</button>
+            <button class="voice-btn" data-preset="pad">pad</button>
+            <button class="voice-btn" data-preset="blip">blip</button>
+          </div>
+          <div style="margin-top:.6rem;font-size:.65rem;color:var(--dim)">opponent gets <span id="opponentVoiceLabel"></span> automatically</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>turn</h2>
+        <div class="turn-indicator"><span class="turn-dot" id="turnDot"></span><span id="turnLabel">red to move</span></div>
+        <div class="must-capture" id="mustCapture" style="display:none">captures available — you must jump</div>
+        <div class="game-over" id="gameOver" style="display:none"></div>
+        <div class="btn-row" style="margin-top:1rem">
+          <button id="newGameBtn">new game</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>sound</h2>
+        <div class="slider-row">
+          <span>tempo</span>
+          <input type="range" id="tempoSlider" min="60" max="170" value="104" step="1">
+          <span class="tempo-val"><span id="tempoVal">104</span> bpm</span>
+        </div>
+        <p style="margin:.8rem 0 0;font-size:.68rem;line-height:1.6;color:var(--fg);opacity:.6">
+          Every move sweeps the board once, left to right.
+        </p>
+      </div>
+
+      <div class="panel legend">
+        <h2>how it sounds</h2>
+        <div><span class="sw red"></span>red voice — <span id="redVoiceLabel"></span>, lower register</div>
+        <div style="margin-top:.3rem"><span class="sw black"></span>black voice — <span id="blackVoiceLabel"></span>, upper register</div>
+        <div style="margin-top:.6rem;opacity:.75">row = pitch within each voice's own range · a king
+          adds a soft octave shimmer on top of its note · everything's drawn from one pentatonic scale,
+          so no combination of pieces ever clashes.</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>joshurbandavis — checker sequencer</footer>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- checkers rules engine ---------------- */
+const SIZE = 8;
+let board, currentPlayer, selected, legalMoves, forcedFrom, gameOver, movable;
+let playerColor = 'red'; // cosmetic: which side "you" are, independent of the board state above
+
+function inBounds(r,c){ return r>=0 && r<SIZE && c>=0 && c<SIZE; }
+function isDark(r,c){ return (r+c)%2===1; }
+function opponent(color){ return color==='red' ? 'black' : 'red'; }
+
+function getCapturesFrom(b,r,c){
+  const piece = b[r][c]; if(!piece) return [];
+  const res = [];
+  for(const dr of [-1,1]) for(const dc of [-1,1]){
+    const mr=r+dr, mc=c+dc, lr=r+2*dr, lc=c+2*dc;
+    if(!inBounds(lr,lc)) continue;
+    const mid = inBounds(mr,mc) ? b[mr][mc] : null;
+    if(mid && mid.color===opponent(piece.color) && b[lr][lc]===null){
+      res.push({to:{r:lr,c:lc}, captured:{r:mr,c:mc}});
+    }
+  }
+  return res;
+}
+
+function getRegularMovesFrom(b,r,c){
+  const piece = b[r][c]; if(!piece) return [];
+  const dirsR = piece.king ? [-1,1] : (piece.color==='red' ? [-1] : [1]);
+  const res = [];
+  for(const dr of dirsR) for(const dc of [-1,1]){
+    const nr=r+dr, nc=c+dc;
+    if(inBounds(nr,nc) && b[nr][nc]===null) res.push({to:{r:nr,c:nc}});
+  }
+  return res;
+}
+
+function computeMovable(b,color){
+  const withCaptures = [];
+  const withMoves = [];
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+    const p = b[r][c];
+    if(p && p.color===color){
+      const caps = getCapturesFrom(b,r,c);
+      if(caps.length){
+        withCaptures.push({r,c,moves:caps.map(m=>({to:m.to,capture:m.captured}))});
+      } else {
+        const mv = getRegularMovesFrom(b,r,c);
+        if(mv.length) withMoves.push({r,c,moves:mv.map(m=>({to:m.to,capture:null}))});
+      }
+    }
+  }
+  if(withCaptures.length) return {mustCapture:true, pieces:withCaptures};
+  return {mustCapture:false, pieces:withMoves};
+}
+
+function initBoard(){
+  board = Array.from({length:SIZE},()=>Array(SIZE).fill(null));
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+    if(!isDark(r,c)) continue;
+    if(r<=2) board[r][c] = {color:'black', king:false};
+    else if(r>=5) board[r][c] = {color:'red', king:false};
+  }
+}
+
+function resetGame(){
+  initBoard();
+  currentPlayer = 'red';
+  selected = null; legalMoves = []; forcedFrom = null; gameOver = null;
+  movable = computeMovable(board, currentPlayer);
+  render();
+}
+
+function applyMove(fr,fc,move){
+  const piece = board[fr][fc];
+  board[fr][fc] = null;
+  if(move.capture) board[move.capture.r][move.capture.c] = null;
+  board[move.to.r][move.to.c] = piece;
+
+  let crowned = false;
+  if(!piece.king){
+    if((piece.color==='red' && move.to.r===0) || (piece.color==='black' && move.to.r===SIZE-1)){
+      piece.king = true; crowned = true;
+    }
+  }
+
+  sweepOnce();
+
+  if(move.capture && !crowned){
+    const further = getCapturesFrom(board, move.to.r, move.to.c);
+    if(further.length){
+      forcedFrom = {r:move.to.r, c:move.to.c};
+      selected = forcedFrom;
+      legalMoves = further.map(m=>({to:m.to, capture:m.captured}));
+      render();
+      return;
+    }
+  }
+
+  forcedFrom = null; selected = null; legalMoves = [];
+  currentPlayer = opponent(currentPlayer);
+  movable = computeMovable(board, currentPlayer);
+  if(movable.pieces.length===0){
+    gameOver = opponent(currentPlayer);
+  }
+  render();
+}
+
+function handleSquareClick(r,c){
+  if(gameOver) return;
+
+  if(forcedFrom){
+    const mv = legalMoves.find(m=>m.to.r===r && m.to.c===c);
+    if(mv) applyMove(forcedFrom.r, forcedFrom.c, mv);
+    return;
+  }
+
+  if(selected){
+    const mv = legalMoves.find(m=>m.to.r===r && m.to.c===c);
+    if(mv){ applyMove(selected.r, selected.c, mv); return; }
+  }
+
+  const entry = movable.pieces.find(p=>p.r===r && p.c===c);
+  if(entry){
+    if(selected && selected.r===r && selected.c===c){
+      selected = null; legalMoves = [];
+    } else {
+      selected = {r,c};
+      legalMoves = entry.moves;
+    }
+    render();
+    return;
+  }
+
+  selected = null; legalMoves = [];
+  render();
+}
+
+/* ---------------- board DOM ---------------- */
+const boardEl = document.getElementById('board');
+const sweepBar = document.getElementById('sweepBar');
+const squareEls = [];
+
+for(let r=0;r<SIZE;r++){
+  squareEls.push([]);
+  for(let c=0;c<SIZE;c++){
+    const sq = document.createElement('div');
+    sq.className = 'sq ' + (isDark(r,c) ? 'dark' : 'light');
+    if(isDark(r,c)) sq.addEventListener('click', ()=>handleSquareClick(r,c));
+    boardEl.appendChild(sq);
+    squareEls[r].push(sq);
+  }
+}
+boardEl.appendChild(sweepBar); // keep sweep bar as last child, above squares
+
+const turnDot = document.getElementById('turnDot');
+const turnLabel = document.getElementById('turnLabel');
+const mustCaptureEl = document.getElementById('mustCapture');
+const gameOverEl = document.getElementById('gameOver');
+
+function render(){
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+    const sq = squareEls[r][c];
+    if(!isDark(r,c)) continue;
+    sq.classList.remove('movable','dest','capture','selected');
+    sq.innerHTML = '';
+
+    const isMovable = movable.pieces.some(p=>p.r===r && p.c===c) && !gameOver;
+    if(isMovable) sq.classList.add('movable');
+
+    const destMove = legalMoves.find(m=>m.to.r===r && m.to.c===c);
+    if(destMove){
+      sq.classList.add('dest');
+      if(destMove.capture) sq.classList.add('capture');
+    }
+
+    const piece = board[r][c];
+    if(piece){
+      const pEl = document.createElement('div');
+      pEl.className = 'piece ' + piece.color + (piece.king ? ' king' : '');
+      if(selected && selected.r===r && selected.c===c) pEl.classList.add('selected');
+      pEl.dataset.r = r; pEl.dataset.c = c;
+      sq.appendChild(pEl);
+      if(selected && selected.r===r && selected.c===c) sq.classList.add('selected');
+    }
+  }
+
+  turnDot.className = 'turn-dot ' + currentPlayer;
+  if(gameOver){
+    turnLabel.textContent = 'game over';
+    gameOverEl.style.display = 'block';
+    gameOverEl.textContent = (gameOver==='red' ? 'red' : 'black') + ' wins';
+    mustCaptureEl.style.display = 'none';
+  } else {
+    turnLabel.textContent = currentPlayer + ' to move' + (currentPlayer===playerColor ? ' (you)' : ' (opponent)');
+    gameOverEl.style.display = 'none';
+    mustCaptureEl.style.display = movable.mustCapture ? 'block' : 'none';
+  }
+}
+
+/* ---------------- audio / sequencer ---------------- */
+const BLACK_NOTES = ["C5","A4","G4","E4","D4","C4","A3","G3"]; // row 0 (top) .. row 7 (bottom)
+const RED_NOTES   = ["C4","A3","G3","E3","D3","C3","A2","G2"]; // same pentatonic degrees, one octave down
+
+let redSynth, blackSynth, reverb, started = false, sweepEndTimer = null;
+
+const PRESETS = {
+  pluck: { label:'Pluck', build: () => new Tone.PolySynth(Tone.Synth, {
+    oscillator:{type:'triangle'},
+    envelope:{attack:0.005, decay:0.25, sustain:0.05, release:0.5}
+  }) },
+  bell: { label:'Bell', build: () => new Tone.PolySynth(Tone.FMSynth, {
+    harmonicity:3, modulationIndex:6,
+    envelope:{attack:0.004, decay:0.3, sustain:0.05, release:0.6},
+    modulationEnvelope:{attack:0.01, decay:0.2, sustain:0, release:0.3}
+  }) },
+  pad: { label:'Pad', build: () => new Tone.PolySynth(Tone.AMSynth, {
+    harmonicity:2, oscillator:{type:'sine'},
+    envelope:{attack:0.4, decay:0.3, sustain:0.6, release:1.2},
+    modulation:{type:'sine'}, modulationEnvelope:{attack:0.5, decay:0.1, sustain:1, release:0.5}
+  }) },
+  blip: { label:'Blip', build: () => new Tone.PolySynth(Tone.Synth, {
+    oscillator:{type:'square'},
+    envelope:{attack:0.001, decay:0.1, sustain:0, release:0.15}
+  }) },
+};
+const VOICE_COMPLEMENT = { pluck:'bell', bell:'pluck', pad:'blip', blip:'pad' };
+let voicePresets = { red:'pluck', black:'bell' }; // matches the original fixed pairing by default
+
+function playColumn(col, time){
+  for(let r=0;r<SIZE;r++){
+    const p = board[r][col];
+    if(!p) continue;
+    const synth = p.color==='red' ? redSynth : blackSynth;
+    const notes = p.color==='red' ? RED_NOTES : BLACK_NOTES;
+    const note = notes[r];
+    synth.triggerAttackRelease(note, "8n", time, 0.8);
+    if(p.king){
+      const shimmer = Tone.Frequency(note).transpose(12).toNote();
+      synth.triggerAttackRelease(shimmer, "16n", time, 0.3);
+    }
+  }
+}
+
+function setActiveColumn(col){
+  sweepBar.style.left = (col * 12.5) + '%';
+  for(let r=0;r<SIZE;r++){
+    const p = board[r][col];
+    if(!p) continue;
+    const pEl = squareEls[r][col].querySelector('.piece');
+    if(pEl){
+      pEl.classList.remove('pulse');
+      // eslint-disable-next-line no-unused-expressions
+      void pEl.offsetWidth;
+      pEl.classList.add('pulse');
+    }
+  }
+}
+
+function sweepOnce(){
+  if(!started || !redSynth) return; // audio still warming up (rare click-then-instant-move race)
+  const bpm = Number(tempoSlider.value);
+  const stepDur = (60 / bpm) / 2; // one eighth note, in seconds
+  const startTime = Tone.now() + 0.03;
+
+  sweepBar.classList.add('on');
+  for(let col=0; col<SIZE; col++){
+    const t = startTime + col * stepDur;
+    playColumn(col, t);
+    Tone.Draw.schedule(()=>setActiveColumn(col), t);
+  }
+
+  clearTimeout(sweepEndTimer);
+  const totalMs = (SIZE * stepDur + 0.15) * 1000;
+  sweepEndTimer = setTimeout(()=>{ sweepBar.classList.remove('on'); }, totalMs);
+}
+
+const gate = document.getElementById('gate');
+const startBtn = document.getElementById('startBtn');
+const tempoSlider = document.getElementById('tempoSlider');
+const tempoVal = document.getElementById('tempoVal');
+
+function buildSynth(presetKey){
+  return PRESETS[presetKey].build().connect(reverb);
+}
+
+function rebuildSynths(){
+  if(!reverb) return; // audio not started yet -- startAudio() will build with current voicePresets
+  if(redSynth) redSynth.dispose();
+  if(blackSynth) blackSynth.dispose();
+  redSynth = buildSynth(voicePresets.red);
+  blackSynth = buildSynth(voicePresets.black);
+}
+
+function startAudio(){
+  if(started) return;
+  started = true;
+  Tone.start().then(()=>{
+    reverb = new Tone.Reverb({decay:1.8, wet:0.22}).toDestination();
+    rebuildSynths();
+    gate.classList.add('hidden');
+    sweepOnce(); // preview the starting board immediately
+  });
+}
+
+function opponentOf(color){ return color==='red' ? 'black' : 'red'; }
+
+const colorButtons = Array.from(document.querySelectorAll('.color-btn'));
+const voiceButtons = Array.from(document.querySelectorAll('.voice-btn'));
+const opponentVoiceLabel = document.getElementById('opponentVoiceLabel');
+const redVoiceLabel = document.getElementById('redVoiceLabel');
+const blackVoiceLabel = document.getElementById('blackVoiceLabel');
+
+function updateVoiceUI(){
+  colorButtons.forEach(b => b.classList.toggle('active', b.dataset.color===playerColor));
+  const mine = voicePresets[playerColor];
+  voiceButtons.forEach(b => b.classList.toggle('active', b.dataset.preset===mine));
+  opponentVoiceLabel.textContent = PRESETS[voicePresets[opponentOf(playerColor)]].label;
+  redVoiceLabel.textContent = PRESETS[voicePresets.red].label;
+  blackVoiceLabel.textContent = PRESETS[voicePresets.black].label;
+}
+
+colorButtons.forEach(b => b.addEventListener('click', ()=>{
+  playerColor = b.dataset.color;
+  updateVoiceUI();
+  render(); // refresh the "(you)"/"(opponent)" turn label
+}));
+
+voiceButtons.forEach(b => b.addEventListener('click', ()=>{
+  const key = b.dataset.preset;
+  voicePresets[playerColor] = key;
+  voicePresets[opponentOf(playerColor)] = VOICE_COMPLEMENT[key];
+  rebuildSynths();
+  updateVoiceUI();
+}));
+
+startBtn.addEventListener('click', startAudio);
+tempoSlider.addEventListener('input', ()=>{
+  tempoVal.textContent = tempoSlider.value;
+});
+document.getElementById('newGameBtn').addEventListener('click', resetGame);
+document.getElementById('skinSelect').addEventListener('change', (e)=>{
+  document.documentElement.dataset.skin = e.target.value;
+});
+
+updateVoiceUI();
+
+resetGame();
+})();
+</script>
+</body>
+</html>
