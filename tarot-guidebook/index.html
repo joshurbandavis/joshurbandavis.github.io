@@ -54,7 +54,7 @@ nav .shop-link:hover{background:#d4b85c;box-shadow:0 0 15px var(--gold-glow),0 0
 .gb-kicker{font-family:var(--mono);font-size:.68rem;letter-spacing:.35em;text-transform:uppercase;color:var(--accent);margin-bottom:1.2rem;display:block}
 .gb-title{font-family:var(--serif);font-weight:400;font-size:clamp(2.6rem,6vw,4.6rem);line-height:1.02;letter-spacing:-.01em;margin:0}
 .gb-title em{font-style:italic;color:var(--gold)}
-.gb-sub{color:var(--dim2);font-size:.95rem;line-height:1.75;max-width:560px}
+.gb-sub{color:var(--dim2);font-size:1.05rem;line-height:1.8;max-width:560px}
 .gb-sub a{color:var(--fg);border-bottom:1px solid var(--dim);transition:.3s}
 .gb-sub a:hover{color:var(--gold);border-color:var(--gold)}
 .gb-divider{width:60px;height:1px;background:linear-gradient(to right,var(--accent),var(--gold),transparent);margin:2rem 0 0;opacity:.6}
@@ -63,8 +63,8 @@ nav .shop-link:hover{background:#d4b85c;box-shadow:0 0 15px var(--gold-glow),0 0
 .gb-controls{position:sticky;top:57px;z-index:120;background:rgba(8,7,16,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:1.25rem 3rem}
 .gb-search-row{display:flex;gap:.9rem;align-items:center;max-width:1400px}
 .gb-search{flex:1;position:relative;min-width:0}
-.gb-search i{position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--dim);font-size:.8rem}
-.gb-search input{width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(255,42,109,.15);border-radius:100px;padding:.75rem 1.2rem .75rem 2.5rem;color:var(--fg);font-family:var(--sans);font-size:.85rem;transition:border-color .3s}
+.gb-search i{position:absolute;left:1.15rem;top:50%;transform:translateY(-50%);color:var(--dim);font-size:.95rem}
+.gb-search input{width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(255,42,109,.15);border-radius:100px;padding:.9rem 1.4rem .9rem 3rem;color:var(--fg);font-family:var(--sans);font-size:1rem;transition:border-color .3s}
 .gb-search input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-dim)}
 .gb-search input::placeholder{color:var(--dim)}
 .gb-toggle{display:flex;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(255,42,109,.15);border-radius:100px;overflow:hidden;flex-shrink:0}
@@ -106,10 +106,10 @@ nav .shop-link:hover{background:#d4b85c;box-shadow:0 0 15px var(--gold-glow),0 0
 .gb-panel{--c:var(--dim);position:relative;background:#0d0b16;border:1px solid rgba(255,42,109,.12);border-radius:16px;max-width:700px;width:100%;max-height:88vh;overflow-y:auto;overflow-x:hidden;padding:5.2rem 2.6rem 2.6rem;transform:translateY(12px);transition:transform .25s}
 .gb-overlay.open .gb-panel{transform:translateY(0)}
 .gb-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--c);border-radius:16px 16px 0 0}
-.gb-panel .pclose{position:absolute;top:1.4rem;right:1.4rem;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,42,109,.15);background:none;color:var(--fg);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:.3s}
+.gb-panel .pclose{position:absolute;top:1.4rem;right:1.4rem;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,42,109,.15);background:none;color:var(--fg);cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:.3s}
 .gb-panel .pclose:hover{border-color:var(--accent);color:var(--accent)}
 .gb-nav-arrows{position:absolute;top:1.4rem;left:1.4rem;display:flex;gap:.4rem}
-.gb-nav-arrows button{width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,42,109,.15);background:none;color:var(--dim2);cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;transition:.3s}
+.gb-nav-arrows button{width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,42,109,.15);background:none;color:var(--dim2);cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:.3s}
 .gb-nav-arrows button:hover{border-color:var(--c);color:var(--c)}
 .gb-nav-arrows button:disabled{opacity:.25;cursor:default}
 .p-suit{font-family:var(--mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--c);margin-bottom:.6rem}
@@ -126,14 +126,14 @@ nav .shop-link:hover{background:#d4b85c;box-shadow:0 0 15px var(--gold-glow),0 0
 .elem-glyph.small{width:13px;height:13px}
 .astro-glyph{font-size:.85rem;line-height:1;color:var(--c,var(--gold));flex-shrink:0}
 .p-num.tip-trigger{padding:.1rem .4rem;margin-right:.5rem}
-#tooltip{position:fixed;z-index:400;max-width:260px;background:#0d0b16;border:1px solid var(--gold);border-radius:10px;padding:.85rem 1rem;font-family:var(--sans);font-size:.78rem;line-height:1.55;color:var(--fg);box-shadow:0 10px 30px -8px rgba(0,0,0,.7);opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s;pointer-events:none}
+#tooltip{position:fixed;z-index:400;max-width:280px;background:#0d0b16;border:1px solid var(--gold);border-radius:10px;padding:.9rem 1.1rem;font-family:var(--sans);font-size:.88rem;line-height:1.6;color:var(--fg);box-shadow:0 10px 30px -8px rgba(0,0,0,.7);opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s;pointer-events:none}
 #tooltip.show{opacity:1;transform:translateY(0)}
 #tooltip .tip-title{display:block;font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem}
 .p-summary{font-family:var(--serif);font-style:italic;font-size:1.15rem;line-height:1.65;color:var(--dim2);margin-bottom:1.8rem;padding-left:1rem;border-left:2px solid rgba(255,42,109,.15)}
 .p-switch{display:flex;font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(255,42,109,.15);border-radius:100px;overflow:hidden;width:fit-content;margin-bottom:1.2rem}
 .p-switch button{background:none;border:none;color:var(--dim2);padding:.5rem 1rem;cursor:pointer;font-family:inherit;letter-spacing:inherit}
 .p-switch button.active{background:var(--c);color:var(--bg)}
-.p-meaning{font-size:.95rem;line-height:1.85;color:var(--fg);margin-bottom:1.4rem}
+.p-meaning{font-size:1.05rem;line-height:1.9;color:var(--fg);margin-bottom:1.4rem}
 .p-keys{display:flex;flex-wrap:wrap;gap:.4rem}
 .p-keys span{font-family:var(--mono);font-size:.58rem;letter-spacing:.05em;text-transform:uppercase;padding:.3rem .7rem;border-radius:100px;color:var(--bg);background:var(--c)}
 
@@ -151,7 +151,7 @@ nav .shop-link:hover{background:#d4b85c;box-shadow:0 0 15px var(--gold-glow),0 0
   .gb-title{font-size:clamp(2rem,11vw,2.6rem)}
   .gb-controls{padding:1rem 1.25rem}
   .gb-grid{padding:1.75rem 1.25rem 4rem;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.7rem}
-  .gb-panel{padding:2.8rem 1.4rem 2rem}
+  .gb-panel{padding:4.6rem 1.4rem 2rem}
   .gb-search-row{flex-wrap:wrap}
 }
 </style>
@@ -182,7 +182,7 @@ nav .shop-link:hover{background:#d4b85c;box-shadow:0 0 15px var(--gold-glow),0 0
   <div class="gb-search-row">
     <div class="gb-search">
       <i class="fa fa-search"></i>
-      <input id="search" type="text" placeholder="Search a card, keyword, or feeling — “growth”, “deceit”, “the fool”…" autocomplete="off">
+      <input id="search" type="search" placeholder="Search a card, keyword, or feeling — “growth”, “deceit”, “the fool”…" autocomplete="off" enterkeyhint="search">
     </div>
     <div class="gb-toggle" id="reverseToggle">
       <button data-v="0" class="active">Upright</button>
