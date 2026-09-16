@@ -10,12 +10,13 @@ into `config.js`. Takes about 10 minutes, no code.
 1. Go to [forms.google.com](https://forms.google.com) → blank form.
 2. Title it **the night air** (description optional).
 3. Add five questions, **in this exact order**, each set to **Short answer**
-   and toggled **Required**:
-   1. How were you feeling during the pandemic?
-   2. What was important to you before that no longer feels essential?
-   3. What ritual or behavior from that time have you carried forward?
-   4. Describe your experience of isolation.
-   5. What's the most important thing in your life now?
+    and toggled **Required**:
+
+    1. How were you feeling during the pandemic?
+    2. What was important to you before that no longer feels essential?
+    3. What ritual or behavior from that time have you carried forward?
+    4. Describe your experience of isolation.
+    5. What's the most important thing in your life now?
 4. Click the gear icon (**Settings**) →
    - **Responses**: turn **off** "Collect email addresses" and **off** "Limit
      to 1 response" (so the same visitor can add more than one line over

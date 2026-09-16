@@ -44,7 +44,6 @@ a{color:inherit}
   border-bottom:1px solid var(--line);
 }
 .na-brand{display:flex;align-items:center;gap:.7rem;text-decoration:none}
-.na-brand img{width:26px;height:26px;filter:invert(1) brightness(1.5) sepia(1) saturate(2) hue-rotate(-10deg);opacity:.9}
 .na-brand span{font-family:var(--mono);font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--fg)}
 .na-links{display:flex;gap:clamp(1rem,3vw,2.2rem)}
 .na-links a{
@@ -134,18 +133,22 @@ hr.na-rule{border:none;border-top:1px solid var(--line);margin:2.6rem 0}
 
 @keyframes naFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
-.na-moon-divider{display:flex;justify-content:center;margin:3rem 0}
-.na-moon-divider img{width:34px;height:34px;opacity:.35;filter:invert(1) brightness(1.5) sepia(1) saturate(2) hue-rotate(-10deg)}
-
 footer.na-foot{
-  display:flex;flex-direction:column;align-items:center;gap:.7rem;
   text-align:center;padding:2.5rem 1.5rem 3.5rem;font-family:var(--mono);font-size:.62rem;
   letter-spacing:.1em;color:var(--dimmer);
 }
 footer.na-foot a{color:var(--dim);text-decoration:none}
 footer.na-foot a:hover{color:var(--accent)}
-.na-foot-logotype{height:20px;width:auto;opacity:.55;filter:invert(1) brightness(1.5) sepia(1) saturate(2) hue-rotate(-10deg)}
 
-/* logo lockups pulled from the original site's brand assets */
-.na-hero-logo{display:block;margin:0 0 2.4rem;width:120px;height:auto;filter:invert(1) brightness(1.5) sepia(1) saturate(2) hue-rotate(-10deg);opacity:.92}
-.na-credit-logo{display:block;margin:0 auto 2.2rem;width:64px;height:auto;filter:invert(1) brightness(1.5) sepia(1) saturate(2) hue-rotate(-10deg);opacity:.7}
+/* the full moon+wordmark lockup — the one image the original site ever
+   showed live, and it showed it large (300x270 in its sidebar) on every
+   single page. Same idea here: one consistent, generously-sized mark at
+   the top of every page, instead of the small decorative icons an
+   earlier pass invented (a nav glyph, a divider) that the original
+   never actually displayed. */
+.na-logo{
+  display:block;margin:0 auto 2.4rem;
+  width:clamp(170px,26vw,260px);height:auto;
+  filter:invert(1) brightness(1.5) sepia(1) saturate(2) hue-rotate(-10deg);
+  opacity:.94;
+}
