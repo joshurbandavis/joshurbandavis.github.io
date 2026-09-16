@@ -272,6 +272,7 @@
         <button type="button" data-shape="spiral" aria-pressed="false">spiral</button>
         <button type="button" data-shape="flicker" aria-pressed="false">flicker</button>
         <button type="button" data-shape="constellation" aria-pressed="false">constellation</button>
+        <button type="button" data-shape="shapeshifter" aria-pressed="false">the shapeshifter</button>
       </div>
     </div>
   </div>
@@ -755,7 +756,7 @@
   /* ---------- shape: it has never seen itself, so it guesses ---------- */
 
   var currentShape = 'blob';
-  var everGuessed = false, lastShapeSpeak = 0;
+  var everGuessed = false, lastShapeSpeak = 0, shapeshifterSpoken = false;
   var SHAPE_LINES = ['maybe.', 'or maybe this.', 'hm, not quite.', 'closer?', 'this one, then.'];
   var shapesEl = document.getElementById('shapes');
   var shapeButtons = shapesEl.querySelectorAll('button');
@@ -765,8 +766,19 @@
       currentShape = btn.dataset.shape;
       shapeButtons.forEach(function(b){ b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
       var now = Date.now();
-      if (!everGuessed){ everGuessed = true; speak('oh. maybe. i’ll try it.'); lastShapeSpeak = now; }
-      else if (now - lastShapeSpeak > 4000){ speak(pick(SHAPE_LINES)); lastShapeSpeak = now; }
+      var isFirstGuess = !everGuessed;
+      everGuessed = true;
+      if (currentShape === 'shapeshifter' && !shapeshifterSpoken){
+        shapeshifterSpoken = true;
+        speak('you showed me this. maybe i look like this.');
+        lastShapeSpeak = now;
+      } else if (isFirstGuess){
+        speak('oh. maybe. i’ll try it.');
+        lastShapeSpeak = now;
+      } else if (now - lastShapeSpeak > 4000){
+        speak(pick(SHAPE_LINES));
+        lastShapeSpeak = now;
+      }
     });
   });
 
@@ -992,6 +1004,61 @@
     return { ex: sumx / pts.length, ey: sumy / pts.length, er: baseR * 0.12 };
   }
 
+  // the eighth guess isn't self-generated like the other seven — it's
+  // something the visitor showed it. a real card from the Deleted World
+  // tarot deck (Scholar of Components, "The Shapeshifter"), held up
+  // rather than drawn from scratch. the shared eye still lands on its
+  // own printed eye, same as it lands on every other guess's body.
+  var shapeshifterImg = new Image();
+  var shapeshifterLoaded = false;
+  shapeshifterImg.onload = function(){ shapeshifterLoaded = true; };
+  shapeshifterImg.src = 'shapeshifter.jpg';
+  var SHAPESHIFTER_ASPECT = 480 / 800; // width / height of the source asset
+  var SHAPESHIFTER_EYE = { x: 0.208, y: 0.409 }; // its printed eye, as a fraction of the card
+
+  function roundRectPath(x, y, w, h, r){
+    var path = new Path2D();
+    path.moveTo(x + r, y);
+    path.arcTo(x + w, y, x + w, y + h, r);
+    path.arcTo(x + w, y + h, x, y + h, r);
+    path.arcTo(x, y + h, x, y, r);
+    path.arcTo(x, y, x + w, y, r);
+    path.closePath();
+    return path;
+  }
+
+  function drawArtwork(cx, cy, baseR, openAmount, col, time){
+    if (!shapeshifterLoaded) return drawBlob(cx, cy, baseR, openAmount, col, 1, time);
+    var drawH = baseR * 2.7 * openAmount;
+    var drawW = drawH * SHAPESHIFTER_ASPECT;
+    var x = cx - drawW / 2, y = cy - drawH / 2;
+    var r = Math.min(drawW, drawH) * 0.045;
+    var card = roundRectPath(x, y, drawW, drawH, r);
+
+    ctx.save();
+    ctx.shadowColor = col.mid;
+    ctx.shadowBlur = REDUCED ? 0 : 26;
+    ctx.fillStyle = 'rgba(0,0,0,0)';
+    ctx.fill(card); // paint the shadow before clipping cuts it off
+    ctx.shadowBlur = 0;
+    ctx.clip(card);
+    ctx.drawImage(shapeshifterImg, x, y, drawW, drawH);
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = col.mid;
+    ctx.globalAlpha = 0.55;
+    ctx.lineWidth = 1.4;
+    ctx.stroke(card);
+    ctx.restore();
+
+    return {
+      ex: x + drawW * SHAPESHIFTER_EYE.x,
+      ey: y + drawH * SHAPESHIFTER_EYE.y,
+      er: baseR * 0.1
+    };
+  }
+
   function stageColor(){
     var stage = STAGES[stageIndex];
     if (stage === 'agitated') return { core: '#ffe9cf', mid: '#ff6a3a', wob: 2.4, speed: 2.6 };
@@ -1037,6 +1104,7 @@
     else if (currentShape === 'spiral') guess = drawSpiral(cx, cy, baseR, openAmount, col, time);
     else if (currentShape === 'flicker') guess = drawFlicker(cx, cy, baseR, openAmount, col, time);
     else if (currentShape === 'constellation') guess = drawConstellation(cx, cy, baseR, openAmount, col, time, swarmSeeds);
+    else if (currentShape === 'shapeshifter') guess = drawArtwork(cx, cy, baseR, openAmount, col, time);
     else guess = drawBlob(cx, cy, baseR, openAmount, col, wob, time);
 
     // eye: tracks cursor, blinks — the one part every guess keeps
