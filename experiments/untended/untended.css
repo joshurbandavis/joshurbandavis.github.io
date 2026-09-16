@@ -16,7 +16,7 @@ html,body{
 
 .ut-stage{
   min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:1.4rem;padding:3rem 1.2rem;
+  gap:1.15rem;padding:3rem 1.2rem;
 }
 
 /* the frame starts loose/incomplete (dashed, faint) and restores to a
@@ -43,13 +43,13 @@ html,body{
    just say what's going on, rather than making you find it by hovering.
    Plain sans prose, then the thesis line breaks into the same italic
    serif the caption below uses, so the two read as one register. */
-.ut-intro{margin:0 0 .4rem;text-align:center;max-width:34rem}
+.ut-intro{margin:0;text-align:center;max-width:27rem}
 .ut-intro p{
   margin:0;font-family:'Inter',system-ui,sans-serif;font-size:.85rem;
-  line-height:1.65;color:#a5a099;
+  line-height:1.6;color:#a5a099;
 }
 .ut-intro .ut-thesis{
-  margin-top:.7rem;font-family:'Instrument Serif',Georgia,serif;font-style:italic;
+  margin-top:.6rem;font-family:'Instrument Serif',Georgia,serif;font-style:italic;
   font-size:clamp(1.05rem,2.2vw,1.35rem);color:#ddd8d0;opacity:.9;
 }
 
