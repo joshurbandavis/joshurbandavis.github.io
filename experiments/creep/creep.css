@@ -1,5 +1,5 @@
 /*
- * palimpsest.css
+ * creep.css
  *
  * Chrome/return affordances match decay.css and mutate.css exactly (same
  * fixed-corner, low-opacity monospace convention). The rest is deliberately
@@ -8,25 +8,25 @@
  * only animation here is a short, hard flash used to mark the instant a
  * mutation lands, the opposite of a fade: a jolt, not a dissolve.
  */
-.px-chrome{
+.cr-chrome{
   position:fixed;bottom:34px;left:16px;z-index:9998;
   font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;
   color:#5a564f;opacity:.4;text-transform:lowercase;pointer-events:none;
 }
-.px-return{
+.cr-return{
   position:fixed;bottom:34px;right:16px;z-index:9998;
   font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.12em;
   color:#5a564f;opacity:.35;text-decoration:none;text-transform:lowercase;
   transition:opacity .4s;
 }
-.px-return:hover{opacity:.8}
+.cr-return:hover{opacity:.8}
 
 /* Persistent, present from the first load and never removed by any move —
-   it lives outside #pxRoot, so the terminal graft's wholesale innerHTML
+   it lives outside #crRoot, so the terminal graft's wholesale innerHTML
    swap can't take it with it. Deliberately legible, not corner-tiny like
-   .px-chrome: this is the one piece of text on the page that isn't part
+   .cr-chrome: this is the one piece of text on the page that isn't part
    of the piece. */
-.px-disclaimer{
+.cr-disclaimer{
   position:fixed;left:0;right:0;bottom:0;z-index:9997;
   padding:6px 16px;text-align:center;
   font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.03em;
@@ -36,40 +36,40 @@
 
 /* A single mutated element gets this for ~260ms right after it changes:
    a hard invert-and-settle, not a fade in. */
-@keyframes px-jolt{
+@keyframes cr-jolt{
   0%{filter:invert(1) saturate(2)}
   100%{filter:none}
 }
-.px-jolt{animation:px-jolt .26s steps(3) 1}
+.cr-jolt{animation:cr-jolt .26s steps(3) 1}
 
 /* A full-viewport flash fires once per visit, but only on a visit that
    actually lands a mutation — silence on every other refresh is part of
    the point. Hard cut in, hard cut out; no easing. */
-.px-event-flash{
+.cr-event-flash{
   position:fixed;inset:0;z-index:9999;background:#fff;
   opacity:0;pointer-events:none;
 }
-.px-event-flash.px-firing{animation:px-flash-out .18s steps(2) 1 forwards}
-@keyframes px-flash-out{
+.cr-event-flash.cr-firing{animation:cr-flash-out .18s steps(2) 1 forwards}
+@keyframes cr-flash-out{
   0%{opacity:.9}
   60%{opacity:.9}
   100%{opacity:0}
 }
 @media(prefers-reduced-motion:reduce){
-  .px-jolt{animation:none}
-  .px-event-flash.px-firing{animation:none;opacity:0}
+  .cr-jolt{animation:none}
+  .cr-event-flash.cr-firing{animation:none;opacity:0}
 }
 
 /* Stage 5: the page narrows toward the real page's own 500px table width. */
-body.px-narrow main,
-body.px-narrow .hero-content,
-body.px-narrow section{
+body.cr-narrow main,
+body.cr-narrow .hero-content,
+body.cr-narrow section{
   max-width:500px;margin-left:auto;margin-right:auto;
 }
 
 /* Terminal state: whatever of the original page remains has just been
    replaced wholesale by the real grafted markup — kill the modern chrome
    effects that would otherwise sit on top of it. */
-body.px-converged .cursor-glow,
-body.px-converged .hero-canvas{display:none}
-body.px-converged{cursor:default;background:#000}
+body.cr-converged .cursor-glow,
+body.cr-converged .hero-canvas{display:none}
+body.cr-converged{cursor:default;background:#000}

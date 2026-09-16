@@ -1,5 +1,5 @@
 /*
- * palimpsest.js
+ * creep.js
  *
  * A full copy of this site's homepage that gets grafted, one real
  * irreversible DOM mutation at a time, with something older and real
@@ -25,8 +25,8 @@
  *     randomized, not *which* comes first.
  *
  *  2. A visit that lands a new move gets a hard, un-eased flash the
- *     instant the page settles (palimpsest.css's .px-event-flash /
- *     .px-jolt) — a jolt, not a fade-in. A visit that lands nothing stays
+ *     instant the page settles (creep.css's .cr-event-flash /
+ *     .cr-jolt) — a jolt, not a fade-in. A visit that lands nothing stays
  *     completely silent, including no flash — most refreshes are silent
  *     by design (24 events across 365 visits).
  *
@@ -47,7 +47,7 @@
 (function () {
   var SEED = 'dwt_palimpsest_refresh_v3'; // unchanged from the local-only design, so the move schedule doesn't reshuffle
   var NAMESPACE = 'joshurbandavis-github-io';
-  var STEP_KEY = 'palimpsest-graft';
+  var STEP_KEY = 'creep-graft';
   var TOTAL = 365;
   var TERMINAL_STEP = TOTAL;
 
@@ -83,10 +83,10 @@
   }
   function jolt(el) {
     if (!el) return;
-    el.classList.remove('px-jolt');
+    el.classList.remove('cr-jolt');
     // force reflow so re-adding the class restarts the animation
     void el.offsetWidth;
-    el.classList.add('px-jolt');
+    el.classList.add('cr-jolt');
   }
   function swapIcon(ariaLabel, file, alt) {
     var a = document.querySelector('.hero-links a[aria-label="' + ariaLabel + '"]');
@@ -220,7 +220,7 @@
     { id: 'contact-gone', label: 'contact is gone; the page has narrowed', apply: function () {
       var a = document.querySelector('.contact'); if (a) a.remove();
       var f = document.querySelector('footer'); if (f) f.remove();
-      document.body.classList.add('px-narrow');
+      document.body.classList.add('cr-narrow');
     }}
   ];
 
@@ -241,13 +241,13 @@
   }
 
   // ---- the terminal graft: real, one-way DOM surgery. Fetches the actual
-  // 1996 page and replaces whatever remains of pxRoot with its real body
+  // 1996 page and replaces whatever remains of crRoot with its real body
   // markup, verbatim — the same document now literally contains the other
   // page's real markup, not an overlay/iframe of it. ----
   function converge() {
-    var root = document.getElementById('pxRoot');
+    var root = document.getElementById('crRoot');
     document.title = 'Space Jam';
-    document.body.classList.add('px-converged');
+    document.body.classList.add('cr-converged');
     window.__pxStopMarquee = true;
     window.__pxStopHeroCanvas = true;
     fetch('1996/index.html', { cache: 'no-store' })
@@ -277,7 +277,7 @@
         // The real page sets its background/colors via legacy <body> HTML
         // attributes (background=, bgcolor=, text=), not CSS. Those only
         // ever apply to a document's actual <body> element — this one is
-        // about to become a plain child of #pxRoot, so the browser won't
+        // about to become a plain child of #crRoot, so the browser won't
         // honor them at all (the background silently never renders).
         // Convert each to the equivalent inline style, same URL-resolution
         // treatment as the images above, before it loses "real body" status.
@@ -311,7 +311,7 @@
   }
 
   function renderChrome(step, count, debug, result) {
-    var chrome = document.getElementById('pxChrome');
+    var chrome = document.getElementById('crChrome');
     if (!chrome) return;
     var text = 'step ' + step + ' / ' + TOTAL;
     if (debug) text += ' — ' + count + '/' + MOVES.length + ' moves grafted';
@@ -321,11 +321,11 @@
   }
 
   function fireEventFlash() {
-    var flash = document.getElementById('pxFlash');
+    var flash = document.getElementById('crFlash');
     if (!flash) return;
-    flash.classList.remove('px-firing');
+    flash.classList.remove('cr-firing');
     void flash.offsetWidth;
-    flash.classList.add('px-firing');
+    flash.classList.add('cr-firing');
   }
 
   function init() {

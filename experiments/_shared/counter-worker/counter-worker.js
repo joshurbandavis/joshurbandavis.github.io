@@ -20,11 +20,11 @@
  * dashboard/API equivalent — never committed to this repo, since this
  * script is public source for a public site). No secret set at all means
  * the route always 403s, closed by default rather than open. This exists
- * because decay/mutate/palimpsest all deliberately have no *public* way
+ * because decay/mutate/creep all deliberately have no *public* way
  * to reset their own shared counters — that permanence is the point of
  * those pieces — but "permanent from a visitor's chair" and "literally
  * impossible for the person running the site to ever undo" don't have to
- * be the same thing, and a piece that's converged (palimpsest reaching
+ * be the same thing, and a piece that's converged (creep reaching
  * its terminal graft, say) has no other way back to its opening state.
  *
  * ---- Deploy ----

@@ -201,17 +201,17 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
   .contact-row{flex-direction:column;align-items:center}
 }
 </style>
-<link rel="stylesheet" href="palimpsest.css">
+<link rel="stylesheet" href="creep.css">
 </head>
 <body>
 
-<div class="px-event-flash" id="pxFlash"></div>
+<div class="cr-event-flash" id="crFlash"></div>
 
-<!-- pxRoot: everything below is the real homepage content. palimpsest.js
+<!-- crRoot: everything below is the real homepage content. creep.js
      mutates it directly (real element/text/attribute changes, no CSS
      overlay), and the terminal move replaces its innerHTML wholesale with
      the real 1996 page's own markup, fetched from 1996/index.html. -->
-<div id="pxRoot">
+<div id="crRoot">
 <div class="cursor-glow" id="glow"></div>
 
 <nav>
@@ -547,7 +547,7 @@ footer{padding:2rem 3rem;display:flex;justify-content:space-between;align-items:
   <img id="mImg" src="">
   <p class="cap" id="mCap"></p>
 </div>
-</div><!-- /pxRoot -->
+</div><!-- /crRoot -->
 
 <script>
 var glow = document.getElementById('glow');
@@ -786,11 +786,11 @@ document.querySelectorAll('.pill, nav .nav-links a, .mob-nav a').forEach(functio
 })();
 </script>
 
-<div class="px-chrome" id="pxChrome" title="a copy of joshurbandavis.github.io grafted, one real irreversible DOM mutation at a time, with something older and real underneath — shared across every visitor, cumulative, no reset. moves are scattered unevenly across the 365-refresh span, not evenly paced."></div>
-<a class="px-return" href="../../index.html">return</a>
-<div class="px-disclaimer" id="pxDisclaimer">unofficial fan project, not affiliated with or endorsed by Warner Bros. — Space Jam and its characters, names, and likenesses are trademarks of Warner Bros.; real 1996 assets appear here for archival/artistic purposes only.</div>
+<div class="cr-chrome" id="crChrome" title="a copy of joshurbandavis.github.io grafted, one real irreversible DOM mutation at a time, with something older and real underneath — shared across every visitor, cumulative, no reset. moves are scattered unevenly across the 365-refresh span, not evenly paced."></div>
+<a class="cr-return" href="../../index.html">return</a>
+<div class="cr-disclaimer" id="crDisclaimer">unofficial fan project, not affiliated with or endorsed by Warner Bros. — Space Jam and its characters, names, and likenesses are trademarks of Warner Bros.; real 1996 assets appear here for archival/artistic purposes only.</div>
 
 <script src="../_shared/step-engine.js"></script>
-<script src="palimpsest.js"></script>
+<script src="creep.js"></script>
 </body>
 </html>

@@ -19,7 +19,7 @@ behavioral art. Each lives in its own folder as a self-contained page.
   screen). No backend, no persistence, no exit: leaving or reloading resets
   everything.
 
-- `palimpsest/` — a full copy of `index.html` grafted with something older
+- `creep/` — a full copy of `index.html` grafted with something older
   and real, one genuine DOM mutation at a time: swapped text, swapped
   images, removed nodes, never a CSS fade. Ships the actual supplied 1996
   spacejam.com GIF assets (`1996/img/`) and an unmodified copy of the real
@@ -32,7 +32,7 @@ behavioral art. Each lives in its own folder as a self-contained page.
   the third visit, and out of step with `decay/` and `mutate/`, which
   never blend, only cut. This version doesn't blend either:
 
-  - **24 moves, fixed narrative order, random timing.** `palimpsest.js`'s
+  - **24 moves, fixed narrative order, random timing.** `creep.js`'s
     `MOVES` array is hand-authored top to bottom (whispers → identity →
     image intrusions → environment → structural collapse); *which* comes
     first is authored, *when* each one lands is picked once by a seeded
@@ -42,14 +42,14 @@ behavioral art. Each lives in its own folder as a self-contained page.
     schedule, the same "guaranteed end state no matter how the randomness
     landed" guarantee `decay/` makes.
   - **A jolt, not a fade.** A visit that lands a new move gets a hard
-    flash the instant it settles (`.px-event-flash`/`.px-jolt` in
-    `palimpsest.css`) — full-viewport white cut in and out over ~180ms,
+    flash the instant it settles (`.cr-event-flash`/`.cr-jolt` in
+    `creep.css`) — full-viewport white cut in and out over ~180ms,
     plus a quick invert on the specific element that changed. A visit
     that lands nothing stays completely silent, no flash — most of the
     365 refreshes are silent by design.
   - **The terminal graft is real surgery, not an iframe.** At step 365,
     `converge()` fetches `1996/index.html` and appends its actual `<body>`
-    into this document's own `#pxRoot` — the same document now literally
+    into this document's own `#crRoot` — the same document now literally
     contains the other page's real markup, not an overlay of it. Moving
     that `<body>` into the live document changes its owning document, which
     broke two things briefly before catching them in verification: relative
@@ -57,7 +57,7 @@ behavioral art. Each lives in its own folder as a self-contained page.
     image 404'd) until resolved to an absolute URL against the real fetch
     location first, and the real page's background/colors — set via legacy
     `<body background= bgcolor= text=>` attributes, which only ever apply to
-    a document's *actual* `<body>`, not a plain child of `#pxRoot` — silently
+    a document's *actual* `<body>`, not a plain child of `#crRoot` — silently
     never rendered until converted to the equivalent inline styles.
   - **Committed to the decay — no safety net.** The five relabeled nav
     links (`Jam Central`, `Planet B-Ball`, etc.) keep their original local
@@ -74,7 +74,7 @@ behavioral art. Each lives in its own folder as a self-contained page.
     Reverted on purpose: the real artifact overtaking the page should
     include its actual decay, broken links and all, not just its look.
 
-  Shared via `../_shared/step-engine.js` (key `palimpsest-graft`), same as
+  Shared via `../_shared/step-engine.js` (key `creep-graft`), same as
   `decay/` and `mutate/` — every visitor, on any device, anywhere,
   advances the same counter. This piece originally tracked its own
   refreshes privately per-browser in `localStorage`; switched to match its
@@ -83,7 +83,7 @@ behavioral art. Each lives in its own folder as a self-contained page.
   shared, cumulative counter isn't any single visitor's to clear.
 
   A small persistent disclaimer sits fixed to the bottom of the page from
-  the first load onward, outside `#pxRoot` so the terminal graft's
+  the first load onward, outside `#crRoot` so the terminal graft's
   wholesale innerHTML swap can't take it with it: unofficial fan project,
   not affiliated with or endorsed by Warner Bros., real assets credited to
   their actual rights holder. The experiments index card carries the same
@@ -154,10 +154,10 @@ behavioral art. Each lives in its own folder as a self-contained page.
   fight over border-radius), so having both active at once means one
   silently overrides the other — intentional, not a bug: some things
   really do undo each other. Not headed anywhere like `decay/` and
-  `palimpsest/` are — it never stops moving, never settles.
+  `creep/` are — it never stops moving, never settles.
 
 - `_shared/step-engine.js` — the shared-counter plumbing `decay/`,
-  `mutate/`, and `palimpsest/` all build on.
+  `mutate/`, and `creep/` all build on.
 
 - `no-one-in-particular/` — a rebuild of `thisobituarydoesnotexist.com`
   (2019, GPT-2 + a StyleGAN/FFHQ portrait model, gallery-shown as
@@ -192,7 +192,7 @@ behavioral art. Each lives in its own folder as a self-contained page.
   recoverable, a real author tag and a fragment of real archived text,
   pulled live from the Wayback Machine's CDX API, not invented. Breaks the
   no-backend pattern above on purpose: archive.org's API sends no CORS
-  header, so unlike `decay`/`mutate`/`palimpsest`'s shared-counter calls
+  header, so unlike `decay`/`mutate`/`creep`'s shared-counter calls
   this can't be reached directly from a static page. Two front ends, one
   API contract:
   - `index.html` — the deployed page: calls a small Cloudflare Worker
@@ -303,15 +303,14 @@ behavioral art. Each lives in its own folder as a self-contained page.
   instead of a plotted line; RGB channel-slice, block corruption, and
   scanline tear round out the set as standard glitch-art vocabulary.
 
-  `countapi.xyz` — the service `decay/`, `mutate/`, and `palimpsest/`
-  depend on — no longer resolves at all as of this writing; all three
-  pieces are almost certainly running in their local-fallback mode in
-  production right now,
-  not the shared mode their own sections above describe. Its closest
-  living replacement (Abacus) has no timestamp field and its counters
-  expire from inactivity, which would erase this piece's memory during
-  exactly the droughts that matter most — hence a dedicated Worker instead
-  of another hosted counter, the same choice `internet-is-haunted/` already
+  `countapi.xyz` — the service `decay/`, `mutate/`, and `creep/`
+  originally depended on — no longer resolves at all; those three have
+  since moved to `_shared/counter-worker/` (a Durable Object, real shared
+  state again, not local fallback). Its closest still-living replacement
+  (Abacus) has no timestamp field and its counters expire from inactivity,
+  which would erase this piece's memory during exactly the droughts that
+  matter most — hence a dedicated Worker instead of another hosted
+  counter, the same choice `internet-is-haunted/` already
   made for its own CORS problem. Until `WORKER_URL` in `untended.js` points
   at a deployed `worker.js`, the page runs the identical arithmetic against
   `localStorage` instead, clearly labeled local-only in the corner readout
@@ -328,7 +327,7 @@ Not linked from the main site nav — open directly, e.g. locally:
 
 ```
 open experiments/please-wait/index.html
-open experiments/palimpsest/index.html
+open experiments/creep/index.html
 open experiments/decay/index.html
 open experiments/mutate/index.html
 open experiments/cellular-erasure/index.html
@@ -342,12 +341,12 @@ open experiments/untended/index.html   # needs WORKER_URL set, see above — and
                                         # rather than double-clicking it.
 ```
 
-or once pushed, at `/experiments/please-wait/` / `/experiments/palimpsest/` /
+or once pushed, at `/experiments/please-wait/` / `/experiments/creep/` /
 `/experiments/decay/` / `/experiments/mutate/` / `/experiments/cellular-erasure/` /
 `/experiments/no-one-in-particular/` / `/experiments/internet-is-haunted/` /
 `/experiments/the-occupant/` / `/experiments/untended/` on the live site.
 
-`decay/`, `mutate/`, and `palimpsest/` all share one counter service (a
+`decay/`, `mutate/`, and `creep/` all share one counter service (a
 small Cloudflare Worker + Durable Object, see `_shared/step-engine.js`)
 but each uses its own namespaced key, so visiting one never advances the
 others. Append `?dev=1` on any of the three while testing/building to
