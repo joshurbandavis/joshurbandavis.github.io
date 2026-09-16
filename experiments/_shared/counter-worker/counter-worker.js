@@ -13,6 +13,20 @@
  *   GET /hit/{namespace}/{key}   - increment by 1, return the new value
  *   GET /get/{namespace}/{key}   - read the current value, don't increment
  *
+ * There's also a deliberately unadvertised admin path:
+ *   GET /reset/{namespace}/{key} - set the value back to 0
+ * gated behind a header, `X-Admin-Key`, checked against the ADMIN_KEY
+ * Worker secret (set via `wrangler secret put ADMIN_KEY`, or the
+ * dashboard/API equivalent — never committed to this repo, since this
+ * script is public source for a public site). No secret set at all means
+ * the route always 403s, closed by default rather than open. This exists
+ * because decay/mutate/palimpsest all deliberately have no *public* way
+ * to reset their own shared counters — that permanence is the point of
+ * those pieces — but "permanent from a visitor's chair" and "literally
+ * impossible for the person running the site to ever undo" don't have to
+ * be the same thing, and a piece that's converged (palimpsest reaching
+ * its terminal graft, say) has no other way back to its opening state.
+ *
  * ---- Deploy ----
  * This one DOES need the Wrangler CLI (unlike internet-is-haunted's
  * worker.js) - Durable Object bindings aren't something you can paste into
@@ -65,6 +79,9 @@ export class Counter {
     if (url.pathname === '/hit') {
       value += 1;
       await this.state.storage.put('value', value);
+    } else if (url.pathname === '/reset') {
+      value = 0;
+      await this.state.storage.put('value', value);
     }
     // any other path (e.g. /get) just reads the current value
     return new Response(JSON.stringify({ value }), {
@@ -82,17 +99,27 @@ export default {
     }
 
     const url = new URL(request.url);
-    const parts = url.pathname.split('/').filter(Boolean); // ["hit"|"get", namespace, key]
+    const parts = url.pathname.split('/').filter(Boolean); // ["hit"|"get"|"reset", namespace, key]
 
-    if (parts.length !== 3 || (parts[0] !== 'hit' && parts[0] !== 'get')) {
+    if (parts.length !== 3 || !['hit', 'get', 'reset'].includes(parts[0])) {
       return jsonResponse(
-        { error: 'expected /hit/{namespace}/{key} or /get/{namespace}/{key}' },
+        { error: 'expected /hit/{namespace}/{key}, /get/{namespace}/{key}, or /reset/{namespace}/{key}' },
         origin,
         400
       );
     }
 
     const [op, namespace, key] = parts;
+
+    if (op === 'reset') {
+      const provided = request.headers.get('X-Admin-Key') || '';
+      // closed by default: no ADMIN_KEY secret configured means every
+      // reset attempt 403s, never silently "succeeds" against an empty key
+      if (!env.ADMIN_KEY || provided !== env.ADMIN_KEY) {
+        return jsonResponse({ error: 'forbidden' }, origin, 403);
+      }
+    }
+
     const id = env.COUNTER.idFromName(namespace + ':' + key);
     const stub = env.COUNTER.get(id);
     const doResponse = await stub.fetch('https://do/' + op);
