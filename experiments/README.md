@@ -264,6 +264,54 @@ behavioral art. Each lives in its own folder as a self-contained page.
     been interactively click-tested yet (no live browser access this
     session) — worth a real test pass before calling it fully done.
 
+  **v3 — split the dish from the reading.** Prompted directly by user
+  feedback after v2 shipped: "the bloom and the words are competing with
+  each other, it's difficult to discern what's happening." They were
+  right, and the cause was structural, not cosmetic — the poem was
+  printed directly over the canvas, both layers animating, both shifting
+  color, fighting for the same pixels.
+  - **Two zones instead of one stack.** The dish (`.manuscript-field`)
+    is now pure canvas — nothing else sits on it, so it reads cleanly as
+    a living visual you watch or paint. The poem moved into its own
+    `.reading-zone` below it: a plain, calm background, always legible.
+  - **Word field-positions are now fixed, not DOM-derived.** v1/v2
+    sampled the field at each word's actual on-screen position, which
+    made sense when the word was printed on top of the canvas it was
+    sampling. Once the reading has its own panel, "where the word is
+    drawn" and "where it stands in the dish" are different questions —
+    `assignWordPositions()` now gives every word a stable position once,
+    at load time, by treating the poem's word order as a near-square
+    virtual grid sized to word count and mapped onto the field (the same
+    "one word, one cell, in reading order" idea `cellular-erasure/`
+    already uses, just for a continuous field instead of a discrete
+    grid). Stable across a resize now too, instead of silently
+    reshuffling — and it meant the window-resize listener could be
+    deleted outright rather than kept firing pointlessly.
+  - **The live reading is the prominent thing now, not just the
+    archive.** Every step, `updateLiveSelection()` runs the same
+    mean-plus-half-standard-deviation threshold `captureBreath()` uses,
+    live, and highlights whichever words currently clear it — so the
+    "Selected" reading is always on screen, continuously, not something
+    you only see after clicking Capture. Capture now means "file this
+    instant away permanently," not "the only way to ever see a poem
+    here" — the Captured-blooms section below was re-labeled "the
+    archive" and its intro copy rewritten to say so.
+  - **A real color bug, caught by actually looking at a screenshot: dim
+    words were blending toward black.** Word color was computed as a
+    raw weighted sum of the three channel colors by intensity — at low
+    intensity that sum approaches `rgb(0,0,0)`, which is legible on the
+    light theme's pale background but genuinely invisible against the
+    dark theme's dark one. First headless screenshot of this layout
+    caught it immediately (most of the poem was there but unreadable).
+    Fixed by blending each word from the theme's own `--ink-soft` color
+    toward the field's locally-dominant hue as brightness rises, instead
+    of blending toward black — `computeWordColor()`, now shared by the
+    live reading and the archived captures so the same bug can't recur
+    in one place while being fixed in the other.
+  - Snapshot regenerated headlessly against the new layout; alt text and
+    gallery-card copy updated to describe the split rather than the old
+    single-canvas look.
+
 - `decay/` — a full copy of `index.html` that permanently deletes one real,
   randomly-chosen piece of itself with every visit, anywhere (the direct
   temporary.cc reference). Real destruction — actual DOM `.remove()`, not a

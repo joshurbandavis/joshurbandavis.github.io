@@ -193,12 +193,25 @@
     font-variant-numeric:tabular-nums;
   }
 
-  /* ---------- the field itself ---------- */
+  /* ---------- the dish (pure visual - no text sits on it anymore) ----------
+     v1/v2 painted the poem directly over the canvas; both layers moved,
+     both changed color, and reading the words while watching the bloom
+     meant fighting the same pixels for two different kinds of attention.
+     Splitting them into two zones - a wordless dish you watch/paint, and
+     a plain-background reading you read - lets each be legible on its
+     own terms. */
+  .zone-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    font-weight:600;
+    margin-bottom:8px;
+  }
   .manuscript-field{
     position:relative;
-    min-height:320px;
-    display:flex;
-    align-items:center;
+    min-height:280px;
     touch-action:none;
     cursor:crosshair;
   }
@@ -210,38 +223,6 @@
     display:block;
     pointer-events:none;
     filter:blur(clamp(3px, 0.6vw, 6px));
-  }
-  .poem-lines{
-    position:relative;
-    z-index:1;
-    font-family:'IBM Plex Serif', serif;
-    font-size:1.08rem;
-    line-height:2.1;
-    width:100%;
-    padding:18px 4px;
-    pointer-events:none;
-  }
-  .breath-line{
-    display:flex;
-    flex-wrap:wrap;
-    column-gap:0.4em;
-    row-gap:10px;
-  }
-  .breath-line.blank{ height:1.2em; }
-  .breath-word{
-    --wv:0.35;
-    display:inline-block;
-    color:var(--ink-soft);
-    opacity:calc(0.16 + var(--wv) * 0.84);
-    filter:blur(calc((1 - var(--wv)) * 3px));
-    transform:scale(calc(0.97 + var(--wv) * 0.05));
-    transition:opacity .55s ease, filter .55s ease, transform .55s ease, color .55s ease;
-    will-change:opacity, filter, transform;
-  }
-  .breath-word.static{ transition:none; }
-  .reduce-motion .breath-word{
-    transition-duration:.08s;
-    transform:none !important;
   }
   .paint-hint{
     position:absolute;
@@ -257,6 +238,59 @@
     padding:3px 7px;
     border-radius:3px;
     pointer-events:none;
+  }
+
+  /* ---------- the reading: prominent, plain-background, always live -
+     not just something a Capture click reveals ---------- */
+  .reading-zone{
+    margin-top:20px;
+    padding:18px clamp(16px,3vw,28px);
+    background:var(--off-bg);
+    border:1px solid var(--rule);
+    border-radius:3px;
+  }
+  .reading-caption{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.04em;
+    color:var(--ink-soft);
+    margin-bottom:14px;
+    font-variant-numeric:tabular-nums;
+  }
+  .reading-caption strong{ color:var(--ink); }
+  .poem-lines{
+    font-family:'IBM Plex Serif', serif;
+    font-size:1.08rem;
+    line-height:2.15;
+    width:100%;
+  }
+  .breath-line{
+    display:flex;
+    flex-wrap:wrap;
+    column-gap:0.4em;
+    row-gap:12px;
+  }
+  .breath-line.blank{ height:1.2em; }
+  .breath-word{
+    --wv:0.35;
+    display:inline-block;
+    color:var(--ink-soft);
+    opacity:calc(0.32 + var(--wv) * 0.68);
+    filter:blur(calc((1 - var(--wv)) * 1.1px));
+    transform:scale(calc(0.98 + var(--wv) * 0.035));
+    transition:opacity .55s ease, filter .55s ease, transform .55s ease, color .55s ease, background-color .4s ease;
+    will-change:opacity, filter, transform;
+    border-radius:3px;
+    padding:0 0.06em;
+  }
+  .breath-word.is-selected{
+    background:color-mix(in srgb, var(--accent) 14%, transparent);
+    box-shadow:inset 0 -2px 0 color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  .breath-word.static{ transition:none; }
+  .reduce-motion .breath-word{
+    transition-duration:.08s;
+    transform:none !important;
   }
 
   .state-banner{
@@ -503,7 +537,7 @@
 
   <header>
     <h1>Bacterial Bloom</h1>
-    <p id="headerDesc">The sibling of <a href="../cellular-erasure/index.html">Cellular Erasure</a>, run on <a href="https://en.wikipedia.org/wiki/Lenia" target="_blank" rel="noopener noreferrer">Lenia</a> instead of Conway's Game of Life. Three colonies now, not one: red, green and blue, each running its own growth equation, each preying on the next in a closed loop (red eats green, green eats blue, blue eats red), so the colors are real populations chasing each other, not a coat of paint. <strong>Click or drag on the dish to paint mass</strong> into whichever colony is selected in the Paint panel. Turn on <strong>Evolve</strong> and the dish periodically tries a small mutation to its own growth rules, keeping it only if it produces a more textured, more alive-looking dish, a real, small evolutionary search, logged below as it happens. However it's breathing, <strong>Capture this bloom</strong> takes whatever it looks like right now and thresholds it into a Selected reading, the same "lift the survivors out" move Cellular Erasure makes when it settles, just taken on your call instead of the automaton's. Nothing here holds still long enough to be finished, only long enough to be caught.</p>
+    <p id="headerDesc">The sibling of <a href="../cellular-erasure/index.html">Cellular Erasure</a>, run on <a href="https://en.wikipedia.org/wiki/Lenia" target="_blank" rel="noopener noreferrer">Lenia</a> instead of Conway's Game of Life. Three colonies now, not one: red, green and blue, each running its own growth equation, each preying on the next in a closed loop (red eats green, green eats blue, blue eats red), so the colors are real populations chasing each other, not a coat of paint. <strong>Click or drag on the dish to paint mass</strong> into whichever colony is selected in the Paint panel; turn on <strong>Evolve</strong> and the dish periodically tries a small mutation to its own growth rules, keeping it only if it produces a more textured, more alive-looking dish. The dish and the poem used to be the same pixels, the words printed directly over the moving field, both changing at once, fighting for the same look. They're split apart now: the dish above is just the living thing, watch it or paint it; the reading below is always live too, words brightening and dimming with whatever's under their own fixed spot in the dish, with today's brightest words highlighted as they happen. <strong>Capture this bloom</strong> just files away whatever that reading looks like right now into a dated, permanent list. Nothing here holds still long enough to be finished, only long enough to be caught.</p>
   </header>
 
   <div class="workspace">
@@ -527,13 +561,18 @@
           </span>
         </div>
 
+        <div class="zone-label">The dish</div>
         <div class="manuscript-field" id="fieldWrap">
           <canvas class="field-canvas" id="fieldCanvas" aria-hidden="true"></canvas>
-          <div class="poem-lines" id="poemLines"></div>
           <span class="paint-hint" id="paintHint">click / drag to paint</span>
         </div>
-
         <div class="sheet-caption" id="sheetCaption"></div>
+
+        <div class="reading-zone">
+          <div class="zone-label">The reading &mdash; live, not just what you capture</div>
+          <div class="reading-caption" id="readingCaption"></div>
+          <div class="poem-lines" id="poemLines"></div>
+        </div>
       </div>
     </div>
 
@@ -645,8 +684,8 @@
   </div>
 
   <div class="captures">
-    <h2>Captured blooms</h2>
-    <div class="caption">The field never settles the way Life does, so there's no single generation to declare final. Capture freezes one instant instead &mdash; and from that instant alone, thresholds it against its own average brightness into a Selected reading, the same "lift the survivors out" move cellular-erasure makes at its own settle point. It just doesn't need the field to stop breathing first.</div>
+    <h2>Captured blooms &mdash; the archive</h2>
+    <div class="caption">The Reading above already shows a live Selected highlight every step, so nothing here is the only place to see a poem. This is the archive instead: every Capture is a permanent, dated copy of one instant, kept even after the dish moves on from it.</div>
     <p class="capture-empty" id="captureEmpty">No captures yet.</p>
     <div class="capture-list" id="captureList"></div>
   </div>
@@ -1165,6 +1204,36 @@
       G: parseColor(cs.getPropertyValue('--chan-g')),
       B: parseColor(cs.getPropertyValue('--chan-b'))
     };
+    // words blend toward this, not toward black, as brightness falls -
+    // a real bug the first render of this layout shipped with: blending
+    // a dim word straight to (0,0,0) is only legible in light mode, and
+    // reads as literally invisible text on the dark theme's dark
+    // reading-panel background. Blending toward the theme's own soft-ink
+    // color instead keeps every word legible in both themes, dim or not.
+    state.inkSoftColor = parseColor(cs.getPropertyValue('--ink-soft'));
+  }
+  // Blend from the neutral ink-soft base toward the dish's own hue as a
+  // word gets brighter, rather than blending toward black - the hue
+  // itself is the *direction* of whichever channel(s) are locally
+  // strongest (normalized), independent of how bright the word is, so a
+  // faint word still tints correctly, it just tints subtly.
+  function computeWordColor(vr, vg, vb){
+    var cR = state.chanColor.R, cG = state.chanColor.G, cB = state.chanColor.B;
+    var total = vr+vg+vb;
+    var hue = state.inkSoftColor;
+    if (total > 1e-4){
+      hue = [
+        (vr*cR[0]+vg*cG[0]+vb*cB[0])/total,
+        (vr*cR[1]+vg*cG[1]+vb*cB[1])/total,
+        (vr*cR[2]+vg*cG[2]+vb*cB[2])/total
+      ];
+    }
+    var t = Math.min(1, ((vr+vg+vb)/3) * 2.2); // typical activity is ~15-20%, so boost sensitivity
+    var ink = state.inkSoftColor;
+    var cr = ink[0] + (hue[0]-ink[0])*t;
+    var cg = ink[1] + (hue[1]-ink[1])*t;
+    var cb = ink[2] + (hue[2]-ink[2])*t;
+    return 'rgb(' + (cr|0) + ',' + (cg|0) + ',' + (cb|0) + ')';
   }
 
   function stampBlobInto(field, cx, cy, rad, amp){
@@ -1199,6 +1268,7 @@
     updateDisplayField();
     renderFieldCanvas();
     syncWordStyles();
+    updateLiveSelection();
     updateInstrument(0);
     updateStatusReadout();
   }
@@ -1214,6 +1284,7 @@
     updateDisplayField();
     renderFieldCanvas();
     syncWordStyles();
+    updateLiveSelection();
     updateInstrument(0);
     updateStatusReadout();
   }
@@ -1226,6 +1297,7 @@
     updateDisplayField();
     renderFieldCanvas();
     syncWordStyles();
+    updateLiveSelection();
     updateInstrument(combined);
     checkStatus(combined);
     if (state.evolveEnabled && state.generation % state.evolveEvery === 0){
@@ -1369,30 +1441,64 @@
     state.ctx.putImageData(state.imageData, 0, 0);
   }
 
+  // Each word gets a fixed field position (w.fx/w.fy), assigned once
+  // when the poem loads - not derived from where it happens to sit in
+  // the reading panel's DOM layout. v1/v2 sampled the field at each
+  // word's actual on-screen position because the poem was printed
+  // directly over the canvas; now that the reading lives in its own
+  // panel below the dish, "where the word is drawn" and "where it
+  // stands in the ecosystem" are two different questions, and only the
+  // second one should decide what the word samples. Fixed positions are
+  // also just simpler: no reflow-dependent bounding-rect math, and
+  // stable across a window resize instead of silently reshuffling.
+  function assignWordPositions(){
+    var n = state.words.length;
+    if (!n) return;
+    var aspect = FW/FH;
+    var cols = Math.max(1, Math.ceil(Math.sqrt(n*aspect)));
+    var rows = Math.max(1, Math.ceil(n/cols));
+    for (var i=0; i<n; i++){
+      var vr = Math.floor(i/cols), vc = i%cols;
+      state.words[i].fx = (vc+0.5)/cols;
+      state.words[i].fy = (vr+0.5)/rows;
+    }
+  }
   function syncWordStyles(){
-    if (!state.fieldWrap || !state.words.length || !state.displayField) return;
-    var wrapRect = state.fieldWrap.getBoundingClientRect();
-    if (wrapRect.width === 0 || wrapRect.height === 0) return;
-    var cR = state.chanColor.R, cG = state.chanColor.G, cB = state.chanColor.B;
+    if (!state.words.length || !state.displayField) return;
     for (var i=0; i<state.words.length; i++){
       var w = state.words[i];
-      var r = w.el.getBoundingClientRect();
-      var fx = ((r.left+r.right)/2 - wrapRect.left) / wrapRect.width;
-      var fy = ((r.top+r.bottom)/2 - wrapRect.top) / wrapRect.height;
-      if (fx < 0) fx = 0; else if (fx > 1) fx = 1;
-      if (fy < 0) fy = 0; else if (fy > 1) fy = 1;
-      var vr = sampleOne(state.displayField.R, fx, fy);
-      var vg = sampleOne(state.displayField.G, fx, fy);
-      var vb = sampleOne(state.displayField.B, fx, fy);
+      var vr = sampleOne(state.displayField.R, w.fx, w.fy);
+      var vg = sampleOne(state.displayField.G, w.fx, w.fy);
+      var vb = sampleOne(state.displayField.B, w.fx, w.fy);
       w.r = vr; w.g = vg; w.b = vb;
       var v = (vr+vg+vb)/3;
       w.v = v;
       w.el.style.setProperty('--wv', v.toFixed(3));
-      var cr = Math.min(255, vr*cR[0]+vg*cG[0]+vb*cB[0]);
-      var cg = Math.min(255, vr*cR[1]+vg*cG[1]+vb*cB[1]);
-      var cb = Math.min(255, vr*cR[2]+vg*cG[2]+vb*cB[2]);
-      w.el.style.color = 'rgb(' + (cr|0) + ',' + (cg|0) + ',' + (cb|0) + ')';
+      w.el.style.color = computeWordColor(vr, vg, vb);
     }
+  }
+
+  // ---------- live selection - the same threshold Capture uses, kept
+  // running continuously so the Reading panel always shows which words
+  // are "the poem right now," not only at the instant you click Capture ----------
+  function computeThreshold(values){
+    var n = values.length || 1;
+    var meanV = values.reduce(function(a,b){ return a+b; }, 0) / n;
+    var variance2 = values.reduce(function(a,b){ return a + (b-meanV)*(b-meanV); }, 0) / n;
+    return meanV + 0.5*Math.sqrt(variance2);
+  }
+  function updateLiveSelection(){
+    var cap = document.getElementById('readingCaption');
+    if (!state.words.length){ cap.textContent = ''; return; }
+    var threshold = computeThreshold(state.words.map(function(w){ return w.v; }));
+    var selectedCount = 0;
+    state.words.forEach(function(w){
+      var sel = w.v > threshold;
+      if (sel) selectedCount++;
+      w.el.classList.toggle('is-selected', sel);
+    });
+    cap.innerHTML = '<strong>' + selectedCount + '</strong> of ' + state.words.length +
+      ' words currently brighter than this moment’s own average — highlighted below. Capture keeps this instant permanently.';
   }
 
   // ---------- painting ----------
@@ -1412,6 +1518,7 @@
     updateDisplayField();
     renderFieldCanvas();
     syncWordStyles();
+    updateLiveSelection();
     if (state.status === 'quiet' || state.status === 'flooded'){
       hideStateBanner();
       state.status = state.running ? 'running' : 'paused';
@@ -1461,6 +1568,7 @@
       }
       linesWrap.appendChild(lineEl);
     });
+    assignWordPositions();
     document.getElementById('poemTitle').textContent = state.poem.title || 'Untitled';
     document.getElementById('poemByline').textContent = state.poem.author ? ('— ' + state.poem.author) : '—';
   }
@@ -1486,12 +1594,17 @@
     var vals = [];
     snapshot.forEach(function(row){ row.forEach(function(w){ vals.push(w.v); }); });
     var n = vals.length || 1;
-    var meanV = vals.reduce(function(a,b){ return a+b; }, 0) / n;
-    var variance2 = vals.reduce(function(a,b){ return a + (b-meanV)*(b-meanV); }, 0) / n;
-    var threshold = meanV + 0.5*Math.sqrt(variance2);
+    // same threshold computeThreshold() uses for the live Reading panel,
+    // so capturing an instant always agrees with what was highlighted
+    // there a moment before.
+    var threshold = computeThreshold(vals);
     var selectedCount = 0;
     var selectedLines = snapshot.map(function(row){
-      var kept = row.filter(function(w){ return w.v > threshold; }).map(function(w){ return w.text; });
+      var kept = [];
+      row.forEach(function(w){
+        w.sel = w.v > threshold;
+        if (w.sel) kept.push(w.text);
+      });
       selectedCount += kept.length;
       return kept.join(' ');
     }).filter(function(line){ return line.length > 0; });
@@ -1589,14 +1702,10 @@
         } else {
           row.forEach(function(w){
             var span = document.createElement('span');
-            span.className = 'breath-word static';
+            span.className = 'breath-word static' + (w.sel ? ' is-selected' : '');
             span.textContent = w.text;
             span.style.setProperty('--wv', w.v.toFixed(3));
-            var cR=state.chanColor.R, cG=state.chanColor.G, cB=state.chanColor.B;
-            var cr=Math.min(255,w.r*cR[0]+w.g*cG[0]+w.b*cB[0]);
-            var cg=Math.min(255,w.r*cR[1]+w.g*cG[1]+w.b*cB[1]);
-            var cb=Math.min(255,w.r*cR[2]+w.g*cG[2]+w.b*cB[2]);
-            span.style.color = 'rgb('+(cr|0)+','+(cg|0)+','+(cb|0)+')';
+            span.style.color = computeWordColor(w.r, w.g, w.b);
             lineEl.appendChild(span);
           });
         }
@@ -1822,7 +1931,8 @@
       state.fieldWrap.addEventListener(evt, function(){ state.isPainting = false; });
     });
 
-    window.addEventListener('resize', function(){ syncWordStyles(); });
+    // no resize listener needed anymore: word field-positions are fixed
+    // at load time (assignWordPositions), not derived from DOM layout.
 
     loadPoem(pickRandomPoem());
     if (REDUCE_MOTION){
