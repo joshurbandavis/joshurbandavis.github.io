@@ -354,8 +354,13 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
             <button class="voice-btn" data-preset="bell">bell</button>
             <button class="voice-btn" data-preset="pad">pad</button>
             <button class="voice-btn" data-preset="blip">blip</button>
+            <button class="voice-btn" data-preset="tr808">TR-808</button>
+            <button class="voice-btn" data-preset="tb303">TB-303</button>
+            <button class="voice-btn" data-preset="modular">Modular</button>
+            <button class="voice-btn" data-preset="op1">OP-1</button>
           </div>
           <div style="margin-top:.6rem;font-size:.65rem;color:var(--dim)">opponent gets <span id="opponentVoiceLabel"></span> automatically</div>
+          <div style="margin-top:.4rem;font-size:.65rem;color:var(--dim)">picking a hardware skin below also switches your voice to match</div>
         </div>
       </div>
 
@@ -622,8 +627,34 @@ const PRESETS = {
     oscillator:{type:'square'},
     envelope:{attack:0.001, decay:0.1, sustain:0, release:0.15}
   }) },
+  // hardware-homage voices, keyed to match the skin ids so picking a skin can auto-select one
+  tr808: { label:'TR-808', build: () => new Tone.PolySynth(Tone.MembraneSynth, {
+    pitchDecay:0.05, octaves:4,
+    envelope:{attack:0.001, decay:0.35, sustain:0, release:0.4}
+  }) },
+  tb303: { label:'TB-303', build: () => new Tone.PolySynth(Tone.MonoSynth, {
+    oscillator:{type:'sawtooth'},
+    filter:{Q:10, type:'lowpass', rolloff:-24},
+    envelope:{attack:0.005, decay:0.2, sustain:0.1, release:0.25},
+    filterEnvelope:{attack:0.003, decay:0.25, sustain:0.05, release:0.3, baseFrequency:150, octaves:4}
+  }) },
+  modular: { label:'Modular', build: () => new Tone.PolySynth(Tone.MonoSynth, {
+    oscillator:{type:'sawtooth'},
+    filter:{Q:2, type:'lowpass', rolloff:-24},
+    envelope:{attack:0.02, decay:0.3, sustain:0.4, release:0.8},
+    filterEnvelope:{attack:0.05, decay:0.4, sustain:0.3, release:0.6, baseFrequency:200, octaves:3}
+  }) },
+  op1: { label:'OP-1', build: () => new Tone.PolySynth(Tone.FMSynth, {
+    harmonicity:2.5, modulationIndex:3,
+    oscillator:{type:'square'},
+    envelope:{attack:0.002, decay:0.15, sustain:0.15, release:0.2},
+    modulationEnvelope:{attack:0.002, decay:0.1, sustain:0, release:0.1}
+  }) },
 };
-const VOICE_COMPLEMENT = { pluck:'bell', bell:'pluck', pad:'blip', blip:'pad' };
+const VOICE_COMPLEMENT = {
+  pluck:'bell', bell:'pluck', pad:'blip', blip:'pad',
+  tr808:'tb303', tb303:'tr808', modular:'op1', op1:'modular',
+};
 let voicePresets = { red:'pluck', black:'bell' }; // matches the original fixed pairing by default
 
 function playColumn(col, time){
@@ -725,13 +756,14 @@ colorButtons.forEach(b => b.addEventListener('click', ()=>{
   render(); // refresh the "(you)"/"(opponent)" turn label
 }));
 
-voiceButtons.forEach(b => b.addEventListener('click', ()=>{
-  const key = b.dataset.preset;
+function setVoice(key){
   voicePresets[playerColor] = key;
   voicePresets[opponentOf(playerColor)] = VOICE_COMPLEMENT[key];
   rebuildSynths();
   updateVoiceUI();
-}));
+}
+
+voiceButtons.forEach(b => b.addEventListener('click', ()=>setVoice(b.dataset.preset)));
 
 startBtn.addEventListener('click', startAudio);
 tempoSlider.addEventListener('input', ()=>{
@@ -739,7 +771,9 @@ tempoSlider.addEventListener('input', ()=>{
 });
 document.getElementById('newGameBtn').addEventListener('click', resetGame);
 document.getElementById('skinSelect').addEventListener('change', (e)=>{
-  document.documentElement.dataset.skin = e.target.value;
+  const skin = e.target.value;
+  document.documentElement.dataset.skin = skin;
+  if(PRESETS[skin]) setVoice(skin); // hardware skins double as a matching voice preset
 });
 
 updateVoiceUI();
