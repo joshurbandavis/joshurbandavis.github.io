@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tree Rings (prototype) · A Collection of Strange Systems</title>
+<meta name="description" content="Prototype: a scroll-driven 3D tree-ring index for the experiments collection, flying inward through a drilled core sample, one growth ring per piece.">
+<meta name="robots" content="noindex">
+<link rel="apple-touch-icon" sizes="180x180" href="../logo_personalweb_favicon_io/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../logo_personalweb_favicon_io/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../logo_personalweb_favicon_io/favicon-16x16.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500&family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#050505;--fg:#ddd8d0;--dim:#5a564f;--dim2:#39362f;
+  --accent:#c8ff2e;--accent2:#ff5e5b;--accent3:#d4a843;
+  --serif:'Instrument Serif',Georgia,serif;
+  --mono:'Space Mono',monospace;
+  --sans:'Inter',system-ui,sans-serif;
+
+  --ring-color:#4e4736;
+  --ring-size:74vmin;
+  --ring-gap:820px; /* reset by JS on load/resize to a viewport-relative value */
+}
+
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+
+body{
+  font-family:var(--sans);
+  height:230rem;
+  background:var(--bg);
+  color:var(--fg);
+  touch-action:pan-y;
+}
+
+body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+a{color:inherit;text-decoration:none}
+::selection{background:var(--accent);color:var(--bg)}
+
+header{
+  position:fixed;
+  z-index:100;
+  top:0; left:0; right:0;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  padding:1.5rem clamp(1.25rem,4vw,3rem);
+  font-family:var(--mono);
+  font-size:.8rem;
+  letter-spacing:.02em;
+  pointer-events:none;
+}
+
+header a{pointer-events:auto}
+header a:hover{color:var(--accent)}
+
+.masthead{
+  text-align:right;
+  max-width:min(480px, 70vw);
+}
+
+.masthead-kicker{
+  color:var(--fg);
+  font-size:.75rem;
+  letter-spacing:.04em;
+  text-shadow:0 1px 12px rgba(0,0,0,.9), 0 1px 2px rgba(0,0,0,.95);
+}
+.masthead-kicker a:hover{color:var(--accent)}
+.masthead-kicker .sep{margin:0 .4em; color:rgba(221,216,208,.5)}
+
+.masthead-title{
+  font-family:'Bricolage Grotesque', var(--sans);
+  font-optical-sizing:auto;
+  font-style:normal;
+  font-weight:800;
+  font-size:clamp(1.9rem, 3.8vw, 3.1rem);
+  line-height:1.02;
+  letter-spacing:-.025em;
+  color:var(--fg);
+  margin-top:.3em;
+  text-shadow:0 4px 30px rgba(0,0,0,.9), 0 1px 3px rgba(0,0,0,.95);
+}
+
+@media screen and (max-width:767px){
+  .masthead{max-width:82vw}
+  .masthead-title{font-size:1.6rem}
+}
+
+.hint{
+  position:fixed;
+  z-index:100;
+  bottom:1.5rem;
+  right:clamp(1.25rem,4vw,3rem);
+  text-align:right;
+  font-family:var(--mono);
+  font-size:.72rem;
+  color:var(--dim);
+  pointer-events:none;
+}
+
+.hint .badge{
+  color:var(--bg);
+  background:var(--accent);
+  padding:.2em .5em;
+  border-radius:2px;
+  font-weight:700;
+  letter-spacing:.02em;
+  margin-right:.5em;
+}
+
+.core-label{
+  position:fixed;
+  z-index:100;
+  bottom:1.5rem;
+  left:clamp(1.25rem,4vw,3rem);
+  font-family:var(--mono);
+  font-size:.72rem;
+  color:var(--dim);
+  pointer-events:none;
+}
+.core-label b{color:var(--fg); font-weight:400}
+
+.scroll-cue{
+  position:fixed;
+  z-index:100;
+  bottom:1.5rem;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.35rem;
+  color:var(--dim);
+  font-family:var(--mono);
+  font-size:.68rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  pointer-events:none;
+  opacity:1;
+  transition:opacity 500ms ease;
+}
+.scroll-cue.hidden{opacity:0}
+.scroll-cue svg{animation:scrollBob 1.8s ease-in-out infinite}
+@keyframes scrollBob{
+  0%,100%{transform:translateY(0); opacity:.55}
+  50%{transform:translateY(6px); opacity:1}
+}
+@media (prefers-reduced-motion: reduce){
+  .scroll-cue svg{animation:none}
+}
+
+main{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  perspective:var(--tunnel-perspective, 88vmin);
+  perspective-origin:50% 50%;
+  background:var(--bg);
+  overflow:hidden;
+}
+
+#bg{position:absolute;inset:-1px;z-index:-1}
+
+.bg-layer{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  background-image:var(--piece-img,none);
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  transition:opacity 450ms ease;
+  will-change:opacity;
+}
+
+.bg-layer::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  /* darkest where the ring label actually sits (dead center), lighter
+     toward the edges - the piece's snapshot should read as ambient
+     texture around the text, not compete with it */
+  background:radial-gradient(circle at 50% 50%, rgba(5,5,5,.94), rgba(5,5,5,.55) 38%, rgba(5,5,5,.2) 75%);
+}
+
+/* the tunnel: every ring shares this one 3D context so their translateZ
+   values compare against each other correctly. #tunnel itself gets pushed
+   toward the viewer as you scroll - that's the "flying inward" motion -
+   rather than each ring moving independently. */
+#tunnel{
+  transform-style:preserve-3d;
+  position:relative;
+  width:0; height:0;
+  will-change:transform;
+}
+
+.ring{
+  position:absolute;
+  top:0; left:0;
+  width:0; height:0;
+  cursor:pointer;
+  pointer-events:none;
+  /* transform (translateZ, its real depth) is set per-frame in JS, not
+     here - see update()'s comment for why it can't be composed from a
+     shared parent offset. */
+}
+.ring.flush{pointer-events:auto}
+
+.ring-shape{
+  position:absolute;
+  top:50%; left:50%;
+  width:calc(var(--ring-size) * var(--jr, 1));
+  height:calc(var(--ring-size) * var(--jr, 1));
+  transform:translate(-50%,-50%);
+  border-radius:var(--wobble, 50%);
+  border:calc(2.4vmin * var(--jb, 1)) solid var(--ring-color);
+  opacity:var(--ring-opacity, 0);
+  box-shadow:0 0 0 1px rgba(5,5,5,.5) inset;
+  transition:border-color 400ms ease;
+}
+.ring.flush .ring-shape{border-color:var(--accent)}
+
+.ring-label{
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:min(64vmin, 560px);
+  text-align:center;
+  opacity:0;
+  transition:opacity 300ms ease;
+}
+.ring.flush .ring-label{opacity:1}
+
+/* a guaranteed-dark plate behind the text, independent of what's actually
+   behind it - the pith's own ring can be a solid, near-full-bleed accent
+   fill (light text directly on bright green is unreadable), and a
+   numbered ring's backdrop is a real snapshot image whose own brightness
+   varies piece to piece. Neither should be trusted to give the label
+   enough contrast on its own. */
+.ring-plate{
+  position:absolute;
+  inset:-0.85em -1.3em;
+  background:rgba(5,6,4,.74);
+  border-radius:999px;
+  backdrop-filter:blur(3px);
+  -webkit-backdrop-filter:blur(3px);
+  z-index:-1;
+}
+
+.ring-num{
+  display:block;
+  font-variant-numeric:tabular-nums;
+  font-family:var(--mono);
+  font-size:.85rem;
+  letter-spacing:.1em;
+  color:var(--accent3);
+  margin-bottom:.6em;
+}
+.ring.flush .ring-num{color:var(--accent)}
+
+.ring-text{display:grid}
+
+.ring-title{
+  grid-area:1 / 1;
+  font-family:var(--sans);
+  font-weight:700;
+  font-size:clamp(1.4rem, 3.4vmin, 2.1rem);
+  letter-spacing:-.01em;
+  color:var(--fg);
+  opacity:1;
+  transition:opacity 250ms ease;
+}
+.ring:hover .ring-title,
+.ring.expanded .ring-title{opacity:0}
+
+.ring-phrase{
+  grid-area:1 / 1;
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:clamp(1.15rem, 2.7vmin, 1.7rem);
+  line-height:1.3;
+  color:var(--fg);
+  opacity:0;
+  transition:opacity 250ms ease;
+}
+.ring:hover .ring-phrase,
+.ring.expanded .ring-phrase{opacity:1}
+
+@media screen and (max-width:767px){
+  :root{--ring-size:82vmin}
+  .ring-num{font-size:.68rem}
+  .ring-title{font-size:1.3rem}
+  .ring-phrase{font-size:1.1rem}
+  .hint,.core-label{font-size:.62rem}
+}
+
+@media screen and (min-width:1800px) and (min-height:1000px){
+  body{height:250rem}
+  .ring-title{font-size:2.3rem}
+  .ring-phrase{font-size:1.9rem}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="../index.html">JUD</a>
+  <div class="masthead">
+    <div class="masthead-kicker"><a href="index.html">experiments</a><span class="sep">/</span>tree rings</div>
+    <h1 class="masthead-title">a collection of strange systems</h1>
+  </div>
+</header>
+
+<main>
+  <div id="bg">
+    <div class="bg-layer" id="bg-a"></div>
+    <div class="bg-layer" id="bg-b" style="opacity:0"></div>
+  </div>
+
+  <div id="tunnel">
+
+    <a class="ring" data-cls="grid" href="index.html" style="--i:0">
+      <div class="ring-shape" style="--jr:.16; --jb:1.6"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">pith</span>
+        <div class="ring-text"><span class="ring-title">the grid</span><span class="ring-phrase">Every piece, side by side.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="cellular-erasure" data-img="_shared/snapshots/cellular-erasure.jpg" href="cellular-erasure/index.html" target="_blank" rel="noopener" style="--i:1">
+      <div class="ring-shape" style="--jr:.98; --jb:1.1; --wobble:51% 49% 50% 48% / 49% 51% 48% 50%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 01</span>
+        <div class="ring-text"><span class="ring-title">cellular erasure</span><span class="ring-phrase">A poem is just the words the system didn't erase.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="creep" data-img="_shared/snapshots/creep.jpg" href="creep/index.html" target="_blank" rel="noopener" style="--i:2">
+      <div class="ring-shape" style="--jr:1.05; --jb:.85; --wobble:49% 51% 48% 50% / 50% 48% 51% 49%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 02</span>
+        <div class="ring-text"><span class="ring-title">creep</span><span class="ring-phrase">Something older is quietly overtaking this page, forever.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="internet-is-haunted" data-img="_shared/snapshots/internet-is-haunted.jpg" href="internet-is-haunted/index.html" target="_blank" rel="noopener" style="--i:3">
+      <div class="ring-shape" style="--jr:.94; --jb:1.25; --wobble:50% 48% 51% 49% / 48% 50% 49% 51%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 03</span>
+        <div class="ring-text"><span class="ring-title">the internet is haunted</span><span class="ring-phrase">What's left of a link after the page is gone?</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="please-wait" data-img="_shared/snapshots/please-wait.jpg" href="please-wait/index.html" target="_blank" rel="noopener" style="--i:4">
+      <div class="ring-shape" style="--jr:1.02; --jb:.95; --wobble:51% 49% 49% 51% / 49% 51% 50% 48%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 04</span>
+        <div class="ring-text"><span class="ring-title">please wait</span><span class="ring-phrase">A progress bar that was never going to finish.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="decay" data-img="_shared/snapshots/decay.jpg" href="decay/index.html" target="_blank" rel="noopener" style="--i:5">
+      <div class="ring-shape" style="--jr:.9; --jb:1.4; --wobble:49% 51% 50% 48% / 51% 49% 48% 50%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 05</span>
+        <div class="ring-text"><span class="ring-title">decay</span><span class="ring-phrase">A homepage that only ever learns how to disappear.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="no-one-in-particular" data-img="_shared/snapshots/no-one-in-particular.jpg" href="no-one-in-particular/index.html" target="_blank" rel="noopener" style="--i:6">
+      <div class="ring-shape" style="--jr:1.06; --jb:.9; --wobble:50% 50% 48% 51% / 50% 49% 51% 49%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 06</span>
+        <div class="ring-text"><span class="ring-title">no one in particular</span><span class="ring-phrase">An obituary, written for someone who never lived.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="the-occupant" data-img="_shared/snapshots/the-occupant.jpg" href="the-occupant/index.html" target="_blank" rel="noopener" style="--i:7">
+      <div class="ring-shape" style="--jr:.96; --jb:1.15; --wobble:48% 50% 51% 49% / 51% 50% 49% 48%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 07</span>
+        <div class="ring-text"><span class="ring-title">the occupant</span><span class="ring-phrase">Something small is trapped in here, and it knows it.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="mutate" data-img="_shared/snapshots/mutate.jpg" href="mutate/index.html" target="_blank" rel="noopener" style="--i:8">
+      <div class="ring-shape" style="--jr:1.01; --jb:1; --wobble:51% 48% 49% 51% / 49% 50% 51% 48%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 08</span>
+        <div class="ring-text"><span class="ring-title">mutate</span><span class="ring-phrase">Forty possible mutations, each one stacked on the last.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="untended" data-img="_shared/snapshots/untended.jpg" href="untended/index.html" target="_blank" rel="noopener" style="--i:9">
+      <div class="ring-shape" style="--jr:.92; --jb:1.3; --wobble:49% 50% 50% 51% / 48% 51% 49% 50%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 09</span>
+        <div class="ring-text"><span class="ring-title">untended</span><span class="ring-phrase">A painting that remembers exactly how long you left it alone.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="bacterial-bloom" data-img="_shared/snapshots/bacterial-bloom.jpg" href="bacterial-bloom/index.html" target="_blank" rel="noopener" style="--i:10">
+      <div class="ring-shape" style="--jr:1.04; --jb:.88; --wobble:50% 51% 48% 49% / 51% 48% 50% 49%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 10</span>
+        <div class="ring-text"><span class="ring-title">bacterial bloom</span><span class="ring-phrase">A poem grown like a culture, not typed like one.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="checker-sequencer" data-img="_shared/snapshots/checker-sequencer.jpg" href="checker-sequencer/index.html" target="_blank" rel="noopener" style="--i:11">
+      <div class="ring-shape" style="--jr:.97; --jb:1.2; --wobble:48% 49% 51% 50% / 50% 51% 48% 49%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 11</span>
+        <div class="ring-text"><span class="ring-title">checker sequencer</span><span class="ring-phrase">Every move you make, the board sings back.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="chess-sequencer" data-img="_shared/snapshots/chess-sequencer.jpg" href="chess-sequencer/index.html" target="_blank" rel="noopener" style="--i:12">
+      <div class="ring-shape" style="--jr:1; --jb:1.5; --wobble:49% 51% 49% 51% / 50% 49% 51% 50%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 12 &middot; bark</span>
+        <div class="ring-text"><span class="ring-title">chess sequencer</span><span class="ring-phrase">Six pieces, six instruments, always mid-song.</span></div>
+      </div>
+    </a>
+
+  </div>
+</main>
+
+<div class="core-label">core sample &middot; <b>pith → bark</b></div>
+<div class="hint"><span class="badge">prototype</span>hover the centered ring to read it</div>
+
+<div class="scroll-cue" id="scrollCue" aria-hidden="true">
+  <svg width="16" height="24" viewBox="0 0 16 24" fill="none">
+    <path d="M8 1v18" stroke="currentColor" stroke-width="1.4"/>
+    <path d="M2 15l6 6 6-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span>scroll to descend</span>
+</div>
+
+<script>
+const tunnel = document.querySelector('#tunnel');
+const bgA = document.querySelector('#bg-a');
+const bgB = document.querySelector('#bg-b');
+let activeBg = bgA;
+let activeImg = '';
+let activeCls = '';
+
+const swapBackground = (cls, img) => {
+  const targetImg = img ? `url(${img})` : 'none';
+  if (targetImg === activeImg && cls === activeCls) return;
+  activeImg = targetImg;
+  activeCls = cls;
+
+  const next = activeBg === bgA ? bgB : bgA;
+  next.style.setProperty('--piece-img', targetImg);
+  next.style.opacity = '1';
+  activeBg.style.opacity = '0';
+  activeBg = next;
+};
+
+const rings = Array.from(document.querySelectorAll('.ring'));
+const SCROLL_PER_RING = 230; // px of scroll to travel one ring's worth of depth
+
+let ringGap = 820;
+let cachedScrollY = window.scrollY;
+const isMobile = window.matchMedia('(pointer: coarse)').matches;
+
+if (isMobile) {
+  const hintText = document.querySelector('.hint');
+  hintText.lastChild.textContent = 'tap to read, tap again to open';
+}
+
+let hoveredCls = null;
+
+rings.forEach(ring => {
+  const { cls, img } = ring.dataset;
+  if (!isMobile) {
+    ring.addEventListener('mouseenter', () => {
+      hoveredCls = cls;
+      swapBackground(cls, img);
+    });
+    ring.addEventListener('mouseleave', () => {
+      if (hoveredCls === cls) hoveredCls = null;
+    });
+  } else {
+    ring.addEventListener('click', (e) => {
+      if (!ring.classList.contains('expanded')) {
+        e.preventDefault();
+        rings.forEach(r => r.classList.remove('expanded'));
+        ring.classList.add('expanded');
+      }
+    });
+  }
+});
+
+// Every ring sits at a fixed depth (--i * -ringGap) inside #tunnel, and
+// #tunnel itself gets pushed toward the viewer as you scroll. A ring's
+// *effective* depth right now is its fixed depth plus that shared push -
+// whichever ring's effective depth lands closest to the "sweet spot" (a
+// little in front of the lens, not jammed against it) is "flush": the one
+// currently framing the view, the only one with pointer-events and legible
+// text. Each ring also fades in from the dark as it approaches and fades
+// out once it's passed, rather than a hard on/off switch, since unlike the
+// staircase's separate steps, every ring here shares the same screen point.
+const SWEET_SPOT = 0.14; // fraction of ringGap "past" the lens, where a ring reads largest without clipping
+
+const scrollCue = document.getElementById('scrollCue');
+
+const update = () => {
+  const y = cachedScrollY;
+  const pushZ = y * (ringGap / SCROLL_PER_RING);
+  // #tunnel itself stays untransformed - see the note by depth below for why.
+
+  if (scrollCue) scrollCue.classList.toggle('hidden', y > 40);
+
+  let best = null, bestDist = Infinity;
+  rings.forEach(ring => {
+    const i = parseFloat(ring.style.getPropertyValue('--i'));
+    const depth = pushZ - i * ringGap; // effective Z of this ring right now
+    const dist = Math.abs(depth - ringGap * SWEET_SPOT);
+    if (dist < bestDist) { bestDist = dist; best = ring; }
+
+    // Each ring's own translateZ is set directly to its true effective
+    // depth, computed in JS, rather than composed from a moving parent
+    // (#tunnel translateZ(pushZ)) plus a fixed per-ring offset. Over a
+    // long scroll pushZ alone grows into the thousands of px - many times
+    // the perspective distance - and a preserve-3d parent whose own
+    // matrix has gone that far "past the eye" can make browsers cull its
+    // entire subtree, even for children whose *net* composed position is
+    // perfectly sane. Setting each ring's real depth directly sidesteps
+    // that: no single transform in the tree ever needs to carry the raw,
+    // unbounded scroll distance.
+    ring.style.transform = `translateZ(${depth}px)`;
+
+    // fade: 0 far in the distance, 1 near the sweet spot, back to 0 once
+    // it's swept past toward the camera
+    const t = 1 - Math.min(1, dist / (ringGap * 2.6));
+    const opacity = Math.max(0, t);
+    ring.style.setProperty('--ring-opacity', opacity.toFixed(3));
+
+    // A ring that's fully faded still has a real (and, over a long scroll,
+    // eventually extreme) translateZ applied even at opacity 0 - CSS 3D
+    // transforms go degenerate once a Z value approaches or passes the
+    // perspective distance, and that's been enough to blank the whole
+    // frame in testing, not just that one ring. So fully-faded rings are
+    // removed from rendering outright rather than just made transparent.
+    ring.style.display = opacity > 0.002 ? '' : 'none';
+  });
+
+  rings.forEach(r => r.classList.toggle('flush', r === best));
+  if (!hoveredCls && best) {
+    swapBackground(best.dataset.cls, best.dataset.img);
+  }
+};
+
+let rafPending = false;
+window.addEventListener('scroll', () => {
+  cachedScrollY = window.scrollY;
+  if (!rafPending) {
+    rafPending = true;
+    requestAnimationFrame(() => { update(); rafPending = false; });
+  }
+}, { passive: true });
+
+const recomputeGap = () => {
+  ringGap = Math.max(560, Math.min(window.innerWidth, window.innerHeight) * 0.92);
+  document.documentElement.style.setProperty('--ring-gap', ringGap + 'px');
+
+  // perspective has to be a comfortable multiple of ringGap, not just
+  // "some big-looking vmin value" picked independently of it - a ring's
+  // translateZ approaching (let alone passing) the perspective distance
+  // is a real singularity in the projection math, and letting that
+  // happen was blanking the whole tunnel, not just that one ring (see
+  // the note in update()). At 4.5x ringGap, even a ring 2-3 gaps out
+  // from flush - already faded near-invisible - stays well short of it.
+  const perspectivePx = ringGap * 4.5;
+  document.documentElement.style.setProperty('--tunnel-perspective', perspectivePx + 'px');
+
+  update();
+};
+
+window.addEventListener('resize', recomputeGap);
+
+recomputeGap();
+</script>
+
+</body>
+</html>

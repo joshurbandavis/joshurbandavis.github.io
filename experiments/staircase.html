@@ -34,7 +34,7 @@ html{scroll-behavior:smooth}
 
 body{
   font-family:var(--sans);
-  height:180rem;
+  height:190rem;
   background:var(--bg);
   color:var(--fg);
   touch-action:pan-y;
@@ -309,7 +309,7 @@ main{
 
 @media screen and (max-width:767px){
   :root{--step-height:120px}
-  body{height:190rem}
+  body{height:200rem}
   .step{padding:0 .375rem}
   .riser{grid-template-columns:1.75rem 1fr; column-gap:.6rem; background:var(--bg)}
   .step-num{font-size:.7rem}
@@ -318,7 +318,6 @@ main{
   .tread,.bottom{height:14rem}
   .outer-end,.inner-end{width:14rem}
   .back,.bottom{display:none}
-  .bg-layer{display:none}
   .hint{font-size:.62rem}
 }
 
@@ -353,6 +352,18 @@ main{
       <div class="riser">
         <span class="step-num"></span>
         <div class="riser-text"><span class="step-title">the grid</span><span class="step-phrase">Every piece, side by side.</span></div>
+      </div>
+      <div class="tread"></div>
+      <div class="outer-end"></div>
+      <div class="inner-end"></div>
+      <div class="back"></div>
+      <div class="bottom"></div>
+    </a>
+
+    <a class="step" data-cls="tree-rings" data-img="_shared/snapshots/tree-rings.jpg" href="tree-rings.html" target="_blank" rel="noopener" style="--i:13">
+      <div class="riser">
+        <span class="step-num">13</span>
+        <div class="riser-text"><span class="step-title">tree rings</span><span class="step-phrase">The other way in: fly down a core sample instead of climbing.</span></div>
       </div>
       <div class="tread"></div>
       <div class="outer-end"></div>
