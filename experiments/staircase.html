@@ -121,22 +121,77 @@ header a:hover{color:var(--accent)}
   margin-right:.5em;
 }
 
+/* A soft fade at the bottom edge of the viewport, so whatever's below the
+   current step reads as cut off / continuing into shadow rather than the
+   frame just ending - a cue that there's more, without needing the exact
+   next step to land pixel-perfectly in that strip. */
+.bottom-fade{
+  position:fixed;
+  z-index:50;
+  inset:auto 0 0 0;
+  height:22vh;
+  background:linear-gradient(to bottom, transparent, var(--bg) 88%);
+  pointer-events:none;
+}
+
+.depth-rail{
+  position:fixed;
+  z-index:100;
+  top:50%;
+  right:clamp(1rem,3vw,2rem);
+  transform:translateY(-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.6rem;
+  pointer-events:none;
+}
+
+.depth-count{
+  font-family:var(--mono);
+  font-size:.62rem;
+  letter-spacing:.06em;
+  color:var(--fg);
+  text-shadow:0 1px 8px rgba(0,0,0,.9), 0 1px 2px rgba(0,0,0,.95);
+  white-space:nowrap;
+}
+
+.depth-track{
+  width:2px;
+  height:110px;
+  background:rgba(221,216,208,.18);
+  border-radius:2px;
+  overflow:hidden;
+}
+
+.depth-fill{
+  width:100%;
+  height:0%;
+  background:var(--accent);
+  box-shadow:0 0 8px rgba(200,255,46,.55);
+  transition:height 150ms linear;
+}
+
+@media screen and (max-width:767px){
+  .depth-rail{display:none}
+}
+
 .scroll-cue{
   position:fixed;
   z-index:100;
-  bottom:2rem;
+  bottom:2.25rem;
   left:50%;
   transform:translateX(-50%);
   display:flex;
   flex-direction:column-reverse;
   align-items:center;
-  gap:.45rem;
-  color:var(--fg);
-  text-shadow:0 2px 16px rgba(0,0,0,.9), 0 1px 3px rgba(0,0,0,.95);
+  gap:.5rem;
+  color:var(--accent);
+  text-shadow:0 2px 16px rgba(0,0,0,.95), 0 1px 3px rgba(0,0,0,1), 0 0 20px rgba(200,255,46,.35);
   font-family:var(--mono);
-  font-size:.85rem;
+  font-size:.95rem;
   font-weight:700;
-  letter-spacing:.1em;
+  letter-spacing:.12em;
   text-transform:uppercase;
   pointer-events:none;
   opacity:1;
@@ -145,11 +200,11 @@ header a:hover{color:var(--accent)}
 .scroll-cue.hidden{opacity:0}
 .scroll-cue svg{
   animation:scrollBob 1.6s ease-in-out infinite;
-  filter:drop-shadow(0 2px 10px rgba(0,0,0,.85));
+  filter:drop-shadow(0 2px 10px rgba(0,0,0,.9)) drop-shadow(0 0 14px rgba(200,255,46,.5));
 }
 @keyframes scrollBob{
-  0%,100%{transform:translateY(0); opacity:.7}
-  50%{transform:translateY(-10px); opacity:1}
+  0%,100%{transform:translateY(0) scale(1); opacity:.75}
+  50%{transform:translateY(-12px) scale(1.12); opacity:1}
 }
 @media (prefers-reduced-motion: reduce){
   .scroll-cue svg{animation:none}
@@ -398,7 +453,7 @@ main{
       <div class="bottom"></div>
     </a>
 
-    <a class="step" data-cls="tree-rings" data-img="_shared/snapshots/tree-rings.jpg" href="tree-rings.html" target="_blank" rel="noopener" style="--i:11.143">
+    <a class="step" data-cls="tree-rings" data-img="_shared/snapshots/tree-rings.jpg" href="tree-rings.html" target="_blank" rel="noopener" style="--i:12">
       <div class="riser">
         <span class="step-num"></span>
         <div class="riser-text"><span class="step-title">tunnel eyes</span><span class="step-phrase">The other way in — fly down a core sample.</span></div>
@@ -557,14 +612,21 @@ main{
   </div>
 </main>
 
+<div class="bottom-fade" aria-hidden="true"></div>
+
 <div class="hint"><span class="badge">prototype</span>hover a step to read it</div>
 
 <div class="scroll-cue" id="scrollCue" aria-hidden="true">
-  <svg width="22" height="32" viewBox="0 0 16 24" fill="none">
-    <path d="M8 23V5" stroke="currentColor" stroke-width="1.8"/>
-    <path d="M2 9l6-6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <svg width="28" height="40" viewBox="0 0 16 24" fill="none">
+    <path d="M8 23V5" stroke="currentColor" stroke-width="2"/>
+    <path d="M2 9l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
   <span>scroll to climb</span>
+</div>
+
+<div class="depth-rail" aria-hidden="true">
+  <span class="depth-count" id="depthCount">01 / 12</span>
+  <div class="depth-track"><div class="depth-fill" id="depthFill"></div></div>
 </div>
 
 <script>
@@ -646,6 +708,9 @@ const findFlushStep = (groupAngle) => {
 };
 
 const scrollCue = document.getElementById('scrollCue');
+const depthCount = document.getElementById('depthCount');
+const depthFill = document.getElementById('depthFill');
+const TOTAL_STEPS = 12;
 
 const update = () => {
   const y = cachedScrollY;
@@ -658,6 +723,13 @@ const update = () => {
   steps.forEach(s => s.classList.toggle('flush', s === flush));
   if (!hoveredCls && flush) {
     swapBackground(flush.dataset.cls, flush.dataset.img);
+  }
+
+  if (flush && depthCount && depthFill) {
+    const numText = flush.querySelector('.step-num').textContent.trim();
+    const idx = numText ? parseInt(numText, 10) : TOTAL_STEPS;
+    depthCount.textContent = numText ? `${numText} / ${TOTAL_STEPS}` : 'index';
+    depthFill.style.height = `${(idx / TOTAL_STEPS) * 100}%`;
   }
 };
 
@@ -676,6 +748,22 @@ window.addEventListener('resize', () => {
 });
 
 update();
+
+// A one-time physical demonstration: nudge the scroll down and back on
+// load so the staircase visibly responds once, teaching the interaction
+// instead of just describing it. Skipped if the visitor's already moved
+// (don't fight a real scroll) or if they've asked for reduced motion.
+if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  setTimeout(() => {
+    if (window.scrollY > 4) return;
+    window.scrollTo({ top: 70, behavior: 'smooth' });
+    setTimeout(() => {
+      if (window.scrollY > 4 && window.scrollY < 90) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 700);
+  }, 1000);
+}
 </script>
 
 </body>
