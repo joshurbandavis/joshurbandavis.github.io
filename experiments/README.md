@@ -312,6 +312,58 @@ behavioral art. Each lives in its own folder as a self-contained page.
     gallery-card copy updated to describe the split rather than the old
     single-canvas look.
 
+  **v4 — the poem composes and erases itself, word by word, permanently.**
+  The user's own proposal, in response to being asked how the reading
+  should actually display: fade words in and out, or let newly-stable
+  words be chosen or erased as the dish moves. Both ideas, not one -
+  fading stays for anything undecided; composition is layered on top of
+  it, verified as a real property of the simulation before it became a
+  feature.
+  - **Verified in Node first: the dish never settles, but individual
+    points regularly do, for a while.** Tracked 150 fixed sample points
+    (the same virtual-grid layout `assignWordPositions()` uses) under
+    the shipped Bloom preset, and checked, at each point, whether its
+    last 15 steps held inside a 0.02 range. The *instantaneous* stable
+    fraction never really grows - it oscillates around 3-15%, since a
+    point that goes quiet can always get disturbed again later by a
+    passing chaser. But locking a point the *first* time it ever
+    qualifies, permanently, gives a real, unforced composition curve:
+    17% locked by step 30 (~6s), 57% by step 100 (~20s), 92% by step 400
+    (~80s) - and a couple of points that still hadn't locked after 800
+    steps, sitting in a permanently contested spot. That asymmetry -
+    most of it finishes, a little of it never does - wasn't tuned in.
+  - **A word locks the first moment its own neighborhood holds still,
+    decided as kept or erased by the live threshold at that instant,
+    then never re-samples again.** `syncWordStyles()` now skips locked
+    words entirely; `updateLiveSelection()` tracks a rolling 15-step
+    history per still-unlocked word and calls `lockWord()` the moment
+    its range drops under 0.02. Erased words get cellular-erasure's own
+    `.covered` treatment verbatim (`background:var(--ink)`, transparent
+    text) - which is theme-relative, not literally black, exactly like
+    the sibling piece already does, confirmed by checking
+    `cellular-erasure/index.html`'s own `.covered` rule rather than
+    assuming; a first look at a dark-mode screenshot could easily have
+    been mistaken for a bug otherwise.
+  - **Painting revives a locked word.** Deposit mass within 4 field
+    cells of an already-settled word's position and it unlocks, clears
+    its history, and re-enters the negotiation - the one way to contest
+    a decision besides starting over completely.
+  - **Reading caption now reports the actual composition state**: how
+    many words have settled, the kept/erased split, how many are still
+    deciding, and how many of those are currently ahead - not just a
+    single live percentage.
+  - Captures now carry `locked`/`lockedBright` per word and render with
+    the same permanent classes the live reading uses, and the threshold
+    a fresh capture computes excludes already-locked words (their fate
+    was decided when they settled, not re-judged against a new snapshot)
+    - `captureBreath()` and `renderCaptures()` both updated together so
+    the archive can't drift out of sync with what locking actually means.
+  - Verified via a 25-second-virtual-time headless screenshot of the
+    real page (not just the Node prototype): a live composition caption
+    ("64 of 85 words have settled permanently, 7 kept, 57 erased - 21
+    still deciding"), visible redaction blocks and permanent highlights,
+    no console errors.
+
 - `decay/` — a full copy of `index.html` that permanently deletes one real,
   randomly-chosen piece of itself with every visit, anywhere (the direct
   temporary.cc reference). Real destruction — actual DOM `.remove()`, not a

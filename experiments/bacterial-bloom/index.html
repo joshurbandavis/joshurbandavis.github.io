@@ -287,6 +287,27 @@
     background:color-mix(in srgb, var(--accent) 14%, transparent);
     box-shadow:inset 0 -2px 0 color-mix(in srgb, var(--accent) 55%, transparent);
   }
+  /* A word locks the first time its own neighborhood holds still for a
+     stretch - permanently, one-way, decided as bright (kept) or dim
+     (erased) by the live threshold at that instant. Locked words stop
+     animating entirely (transition:none) - that stillness is the whole
+     point, it's what "locked" means, visually as well as functionally. */
+  .breath-word.is-locked{ transition:none; }
+  .breath-word.is-locked.is-bright{
+    opacity:1;
+    filter:none;
+    transform:none;
+    background:color-mix(in srgb, var(--accent) 14%, transparent);
+    box-shadow:inset 0 -2px 0 color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  .breath-word.is-locked.is-erased{
+    opacity:1;
+    filter:none;
+    transform:none;
+    background:var(--ink);
+    color:transparent;
+    box-shadow:none;
+  }
   .breath-word.static{ transition:none; }
   .reduce-motion .breath-word{
     transition-duration:.08s;
@@ -537,7 +558,7 @@
 
   <header>
     <h1>Bacterial Bloom</h1>
-    <p id="headerDesc">The sibling of <a href="../cellular-erasure/index.html">Cellular Erasure</a>, run on <a href="https://en.wikipedia.org/wiki/Lenia" target="_blank" rel="noopener noreferrer">Lenia</a> instead of Conway's Game of Life. Three colonies now, not one: red, green and blue, each running its own growth equation, each preying on the next in a closed loop (red eats green, green eats blue, blue eats red), so the colors are real populations chasing each other, not a coat of paint. <strong>Click or drag on the dish to paint mass</strong> into whichever colony is selected in the Paint panel; turn on <strong>Evolve</strong> and the dish periodically tries a small mutation to its own growth rules, keeping it only if it produces a more textured, more alive-looking dish. The dish and the poem used to be the same pixels, the words printed directly over the moving field, both changing at once, fighting for the same look. They're split apart now: the dish above is just the living thing, watch it or paint it; the reading below is always live too, words brightening and dimming with whatever's under their own fixed spot in the dish, with today's brightest words highlighted as they happen. <strong>Capture this bloom</strong> just files away whatever that reading looks like right now into a dated, permanent list. Nothing here holds still long enough to be finished, only long enough to be caught.</p>
+    <p id="headerDesc">The sibling of <a href="../cellular-erasure/index.html">Cellular Erasure</a>, run on <a href="https://en.wikipedia.org/wiki/Lenia" target="_blank" rel="noopener noreferrer">Lenia</a> instead of Conway's Game of Life. Three colonies now, not one: red, green and blue, each running its own growth equation, each preying on the next in a closed loop (red eats green, green eats blue, blue eats red), so the colors are real populations chasing each other, not a coat of paint. <strong>Click or drag on the dish to paint mass</strong> into whichever colony is selected in the Paint panel; turn on <strong>Evolve</strong> and the dish periodically tries a small mutation to its own growth rules, keeping it only if it produces a more textured, more alive-looking dish. The dish as a whole never settles, but a word's own small neighborhood sometimes does, and the reading below catches that: the first moment a word's spot in the dish holds still for a while, that word locks permanently, kept or blacked out depending on whether it was bright or dim right then. Paint over a locked word to contest it back open. Nothing here has to be finished for you to read it, but piece by piece, most of it eventually is.</p>
   </header>
 
   <div class="workspace">
@@ -569,7 +590,7 @@
         <div class="sheet-caption" id="sheetCaption"></div>
 
         <div class="reading-zone">
-          <div class="zone-label">The reading &mdash; live, not just what you capture</div>
+          <div class="zone-label">The reading &mdash; composing itself, one settled word at a time</div>
           <div class="reading-caption" id="readingCaption"></div>
           <div class="poem-lines" id="poemLines"></div>
         </div>
@@ -685,7 +706,7 @@
 
   <div class="captures">
     <h2>Captured blooms &mdash; the archive</h2>
-    <div class="caption">The Reading above already shows a live Selected highlight every step, so nothing here is the only place to see a poem. This is the archive instead: every Capture is a permanent, dated copy of one instant, kept even after the dish moves on from it.</div>
+    <div class="caption">The Reading above already composes and erases itself permanently, word by word, so nothing here is the only place a poem exists. This is the archive instead: every Capture is a dated copy of the whole reading at one instant &mdash; settled words and all &mdash; kept even after the dish moves past it.</div>
     <p class="capture-empty" id="captureEmpty">No captures yet.</p>
     <div class="capture-list" id="captureList"></div>
   </div>
@@ -1265,6 +1286,7 @@
     state.floodStreak = 0;
     state.status = 'seeded';
     hideStateBanner();
+    resetLocks();
     updateDisplayField();
     renderFieldCanvas();
     syncWordStyles();
@@ -1281,6 +1303,7 @@
     state.quietStreak = 0; state.floodStreak = 0;
     state.status = 'seeded';
     hideStateBanner();
+    resetLocks();
     updateDisplayField();
     renderFieldCanvas();
     syncWordStyles();
@@ -1467,6 +1490,7 @@
     if (!state.words.length || !state.displayField) return;
     for (var i=0; i<state.words.length; i++){
       var w = state.words[i];
+      if (w.locked) continue; // decided - frozen, no longer sampled or restyled
       var vr = sampleOne(state.displayField.R, w.fx, w.fy);
       var vg = sampleOne(state.displayField.G, w.fx, w.fy);
       var vb = sampleOne(state.displayField.B, w.fx, w.fy);
@@ -1478,27 +1502,79 @@
     }
   }
 
-  // ---------- live selection - the same threshold Capture uses, kept
-  // running continuously so the Reading panel always shows which words
-  // are "the poem right now," not only at the instant you click Capture ----------
+  // ---------- composition: words lock permanently, one at a time, the
+  // first moment their own neighborhood holds still ----------
+  // Verified in Node before wiring this in: the dish as a whole never
+  // settles, but individual sample points regularly go locally flat for
+  // a stretch, even while other points keep moving - tracking 150 fixed
+  // points under the shipped Bloom preset and locking irreversibly the
+  // first time a 15-step window holds under 0.02 range gave a real,
+  // unforced composition curve (17% locked by step 30, 57% by step 100,
+  // 92% by step 400) that never quite reaches 100% - a couple of points
+  // sat in a permanently contested spot and never stopped moving even
+  // after 800 steps. That's not tuned to look that way, it's what the
+  // simulation actually does.
+  var LOCK_WINDOW = 15;
+  var LOCK_EPS = 0.02;
+
   function computeThreshold(values){
     var n = values.length || 1;
     var meanV = values.reduce(function(a,b){ return a+b; }, 0) / n;
     var variance2 = values.reduce(function(a,b){ return a + (b-meanV)*(b-meanV); }, 0) / n;
     return meanV + 0.5*Math.sqrt(variance2);
   }
+  function lockWord(w, bright){
+    w.locked = true;
+    w.lockedBright = bright;
+    w.el.classList.remove('is-selected');
+    w.el.classList.add('is-locked', bright ? 'is-bright' : 'is-erased');
+    if (!bright) w.el.style.color = ''; // let the redaction rule take over instead of freezing the last dim tint
+  }
+  function resetLocks(){
+    state.words.forEach(function(w){
+      w.locked = false;
+      w.lockedBright = false;
+      w.history = [];
+      w.el.classList.remove('is-locked', 'is-bright', 'is-erased', 'is-selected');
+    });
+  }
   function updateLiveSelection(){
     var cap = document.getElementById('readingCaption');
     if (!state.words.length){ cap.textContent = ''; return; }
-    var threshold = computeThreshold(state.words.map(function(w){ return w.v; }));
+
+    var unlocked = state.words.filter(function(w){ return !w.locked; });
+    var threshold = computeThreshold(unlocked.map(function(w){ return w.v; }));
     var selectedCount = 0;
-    state.words.forEach(function(w){
+    unlocked.forEach(function(w){
       var sel = w.v > threshold;
       if (sel) selectedCount++;
       w.el.classList.toggle('is-selected', sel);
+      w.history.push(w.v);
+      if (w.history.length > LOCK_WINDOW) w.history.shift();
+      if (w.history.length === LOCK_WINDOW){
+        var mn = Infinity, mx = -Infinity;
+        for (var k=0; k<w.history.length; k++){
+          if (w.history[k] < mn) mn = w.history[k];
+          if (w.history[k] > mx) mx = w.history[k];
+        }
+        if ((mx-mn) < LOCK_EPS) lockWord(w, w.v > threshold);
+      }
     });
-    cap.innerHTML = '<strong>' + selectedCount + '</strong> of ' + state.words.length +
-      ' words currently brighter than this moment’s own average — highlighted below. Capture keeps this instant permanently.';
+
+    var lockedWords = state.words.filter(function(w){ return w.locked; });
+    var brightLocked = lockedWords.filter(function(w){ return w.lockedBright; }).length;
+    var stillDeciding = state.words.length - lockedWords.length;
+    if (lockedWords.length === 0){
+      cap.innerHTML = '<strong>' + selectedCount + '</strong> of ' + state.words.length +
+        ' words currently brighter than this moment’s own average, highlighted below. The first to hold still will start locking in permanently.';
+    } else if (stillDeciding === 0){
+      cap.innerHTML = 'Settled: <strong>' + brightLocked + '</strong> kept, <strong>' + (lockedWords.length-brightLocked) +
+        '</strong> erased. Nothing left undecided.';
+    } else {
+      cap.innerHTML = '<strong>' + lockedWords.length + '</strong> of ' + state.words.length + ' words have settled permanently (' +
+        brightLocked + ' kept, ' + (lockedWords.length-brightLocked) + ' erased) — ' + stillDeciding +
+        ' still deciding, ' + selectedCount + ' of them currently ahead.';
+    }
   }
 
   // ---------- painting ----------
@@ -1510,11 +1586,22 @@
     if (fy<0) fy=0; else if (fy>1) fy=1;
     return { x: fx*FW, y: fy*FH };
   }
+  var REVIVE_RADIUS = 4; // field cells - painting this close to a locked word revives it
   function paintAt(clientX, clientY){
     if (!state.field) return;
     var p = fieldCoordsFromEvent(clientX, clientY);
     stampBlobInto(state.field[state.paintChannel], p.x, p.y, 2.6, 0.85);
     state.targetMass[state.paintChannel] = sumOf(state.field[state.paintChannel]);
+    // painting near an already-settled word contests it back open, on
+    // purpose - the one way to unsettle a decision besides starting over
+    state.words.forEach(function(w){
+      if (!w.locked) return;
+      var dx = w.fx*FW - p.x, dy = w.fy*FH - p.y;
+      if (Math.sqrt(dx*dx+dy*dy) <= REVIVE_RADIUS){
+        w.locked = false; w.lockedBright = false; w.history = [];
+        w.el.classList.remove('is-locked', 'is-bright', 'is-erased');
+      }
+    });
     updateDisplayField();
     renderFieldCanvas();
     syncWordStyles();
@@ -1563,7 +1650,8 @@
           span.textContent = word;
           span.style.setProperty('--wv', '0.35');
           lineEl.appendChild(span);
-          state.words.push({ el: span, row: r, col: c, text: word, r: 0.2, g: 0.2, b: 0.2, v: 0.2 });
+          state.words.push({ el: span, row: r, col: c, text: word, r: 0.2, g: 0.2, b: 0.2, v: 0.2,
+            history: [], locked: false, lockedBright: false });
         });
       }
       linesWrap.appendChild(lineEl);
@@ -1588,21 +1676,25 @@
     var snapshot = state.rows.map(function(row){
       return row.map(function(word){
         var w = state.words[idx++];
-        return { text: word, v: w ? w.v : 0, r: w?w.r:0, g: w?w.g:0, b: w?w.b:0 };
+        return { text: word, v: w?w.v:0, r: w?w.r:0, g: w?w.g:0, b: w?w.b:0,
+          locked: w?w.locked:false, lockedBright: w?w.lockedBright:false };
       });
     });
-    var vals = [];
-    snapshot.forEach(function(row){ row.forEach(function(w){ vals.push(w.v); }); });
-    var n = vals.length || 1;
-    // same threshold computeThreshold() uses for the live Reading panel,
-    // so capturing an instant always agrees with what was highlighted
-    // there a moment before.
-    var threshold = computeThreshold(vals);
+    var n = 0;
+    snapshot.forEach(function(row){ n += row.length; });
+    // same threshold computeThreshold() uses for the live Reading panel
+    // (over still-unlocked words only), so capturing an instant always
+    // agrees with what was highlighted there a moment before. A locked
+    // word's fate was already decided permanently when it settled, not
+    // re-judged against this fresh snapshot's threshold.
+    var unlockedVals = [];
+    snapshot.forEach(function(row){ row.forEach(function(w){ if (!w.locked) unlockedVals.push(w.v); }); });
+    var threshold = computeThreshold(unlockedVals);
     var selectedCount = 0;
     var selectedLines = snapshot.map(function(row){
       var kept = [];
       row.forEach(function(w){
-        w.sel = w.v > threshold;
+        w.sel = w.locked ? w.lockedBright : (w.v > threshold);
         if (w.sel) kept.push(w.text);
       });
       selectedCount += kept.length;
@@ -1702,10 +1794,13 @@
         } else {
           row.forEach(function(w){
             var span = document.createElement('span');
-            span.className = 'breath-word static' + (w.sel ? ' is-selected' : '');
+            var cls = 'breath-word static';
+            if (w.locked) cls += ' is-locked ' + (w.lockedBright ? 'is-bright' : 'is-erased');
+            else if (w.sel) cls += ' is-selected';
+            span.className = cls;
             span.textContent = w.text;
             span.style.setProperty('--wv', w.v.toFixed(3));
-            span.style.color = computeWordColor(w.r, w.g, w.b);
+            if (!(w.locked && !w.lockedBright)) span.style.color = computeWordColor(w.r, w.g, w.b);
             lineEl.appendChild(span);
           });
         }
