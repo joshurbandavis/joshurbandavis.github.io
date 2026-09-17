@@ -49,12 +49,22 @@ const ALLOWED_ORIGINS = [
   'https://joshurbandavis.github.io',
   'https://joshurbandavis.com',
   'https://www.joshurbandavis.com',
+  // GitHub Pages doesn't enforce HTTPS on the custom domain, so real visits
+  // land on the plain-http origin too — allow it rather than silently
+  // failing every request from anyone who lands there (mostly first-time
+  // mobile visits with no cached HTTPS preference for the domain).
+  'http://joshurbandavis.com',
+  'http://www.joshurbandavis.com',
 ];
 
 function corsHeaders(origin) {
-  const allow = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  // No match: return no Access-Control-Allow-Origin header at all, rather
+  // than falling back to some other allowed origin — a mismatched header
+  // fails the browser's CORS check anyway, so returning one was never
+  // actually permissive, just misleading to read.
+  if (!ALLOWED_ORIGINS.includes(origin)) return {};
   return {
-    'Access-Control-Allow-Origin': allow,
+    'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Vary': 'Origin',

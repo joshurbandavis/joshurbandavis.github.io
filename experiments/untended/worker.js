@@ -53,6 +53,12 @@ const ALLOWED_ORIGINS = [
   'https://joshurbandavis.github.io',
   'https://joshurbandavis.com',
   'https://www.joshurbandavis.com',
+  // GitHub Pages doesn't enforce HTTPS on the custom domain, so real visits
+  // land on the plain-http origin too — allow it rather than silently
+  // failing every request from anyone who lands there (mostly first-time
+  // mobile visits with no cached HTTPS preference for the domain).
+  'http://joshurbandavis.com',
+  'http://www.joshurbandavis.com',
 ];
 
 const STATE_KEY = 'garden-state';
