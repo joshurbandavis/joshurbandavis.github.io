@@ -35,6 +35,13 @@
    - fungal.jpg   -- Eugen Gramberg, "Pilze der Heimat" (1913), Tafel 6, "Samtfuss-
                       Krempling, Paxillus atrotomentosus." Public domain (1913, Quelle &
                       Meyer, Leipzig); digitized by the Biodiversity Heritage Library.
+   The Deep Sea and Fungal pieces themselves (not just the page background) are also cut
+   from real plates, in experiments/_shared/textures/pieces/:
+   - deepsea-*.jpg -- Ernst Haeckel, "Kunstformen der Natur" (1904), Tafel 49 "Actiniae"
+                      (sea anemones). Same public-domain LOC scan as above
+                      (loc.gov/pnp/ds.05318), individual specimens cropped out.
+   - fungal-*.jpg  -- Eugen Gramberg, "Pilze der Heimat" (1913), several plates (Tafel 3,
+                      13, 15, 38, 45), each a different species, cropped to one specimen.
    Attribution isn't legally required for any of these (public domain / CC0) but is
    included anyway. (Clockwork skin removed -- it broke reliably in practice.) ---- */
 :root[data-skin="light"]{
@@ -285,50 +292,134 @@ h1 em{font-style:italic;color:var(--accent)}
 .piece.pulse{animation:pulse .3s ease}
 @keyframes pulse{0%{filter:brightness(2.1)}100%{filter:brightness(1)}}
 
-/* piece style per skin: shape and finish, not just color */
-[data-skin="light"] .piece{box-shadow:0 2px 6px rgba(0,0,0,.18)}
-[data-skin="neon"] .piece.red{box-shadow:0 0 14px 2px var(--accent2),inset 0 2px 4px rgba(255,255,255,.25)}
-[data-skin="neon"] .piece.black{box-shadow:0 0 14px 2px var(--accent3),inset 0 2px 4px rgba(255,255,255,.15)}
+/* piece style per skin: shape and finish, not just color -- every skin below changes
+   the actual silhouette or material of the piece, not just its palette. Where a skin
+   repurposes .piece::before for something other than the turned ring (tb303's knob
+   indicator, modular's jack hole), that's safe: data-skin is a single value, so only
+   one skin's override is ever active, and none of them touch .piece.king::after, which
+   stays independent so the crown keeps working on every skin. */
+[data-skin="dark"] .piece{
+  clip-path:polygon(50% 2%,98% 50%,50% 98%,2% 50%);
+  box-shadow:0 0 0 1px rgba(255,255,255,.18),0 4px 12px rgba(0,0,0,.7);
+}
+
+[data-skin="light"] .piece{box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 3px 8px rgba(0,0,0,.18),0 0 0 1px rgba(0,0,0,.06)}
+[data-skin="light"] .piece::before{border-style:dashed;border-color:rgba(0,0,0,.18);box-shadow:none}
+
+[data-skin="neon"] .piece{box-shadow:inset 0 0 0 2px rgba(255,255,255,.1)}
+[data-skin="neon"] .piece.red{box-shadow:inset 0 0 0 2px rgba(255,255,255,.15),0 0 8px 1px var(--accent2),0 0 20px 4px rgba(255,77,216,.45)}
+[data-skin="neon"] .piece.black{box-shadow:inset 0 0 0 2px rgba(255,255,255,.1),0 0 8px 1px var(--accent3),0 0 20px 4px rgba(180,109,255,.4)}
+
 [data-skin="alien"] .piece{
   border-radius:62% 38% 55% 45% / 55% 45% 58% 42%;
   animation:alienPiecePulse 2.2s ease-in-out infinite;
 }
-@keyframes alienPiecePulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.35)}}
+@keyframes alienPiecePulse{
+  0%,100%{filter:brightness(1) hue-rotate(0deg)}
+  50%{filter:brightness(1.35) hue-rotate(30deg)}
+}
+
+/* tr808: a glowing rubber drum pad, not a disc */
 [data-skin="tr808"] .piece{
-  border-radius:5px;
-  box-shadow:inset 0 2px 3px rgba(255,255,255,.12),inset 0 -3px 6px rgba(0,0,0,.6),0 2px 4px rgba(0,0,0,.5);
+  border-radius:6px;
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.15),inset 0 -4px 8px rgba(0,0,0,.65),0 0 0 2px rgba(0,0,0,.4),0 2px 4px rgba(0,0,0,.5);
 }
+[data-skin="tr808"] .piece.red{box-shadow:inset 0 2px 3px rgba(255,255,255,.15),inset 0 -4px 8px rgba(0,0,0,.65),0 0 0 2px rgba(0,0,0,.4),0 0 12px -1px var(--accent2)}
+[data-skin="tr808"] .piece.black{box-shadow:inset 0 2px 3px rgba(255,255,255,.1),inset 0 -4px 8px rgba(0,0,0,.7),0 0 0 2px rgba(0,0,0,.4),0 0 12px -1px var(--accent3)}
+
+/* tb303: a metal-cream rotary knob -- .piece::before becomes the indicator line instead
+   of the turned ring, since this skin's face is a knob, not an engraved disc */
 [data-skin="tb303"] .piece{
-  box-shadow:inset 0 3px 6px rgba(255,255,255,.35),inset 0 -4px 8px rgba(0,0,0,.35),0 3px 8px rgba(0,0,0,.3);
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.6),inset 0 -3px 6px rgba(0,0,0,.25),0 3px 8px rgba(0,0,0,.3);
 }
+[data-skin="tb303"] .piece.red{background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--accent2) 25%,white),var(--accent2) 55%,color-mix(in srgb,var(--accent2) 70%,black) 100%)}
+[data-skin="tb303"] .piece.black{background:radial-gradient(circle at 35% 30%,#555,#242424 55%,#0a0a0a 100%)}
+[data-skin="tb303"] .piece::before{
+  content:'';position:absolute;top:10%;left:50%;width:3px;height:30%;inset:auto;
+  background:rgba(0,0,0,.55);border-radius:2px;transform:translateX(-50%);
+  border:none;box-shadow:0 0 1px rgba(255,255,255,.4);
+}
+
+/* modular: a Eurorack patch jack -- brass ring stays, .piece::before becomes the socket */
 [data-skin="modular"] .piece{
   border:2px solid var(--accent3);
   box-shadow:inset 0 2px 4px rgba(255,255,255,.2),inset 0 -3px 6px rgba(0,0,0,.5);
 }
-[data-skin="op1"] .piece.red{background:var(--accent2);box-shadow:0 0 0 1px rgba(0,0,0,.12)}
-[data-skin="op1"] .piece.black{background:var(--dim2);box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+[data-skin="modular"] .piece.red{background:radial-gradient(circle at 40% 35%,color-mix(in srgb,var(--accent2) 30%,#3a2a1a),#1b1310 75%)}
+[data-skin="modular"] .piece.black{background:radial-gradient(circle at 40% 35%,#3a2a1a,#0e0906 75%)}
+[data-skin="modular"] .piece::before{
+  content:'';position:absolute;inset:38%;border-radius:50%;
+  background:#0c0805;box-shadow:inset 0 2px 3px rgba(0,0,0,.8),0 1px 0 rgba(255,255,255,.12);
+  border:1px solid rgba(212,168,67,.45);
+}
 
-[data-skin="deepsea"] .piece{opacity:.92;animation:deepseaRipple 3s ease-in-out infinite}
-[data-skin="deepsea"] .piece.red{box-shadow:0 0 16px 4px rgba(255,110,199,.6),inset 0 2px 6px rgba(255,255,255,.3),inset 0 -4px 8px rgba(0,0,0,.4)}
-[data-skin="deepsea"] .piece.black{box-shadow:0 0 16px 4px rgba(41,230,201,.5),inset 0 2px 6px rgba(255,255,255,.25),inset 0 -4px 8px rgba(0,0,0,.4)}
-@keyframes deepseaRipple{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3)}}
+/* op1: flat, bold, iconographic -- a rotated accent mark instead of a wood-grain ring */
+[data-skin="op1"] .piece{box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+[data-skin="op1"] .piece.red{background:var(--accent2)}
+[data-skin="op1"] .piece.black{background:var(--dim2)}
+[data-skin="op1"] .piece::before{
+  content:'';position:absolute;inset:32%;border-radius:2px;
+  background:rgba(255,255,255,.85);border:none;box-shadow:none;transform:rotate(45deg);
+}
+[data-skin="op1"] .piece.black::before{background:rgba(255,255,255,.65)}
 
+/* deepsea: real Haeckel Actiniae (sea anemone) plates as the piece face, tinted per
+   color; kinged pieces switch to the plate's most dramatic specimen. Color is baked
+   directly into each color's own keyframes (not a separate static filter) since an
+   animated property always wins over a same-property static declaration for as long
+   as the animation runs -- a static hue-rotate here would get silently overwritten
+   every cycle instead of blending with the animation, the same class of bug the king
+   crown's glow hit earlier. */
+[data-skin="deepsea"] .piece{
+  background-image:url(../_shared/textures/pieces/deepsea-piece.jpg);
+  background-size:cover;background-position:center;
+}
+[data-skin="deepsea"] .piece.king{background-image:url(../_shared/textures/pieces/deepsea-king.jpg)}
+[data-skin="deepsea"] .piece.red{
+  box-shadow:0 0 16px 4px rgba(255,110,199,.6),inset 0 2px 6px rgba(255,255,255,.3),inset 0 -4px 8px rgba(0,0,0,.4);
+  animation:deepseaRippleRed 3s ease-in-out infinite;
+}
+[data-skin="deepsea"] .piece.black{
+  box-shadow:0 0 16px 4px rgba(41,230,201,.5),inset 0 2px 6px rgba(255,255,255,.25),inset 0 -4px 8px rgba(0,0,0,.4);
+  animation:deepseaRippleBlack 3s ease-in-out infinite;
+}
+@keyframes deepseaRippleRed{
+  0%,100%{filter:saturate(1.3) hue-rotate(-8deg) brightness(.95)}
+  50%{filter:saturate(1.3) hue-rotate(-8deg) brightness(1.2)}
+}
+@keyframes deepseaRippleBlack{
+  0%,100%{filter:saturate(1.1) hue-rotate(150deg) brightness(.72)}
+  50%{filter:saturate(1.1) hue-rotate(150deg) brightness(.92)}
+}
+
+/* glitch: the jitter now also punches jump-cut clip-path slices, not just a translate,
+   plus a scanline overlay on the (still-independent) ring pseudo-element */
 [data-skin="glitch"] .piece{
   animation:glitchJitter 2.4s steps(1) infinite;
   box-shadow:-2px 0 0 rgba(255,0,60,.5),2px 0 0 rgba(0,255,234,.5),inset 0 2px 4px rgba(255,255,255,.15),inset 0 -3px 6px rgba(0,0,0,.5);
 }
+[data-skin="glitch"] .piece::before{background:repeating-linear-gradient(0deg,rgba(255,255,255,.1) 0 1px,transparent 1px 3px)}
 @keyframes glitchJitter{
-  0%,89%,100%{transform:translate(0,0)}
-  90%{transform:translate(-2px,1px)}
-  92%{transform:translate(2px,-1px)}
-  94%{transform:translate(-1px,0)}
-  96%{transform:translate(0,0)}
+  0%,89%,100%{transform:translate(0,0);clip-path:inset(0 0 0 0)}
+  90%{transform:translate(-3px,1px);clip-path:inset(10% 0 40% 0)}
+  91%{transform:translate(2px,-2px);clip-path:inset(55% 0 5% 0)}
+  92%{transform:translate(2px,-1px);clip-path:inset(0 0 0 0)}
+  94%{transform:translate(-1px,0);clip-path:inset(30% 0 20% 0)}
+  96%{transform:translate(0,0);clip-path:inset(0 0 0 0)}
 }
 
+/* fungal: real Pilze der Heimat mushroom plates as the piece face; kings switch to the
+   plate's darkest, most dramatic specimen. No animation runs on .piece here, so a plain
+   static filter per color is safe (nothing will fight it, unlike deepsea above). */
 [data-skin="fungal"] .piece{
+  background-image:url(../_shared/textures/pieces/fungal-piece.jpg);
+  background-size:cover;background-position:center;
   border-radius:50% 50% 46% 46% / 62% 62% 38% 38%;
   box-shadow:inset 0 3px 5px rgba(255,255,255,.12),inset 0 -4px 8px rgba(0,0,0,.35),0 2px 6px rgba(0,0,0,.3);
 }
+[data-skin="fungal"] .piece.king{background-image:url(../_shared/textures/pieces/fungal-king.jpg)}
+[data-skin="fungal"] .piece.red{filter:saturate(1.2) hue-rotate(-6deg) brightness(1.05)}
+[data-skin="fungal"] .piece.black{filter:saturate(.85) brightness(.62) contrast(1.15)}
 
 .sweep-bar{
   position:absolute;top:0;bottom:0;width:12.5%;left:0;

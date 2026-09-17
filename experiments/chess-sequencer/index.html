@@ -36,6 +36,13 @@
    - fungal.jpg   -- Eugen Gramberg, "Pilze der Heimat" (1913), Tafel 6, "Samtfuss-
                       Krempling, Paxillus atrotomentosus." Public domain (1913, Quelle &
                       Meyer, Leipzig); digitized by the Biodiversity Heritage Library.
+   The Deep Sea and Fungal pieces themselves (not just the page background) are also cut
+   from real plates, one specimen per piece TYPE, in experiments/_shared/textures/pieces/:
+   - deepsea-*.jpg -- Ernst Haeckel, "Kunstformen der Natur" (1904), Tafel 49 "Actiniae"
+                      (sea anemones). Same public-domain LOC scan as above
+                      (loc.gov/pnp/ds.05318), six individual specimens cropped out.
+   - fungal-*.jpg  -- Eugen Gramberg, "Pilze der Heimat" (1913), several plates (Tafel 3,
+                      13, 15, 38, 45), each a different species, cropped to one specimen.
    Attribution isn't legally required for any of these (public domain / CC0) but is
    included anyway. (Clockwork skin removed -- it broke reliably in practice.) ---- */
 :root[data-skin="light"]{
@@ -277,33 +284,105 @@ h1 em{font-style:italic;color:var(--accent)}
 .piece-glyph.pulse{animation:pulse .3s ease}
 @keyframes pulse{0%{filter:brightness(1.8)}100%{filter:brightness(1)}}
 
-/* piece style per skin: glow/shadow finish, since glyph shape itself can't change */
+/* piece style per skin: the glyph itself can't change shape (it's the actual chess
+   symbol), so each skin instead redresses the "coin" behind it -- .piece-glyph::before
+   -- into a different material, plus a filter/animation to match. Deep Sea and Fungal
+   go further and put a real cropped plate behind each piece TYPE specifically (see the
+   PIECE_GLYPH-adjacent 'type' class added in render()), so a pawn and a queen show two
+   different specimens, not just two different colors of the same one. */
+[data-skin="dark"] .piece-glyph::before{
+  clip-path:polygon(50% 2%,98% 50%,50% 98%,2% 50%);border-radius:0;
+  background:rgba(255,255,255,.05);box-shadow:0 0 0 1px rgba(255,255,255,.16);
+}
+[data-skin="dark"] .piece-glyph{filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
+
+[data-skin="light"] .piece-glyph::before{
+  background:rgba(0,0,0,.025);
+  box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 0 0 1px rgba(0,0,0,.08),0 2px 5px rgba(0,0,0,.12);
+}
+
+[data-skin="neon"] .piece-glyph::before{background:radial-gradient(ellipse at 30% 25%,rgba(255,255,255,.2),transparent 60%)}
+[data-skin="neon"] .piece-glyph.white::before{box-shadow:inset 0 0 0 1px rgba(255,255,255,.2),0 0 14px 2px rgba(77,252,255,.5)}
+[data-skin="neon"] .piece-glyph.black::before{box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 0 14px 2px rgba(180,109,255,.45)}
 [data-skin="neon"] .piece-glyph.white{filter:drop-shadow(0 0 6px rgba(77,252,255,.6))}
 [data-skin="neon"] .piece-glyph.black{filter:drop-shadow(0 0 6px rgba(255,77,216,.5))}
+
 [data-skin="alien"] .piece-glyph{animation:alienGlyphPulse 2.2s ease-in-out infinite}
-@keyframes alienGlyphPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.4)}}
+[data-skin="alien"] .piece-glyph::before{
+  border-radius:62% 38% 55% 45% / 55% 45% 58% 42%;
+  background:radial-gradient(ellipse at 35% 30%,rgba(125,255,179,.25),transparent 65%);
+}
+@keyframes alienGlyphPulse{
+  0%,100%{filter:brightness(1) hue-rotate(0deg)}
+  50%{filter:brightness(1.4) hue-rotate(30deg)}
+}
+
+[data-skin="tr808"] .piece-glyph::before{
+  border-radius:6px;background:rgba(0,0,0,.35);
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.12),inset 0 -3px 6px rgba(0,0,0,.5),0 0 8px -1px var(--accent2);
+}
 [data-skin="tr808"] .piece-glyph{filter:drop-shadow(0 0 4px rgba(255,106,0,.4))}
+
+[data-skin="tb303"] .piece-glyph::before{
+  background:radial-gradient(circle at 35% 30%,#fff,#ccc 50%,#888 100%);
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.6),inset 0 -3px 5px rgba(0,0,0,.25);
+}
 [data-skin="tb303"] .piece-glyph{filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
+
+[data-skin="modular"] .piece-glyph::before{
+  background:radial-gradient(circle at 40% 35%,#3a2a1a,#0e0906 75%);
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.15),inset 0 -3px 5px rgba(0,0,0,.6),0 0 0 2px var(--accent3);
+}
 [data-skin="modular"] .piece-glyph{filter:drop-shadow(0 1px 1px rgba(0,0,0,.45))}
+
+[data-skin="op1"] .piece-glyph::before{background:rgba(0,0,0,.06);box-shadow:0 0 0 1px rgba(0,0,0,.1)}
 [data-skin="op1"] .piece-glyph.white,[data-skin="op1"] .piece-glyph.black{-webkit-text-stroke-width:1px}
 
+/* deepsea: real Haeckel Actiniae (sea anemone) specimens, one per piece type. Color tint
+   lives on ::before's own filter (independent of the glyph's own drop-shadow animation
+   below -- they're different boxes, so nothing fights over the `filter`/`animation`
+   property the way the king-glow bug did) so it never gets clobbered by the glow pulse. */
+[data-skin="deepsea"] .piece-glyph::before{background-size:cover;background-position:center}
+[data-skin="deepsea"] .piece-glyph.pawn::before{background-image:url(../_shared/textures/pieces/deepsea-pawn.jpg)}
+[data-skin="deepsea"] .piece-glyph.knight::before{background-image:url(../_shared/textures/pieces/deepsea-knight.jpg)}
+[data-skin="deepsea"] .piece-glyph.bishop::before{background-image:url(../_shared/textures/pieces/deepsea-bishop.jpg)}
+[data-skin="deepsea"] .piece-glyph.rook::before{background-image:url(../_shared/textures/pieces/deepsea-rook.jpg)}
+[data-skin="deepsea"] .piece-glyph.queen::before{background-image:url(../_shared/textures/pieces/deepsea-queen.jpg)}
+[data-skin="deepsea"] .piece-glyph.king::before{background-image:url(../_shared/textures/pieces/deepsea-king.jpg)}
+[data-skin="deepsea"] .piece-glyph.white::before{filter:saturate(1.3) hue-rotate(-8deg) brightness(1.05)}
+[data-skin="deepsea"] .piece-glyph.black::before{filter:saturate(1.1) hue-rotate(150deg) brightness(.65) contrast(1.1)}
 [data-skin="deepsea"] .piece-glyph.white{animation:deepseaGlyphWhite 3s ease-in-out infinite}
 [data-skin="deepsea"] .piece-glyph.black{animation:deepseaGlyphBlack 3s ease-in-out infinite}
 @keyframes deepseaGlyphWhite{0%,100%{filter:drop-shadow(0 0 6px rgba(255,110,199,.4))}50%{filter:drop-shadow(0 0 10px rgba(255,110,199,.7))}}
 @keyframes deepseaGlyphBlack{0%,100%{filter:drop-shadow(0 0 6px rgba(41,230,201,.35))}50%{filter:drop-shadow(0 0 10px rgba(41,230,201,.6))}}
 
+/* glitch: the jitter now also punches jump-cut clip-path slices, and the coin gets a
+   scanline overlay */
 [data-skin="glitch"] .piece-glyph{
   animation:glitchGlyphJitter 2.4s steps(1) infinite;
   text-shadow:-2px 0 rgba(255,0,60,.6),2px 0 rgba(0,255,234,.6);
 }
+[data-skin="glitch"] .piece-glyph::before{background:repeating-linear-gradient(0deg,rgba(255,255,255,.08) 0 1px,transparent 1px 3px)}
 @keyframes glitchGlyphJitter{
-  0%,89%,100%{transform:translate(0,0)}
-  90%{transform:translate(-2px,1px)}
-  92%{transform:translate(2px,-1px)}
-  94%{transform:translate(-1px,0)}
-  96%{transform:translate(0,0)}
+  0%,89%,100%{transform:translate(0,0);clip-path:inset(0 0 0 0)}
+  90%{transform:translate(-3px,1px);clip-path:inset(10% 0 40% 0)}
+  91%{transform:translate(2px,-2px);clip-path:inset(55% 0 5% 0)}
+  92%{transform:translate(2px,-1px);clip-path:inset(0 0 0 0)}
+  94%{transform:translate(-1px,0);clip-path:inset(30% 0 20% 0)}
+  96%{transform:translate(0,0);clip-path:inset(0 0 0 0)}
 }
 
+/* fungal: real Pilze der Heimat mushroom plates, one species per piece type. No
+   animation runs on these elements, so a plain static filter is safe here. */
+[data-skin="fungal"] .piece-glyph::before{background-size:cover;background-position:center}
+[data-skin="fungal"] .piece-glyph.pawn::before{background-image:url(../_shared/textures/pieces/fungal-pawn.jpg)}
+[data-skin="fungal"] .piece-glyph.knight::before{background-image:url(../_shared/textures/pieces/fungal-knight.jpg)}
+[data-skin="fungal"] .piece-glyph.bishop::before{background-image:url(../_shared/textures/pieces/fungal-bishop.jpg)}
+[data-skin="fungal"] .piece-glyph.rook::before{background-image:url(../_shared/textures/pieces/fungal-rook.jpg)}
+[data-skin="fungal"] .piece-glyph.queen::before{background-image:url(../_shared/textures/pieces/fungal-queen.jpg)}
+[data-skin="fungal"] .piece-glyph.king::before{background-image:url(../_shared/textures/pieces/fungal-king.jpg)}
+[data-skin="fungal"] .piece-glyph.white::before{filter:saturate(1.15) brightness(1.05)}
+[data-skin="fungal"] .piece-glyph.black::before{filter:saturate(.8) brightness(.55) contrast(1.2)}
 [data-skin="fungal"] .piece-glyph{filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
 
 .sweep-bar{
@@ -815,7 +894,7 @@ function render(){
     const piece = board[r][c];
     if(piece){
       const pEl = document.createElement('div');
-      pEl.className = 'piece-glyph ' + piece.color;
+      pEl.className = 'piece-glyph ' + piece.color + ' ' + piece.type;
       pEl.textContent = PIECE_GLYPH[piece.type];
       if(selected && selected.r===r && selected.c===c) pEl.classList.add('selected');
       pEl.dataset.r = r; pEl.dataset.c = c;
