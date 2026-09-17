@@ -23,7 +23,22 @@
 }
 
 /* ---- skins: everything below only ever overrides the tokens above (plus a few
-   signature touches per skin) -- component rules never hardcode a skin's colors ---- */
+   signature touches per skin) -- component rules never hardcode a skin's colors ----
+   Four skins (Modular, Deep Sea, Fungal, Clockwork) use real public-domain imagery,
+   downloaded locally rather than hotlinked, in experiments/_shared/textures/:
+   - wood.jpg     -- "Artificial wood grain texture.jpg", John Harvey, public domain
+                      https://commons.wikimedia.org/wiki/File:Artificial_wood_grain_texture.jpg
+   - deepsea.jpg  -- Ernst Haeckel, "Kunstformen der Natur" (1904), Tafel 8
+                      "Discomedusae -- Scheibenquallen" (disc jellyfish). Public domain
+                      (Haeckel d. 1919); scanned by the Library of Congress Prints &
+                      Photographs Division (loc.gov/pnp/ds.05316), no known restrictions.
+   - fungal.jpg   -- Eugen Gramberg, "Pilze der Heimat" (1913), Tafel 6, "Samtfuss-
+                      Krempling, Paxillus atrotomentosus." Public domain (1913, Quelle &
+                      Meyer, Leipzig); digitized by the Biodiversity Heritage Library.
+   - gears.jpg    -- "Gears (20437315996).jpg", Joe deSousa, CC0
+                      https://commons.wikimedia.org/wiki/File:Gears_(20437315996).jpg
+   Attribution isn't legally required for any of these (public domain / CC0) but is
+   included anyway. ---- */
 :root[data-skin="light"]{
   --bg:#f6f2ea;--fg:#211f1a;--dim:#8b8577;--dim2:#d8d2c4;
   --accent:#2f6b3d;--accent2:#b3392b;--accent3:#a67c2e;
@@ -111,11 +126,15 @@
   --accent:#d4a843;--accent2:#b5651d;--accent3:#8a6a3e;
   --light-sq:#3a2a1a;--dark-sq:#1b1310;
 }
-[data-skin="modular"] body{background:repeating-linear-gradient(90deg,#1b1310 0 3px,#221810 3px 6px)}
+[data-skin="modular"] body{
+  background:linear-gradient(rgba(15,10,6,.82),rgba(15,10,6,.88)),url(../_shared/textures/wood.jpg);
+  background-size:auto,600px;background-repeat:repeat,repeat;
+}
 [data-skin="modular"] .panel{--fg:#2a1f14;--dim:#6b5636;--bg:#efe6d2;background:#efe6d2;border-color:#8a6a3e;color:var(--fg)}
 [data-skin="modular"] .device-frame{
   max-width:960px;padding:2.2rem 2rem;margin:0 auto;border-radius:8px;
-  background:repeating-linear-gradient(90deg,#4a3320 0 6px,#3a2818 6px 12px);
+  background:linear-gradient(rgba(20,14,8,.55),rgba(20,14,8,.7)),url(../_shared/textures/wood.jpg);
+  background-size:cover;
   box-shadow:0 40px 80px -30px rgba(0,0,0,.85),inset 0 0 0 3px rgba(212,168,67,.35),inset 0 1px 0 rgba(255,255,255,.08);
 }
 [data-skin="modular"] .device-label{
@@ -148,8 +167,12 @@
   --light-sq:#0d2b38;--dark-sq:#041018;
 }
 [data-skin="deepsea"] body{background-image:
-  radial-gradient(circle at 20% 30%,rgba(41,230,201,.06),transparent 40%),
-  radial-gradient(circle at 80% 70%,rgba(255,110,199,.05),transparent 45%);
+  radial-gradient(circle at 20% 30%,rgba(41,230,201,.08),transparent 40%),
+  radial-gradient(circle at 80% 70%,rgba(255,110,199,.06),transparent 45%),
+  linear-gradient(rgba(2,10,18,.72),rgba(2,10,18,.8)),
+  url(../_shared/textures/deepsea.jpg);
+  background-size:auto,auto,auto,cover;
+  background-position:center,center,center,center 15%;
 }
 [data-skin="deepsea"] .panel{background:rgba(10,37,48,.55);backdrop-filter:blur(8px);border-color:rgba(41,230,201,.25);box-shadow:0 0 24px -14px rgba(41,230,201,.35)}
 [data-skin="deepsea"] .board{box-shadow:0 0 50px -16px rgba(41,230,201,.4)}
@@ -170,9 +193,12 @@
   --light-sq:#232a18;--dark-sq:#12160c;
 }
 [data-skin="fungal"] body{background-image:
-  radial-gradient(circle at 15% 25%,rgba(143,170,107,.05),transparent 35%),
-  radial-gradient(circle at 70% 60%,rgba(201,168,106,.04),transparent 40%),
-  radial-gradient(circle at 40% 85%,rgba(155,107,158,.04),transparent 30%);
+  radial-gradient(circle at 15% 25%,rgba(143,170,107,.07),transparent 35%),
+  radial-gradient(circle at 70% 60%,rgba(201,168,106,.05),transparent 40%),
+  radial-gradient(circle at 40% 85%,rgba(155,107,158,.05),transparent 30%),
+  linear-gradient(rgba(10,14,8,.82),rgba(10,14,8,.88)),
+  url(../_shared/textures/fungal.jpg);
+  background-size:auto,auto,auto,auto,cover;
 }
 [data-skin="fungal"] .panel{border-radius:18px 10px 18px 10px;border-color:rgba(143,170,107,.25)}
 [data-skin="fungal"] .board{border-radius:12px}
@@ -182,7 +208,13 @@
   --accent:#c9a227;--accent2:#b56a3c;--accent3:#7a8a8a;
   --light-sq:#2e2820;--dark-sq:#151109;
 }
-[data-skin="clockwork"] body{background-image:radial-gradient(rgba(201,162,39,.08) 1px,transparent 1px);background-size:24px 24px}
+[data-skin="clockwork"] body{
+  background-image:
+    radial-gradient(rgba(201,162,39,.1) 1px,transparent 1px),
+    linear-gradient(rgba(20,17,12,.85),rgba(20,17,12,.9)),
+    url(../_shared/textures/gears.jpg);
+  background-size:24px 24px,auto,cover;
+}
 [data-skin="clockwork"] .panel{border-radius:6px;border-color:rgba(201,162,39,.35)}
 [data-skin="clockwork"] .board{border-radius:6px}
 
@@ -741,8 +773,16 @@ const PRESETS = {
     oscillator:{type:'square'},
     envelope:{attack:0.001, decay:0.04, sustain:0, release:0.03}
   }) },
-  fungal: { label:'Fungal', build: () => new Tone.PolySynth(Tone.PluckSynth, {
-    attackNoise:0.5, dampening:3500, resonance:0.85
+  // was Tone.PluckSynth (Karplus-Strong): it extends Instrument, not Monophonic, and
+  // Tone.PolySynth's constructor asserts "voice instanceof Monophonic" synchronously --
+  // wrapping it threw immediately on build, and since rebuildSynths() disposes the old
+  // synths *before* that throw, both sides were left disposed and broken. MonoSynth with
+  // a fast-closing filter gives a comparable soft, damp "wood knock" and is PolySynth-safe.
+  fungal: { label:'Fungal', build: () => new Tone.PolySynth(Tone.MonoSynth, {
+    oscillator:{type:'triangle'},
+    filter:{Q:1, type:'lowpass', rolloff:-24},
+    envelope:{attack:0.005, decay:0.3, sustain:0, release:0.4},
+    filterEnvelope:{attack:0.01, decay:0.25, sustain:0, release:0.3, baseFrequency:300, octaves:1.5}
   }) },
   clockwork: { label:'Clockwork', build: () => new Tone.PolySynth(Tone.FMSynth, {
     harmonicity:8, modulationIndex:2,
