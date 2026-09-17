@@ -18,6 +18,11 @@
 :root{
   --bg:#050505;--fg:#ddd8d0;--dim:#5a564f;--dim2:#39362f;
   --accent:#c8ff2e;--accent2:#ff5e5b;--accent3:#d4a843;
+  --highlight:#f0ece2; /* the staircase's own flush/active color - white
+    instead of the site's brand green (--accent), which felt too loud
+    repeated on every step. Left --accent itself untouched: nav hover,
+    the prototype badge and text selection still use it, matching every
+    other page. */
   --serif:'Instrument Serif',Georgia,serif;
   --mono:'Space Mono',monospace;
   --sans:'Inter',system-ui,sans-serif;
@@ -175,7 +180,7 @@ main{
           var(--step-height)
       )
     )
-    rotateY(calc(var(--i) * -30deg + 181deg));
+    rotateY(calc(var(--rot, var(--i)) * -30deg + 181deg));
 }
 
 .step:first-child .outer-end,
@@ -195,13 +200,13 @@ main{
   align-items:center;
   column-gap:1rem;
   border-top:1px solid var(--tread);
-  background:color-mix(in srgb, var(--riser), var(--accent) 18%);
+  background:color-mix(in srgb, var(--riser), var(--highlight) 18%);
   transition:background 350ms ease;
 }
 .step.flush .riser,
 .step.expanded .riser,
 .step:hover .riser{
-  background:color-mix(in srgb, var(--riser), var(--accent) 34%);
+  background:color-mix(in srgb, var(--riser), var(--highlight) 34%);
 }
 
 .riser-text{display:grid; min-width:0}
@@ -263,7 +268,7 @@ main{
   color:var(--accent3);
   transition:color 350ms ease;
 }
-.step.flush .step-num{color:var(--accent)}
+.step.flush .step-num{color:var(--highlight)}
 
 .step-title{
   grid-area:1 / 1;
@@ -360,7 +365,7 @@ main{
       <div class="bottom"></div>
     </a>
 
-    <a class="step" data-cls="tree-rings" data-img="_shared/snapshots/tree-rings.jpg" href="tree-rings.html" target="_blank" rel="noopener" style="--i:13">
+    <a class="step" data-cls="tree-rings" data-img="_shared/snapshots/tree-rings.jpg" href="tree-rings.html" target="_blank" rel="noopener" style="--i:13; --rot:13.5">
       <div class="riser">
         <span class="step-num">13</span>
         <div class="riser-text"><span class="step-title">tree rings</span><span class="step-phrase">The other way in: fly down a core sample instead of climbing.</span></div>
@@ -590,8 +595,9 @@ const findFlushStep = (groupAngle) => {
   let best = null;
   let bestDist = Infinity;
   for (const step of steps) {
-    const i = parseFloat(step.style.getPropertyValue('--i'));
-    const total = ((groupAngle + (i * -30 + 181)) % 360 + 360) % 360;
+    const rotProp = step.style.getPropertyValue('--rot');
+    const rot = rotProp ? parseFloat(rotProp) : parseFloat(step.style.getPropertyValue('--i'));
+    const total = ((groupAngle + (rot * -30 + 181)) % 360 + 360) % 360;
     const dist = Math.min(total, 360 - total);
     if (dist < bestDist) { bestDist = dist; best = step; }
   }
