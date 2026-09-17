@@ -121,6 +121,35 @@ header a:hover{color:var(--accent)}
   margin-right:.5em;
 }
 
+.scroll-cue{
+  position:fixed;
+  z-index:100;
+  bottom:1.5rem;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  flex-direction:column-reverse;
+  align-items:center;
+  gap:.35rem;
+  color:var(--dim);
+  font-family:var(--mono);
+  font-size:.68rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  pointer-events:none;
+  opacity:1;
+  transition:opacity 500ms ease;
+}
+.scroll-cue.hidden{opacity:0}
+.scroll-cue svg{animation:scrollBob 1.8s ease-in-out infinite}
+@keyframes scrollBob{
+  0%,100%{transform:translateY(0); opacity:.55}
+  50%{transform:translateY(-6px); opacity:1}
+}
+@media (prefers-reduced-motion: reduce){
+  .scroll-cue svg{animation:none}
+}
+
 main{
   position:fixed;
   inset:0;
@@ -367,7 +396,7 @@ main{
     <a class="step" data-cls="tree-rings" data-img="_shared/snapshots/tree-rings.jpg" href="tree-rings.html" target="_blank" rel="noopener" style="--i:11.143">
       <div class="riser">
         <span class="step-num"></span>
-        <div class="riser-text"><span class="step-title">tree rings</span><span class="step-phrase">The other way in: fly down a core sample instead of climbing.</span></div>
+        <div class="riser-text"><span class="step-title">tree rings</span><span class="step-phrase">The other way in — fly down a core sample.</span></div>
       </div>
       <div class="tread"></div>
       <div class="outer-end"></div>
@@ -379,7 +408,7 @@ main{
     <a class="step" data-cls="cellular-erasure" data-img="_shared/snapshots/cellular-erasure.jpg" href="cellular-erasure/index.html" target="_blank" rel="noopener" style="--i:10.286">
       <div class="riser">
         <span class="step-num">01</span>
-        <div class="riser-text"><span class="step-title">cellular erasure</span><span class="step-phrase">A poem is just the words the system didn't erase.</span></div>
+        <div class="riser-text"><span class="step-title">cellular erasure</span><span class="step-phrase">Not authored, so much as survived.</span></div>
       </div>
       <div class="tread"></div>
       <div class="outer-end"></div>
@@ -463,7 +492,7 @@ main{
     <a class="step" data-cls="mutate" data-img="_shared/snapshots/mutate.jpg" href="mutate/index.html" target="_blank" rel="noopener" style="--i:4.286">
       <div class="riser">
         <span class="step-num">08</span>
-        <div class="riser-text"><span class="step-title">mutate</span><span class="step-phrase">Forty possible mutations, each one stacked on the last.</span></div>
+        <div class="riser-text"><span class="step-title">mutate</span><span class="step-phrase">The site keeps changing its mind, forever.</span></div>
       </div>
       <div class="tread"></div>
       <div class="outer-end"></div>
@@ -487,7 +516,7 @@ main{
     <a class="step" data-cls="bacterial-bloom" data-img="_shared/snapshots/bacterial-bloom.jpg" href="bacterial-bloom/index.html" target="_blank" rel="noopener" style="--i:2.571">
       <div class="riser">
         <span class="step-num">10</span>
-        <div class="riser-text"><span class="step-title">bacterial bloom</span><span class="step-phrase">A poem grown like a culture, not typed like one.</span></div>
+        <div class="riser-text"><span class="step-title">bacterial bloom</span><span class="step-phrase">A poem grown like a culture.</span></div>
       </div>
       <div class="tread"></div>
       <div class="outer-end"></div>
@@ -499,7 +528,7 @@ main{
     <a class="step" data-cls="checker-sequencer" data-img="_shared/snapshots/checker-sequencer.jpg" href="checker-sequencer/index.html" target="_blank" rel="noopener" style="--i:1.714">
       <div class="riser">
         <span class="step-num">11</span>
-        <div class="riser-text"><span class="step-title">checker sequencer</span><span class="step-phrase">Every move you make, the board sings back.</span></div>
+        <div class="riser-text"><span class="step-title">checker sequencer</span><span class="step-phrase">Each game makes its own song.</span></div>
       </div>
       <div class="tread"></div>
       <div class="outer-end"></div>
@@ -524,6 +553,14 @@ main{
 </main>
 
 <div class="hint"><span class="badge">prototype</span>hover a step to read it</div>
+
+<div class="scroll-cue" id="scrollCue" aria-hidden="true">
+  <svg width="16" height="24" viewBox="0 0 16 24" fill="none">
+    <path d="M8 23V5" stroke="currentColor" stroke-width="1.4"/>
+    <path d="M2 9l6-6 6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span>scroll to climb</span>
+</div>
 
 <script>
 const staircase = document.querySelector('#staircase');
@@ -603,10 +640,14 @@ const findFlushStep = (groupAngle) => {
   return best;
 };
 
+const scrollCue = document.getElementById('scrollCue');
+
 const update = () => {
   const y = cachedScrollY;
   const groupAngle = 179 + y * (-30 / 168);
   staircase.style.transform = `translateY(${y * cachedHeight / 168}px) rotateY(${groupAngle}deg)`;
+
+  if (scrollCue) scrollCue.classList.toggle('hidden', y > 40);
 
   const flush = findFlushStep(groupAngle);
   steps.forEach(s => s.classList.toggle('flush', s === flush));
