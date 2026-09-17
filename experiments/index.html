@@ -289,12 +289,14 @@ main{
   column-gap:1rem;
   border-top:1px solid var(--tread);
   background:color-mix(in srgb, var(--riser), var(--highlight) 18%);
-  transition:background 350ms ease;
+  box-shadow:inset 4px 0 0 0 transparent;
+  transition:background 350ms ease, box-shadow 350ms ease;
 }
 .step.flush .riser,
 .step.expanded .riser,
 .step:hover .riser{
-  background:color-mix(in srgb, var(--riser), var(--highlight) 34%);
+  background:color-mix(in srgb, var(--riser), var(--highlight) 50%);
+  box-shadow:inset 4px 0 0 0 var(--accent);
 }
 
 .riser-text{display:grid; min-width:0}
@@ -356,7 +358,9 @@ main{
   color:var(--accent3);
   transition:color 350ms ease;
 }
-.step.flush .step-num{color:var(--highlight)}
+.step.flush .step-num,
+.step.expanded .step-num,
+.step:hover .step-num{color:var(--accent)}
 
 .step-title{
   grid-area:1 / 1;
