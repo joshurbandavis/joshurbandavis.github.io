@@ -852,94 +852,164 @@ function render(){
 const BLACK_NOTES = ["C5","A4","G4","E4","D4","C4","A3","G3"]; // row 0 (top) .. row 7 (bottom)
 const WHITE_NOTES  = ["C4","A3","G3","E3","D3","C3","A2","G2"]; // same pentatonic degrees, one octave down
 
+// Each palette's make() returns { voices, effects }: six piece-type synths (the actual
+// character differences between pieces) all bussed through the same shared effects array
+// (the palette's signature processing). rebuildSynths() wires voice -> effects[0] -> ... ->
+// reverb for every voice and remembers every node created so a skin change can dispose the
+// whole thing, not just the six synths. Every engine below extends Monophonic, which
+// Tone.PolySynth requires -- see the Fungal note further down for why that matters.
 const PALETTES = {
+  // orchestral (light): the most acoustic-leaning palette on purpose -- pizzicato pawns,
+  // marcato knights, legato strings for the bishop, brassy rook/queen, a low string-pad
+  // king. A faint chorus is the only processing, just enough to feel like a small ensemble.
   orchestral: { label:'Orchestral', make: () => ({
-    pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'triangle'}, envelope:{attack:0.004,decay:0.18,sustain:0.02,release:0.3}}),
-    knight: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.08,sustain:0,release:0.12}}),
-    bishop: new Tone.PolySynth(Tone.AMSynth, {harmonicity:1.5, oscillator:{type:'sine'}, envelope:{attack:0.25,decay:0.2,sustain:0.4,release:0.9}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.3,decay:0.1,sustain:0.8,release:0.5}}),
-    rook:   new Tone.PolySynth(Tone.FMSynth, {harmonicity:1, modulationIndex:2, envelope:{attack:0.01,decay:0.3,sustain:0.3,release:0.5}, modulationEnvelope:{attack:0.02,decay:0.2,sustain:0.1,release:0.3}}),
-    queen:  new Tone.PolySynth(Tone.FMSynth, {harmonicity:4, modulationIndex:8, envelope:{attack:0.01,decay:0.4,sustain:0.3,release:1.0}, modulationEnvelope:{attack:0.02,decay:0.3,sustain:0.2,release:0.6}}),
-    king:   new Tone.PolySynth(Tone.AMSynth, {harmonicity:0.5, oscillator:{type:'sine'}, envelope:{attack:0.4,decay:0.4,sustain:0.5,release:1.4}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.5,decay:0.2,sustain:0.6,release:0.8}}),
-  })},
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'triangle'}, envelope:{attack:0.003,decay:0.15,sustain:0.02,release:0.25}}),
+      knight: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.08,sustain:0,release:0.1}}),
+      bishop: new Tone.PolySynth(Tone.AMSynth, {harmonicity:1.5, oscillator:{type:'sine'}, envelope:{attack:0.3,decay:0.25,sustain:0.5,release:1.0}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.35,decay:0.15,sustain:0.8,release:0.6}}),
+      rook:   new Tone.PolySynth(Tone.FMSynth, {harmonicity:1, modulationIndex:3, envelope:{attack:0.015,decay:0.3,sustain:0.35,release:0.55}, modulationEnvelope:{attack:0.02,decay:0.2,sustain:0.15,release:0.3}}),
+      queen:  new Tone.PolySynth(Tone.FMSynth, {harmonicity:4, modulationIndex:7, envelope:{attack:0.015,decay:0.45,sustain:0.35,release:1.1}, modulationEnvelope:{attack:0.03,decay:0.3,sustain:0.2,release:0.6}}),
+      king:   new Tone.PolySynth(Tone.AMSynth, {harmonicity:0.5, oscillator:{type:'sine'}, envelope:{attack:0.45,decay:0.4,sustain:0.55,release:1.5}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.5,decay:0.2,sustain:0.6,release:0.9}}),
+    },
+    effects: () => [new Tone.Chorus({frequency:0.9, delayTime:3, depth:0.3, wet:0.22}).start()],
+  }) },
+  // electronic (neon): crisp and synthetic across the board, with a shared ping-pong delay
+  // and light chorus for that glassy, bouncy neon shimmer.
   electronic: { label:'Electronic', make: () => ({
-    pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.08,sustain:0,release:0.08}}),
-    knight: new Tone.PolySynth(Tone.FMSynth, {harmonicity:2, modulationIndex:10, envelope:{attack:0.001,decay:0.1,sustain:0,release:0.15}, modulationEnvelope:{attack:0.001,decay:0.05,sustain:0,release:0.1}}),
-    bishop: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'sawtooth'}, envelope:{attack:0.15,decay:0.2,sustain:0.3,release:0.6}}),
-    rook:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'pulse', width:0.2}, envelope:{attack:0.005,decay:0.2,sustain:0.2,release:0.3}}),
-    queen:  new Tone.PolySynth(Tone.FMSynth, {harmonicity:2.01, modulationIndex:12, envelope:{attack:0.01,decay:0.3,sustain:0.3,release:0.8}, modulationEnvelope:{attack:0.02,decay:0.2,sustain:0.2,release:0.4}}),
-    king:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'sine'}, envelope:{attack:0.3,decay:0.3,sustain:0.6,release:1.2}}),
-  })},
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.07,sustain:0,release:0.08}}),
+      knight: new Tone.PolySynth(Tone.FMSynth, {harmonicity:2, modulationIndex:10, envelope:{attack:0.001,decay:0.09,sustain:0,release:0.12}, modulationEnvelope:{attack:0.001,decay:0.05,sustain:0,release:0.08}}),
+      bishop: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'sawtooth'}, envelope:{attack:0.12,decay:0.2,sustain:0.35,release:0.55}}),
+      rook:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'pulse', width:0.18}, envelope:{attack:0.004,decay:0.18,sustain:0.22,release:0.28}}),
+      queen:  new Tone.PolySynth(Tone.FMSynth, {harmonicity:2.01, modulationIndex:12, envelope:{attack:0.01,decay:0.3,sustain:0.3,release:0.75}, modulationEnvelope:{attack:0.02,decay:0.2,sustain:0.2,release:0.4}}),
+      king:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'sine'}, envelope:{attack:0.28,decay:0.3,sustain:0.6,release:1.15}}),
+    },
+    effects: () => [
+      new Tone.Chorus({frequency:1.6, delayTime:2.2, depth:0.3, wet:0.22}).start(),
+      new Tone.PingPongDelay({delayTime:'16n', feedback:0.22, wet:0.22}),
+    ],
+  }) },
+  // percussive (dark/alien): tight, dry, mallet-and-drum hits -- no sustain to speak of.
+  // A touch of drive plus a very short slapback keeps it punchy without turning muddy.
   percussive: { label:'Percussive', make: () => ({
-    pawn:   new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.008, octaves:1.5, envelope:{attack:0.001,decay:0.12,sustain:0,release:0.08}}),
-    knight: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.06,sustain:0,release:0.06}}),
-    bishop: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'sawtooth'}, envelope:{attack:0.01,decay:0.2,sustain:0.05,release:0.3}}),
-    rook:   new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.025, octaves:2.5, envelope:{attack:0.001,decay:0.25,sustain:0.05,release:0.25}}),
-    queen:  new Tone.PolySynth(Tone.Synth, {oscillator:{type:'pulse', width:0.15}, envelope:{attack:0.005,decay:0.3,sustain:0.15,release:0.5}}),
-    king:   new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.05, octaves:3.5, envelope:{attack:0.005,decay:0.5,sustain:0.08,release:0.6}}),
-  })},
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.006, octaves:1.2, envelope:{attack:0.001,decay:0.1,sustain:0,release:0.07}}),
+      knight: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.05,sustain:0,release:0.05}}),
+      bishop: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'sawtooth'}, envelope:{attack:0.008,decay:0.16,sustain:0.04,release:0.22}}),
+      rook:   new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.02, octaves:2.2, envelope:{attack:0.001,decay:0.22,sustain:0.04,release:0.2}}),
+      queen:  new Tone.PolySynth(Tone.Synth, {oscillator:{type:'pulse', width:0.12}, envelope:{attack:0.004,decay:0.26,sustain:0.12,release:0.4}}),
+      king:   new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.045, octaves:3.2, envelope:{attack:0.004,decay:0.45,sustain:0.06,release:0.5}}),
+    },
+    effects: () => [
+      new Tone.Distortion({distortion:0.12, wet:0.3}),
+      new Tone.FeedbackDelay({delayTime:'16n', feedback:0.1, wet:0.12}),
+    ],
+  }) },
   // hardware-homage palettes, keyed to match the skin ids so picking a skin can auto-select one
   tr808: { label:'TR-808', make: () => ({
-    pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.05,sustain:0,release:0.05}}),
-    knight: new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.02, octaves:1.5, envelope:{attack:0.001,decay:0.12,sustain:0,release:0.1}}),
-    bishop: new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.03, octaves:2, envelope:{attack:0.001,decay:0.2,sustain:0,release:0.15}}),
-    rook:   new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.05, octaves:3, envelope:{attack:0.001,decay:0.3,sustain:0.05,release:0.25}}),
-    queen:  new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.06, octaves:3.5, envelope:{attack:0.001,decay:0.4,sustain:0.08,release:0.35}}),
-    king:   new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.08, octaves:4.5, envelope:{attack:0.002,decay:0.6,sustain:0.1,release:0.5}}),
-  })},
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.05,sustain:0,release:0.05}}),
+      knight: new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.02, octaves:1.5, envelope:{attack:0.001,decay:0.12,sustain:0,release:0.1}}),
+      bishop: new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.03, octaves:2, envelope:{attack:0.001,decay:0.2,sustain:0,release:0.15}}),
+      rook:   new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.05, octaves:3, envelope:{attack:0.001,decay:0.3,sustain:0.05,release:0.25}}),
+      queen:  new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.06, octaves:3.5, envelope:{attack:0.001,decay:0.4,sustain:0.08,release:0.35}}),
+      king:   new Tone.PolySynth(Tone.MembraneSynth, {pitchDecay:0.08, octaves:4.5, envelope:{attack:0.002,decay:0.6,sustain:0.1,release:0.5}}),
+    },
+    effects: () => [
+      new Tone.Distortion({distortion:0.2, wet:0.4}), // classic drum-machine saturation
+      new Tone.FeedbackDelay({delayTime:'8n', feedback:0.18, wet:0.15}), // dub-style slap echo
+    ],
+  }) },
   tb303: { label:'TB-303', make: () => ({
-    pawn:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:8,type:'lowpass',rolloff:-24}, envelope:{attack:0.004,decay:0.12,sustain:0.05,release:0.15}, filterEnvelope:{attack:0.002,decay:0.15,sustain:0,release:0.15,baseFrequency:200,octaves:3}}),
-    knight: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:10,type:'lowpass',rolloff:-24}, envelope:{attack:0.002,decay:0.1,sustain:0,release:0.12}, filterEnvelope:{attack:0.001,decay:0.12,sustain:0,release:0.1,baseFrequency:300,octaves:4}}),
-    bishop: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:9,type:'lowpass',rolloff:-24}, envelope:{attack:0.01,decay:0.25,sustain:0.15,release:0.3}, filterEnvelope:{attack:0.02,decay:0.3,sustain:0.1,release:0.3,baseFrequency:150,octaves:3.5}}),
-    rook:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:12,type:'lowpass',rolloff:-24}, envelope:{attack:0.005,decay:0.2,sustain:0.2,release:0.25}, filterEnvelope:{attack:0.005,decay:0.2,sustain:0.1,release:0.25,baseFrequency:100,octaves:4.5}}),
-    queen:  new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:14,type:'lowpass',rolloff:-24}, envelope:{attack:0.01,decay:0.35,sustain:0.25,release:0.4}, filterEnvelope:{attack:0.01,decay:0.4,sustain:0.15,release:0.4,baseFrequency:120,octaves:5}}),
-    king:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:6,type:'lowpass',rolloff:-24}, envelope:{attack:0.03,decay:0.5,sustain:0.3,release:0.6}, filterEnvelope:{attack:0.05,decay:0.5,sustain:0.2,release:0.5,baseFrequency:80,octaves:3}}),
-  })},
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:8,type:'lowpass',rolloff:-24}, envelope:{attack:0.004,decay:0.12,sustain:0.05,release:0.15}, filterEnvelope:{attack:0.002,decay:0.15,sustain:0,release:0.15,baseFrequency:200,octaves:3}}),
+      knight: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:10,type:'lowpass',rolloff:-24}, envelope:{attack:0.002,decay:0.1,sustain:0,release:0.12}, filterEnvelope:{attack:0.001,decay:0.12,sustain:0,release:0.1,baseFrequency:300,octaves:4}}),
+      bishop: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:9,type:'lowpass',rolloff:-24}, envelope:{attack:0.01,decay:0.25,sustain:0.15,release:0.3}, filterEnvelope:{attack:0.02,decay:0.3,sustain:0.1,release:0.3,baseFrequency:150,octaves:3.5}}),
+      rook:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:12,type:'lowpass',rolloff:-24}, envelope:{attack:0.005,decay:0.2,sustain:0.2,release:0.25}, filterEnvelope:{attack:0.005,decay:0.2,sustain:0.1,release:0.25,baseFrequency:100,octaves:4.5}}),
+      queen:  new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:14,type:'lowpass',rolloff:-24}, envelope:{attack:0.01,decay:0.35,sustain:0.25,release:0.4}, filterEnvelope:{attack:0.01,decay:0.4,sustain:0.15,release:0.4,baseFrequency:120,octaves:5}}),
+      king:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:6,type:'lowpass',rolloff:-24}, envelope:{attack:0.03,decay:0.5,sustain:0.3,release:0.6}, filterEnvelope:{attack:0.05,decay:0.5,sustain:0.2,release:0.5,baseFrequency:80,octaves:3}}),
+    },
+    effects: () => [
+      new Tone.Distortion({distortion:0.3, wet:0.35}), // driven into acid squelch
+      new Tone.Phaser({frequency:0.6, octaves:3, baseFrequency:400, wet:0.18}),
+    ],
+  }) },
   modular: { label:'Modular', make: () => ({
-    pawn:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'triangle'}, filter:{Q:1,type:'lowpass',rolloff:-12}, envelope:{attack:0.01,decay:0.15,sustain:0.1,release:0.2}, filterEnvelope:{attack:0.02,decay:0.2,sustain:0.3,release:0.3,baseFrequency:400,octaves:2}}),
-    knight: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'square'}, filter:{Q:2,type:'lowpass',rolloff:-12}, envelope:{attack:0.002,decay:0.1,sustain:0,release:0.12}, filterEnvelope:{attack:0.001,decay:0.15,sustain:0,release:0.15,baseFrequency:500,octaves:2.5}}),
-    bishop: new Tone.PolySynth(Tone.AMSynth, {harmonicity:1, oscillator:{type:'sine'}, envelope:{attack:0.3,decay:0.3,sustain:0.5,release:0.9}, modulation:{type:'triangle'}, modulationEnvelope:{attack:0.4,decay:0.2,sustain:0.6,release:0.6}}),
-    rook:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:1.5,type:'lowpass',rolloff:-24}, envelope:{attack:0.01,decay:0.3,sustain:0.4,release:0.5}, filterEnvelope:{attack:0.05,decay:0.3,sustain:0.4,release:0.4,baseFrequency:180,octaves:2.5}}),
-    queen:  new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:2.5,type:'lowpass',rolloff:-24}, envelope:{attack:0.02,decay:0.4,sustain:0.5,release:0.9}, filterEnvelope:{attack:0.1,decay:0.4,sustain:0.5,release:0.7,baseFrequency:220,octaves:3.5}}),
-    king:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:1,type:'lowpass',rolloff:-24}, envelope:{attack:0.3,decay:0.5,sustain:0.6,release:1.4}, filterEnvelope:{attack:0.5,decay:0.4,sustain:0.5,release:1.0,baseFrequency:100,octaves:2}}),
-  })},
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'triangle'}, filter:{Q:1,type:'lowpass',rolloff:-12}, envelope:{attack:0.01,decay:0.15,sustain:0.1,release:0.2}, filterEnvelope:{attack:0.02,decay:0.2,sustain:0.3,release:0.3,baseFrequency:400,octaves:2}}),
+      knight: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'square'}, filter:{Q:2,type:'lowpass',rolloff:-12}, envelope:{attack:0.002,decay:0.1,sustain:0,release:0.12}, filterEnvelope:{attack:0.001,decay:0.15,sustain:0,release:0.15,baseFrequency:500,octaves:2.5}}),
+      bishop: new Tone.PolySynth(Tone.AMSynth, {harmonicity:1, oscillator:{type:'sine'}, envelope:{attack:0.3,decay:0.3,sustain:0.5,release:0.9}, modulation:{type:'triangle'}, modulationEnvelope:{attack:0.4,decay:0.2,sustain:0.6,release:0.6}}),
+      rook:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:1.5,type:'lowpass',rolloff:-24}, envelope:{attack:0.01,decay:0.3,sustain:0.4,release:0.5}, filterEnvelope:{attack:0.05,decay:0.3,sustain:0.4,release:0.4,baseFrequency:180,octaves:2.5}}),
+      queen:  new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:2.5,type:'lowpass',rolloff:-24}, envelope:{attack:0.02,decay:0.4,sustain:0.5,release:0.9}, filterEnvelope:{attack:0.1,decay:0.4,sustain:0.5,release:0.7,baseFrequency:220,octaves:3.5}}),
+      king:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:1,type:'lowpass',rolloff:-24}, envelope:{attack:0.3,decay:0.5,sustain:0.6,release:1.4}, filterEnvelope:{attack:0.5,decay:0.4,sustain:0.5,release:1.0,baseFrequency:100,octaves:2}}),
+    },
+    effects: () => [
+      new Tone.Distortion({distortion:0.08, wet:0.25}), // faint analog warmth
+      new Tone.Chorus({frequency:0.8, delayTime:3.5, depth:0.45, wet:0.35}).start(), // multi-osc thickness
+    ],
+  }) },
   op1: { label:'OP-1', make: () => ({
-    pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.08,sustain:0,release:0.08}}),
-    knight: new Tone.PolySynth(Tone.FMSynth, {harmonicity:3, modulationIndex:4, envelope:{attack:0.001,decay:0.1,sustain:0,release:0.1}, modulationEnvelope:{attack:0.001,decay:0.08,sustain:0,release:0.08}}),
-    bishop: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'triangle'}, envelope:{attack:0.05,decay:0.2,sustain:0.3,release:0.4}}),
-    rook:   new Tone.PolySynth(Tone.FMSynth, {harmonicity:1.5, modulationIndex:2, envelope:{attack:0.005,decay:0.2,sustain:0.2,release:0.3}, modulationEnvelope:{attack:0.01,decay:0.15,sustain:0.1,release:0.2}}),
-    queen:  new Tone.PolySynth(Tone.FMSynth, {harmonicity:2.5, modulationIndex:5, envelope:{attack:0.01,decay:0.3,sustain:0.25,release:0.5}, modulationEnvelope:{attack:0.02,decay:0.2,sustain:0.15,release:0.3}}),
-    king:   new Tone.PolySynth(Tone.AMSynth, {harmonicity:2, oscillator:{type:'square'}, envelope:{attack:0.02,decay:0.3,sustain:0.4,release:0.6}, modulation:{type:'square'}, modulationEnvelope:{attack:0.03,decay:0.2,sustain:0.3,release:0.4}}),
-  })},
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.08,sustain:0,release:0.08}}),
+      knight: new Tone.PolySynth(Tone.FMSynth, {harmonicity:3, modulationIndex:4, envelope:{attack:0.001,decay:0.1,sustain:0,release:0.1}, modulationEnvelope:{attack:0.001,decay:0.08,sustain:0,release:0.08}}),
+      bishop: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'triangle'}, envelope:{attack:0.05,decay:0.2,sustain:0.3,release:0.4}}),
+      rook:   new Tone.PolySynth(Tone.FMSynth, {harmonicity:1.5, modulationIndex:2, envelope:{attack:0.005,decay:0.2,sustain:0.2,release:0.3}, modulationEnvelope:{attack:0.01,decay:0.15,sustain:0.1,release:0.2}}),
+      queen:  new Tone.PolySynth(Tone.FMSynth, {harmonicity:2.5, modulationIndex:5, envelope:{attack:0.01,decay:0.3,sustain:0.25,release:0.5}, modulationEnvelope:{attack:0.02,decay:0.2,sustain:0.15,release:0.3}}),
+      king:   new Tone.PolySynth(Tone.AMSynth, {harmonicity:2, oscillator:{type:'square'}, envelope:{attack:0.02,decay:0.3,sustain:0.4,release:0.6}, modulation:{type:'square'}, modulationEnvelope:{attack:0.03,decay:0.2,sustain:0.3,release:0.4}}),
+    },
+    effects: () => [
+      new Tone.Vibrato({frequency:5.5, depth:0.12}), // lo-fi tape-ish wobble
+      new Tone.PingPongDelay({delayTime:'16n', feedback:0.25, wet:0.25}), // playful bounce
+    ],
+  }) },
   // imaginative, non-hardware palettes -- same skin-id-keyed auto-link mechanism
   deepsea: { label:'Deep Sea', make: () => ({
-    pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'sine'}, envelope:{attack:0.05,decay:0.2,sustain:0.1,release:0.5}}),
-    knight: new Tone.PolySynth(Tone.AMSynth, {harmonicity:2, oscillator:{type:'sine'}, envelope:{attack:0.01,decay:0.15,sustain:0,release:0.3}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.05,decay:0.1,sustain:0,release:0.2}}),
-    bishop: new Tone.PolySynth(Tone.AMSynth, {harmonicity:1.01, oscillator:{type:'sine'}, envelope:{attack:0.3,decay:0.3,sustain:0.4,release:1.2}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.5,decay:0.3,sustain:0.5,release:1.0}}),
-    rook:   new Tone.PolySynth(Tone.AMSynth, {harmonicity:0.5, oscillator:{type:'sine'}, envelope:{attack:0.1,decay:0.3,sustain:0.3,release:0.9}, modulation:{type:'triangle'}, modulationEnvelope:{attack:0.2,decay:0.2,sustain:0.3,release:0.6}}),
-    queen:  new Tone.PolySynth(Tone.AMSynth, {harmonicity:1.02, oscillator:{type:'sine'}, envelope:{attack:0.2,decay:0.4,sustain:0.5,release:1.6}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.4,decay:0.3,sustain:0.6,release:1.3}}),
-    king:   new Tone.PolySynth(Tone.AMSynth, {harmonicity:0.99, oscillator:{type:'sine'}, envelope:{attack:0.5,decay:0.5,sustain:0.6,release:2.2}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.8,decay:0.4,sustain:0.7,release:1.8}}),
-  })},
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'sine'}, envelope:{attack:0.05,decay:0.2,sustain:0.1,release:0.5}}),
+      knight: new Tone.PolySynth(Tone.AMSynth, {harmonicity:2, oscillator:{type:'sine'}, envelope:{attack:0.01,decay:0.15,sustain:0,release:0.3}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.05,decay:0.1,sustain:0,release:0.2}}),
+      bishop: new Tone.PolySynth(Tone.AMSynth, {harmonicity:1.01, oscillator:{type:'sine'}, envelope:{attack:0.3,decay:0.3,sustain:0.4,release:1.2}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.5,decay:0.3,sustain:0.5,release:1.0}}),
+      rook:   new Tone.PolySynth(Tone.AMSynth, {harmonicity:0.5, oscillator:{type:'sine'}, envelope:{attack:0.1,decay:0.3,sustain:0.3,release:0.9}, modulation:{type:'triangle'}, modulationEnvelope:{attack:0.2,decay:0.2,sustain:0.3,release:0.6}}),
+      queen:  new Tone.PolySynth(Tone.AMSynth, {harmonicity:1.02, oscillator:{type:'sine'}, envelope:{attack:0.2,decay:0.4,sustain:0.5,release:1.6}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.4,decay:0.3,sustain:0.6,release:1.3}}),
+      king:   new Tone.PolySynth(Tone.AMSynth, {harmonicity:0.99, oscillator:{type:'sine'}, envelope:{attack:0.5,decay:0.5,sustain:0.6,release:2.2}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.8,decay:0.4,sustain:0.7,release:1.8}}),
+    },
+    effects: () => [
+      new Tone.Chorus({frequency:0.5, delayTime:5, depth:0.5, wet:0.35}).start(),
+      new Tone.FeedbackDelay({delayTime:'8n.', feedback:0.35, wet:0.3}), // vast, washy tail
+    ],
+  }) },
   glitch: { label:'Glitch', make: () => ({
-    pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.03,sustain:0,release:0.02}}),
-    knight: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'pulse', width:0.1}, envelope:{attack:0.001,decay:0.04,sustain:0,release:0.03}}),
-    bishop: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'sawtooth'}, envelope:{attack:0.002,decay:0.1,sustain:0.05,release:0.08}}),
-    rook:   new Tone.PolySynth(Tone.FMSynth, {harmonicity:6, modulationIndex:10, envelope:{attack:0.001,decay:0.08,sustain:0,release:0.05}, modulationEnvelope:{attack:0.001,decay:0.05,sustain:0,release:0.03}}),
-    queen:  new Tone.PolySynth(Tone.FMSynth, {harmonicity:9, modulationIndex:14, envelope:{attack:0.001,decay:0.12,sustain:0.05,release:0.1}, modulationEnvelope:{attack:0.001,decay:0.08,sustain:0,release:0.05}}),
-    king:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.2,sustain:0.1,release:0.15}}),
-  })},
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.03,sustain:0,release:0.02}}),
+      knight: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'pulse', width:0.1}, envelope:{attack:0.001,decay:0.04,sustain:0,release:0.03}}),
+      bishop: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'sawtooth'}, envelope:{attack:0.002,decay:0.1,sustain:0.05,release:0.08}}),
+      rook:   new Tone.PolySynth(Tone.FMSynth, {harmonicity:6, modulationIndex:10, envelope:{attack:0.001,decay:0.08,sustain:0,release:0.05}, modulationEnvelope:{attack:0.001,decay:0.05,sustain:0,release:0.03}}),
+      queen:  new Tone.PolySynth(Tone.FMSynth, {harmonicity:9, modulationIndex:14, envelope:{attack:0.001,decay:0.12,sustain:0.05,release:0.1}, modulationEnvelope:{attack:0.001,decay:0.08,sustain:0,release:0.05}}),
+      king:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.2,sustain:0.1,release:0.15}}),
+    },
+    effects: () => [
+      new Tone.Distortion({distortion:0.55, wet:0.45}),
+      new Tone.PingPongDelay({delayTime:'32n', feedback:0.5, wet:0.32}), // corrupted-signal repeats
+    ],
+  }) },
   // was Tone.PluckSynth per piece (Karplus-Strong): it extends Instrument, not Monophonic,
   // and Tone.PolySynth's constructor asserts "voice instanceof Monophonic" synchronously --
   // wrapping it threw immediately on build, and since rebuildSynths() disposes the old
   // synths *before* that throw, every piece was left disposed and broken. MonoSynth with a
   // fast-closing filter gives a comparable soft, damp "wood knock" and is PolySynth-safe.
   fungal: { label:'Fungal', make: () => ({
-    pawn:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'triangle'}, filter:{Q:1,type:'lowpass',rolloff:-24}, envelope:{attack:0.004,decay:0.15,sustain:0,release:0.18}, filterEnvelope:{attack:0.005,decay:0.12,sustain:0,release:0.15,baseFrequency:350,octaves:1.2}}),
-    knight: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'triangle'}, filter:{Q:1.3,type:'lowpass',rolloff:-24}, envelope:{attack:0.002,decay:0.1,sustain:0,release:0.12}, filterEnvelope:{attack:0.002,decay:0.08,sustain:0,release:0.1,baseFrequency:450,octaves:1.4}}),
-    bishop: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:0.8,type:'lowpass',rolloff:-12}, envelope:{attack:0.01,decay:0.35,sustain:0.05,release:0.4}, filterEnvelope:{attack:0.02,decay:0.3,sustain:0.1,release:0.35,baseFrequency:550,octaves:1.6}}),
-    rook:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'triangle'}, filter:{Q:1,type:'lowpass',rolloff:-24}, envelope:{attack:0.006,decay:0.25,sustain:0,release:0.3}, filterEnvelope:{attack:0.01,decay:0.2,sustain:0,release:0.25,baseFrequency:200,octaves:1.3}}),
-    queen:  new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:0.9,type:'lowpass',rolloff:-12}, envelope:{attack:0.01,decay:0.45,sustain:0.08,release:0.5}, filterEnvelope:{attack:0.02,decay:0.4,sustain:0.1,release:0.45,baseFrequency:600,octaves:1.8}}),
-    king:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:0.7,type:'lowpass',rolloff:-12}, envelope:{attack:0.02,decay:0.5,sustain:0.1,release:0.6}, filterEnvelope:{attack:0.03,decay:0.45,sustain:0.15,release:0.55,baseFrequency:130,octaves:1.2}}),
-  })},
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'triangle'}, filter:{Q:1,type:'lowpass',rolloff:-24}, envelope:{attack:0.004,decay:0.15,sustain:0,release:0.18}, filterEnvelope:{attack:0.005,decay:0.12,sustain:0,release:0.15,baseFrequency:350,octaves:1.2}}),
+      knight: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'triangle'}, filter:{Q:1.3,type:'lowpass',rolloff:-24}, envelope:{attack:0.002,decay:0.1,sustain:0,release:0.12}, filterEnvelope:{attack:0.002,decay:0.08,sustain:0,release:0.1,baseFrequency:450,octaves:1.4}}),
+      bishop: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:0.8,type:'lowpass',rolloff:-12}, envelope:{attack:0.01,decay:0.35,sustain:0.05,release:0.4}, filterEnvelope:{attack:0.02,decay:0.3,sustain:0.1,release:0.35,baseFrequency:550,octaves:1.6}}),
+      rook:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'triangle'}, filter:{Q:1,type:'lowpass',rolloff:-24}, envelope:{attack:0.006,decay:0.25,sustain:0,release:0.3}, filterEnvelope:{attack:0.01,decay:0.2,sustain:0,release:0.25,baseFrequency:200,octaves:1.3}}),
+      queen:  new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:0.9,type:'lowpass',rolloff:-12}, envelope:{attack:0.01,decay:0.45,sustain:0.08,release:0.5}, filterEnvelope:{attack:0.02,decay:0.4,sustain:0.1,release:0.45,baseFrequency:600,octaves:1.8}}),
+      king:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:0.7,type:'lowpass',rolloff:-12}, envelope:{attack:0.02,decay:0.5,sustain:0.1,release:0.6}, filterEnvelope:{attack:0.03,decay:0.45,sustain:0.15,release:0.55,baseFrequency:130,octaves:1.2}}),
+    },
+    effects: () => [
+      new Tone.Tremolo({frequency:2.6, depth:0.55, wet:0.7}).start(), // spore-like pulsing
+      new Tone.Chorus({frequency:0.7, delayTime:3, depth:0.3, wet:0.2}).start(), // murky thickness
+    ],
+  }) },
 };
 // every skin IS a sound palette now -- picking a skin rebuilds all six piece-type voices
 const SKIN_PALETTE = {
@@ -956,7 +1026,7 @@ function playColumn(col, time){
   for(let r=0;r<SIZE;r++){
     const p = board[r][col];
     if(!p) continue;
-    const synth = paletteSynths[p.type];
+    const synth = paletteSynths.voices[p.type];
     const notes = p.color==='white' ? WHITE_NOTES : BLACK_NOTES;
     const note = notes[r];
     synth.triggerAttackRelease(note, "8n", time, 0.8);
@@ -1017,9 +1087,15 @@ const REPLAY_SWEEPS = 3; // how many times the winning board "plays itself back"
 
 function rebuildSynths(){
   if(!reverb) return; // audio not started yet -- startAudio() will build with the current skin's palette
-  if(paletteSynths) Object.values(paletteSynths).forEach(s=>s.dispose());
-  paletteSynths = PALETTES[SKIN_PALETTE[currentSkin]].make();
-  Object.values(paletteSynths).forEach(s=>s.connect(reverb));
+  if(paletteSynths) paletteSynths.nodes.forEach(n=>n.dispose());
+  const built = PALETTES[SKIN_PALETTE[currentSkin]].make();
+  const effects = built.effects();
+  const voices = Object.values(built.voices);
+  const busHead = effects.length ? effects[0] : reverb;
+  voices.forEach(v => v.connect(busHead));
+  for(let i=0;i<effects.length-1;i++) effects[i].connect(effects[i+1]);
+  if(effects.length) effects[effects.length-1].connect(reverb);
+  paletteSynths = { voices: built.voices, nodes: voices.concat(effects) };
 }
 
 function updateSkinUI(){
