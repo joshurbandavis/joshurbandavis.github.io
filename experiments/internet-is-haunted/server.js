@@ -143,15 +143,27 @@ async function getSnapshotCdx(targetUrl, limit) {
 // beyond that — retrying just doubles the wait for the same eventual
 // answer, and having a second independent service already gives this two
 // real chances.
+//
+// Never throws: always resolves { ok, capture }. ok:true means one of the
+// two services gave a definitive answer (capture is the real snapshot, or
+// null if both agree there's genuinely nothing here). ok:false means BOTH
+// failed to answer at all for this direction — a real "don't know," not
+// "nothing found." That distinction matters: a fast rejection on
+// Availability used to abort buildMemorial immediately, before the OTHER
+// direction's lookup was ever attempted — now both always run to completion.
 async function getCapture(targetUrl, timestamp, cdxLimit) {
-  let viaAvailability = null;
   try {
-    viaAvailability = await getSnapshotAvailability(targetUrl, timestamp);
+    const viaAvailability = await getSnapshotAvailability(targetUrl, timestamp);
+    if (viaAvailability) return { ok: true, capture: viaAvailability };
   } catch (err) {
     // fall through to CDX
   }
-  if (viaAvailability) return viaAvailability;
-  return await getSnapshotCdx(targetUrl, cdxLimit);
+  try {
+    const viaCdx = await getSnapshotCdx(targetUrl, cdxLimit);
+    return { ok: true, capture: viaCdx };
+  } catch (err) {
+    return { ok: false, capture: null };
+  }
 }
 
 // Cookie banners, GDPR notices, and legal boilerplate on a domain still
@@ -208,13 +220,21 @@ async function buildMemorial(targetUrl) {
   const cached = CACHE.get(targetUrl);
   if (cached && Date.now() - cached.time < CACHE_TTL_MS) return cached.data;
 
-  let first, last;
-  try {
-    [first, last] = await Promise.all([getCapture(targetUrl, '19960101', 1), getCapture(targetUrl, '22000101', -1)]);
-  } catch (err) {
+  // getCapture never throws, so Promise.all is safe here — both directions
+  // always run to completion regardless of whether the other struggled
+  // (the actual archive.org calls are still paced by throttleArchiveCall
+  // above, so this doesn't double the outbound request rate).
+  const [firstRes, lastRes] = await Promise.all([
+    getCapture(targetUrl, '19960101', 1),
+    getCapture(targetUrl, '22000101', -1),
+  ]);
+
+  if (!firstRes.ok || !lastRes.ok) {
     return { ok: false, error: 'archive_unreachable' };
   }
 
+  const first = firstRes.capture;
+  const last = lastRes.capture;
   if (!first || !last) {
     const data = { ok: true, url: targetUrl, archived: false };
     CACHE.set(targetUrl, { time: Date.now(), data });

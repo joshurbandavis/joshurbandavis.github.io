@@ -118,19 +118,31 @@ async function getSnapshotCdx(targetUrl, limit) {
 
 // Try Availability first (usually the simpler, faster call); if it comes
 // back empty — which can mean genuinely never-archived, or just that
-// service having a bad day — confirm with CDX before believing it. A
-// timeout or error on either counts as "empty" here and falls through, not
-// a hard failure; buildMemorial only reports archive_unreachable if BOTH
-// throw.
+// service having a bad day — confirm with CDX before believing it.
+//
+// Never throws: always resolves { ok, capture }. ok:true means one of the
+// two services gave a definitive answer, and capture is either the real
+// snapshot or null (both services agree there's genuinely nothing here).
+// ok:false means BOTH services failed to answer at all for this specific
+// direction (first or last) — a real "don't know," not "nothing found."
+// This distinction matters: a fast 429 or refused connection on Availability
+// used to abort buildMemorial immediately (via an uncaught throw from
+// getSnapshotCdx) before the OTHER direction's lookup was ever attempted —
+// which is why a single quick rejection could kill the whole request
+// almost instantly. Now both directions always run to completion.
 async function getCapture(targetUrl, timestamp, cdxLimit) {
-  let viaAvailability = null;
   try {
-    viaAvailability = await getSnapshotAvailability(targetUrl, timestamp);
+    const viaAvailability = await getSnapshotAvailability(targetUrl, timestamp);
+    if (viaAvailability) return { ok: true, capture: viaAvailability };
   } catch (err) {
     // fall through to CDX
   }
-  if (viaAvailability) return viaAvailability;
-  return await getSnapshotCdx(targetUrl, cdxLimit);
+  try {
+    const viaCdx = await getSnapshotCdx(targetUrl, cdxLimit);
+    return { ok: true, capture: viaCdx };
+  } catch (err) {
+    return { ok: false, capture: null };
+  }
 }
 
 // Cookie banners, GDPR notices, and legal boilerplate on a domain still
@@ -181,15 +193,18 @@ function extractMeta(html) {
 }
 
 async function buildMemorial(targetUrl) {
-  let first, last;
-  try {
-    // sequential, not Promise.all — see the note at the top of this file
-    first = await getCapture(targetUrl, '19960101', 1);
-    last = await getCapture(targetUrl, '22000101', -1);
-  } catch (err) {
+  // Sequential, not Promise.all — see the note at the top of this file about
+  // pacing outbound archive.org calls. getCapture never throws, so both of
+  // these always run, regardless of whether the other one struggled.
+  const firstRes = await getCapture(targetUrl, '19960101', 1);
+  const lastRes = await getCapture(targetUrl, '22000101', -1);
+
+  if (!firstRes.ok || !lastRes.ok) {
     return { ok: false, error: 'archive_unreachable' };
   }
 
+  const first = firstRes.capture;
+  const last = lastRes.capture;
   if (!first || !last) {
     return { ok: true, url: targetUrl, archived: false };
   }
