@@ -144,32 +144,6 @@ body.roomy{ overflow-x:auto; }
 }
 .timeremaining.negative{ color:#aa0000; }
 
-.statuslist{
-  margin-top:16px;
-  min-height:18px;
-  display:flex;flex-direction:column;gap:11px;
-}
-.statusline{
-  font-family:var(--serif);
-  font-style:italic;
-  font-size:15.5px;
-  font-weight:normal;
-  color:#3c3c3c;
-  opacity:0;
-  transform:translateY(3px);
-  transition:opacity 2.2s ease, transform 2.2s ease;
-}
-.statusline.show{opacity:1;transform:translateY(0);}
-.statusline.deep{font-size:17px;color:#2a2a2a;}
-.statusline::before{
-  content:"» ";
-  font-family:var(--ui);
-  font-style:normal;
-  font-size:11px;
-  color:#888;
-  vertical-align:1px;
-}
-
 .checkrow{
   margin-top:14px;
   display:flex;align-items:center;gap:6px;
@@ -192,9 +166,9 @@ body.roomy{ overflow-x:auto; }
   padding:2px 3px;
   gap:6px;
   z-index:20;
-  transition:width .9s ease;
+  transition:width 1.1s cubic-bezier(.3,1.4,.5,1);
 }
-.taskbar.extended{ width:calc(100% + 260px); }
+.taskbar.extended{ width:calc(100% + max(340px, 42vw)); }
 @keyframes taskbarFlicker{
   0%,100%{filter:none;}
   50%{filter:brightness(1.5);}
@@ -233,6 +207,18 @@ body.roomy{ overflow-x:auto; }
   transition:opacity .4s ease;
 }
 .taskbtn.show{opacity:1;}
+
+.loadstrip{
+  height:18px;
+  flex:0 0 0;
+  min-width:0;
+  opacity:0;
+  background:var(--hi);
+  background-image:repeating-linear-gradient(45deg, var(--green) 0 6px, transparent 6px 8px);
+  box-shadow:inset 0 0 0 1px var(--sh);
+  transition:opacity .8s ease .3s;
+}
+.loadstrip.show{ flex:1 1 auto;min-width:24px;opacity:1; }
 
 .clock{
   height:24px;padding:0 10px;
@@ -343,6 +329,41 @@ body.roomy{ overflow-x:auto; }
   border-bottom:1px solid var(--hi);
 }
 
+/* ---------- notes: existential lines as their own floating windows ---------- */
+.note{
+  position:fixed;
+  width:220px;
+  background:var(--face);
+  border-top:2px solid var(--hi);
+  border-left:2px solid var(--hi);
+  border-right:2px solid var(--dk);
+  border-bottom:2px solid var(--dk);
+  box-shadow:3px 3px 10px rgba(0,0,0,.35);
+  opacity:0;
+  transform:translateY(6px);
+  transition:opacity .5s ease, transform .5s ease;
+  z-index:22;
+}
+.note.show{ opacity:1;transform:translateY(0); }
+.note .titlebar{ font-size:11px; }
+.note-body{
+  padding:12px 12px 13px;
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:14.5px;
+  line-height:1.5;
+  color:#3c3c3c;
+}
+.note-body::before{
+  content:"» ";
+  font-family:var(--ui);
+  font-style:normal;
+  font-size:11px;
+  color:#888;
+  vertical-align:1px;
+}
+.note.deep .note-body{ font-size:16px;color:#2a2a2a; }
+
 /* ---------- finale ---------- */
 .finale-overlay{
   position:fixed;inset:0;
@@ -391,8 +412,6 @@ body.roomy{ overflow-x:auto; }
     <div class="track sunken"><div class="fill" id="fill"></div></div>
     <div class="timeremaining" id="timeRemaining">Time remaining: calculating…</div>
 
-    <div class="statuslist" id="log"></div>
-
     <div class="checkrow" id="checkrow">
       <input type="checkbox" id="listenCheck">
       <label for="listenCheck">Enable audio feedback</label>
@@ -422,6 +441,7 @@ body.roomy{ overflow-x:auto; }
     Start
   </div>
   <div class="taskbar-sep" id="taskbarSep"></div>
+  <div class="loadstrip" id="loadStrip"></div>
   <div class="clock sunken" id="clock"></div>
 </div>
 
@@ -436,7 +456,6 @@ body.roomy{ overflow-x:auto; }
 
   var headline    = document.getElementById('headline');
   var fill        = document.getElementById('fill');
-  var log         = document.getElementById('log');
   var checkrow    = document.getElementById('checkrow');
   var listenCheck = document.getElementById('listenCheck');
   var finale      = document.getElementById('finale');
@@ -449,6 +468,7 @@ body.roomy{ overflow-x:auto; }
   var closeBtn    = document.getElementById('closeBtn');
   var dialog      = document.getElementById('dialog');
   var taskbarSep  = document.getElementById('taskbarSep');
+  var loadStrip   = document.getElementById('loadStrip');
   var clockEl     = document.getElementById('clock');
   var taskbarEl   = document.getElementById('taskbar');
   var startBtn    = document.getElementById('startBtn');
@@ -601,13 +621,42 @@ body.roomy{ overflow-x:auto; }
     clearTimeout(bsodTimer);
     bsodTimer = setTimeout(function(){ bsod.classList.remove('show'); }, 900);
   }
-  function addLine(text){
+  // ---------- notes: existential lines land as their own small windows,
+  // scattered anywhere on screen (free to overlap the main dialog) ----------
+  var NOTE_WIDTH = 220;
+  function spawnNote(text, opts){
+    opts = opts || {};
     var el = document.createElement('div');
-    el.className = 'statusline';
-    el.textContent = text;
-    log.appendChild(el);
+    el.className = 'note' + (opts.deep ? ' deep' : '');
+    el.style.width = NOTE_WIDTH + 'px';
+    el.innerHTML =
+      '<div class="titlebar"><span>System</span><div class="titlebar-btns">' +
+      '<span class="tbtn note-close" role="button" tabindex="0">X</span></div></div>' +
+      '<div class="note-body"></div>';
+    el.querySelector('.note-body').textContent = text;
+    document.body.appendChild(el);
+
+    var h = el.offsetHeight;
+    var maxX = Math.max(8, window.innerWidth - NOTE_WIDTH - 8);
+    var maxY = Math.max(8, window.innerHeight - 32 - h - 8);
+    el.style.left = (8 + Math.random()*(maxX-8)) + 'px';
+    el.style.top  = (8 + Math.random()*(maxY-8)) + 'px';
+
     requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.add('show'); }); });
+
+    function dismiss(){
+      el.classList.remove('show');
+      setTimeout(function(){ el.remove(); }, 500);
+    }
+    var closeEl = el.querySelector('.note-close');
+    closeEl.addEventListener('click', dismiss);
+    closeEl.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); dismiss(); }
+    });
+    setTimeout(dismiss, opts.holdMs || 11000);
   }
+  function addLine(text){ spawnNote(text); }
+  function addLineDeep(text){ spawnNote(text, {deep:true}); }
   function ghostWindow(){
     var el = document.createElement('div');
     el.className = 'taskbtn raised';
@@ -633,6 +682,7 @@ body.roomy{ overflow-x:auto; }
     taskbarExtended = true;
     taskbarEl.classList.add('extended');
     document.body.classList.add('roomy');
+    loadStrip.classList.add('show');
     ['untitled','untitled (1)','[no response]'].forEach(function(label, i){
       setTimeout(function(){
         var el = document.createElement('div');
@@ -646,6 +696,7 @@ body.roomy{ overflow-x:auto; }
   function resetTaskbar(){
     taskbarEl.classList.remove('extended');
     document.body.classList.remove('roomy');
+    loadStrip.classList.remove('show');
     try{ window.scrollTo({left:0, behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
     Array.prototype.forEach.call(taskbarEl.querySelectorAll('.ghostslot'), function(el){
       el.classList.remove('show');
@@ -654,8 +705,8 @@ body.roomy{ overflow-x:auto; }
   }
 
   // ---------- second timer: counts down, goes negative, comes back to zero ----------
-  var TIMER2_START = 120;
-  var TIMER2_FLOOR = -60;
+  var TIMER2_START = 90;
+  var TIMER2_FLOOR = -45;
   var timer2On = false;
   var timer2Frozen = false;
   var timer2Value = TIMER2_START;
@@ -807,26 +858,18 @@ body.roomy{ overflow-x:auto; }
     addLine('it did not come back.');
   }
 
-  function addLineDeep(text){
-    var el = document.createElement('div');
-    el.className = 'statusline deep';
-    el.textContent = text;
-    log.appendChild(el);
-    requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.add('show'); }); });
-  }
-
   var REVEALS = [
-    { t: 8,   fn: function(){ showBsod('...nine minutes, then you left.'); } },
-    { t: 45,  fn: function(){ addLine('you were here before.'); } },
-    { t: 75,  fn: function(){ addLine('you stayed for eleven minutes.'); } },
-    { t: 110, fn: function(){ addLine('you did not finish waiting then, either.'); } },
-    { t: 140, fn: function(){ flickerTaskbar(); addLine('the bar is close now.'); } },
-    { t: 150, fn: function(){ addLine('someone was with you. we did not ask who.'); } },
-    { t: 200, fn: function(){ addLine('that one might be you.'); ghostWindow(); } },
-    { t: 210, fn: function(){ extendTaskbar(); startTimer2(); addLine('the bar again. this time something else starts.'); } },
-    { t: 260, fn: function(){ checkrow.classList.add('show'); } },
-    { t: 300, fn: function(){ addLine('there is less bar than there used to be.'); } },
-    { t: 340, fn: function(){ addLine('you are still here.'); } }
+    { t: 5,   fn: function(){ showBsod('...nine minutes, then you left.'); } },
+    { t: 20,  fn: function(){ addLine('you were here before.'); } },
+    { t: 35,  fn: function(){ addLine('you stayed for eleven minutes.'); } },
+    { t: 50,  fn: function(){ addLine('you did not finish waiting then, either.'); } },
+    { t: 65,  fn: function(){ flickerTaskbar(); addLine('the bar is close now.'); } },
+    { t: 75,  fn: function(){ addLine('someone was with you. we did not ask who.'); } },
+    { t: 90,  fn: function(){ addLine('that one might be you.'); ghostWindow(); } },
+    { t: 100, fn: function(){ extendTaskbar(); startTimer2(); addLine('the bar again. it’s making more room now.'); } },
+    { t: 130, fn: function(){ checkrow.classList.add('show'); } },
+    { t: 160, fn: function(){ addLine('there is less bar than there used to be.'); } },
+    { t: 190, fn: function(){ addLine('you are still here.'); } }
   ];
   var revealed = new Array(REVEALS.length).fill(false);
   var headlineSwitched = false;
@@ -839,14 +882,14 @@ body.roomy{ overflow-x:auto; }
     'we kept the earlier version of you, too.',
     'this was supposed to end by now.',
     'the count is a courtesy.',
-    'it was not really eleven minutes. it was never eleven minutes.',
+    'it was never eleven minutes.',
     'we made up the loading. the waiting was real.',
     'you could close this. you have not.',
     'the taskbar remembers more than the window does.',
     'somewhere it already reached zero.'
   ];
   var usedAmbient = [];
-  var nextAmbientAt = 380;
+  var nextAmbientAt = 220;
   function maybeAmbient(){
     if(active < nextAmbientAt) return;
     var pool = AMBIENT_LINES.filter(function(l){ return usedAmbient.indexOf(l) === -1; });
@@ -883,7 +926,7 @@ body.roomy{ overflow-x:auto; }
       }
     }
 
-    if(active > 340) maybeAmbient();
+    if(active > 190) maybeAmbient();
 
     if(isAttending() && timer2On && !timer2Frozen){
       timer2Value += timer2Dir * dt;
