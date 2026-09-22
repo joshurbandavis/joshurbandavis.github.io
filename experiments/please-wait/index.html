@@ -157,6 +157,7 @@ body{
   transition:opacity 2.2s ease, transform 2.2s ease;
 }
 .statusline.show{opacity:1;transform:translateY(0);}
+.statusline.deep{font-size:17px;color:#2a2a2a;}
 .statusline::before{
   content:"» ";
   font-family:var(--ui);
@@ -187,7 +188,14 @@ body{
   padding:2px 3px;
   gap:6px;
   z-index:20;
+  transition:height .7s ease;
 }
+.taskbar.extended{ height:60px; }
+@keyframes taskbarFlicker{
+  0%,100%{filter:none;}
+  50%{filter:brightness(1.5);}
+}
+.taskbar.flicker{ animation:taskbarFlicker .45s ease 2; }
 .startbtn{
   display:flex;align-items:center;gap:5px;
   height:24px;padding:0 8px 0 4px;
@@ -228,6 +236,52 @@ body{
   display:flex;align-items:center;
   font-variant-numeric:tabular-nums;
 }
+.timer2{
+  height:24px;padding:0 10px;
+  font-size:11px;color:#000;
+  display:flex;align-items:center;
+  font-variant-numeric:tabular-nums;
+  opacity:0;width:0;padding-left:0;padding-right:0;overflow:hidden;
+  transition:opacity .8s ease, width .8s ease, padding .8s ease;
+}
+.timer2.show{ opacity:1;width:56px;padding:0 10px; }
+.timer2.negative{ color:#aa0000; }
+
+/* ---------- start menu ---------- */
+.startmenu{
+  position:fixed;left:2px;bottom:34px;
+  width:160px;
+  background:var(--face);
+  border-top:2px solid var(--hi);
+  border-left:2px solid var(--hi);
+  border-right:2px solid var(--dk);
+  border-bottom:2px solid var(--dk);
+  box-shadow:2px 2px 10px rgba(0,0,0,.35);
+  padding:2px;
+  opacity:0;
+  transform:translateY(6px);
+  pointer-events:none;
+  transition:opacity .18s ease, transform .18s ease;
+  z-index:25;
+}
+.startmenu.show{ opacity:1;transform:translateY(0);pointer-events:auto; }
+.startmenu-item{
+  font-size:11px;color:#000;
+  padding:5px 10px;
+  cursor:pointer;
+}
+.startmenu-item:hover{ background:var(--tb1);color:#fff; }
+
+/* ---------- snake ---------- */
+.snake{ pointer-events:none; }
+.snake-right,.snake-top,.snake-left{
+  position:fixed;
+  background:linear-gradient(180deg,var(--tb1),var(--tb2));
+  z-index:15;
+}
+.snake-right{ right:0;bottom:32px;width:4px;height:0; }
+.snake-top{ top:0;right:0;height:4px;width:0; }
+.snake-left{ top:0;left:0;width:4px;height:0; }
 
 /* ---------- BSOD glimpse ---------- */
 .bsod{
@@ -360,13 +414,27 @@ body{
   <div class="alert-actions"><div class="okbtn raised" id="okBtn" role="button" tabindex="0">OK</div></div>
 </div>
 
-<div class="taskbar">
-  <div class="startbtn raised">
+<div class="startmenu" id="startMenu">
+  <div class="startmenu-item">please wait.</div>
+  <div class="startmenu-item">please wait..</div>
+  <div class="startmenu-item">please wait...</div>
+  <div class="startmenu-item">please wait.</div>
+</div>
+
+<div class="taskbar" id="taskbar">
+  <div class="startbtn raised" id="startBtn" role="button" tabindex="0">
     <div class="flag"><i></i><i></i><i></i><i></i></div>
     Start
   </div>
   <div class="taskbar-sep" id="taskbarSep"></div>
+  <div class="timer2 sunken" id="timer2"></div>
   <div class="clock sunken" id="clock"></div>
+</div>
+
+<div class="snake" id="snake">
+  <div class="snake-right" id="snakeRight"></div>
+  <div class="snake-top" id="snakeTop"></div>
+  <div class="snake-left" id="snakeLeft"></div>
 </div>
 
 <div class="finale-overlay" id="finaleOverlay">
@@ -392,11 +460,41 @@ body{
   var dialog      = document.getElementById('dialog');
   var taskbarSep  = document.getElementById('taskbarSep');
   var clockEl     = document.getElementById('clock');
+  var taskbarEl   = document.getElementById('taskbar');
+  var startBtn    = document.getElementById('startBtn');
+  var startMenu   = document.getElementById('startMenu');
+  var timer2      = document.getElementById('timer2');
+  var snakeRight  = document.getElementById('snakeRight');
+  var snakeTop    = document.getElementById('snakeTop');
+  var snakeLeft   = document.getElementById('snakeLeft');
 
   var active = 0;
   var lastTick = null;
   var visible = document.visibilityState === 'visible';
   var lookAways = 0;
+
+  // ---------- start menu: every option is the same option ----------
+  startBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    startMenu.classList.toggle('show');
+  });
+  startBtn.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); startBtn.click(); }
+  });
+  Array.prototype.forEach.call(startMenu.querySelectorAll('.startmenu-item'), function(item){
+    item.addEventListener('click', function(){
+      startMenu.classList.remove('show');
+      dialog.classList.remove('shake');
+      void dialog.offsetWidth;
+      dialog.classList.add('shake');
+      showMessage('please wait.', 2200);
+    });
+  });
+  document.addEventListener('click', function(e){
+    if(!startMenu.contains(e.target) && !startBtn.contains(e.target)){
+      startMenu.classList.remove('show');
+    }
+  });
 
   function isAttending(){
     // Visibility alone — document.hasFocus() is unreliable inside a
@@ -529,19 +627,117 @@ body{
     }, 2400);
   }
 
+  // ---------- taskbar: extends once, resets once, gains ghost slots ----------
+  var taskbarExtended = false;
+  function flickerTaskbar(){
+    taskbarEl.classList.remove('flicker');
+    void taskbarEl.offsetWidth;
+    taskbarEl.classList.add('flicker');
+  }
+  function extendTaskbar(){
+    if(taskbarExtended) return;
+    taskbarExtended = true;
+    taskbarEl.classList.add('extended');
+    ['untitled','untitled (1)','[no response]'].forEach(function(label, i){
+      setTimeout(function(){
+        var el = document.createElement('div');
+        el.className = 'taskbtn raised ghostslot';
+        el.textContent = label;
+        taskbarSep.appendChild(el);
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.add('show'); }); });
+      }, i*450);
+    });
+  }
+  function resetTaskbar(){
+    taskbarEl.classList.remove('extended');
+    Array.prototype.forEach.call(taskbarEl.querySelectorAll('.ghostslot'), function(el){
+      el.classList.remove('show');
+      setTimeout(function(){ el.remove(); }, 500);
+    });
+  }
+
+  // ---------- second timer: counts down, goes negative, comes back to zero ----------
+  var TIMER2_START = 120;
+  var TIMER2_FLOOR = -60;
+  var timer2On = false;
+  var timer2Frozen = false;
+  var timer2Value = TIMER2_START;
+  var timer2Dir = -1;
+  function formatTimer2(s){
+    var neg = s < 0;
+    var abs = Math.abs(Math.round(s));
+    var m = Math.floor(abs/60);
+    var sec = abs%60;
+    return (neg?'-':'') + m + ':' + String(sec).padStart(2,'0');
+  }
+  function startTimer2(){
+    timer2On = true;
+    timer2.classList.add('show');
+    timer2.textContent = formatTimer2(timer2Value);
+  }
+
+  // ---------- snake: taskbar unspools and traces the edges of the screen ----------
+  var SNAKE_EDGE_DURATION = 20;
+  var snakePhase = 0; // 0 idle, 1 right, 2 top, 3 left, 4 done
+  var snakeT = 0;
+  var snakeComplete = false;
+  var snakeCompleteAt = 0;
+  function startSnake(){
+    snakePhase = 1;
+    snakeT = 0;
+  }
+
+  function addLineDeep(text){
+    var el = document.createElement('div');
+    el.className = 'statusline deep';
+    el.textContent = text;
+    log.appendChild(el);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.add('show'); }); });
+  }
+
   var REVEALS = [
     { t: 8,   fn: function(){ showBsod('...nine minutes, then you left.'); } },
     { t: 45,  fn: function(){ addLine('you were here before.'); } },
     { t: 75,  fn: function(){ addLine('you stayed for eleven minutes.'); } },
     { t: 110, fn: function(){ addLine('you did not finish waiting then, either.'); } },
+    { t: 140, fn: function(){ flickerTaskbar(); addLine('the bar is close now.'); } },
     { t: 150, fn: function(){ addLine('someone was with you. we did not ask who.'); } },
     { t: 200, fn: function(){ addLine('that one might be you.'); ghostWindow(); } },
+    { t: 210, fn: function(){ extendTaskbar(); startTimer2(); addLine('the bar again. this time something else starts.'); } },
     { t: 260, fn: function(){ checkrow.classList.add('show'); } },
+    { t: 300, fn: function(){ addLine('there is less bar than there used to be.'); } },
     { t: 340, fn: function(){ addLine('you are still here.'); } }
   ];
   var revealed = new Array(REVEALS.length).fill(false);
   var headlineSwitched = false;
   var finaleShown = false;
+
+  // ---------- ambient lines: scripted narrative gives way to a random one ----------
+  var AMBIENT_LINES = [
+    'the bar is not a promise.',
+    'nothing after this is scheduled.',
+    'we kept the earlier version of you, too.',
+    'this was supposed to end by now.',
+    'the count is a courtesy.',
+    'it was not really eleven minutes. it was never eleven minutes.',
+    'we made up the loading. the waiting was real.',
+    'you could close this. you have not.',
+    'the taskbar remembers more than the window does.',
+    'somewhere it already reached zero.'
+  ];
+  var usedAmbient = [];
+  var nextAmbientAt = 380;
+  function maybeAmbient(){
+    if(active < nextAmbientAt) return;
+    var pool = AMBIENT_LINES.filter(function(l){ return usedAmbient.indexOf(l) === -1; });
+    if(pool.length === 0){ usedAmbient = []; pool = AMBIENT_LINES; }
+    var line = pool[Math.floor(Math.random()*pool.length)];
+    usedAmbient.push(line);
+    addLineDeep(line);
+    if(Math.random() < 0.35) ghostWindow();
+    if(Math.random() < 0.12) showBsod('...' + Math.floor(Math.random()*900+100) + 'ms since last response.');
+    nextAmbientAt = active + 25 + Math.random()*40;
+  }
 
   function frame(ts){
     if(lastTick === null) lastTick = ts;
@@ -567,11 +763,52 @@ body{
       }
     }
 
-    if(active > 420 && !finaleShown){
+    if(active > 340) maybeAmbient();
+
+    if(isAttending() && timer2On && !timer2Frozen){
+      timer2Value += timer2Dir * dt;
+      if(timer2Dir === -1 && timer2Value <= TIMER2_FLOOR){
+        timer2Value = TIMER2_FLOOR;
+        timer2Dir = 1;
+      } else if(timer2Dir === 1 && timer2Value >= 0){
+        timer2Value = 0;
+        timer2Frozen = true;
+        addLine('the bar reset. we don’t know why.');
+        resetTaskbar();
+        startSnake();
+      }
+      timer2.textContent = formatTimer2(timer2Value);
+      timer2.classList.toggle('negative', timer2Value < 0);
+    }
+
+    if(isAttending() && snakePhase > 0 && snakePhase < 4){
+      snakeT += dt;
+      var frac = Math.min(snakeT/SNAKE_EDGE_DURATION, 1);
+      var vEdge = window.innerHeight - 32;
+      if(snakePhase === 1){
+        snakeRight.style.height = (frac*vEdge) + 'px';
+        if(frac >= 1){ snakePhase = 2; snakeT = 0; }
+      } else if(snakePhase === 2){
+        snakeTop.style.width = (frac*window.innerWidth) + 'px';
+        if(frac >= 1){ snakePhase = 3; snakeT = 0; }
+      } else if(snakePhase === 3){
+        snakeLeft.style.height = (frac*vEdge) + 'px';
+        if(frac >= 1){
+          snakePhase = 4;
+          snakeComplete = true;
+          snakeCompleteAt = active;
+          addLine('the loop closed. it started here and it ends here.');
+        }
+      }
+    }
+
+    var fallbackDue = active > 900;
+    var arcDue = snakeComplete && active > snakeCompleteAt + 20;
+    if((fallbackDue || arcDue) && !finaleShown){
       finaleShown = true;
       finaleOv.classList.add('show');
       setTimeout(function(){
-        finale.textContent = 'you have been here for seven minutes.\nwe will remember eleven.\nwe may be wrong about the difference.\nwe usually are.';
+        finale.textContent = 'you have been here for seven minutes.\nwe will remember eleven.\nwe may be wrong about the difference.\nwe usually are.\n\nthe bar went past zero and came back.\nthat part was real.';
         finale.classList.add('show');
       }, 1400);
     }
