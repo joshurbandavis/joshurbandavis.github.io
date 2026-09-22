@@ -37,11 +37,14 @@
                       Krempling, Paxillus atrotomentosus." Public domain (1913, Quelle &
                       Meyer, Leipzig); digitized by the Biodiversity Heritage Library.
    The Deep Sea and Fungal pieces themselves (not just the page background) are also cut
-   from real plates, one specimen per piece TYPE, in experiments/_shared/textures/pieces/:
-   - deepsea-*.jpg -- Ernst Haeckel, "Kunstformen der Natur" (1904), Tafel 49 "Actiniae"
+   from real plates, one specimen per piece TYPE, in experiments/_shared/textures/pieces/.
+   These are true cutouts, not photos-in-a-circle: each PNG is segmented out of its
+   source plate (background removed) so the coin behind the glyph takes the actual
+   silhouette of the specimen.
+   - deepsea-*.png -- Ernst Haeckel, "Kunstformen der Natur" (1904), Tafel 49 "Actiniae"
                       (sea anemones). Same public-domain LOC scan as above
                       (loc.gov/pnp/ds.05318), six individual specimens cropped out.
-   - fungal-*.jpg  -- Eugen Gramberg, "Pilze der Heimat" (1913), several plates (Tafel 3,
+   - fungal-*.png  -- Eugen Gramberg, "Pilze der Heimat" (1913), several plates (Tafel 3,
                       13, 15, 38, 45), each a different species, cropped to one specimen.
    Attribution isn't legally required for any of these (public domain / CC0) but is
    included anyway. (Clockwork skin removed -- it broke reliably in practice.) ---- */
@@ -270,10 +273,16 @@ h1 em{font-style:italic;color:var(--accent)}
   font-size:min(7.5vw,42px);line-height:1;user-select:none;
   transition:transform .15s ease;paint-order:stroke fill;
 }
-/* a soft glassy coin behind every glyph -- paints before the text (pseudo-elements
-   come first in paint order within a box), so it sits behind without needing z-index */
+/* a soft glassy coin behind every glyph. Needs an explicit z-index:-1 to actually sit
+   behind the text -- position:absolute descendants paint in the "positioned, stack
+   level 0" phase, which is AFTER in-flow inline content (the glyph character) in the
+   CSS painting order, regardless of source order. That was invisible while this coin
+   was a mostly-transparent gradient (the glyph showed through the gaps either way),
+   but once Deep Sea/Fungal put a largely-opaque cutout photo here, it silently
+   covered the glyph text entirely on Fungal (Deep Sea's softer, more transparent
+   glow happened to leave enough gaps to mask the same bug). */
 .piece-glyph::before{
-  content:'';position:absolute;inset:8%;border-radius:50%;
+  content:'';position:absolute;inset:8%;border-radius:50%;z-index:-1;
   background:radial-gradient(ellipse at 30% 25%,rgba(255,255,255,.16),transparent 65%);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),inset 0 0 0 2px rgba(0,0,0,.1);
   pointer-events:none;
@@ -308,6 +317,9 @@ h1 em{font-style:italic;color:var(--accent)}
 [data-skin="neon"] .piece-glyph.black{filter:drop-shadow(0 0 6px rgba(255,77,216,.5))}
 
 [data-skin="alien"] .piece-glyph{animation:alienGlyphPulse 2.2s ease-in-out infinite}
+/* same specificity gotcha as deepsea above: the ambient animation would otherwise
+   outrank the generic sweep-hit flash, so the flash gets its own more-specific rule */
+[data-skin="alien"] .piece-glyph.pulse{animation:alienGlyphPulseHit .3s ease}
 [data-skin="alien"] .piece-glyph::before{
   border-radius:62% 38% 55% 45% / 55% 45% 58% 42%;
   background:radial-gradient(ellipse at 35% 30%,rgba(125,255,179,.25),transparent 65%);
@@ -315,6 +327,10 @@ h1 em{font-style:italic;color:var(--accent)}
 @keyframes alienGlyphPulse{
   0%,100%{filter:brightness(1) hue-rotate(0deg)}
   50%{filter:brightness(1.4) hue-rotate(30deg)}
+}
+@keyframes alienGlyphPulseHit{
+  0%{filter:brightness(2.2) hue-rotate(15deg)}
+  100%{filter:brightness(1) hue-rotate(0deg)}
 }
 
 [data-skin="tr808"] .piece-glyph::before{
@@ -338,30 +354,49 @@ h1 em{font-style:italic;color:var(--accent)}
 [data-skin="op1"] .piece-glyph::before{background:rgba(0,0,0,.06);box-shadow:0 0 0 1px rgba(0,0,0,.1)}
 [data-skin="op1"] .piece-glyph.white,[data-skin="op1"] .piece-glyph.black{-webkit-text-stroke-width:1px}
 
-/* deepsea: real Haeckel Actiniae (sea anemone) specimens, one per piece type. Color tint
-   lives on ::before's own filter (independent of the glyph's own drop-shadow animation
-   below -- they're different boxes, so nothing fights over the `filter`/`animation`
-   property the way the king-glow bug did) so it never gets clobbered by the glow pulse. */
-[data-skin="deepsea"] .piece-glyph::before{background-size:cover;background-position:center}
-[data-skin="deepsea"] .piece-glyph.pawn::before{background-image:url(../_shared/textures/pieces/deepsea-pawn.jpg)}
-[data-skin="deepsea"] .piece-glyph.knight::before{background-image:url(../_shared/textures/pieces/deepsea-knight.jpg)}
-[data-skin="deepsea"] .piece-glyph.bishop::before{background-image:url(../_shared/textures/pieces/deepsea-bishop.jpg)}
-[data-skin="deepsea"] .piece-glyph.rook::before{background-image:url(../_shared/textures/pieces/deepsea-rook.jpg)}
-[data-skin="deepsea"] .piece-glyph.queen::before{background-image:url(../_shared/textures/pieces/deepsea-queen.jpg)}
-[data-skin="deepsea"] .piece-glyph.king::before{background-image:url(../_shared/textures/pieces/deepsea-king.jpg)}
+/* deepsea: real Haeckel Actiniae (sea anemone) cutouts behind each glyph, one specimen
+   per piece type -- true cutouts (background removed, soft glowing edges to match the
+   specimens' own painted glow-from-darkness look), not photos in a circle, so the coin
+   takes the actual shape of the creature.
+   Two animation/specificity gotchas here, both the same underlying rule (an animated
+   `filter` or `animation` always wins over a same-property declaration for as long as
+   it runs, regardless of the other rule's specificity):
+   1) color tint lives on ::before's own `filter` (a different box from the glyph's
+      glow-pulse animation below), so the two never compete in the first place.
+   2) the glyph's ambient glow-pulse (`animation: deepseaGlyphWhite/Black`) has higher
+      specificity than the generic .piece-glyph.pulse sweep-hit flash, which would
+      otherwise mean the sweep flash silently never plays at all on this skin -- so the
+      pulse variant gets its own even-more-specific keyframe that includes the glow. */
+[data-skin="deepsea"] .piece-glyph::before{
+  inset:2%;border-radius:0;box-shadow:none;
+  background-size:contain;background-repeat:no-repeat;background-position:center;
+}
+[data-skin="deepsea"] .piece-glyph.pawn::before{background-image:url(../_shared/textures/pieces/deepsea-pawn.png)}
+[data-skin="deepsea"] .piece-glyph.knight::before{background-image:url(../_shared/textures/pieces/deepsea-knight.png)}
+[data-skin="deepsea"] .piece-glyph.bishop::before{background-image:url(../_shared/textures/pieces/deepsea-bishop.png)}
+[data-skin="deepsea"] .piece-glyph.rook::before{background-image:url(../_shared/textures/pieces/deepsea-rook.png)}
+[data-skin="deepsea"] .piece-glyph.queen::before{background-image:url(../_shared/textures/pieces/deepsea-queen.png)}
+[data-skin="deepsea"] .piece-glyph.king::before{background-image:url(../_shared/textures/pieces/deepsea-king.png)}
 [data-skin="deepsea"] .piece-glyph.white::before{filter:saturate(1.3) hue-rotate(-8deg) brightness(1.05)}
 [data-skin="deepsea"] .piece-glyph.black::before{filter:saturate(1.1) hue-rotate(150deg) brightness(.65) contrast(1.1)}
 [data-skin="deepsea"] .piece-glyph.white{animation:deepseaGlyphWhite 3s ease-in-out infinite}
 [data-skin="deepsea"] .piece-glyph.black{animation:deepseaGlyphBlack 3s ease-in-out infinite}
+[data-skin="deepsea"] .piece-glyph.white.pulse{animation:deepseaGlyphPulseWhite .3s ease}
+[data-skin="deepsea"] .piece-glyph.black.pulse{animation:deepseaGlyphPulseBlack .3s ease}
 @keyframes deepseaGlyphWhite{0%,100%{filter:drop-shadow(0 0 6px rgba(255,110,199,.4))}50%{filter:drop-shadow(0 0 10px rgba(255,110,199,.7))}}
 @keyframes deepseaGlyphBlack{0%,100%{filter:drop-shadow(0 0 6px rgba(41,230,201,.35))}50%{filter:drop-shadow(0 0 10px rgba(41,230,201,.6))}}
+@keyframes deepseaGlyphPulseWhite{0%{filter:brightness(1.8) drop-shadow(0 0 6px rgba(255,110,199,.4))}100%{filter:brightness(1) drop-shadow(0 0 6px rgba(255,110,199,.4))}}
+@keyframes deepseaGlyphPulseBlack{0%{filter:brightness(1.8) drop-shadow(0 0 6px rgba(41,230,201,.35))}100%{filter:brightness(1) drop-shadow(0 0 6px rgba(41,230,201,.35))}}
 
 /* glitch: the jitter now also punches jump-cut clip-path slices, and the coin gets a
-   scanline overlay */
+   scanline overlay. Same specificity gotcha as alien above: the flash gets its own
+   rule so it isn't silently outranked by the jitter's own `animation`. */
 [data-skin="glitch"] .piece-glyph{
   animation:glitchGlyphJitter 2.4s steps(1) infinite;
   text-shadow:-2px 0 rgba(255,0,60,.6),2px 0 rgba(0,255,234,.6);
 }
+[data-skin="glitch"] .piece-glyph.pulse{animation:glitchGlyphPulseHit .3s ease}
+@keyframes glitchGlyphPulseHit{0%{filter:brightness(2.2)}100%{filter:brightness(1)}}
 [data-skin="glitch"] .piece-glyph::before{background:repeating-linear-gradient(0deg,rgba(255,255,255,.08) 0 1px,transparent 1px 3px)}
 @keyframes glitchGlyphJitter{
   0%,89%,100%{transform:translate(0,0);clip-path:inset(0 0 0 0)}
@@ -372,18 +407,27 @@ h1 em{font-style:italic;color:var(--accent)}
   96%{transform:translate(0,0);clip-path:inset(0 0 0 0)}
 }
 
-/* fungal: real Pilze der Heimat mushroom plates, one species per piece type. No
-   animation runs on these elements, so a plain static filter is safe here. */
-[data-skin="fungal"] .piece-glyph::before{background-size:cover;background-position:center}
-[data-skin="fungal"] .piece-glyph.pawn::before{background-image:url(../_shared/textures/pieces/fungal-pawn.jpg)}
-[data-skin="fungal"] .piece-glyph.knight::before{background-image:url(../_shared/textures/pieces/fungal-knight.jpg)}
-[data-skin="fungal"] .piece-glyph.bishop::before{background-image:url(../_shared/textures/pieces/fungal-bishop.jpg)}
-[data-skin="fungal"] .piece-glyph.rook::before{background-image:url(../_shared/textures/pieces/fungal-rook.jpg)}
-[data-skin="fungal"] .piece-glyph.queen::before{background-image:url(../_shared/textures/pieces/fungal-queen.jpg)}
-[data-skin="fungal"] .piece-glyph.king::before{background-image:url(../_shared/textures/pieces/fungal-king.jpg)}
+/* fungal: real Pilze der Heimat mushroom cutouts behind each glyph, one species per
+   piece type -- true cutouts, background removed, not photos in a circle. No ambient
+   animation runs on these elements (unlike deepsea above), so the generic
+   .piece-glyph.pulse sweep-flash plays normally and there's nothing to fix here. */
+[data-skin="fungal"] .piece-glyph::before{
+  inset:2%;border-radius:0;box-shadow:none;
+  background-size:contain;background-repeat:no-repeat;background-position:center;
+}
+[data-skin="fungal"] .piece-glyph.pawn::before{background-image:url(../_shared/textures/pieces/fungal-pawn.png)}
+[data-skin="fungal"] .piece-glyph.knight::before{background-image:url(../_shared/textures/pieces/fungal-knight.png)}
+[data-skin="fungal"] .piece-glyph.bishop::before{background-image:url(../_shared/textures/pieces/fungal-bishop.png)}
+[data-skin="fungal"] .piece-glyph.rook::before{background-image:url(../_shared/textures/pieces/fungal-rook.png)}
+[data-skin="fungal"] .piece-glyph.queen::before{background-image:url(../_shared/textures/pieces/fungal-queen.png)}
+[data-skin="fungal"] .piece-glyph.king::before{background-image:url(../_shared/textures/pieces/fungal-king.png)}
 [data-skin="fungal"] .piece-glyph.white::before{filter:saturate(1.15) brightness(1.05)}
 [data-skin="fungal"] .piece-glyph.black::before{filter:saturate(.8) brightness(.55) contrast(1.2)}
-[data-skin="fungal"] .piece-glyph{filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+/* the mushroom cutout is now big enough (inset:2%, up from the old 8%) and earthy
+   enough in tone that a plain contact shadow left the dark-brown glyph nearly
+   illegible against it -- add a soft pale halo so the glyph reads regardless of
+   which specimen's colors happen to be behind it, same idea as neon's glow. */
+[data-skin="fungal"] .piece-glyph{filter:drop-shadow(0 1px 2px rgba(0,0,0,.6)) drop-shadow(0 0 4px rgba(255,248,230,.65))}
 
 .sweep-bar{
   position:absolute;top:0;bottom:0;width:12.5%;left:0;
