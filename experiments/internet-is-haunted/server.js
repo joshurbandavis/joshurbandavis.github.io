@@ -8,12 +8,15 @@
  * for an author tag and a fragment of real text) and returns a memorial
  * record.
  *
- * Uses the Availability API, not the CDX Search API — across a full night
- * of testing, CDX was by far the least reliable of archive.org's services
- * (429s, 521s, 503s, multi-minute outages), while the Availability API —
- * the same one the Wayback Machine's own calendar UI calls — stayed
- * responsive throughout. See getSnapshot() below for how it stands in for
- * CDX's first/last-capture lookup.
+ * Tries the Availability API first, then falls back to the CDX Search API
+ * if that comes up empty. Neither service is reliably always-up on its
+ * own — one night CDX was the unreliable one (429s, 521s, 503s,
+ * multi-minute outages) while Availability stayed solid; a week later
+ * Availability came back empty for nearly everything (even Wikipedia)
+ * while CDX worked fine, then CDX itself briefly served the same
+ * "Temporarily Offline" page minutes after that. They fail independently
+ * and unpredictably, so this only concludes "never archived" when BOTH
+ * agree there's nothing — see getCapture() below.
  *
  * No dependencies — just Node's built-ins and the global fetch.
  */
@@ -105,22 +108,50 @@ async function fetchWithTimeout(url, opts, timeoutMs) {
 // A timestamp from before the web existed returns the closest snapshot to
 // it (the earliest capture, since nothing real predates it); a timestamp
 // safely in the future returns the closest to now (the latest capture).
-// Never omit the timestamp or pass today's actual date for "latest" —
-// confirmed by testing that archive.org's "closest" lookup can return
-// empty specifically when the query timestamp lands too near the most
-// recent real capture (reproduced live: passing today's date on a
-// constantly-archived site came back empty, while a far-future timestamp
-// correctly found today's own capture). Returns null when archive.org has
-// never captured this URL at all. One attempt, no retry: retrying just
-// doubles the wait for the same eventual answer.
-async function getSnapshot(targetUrl, timestamp) {
+// Never omit the timestamp or pass today's actual date for "latest" — a
+// live-tested archive.org quirk where that can come back empty near the
+// most recent real capture.
+async function getSnapshotAvailability(targetUrl, timestamp) {
   const api = `https://archive.org/wayback/available?url=${encodeURIComponent(targetUrl)}&timestamp=${timestamp}`;
-  const res = await fetchWithTimeout(api, {}, 15000);
+  const res = await fetchWithTimeout(api, {}, 12000);
   const data = await res.json();
   const closest = data && data.archived_snapshots && data.archived_snapshots.closest;
   if (!closest || !closest.available) return null;
   const match = /^https?:\/\/web\.archive\.org\/web\/\d+\/(.+)$/.exec(closest.url || '');
   return { timestamp: closest.timestamp, originalUrl: match ? match[1] : targetUrl };
+}
+
+// limit=1 (ascending default order) gets the earliest capture; limit=-1
+// asks the server for the last line instead of paging through everything.
+// Slow or prone to timing out on enormous, constantly-crawled domains
+// (Wikipedia-scale) — fine for the obscure pages this piece expects.
+async function getSnapshotCdx(targetUrl, limit) {
+  const api = `https://web.archive.org/cdx/search/cdx?url=${encodeURIComponent(targetUrl)}&output=json&limit=${limit}`;
+  const res = await fetchWithTimeout(api, {}, 15000);
+  const text = await res.text();
+  const rows = JSON.parse(text);
+  if (!rows || rows.length < 2) return null;
+  const cols = rows[0];
+  const tIdx = cols.indexOf('timestamp');
+  const oIdx = cols.indexOf('original');
+  const row = rows[rows.length - 1];
+  return { timestamp: row[tIdx], originalUrl: row[oIdx] || targetUrl };
+}
+
+// Try Availability first; if it comes back empty or errors, confirm with
+// CDX before believing "never archived." One attempt at each, no retry
+// beyond that — retrying just doubles the wait for the same eventual
+// answer, and having a second independent service already gives this two
+// real chances.
+async function getCapture(targetUrl, timestamp, cdxLimit) {
+  let viaAvailability = null;
+  try {
+    viaAvailability = await getSnapshotAvailability(targetUrl, timestamp);
+  } catch (err) {
+    // fall through to CDX
+  }
+  if (viaAvailability) return viaAvailability;
+  return await getSnapshotCdx(targetUrl, cdxLimit);
 }
 
 // Cookie banners, GDPR notices, and legal boilerplate on a domain still
@@ -179,7 +210,7 @@ async function buildMemorial(targetUrl) {
 
   let first, last;
   try {
-    [first, last] = await Promise.all([getSnapshot(targetUrl, '19960101'), getSnapshot(targetUrl, '22000101')]);
+    [first, last] = await Promise.all([getCapture(targetUrl, '19960101', 1), getCapture(targetUrl, '22000101', -1)]);
   } catch (err) {
     return { ok: false, error: 'archive_unreachable' };
   }
