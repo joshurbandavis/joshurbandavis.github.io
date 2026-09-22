@@ -39,6 +39,7 @@ body{
   cursor:default;
   user-select:none;
 }
+body.roomy{ overflow-x:auto; }
 
 /* ---------- bevel helpers ---------- */
 .raised{
@@ -139,7 +140,9 @@ body{
   margin-top:6px;
   font-size:11px;
   color:#333;
+  font-variant-numeric:tabular-nums;
 }
+.timeremaining.negative{ color:#aa0000; }
 
 .statuslist{
   margin-top:16px;
@@ -180,7 +183,8 @@ body{
 
 /* ---------- taskbar ---------- */
 .taskbar{
-  position:fixed;left:0;right:0;bottom:0;
+  position:fixed;left:0;bottom:0;
+  width:100%;
   height:32px;
   background:var(--face);
   border-top:1px solid var(--hi);
@@ -188,9 +192,9 @@ body{
   padding:2px 3px;
   gap:6px;
   z-index:20;
-  transition:height .7s ease;
+  transition:width .9s ease;
 }
-.taskbar.extended{ height:60px; }
+.taskbar.extended{ width:calc(100% + 260px); }
 @keyframes taskbarFlicker{
   0%,100%{filter:none;}
   50%{filter:brightness(1.5);}
@@ -236,17 +240,6 @@ body{
   display:flex;align-items:center;
   font-variant-numeric:tabular-nums;
 }
-.timer2{
-  height:24px;padding:0 10px;
-  font-size:11px;color:#000;
-  display:flex;align-items:center;
-  font-variant-numeric:tabular-nums;
-  opacity:0;width:0;padding-left:0;padding-right:0;overflow:hidden;
-  transition:opacity .8s ease, width .8s ease, padding .8s ease;
-}
-.timer2.show{ opacity:1;width:56px;padding:0 10px; }
-.timer2.negative{ color:#aa0000; }
-
 /* ---------- start menu ---------- */
 .startmenu{
   position:fixed;left:2px;bottom:34px;
@@ -272,16 +265,18 @@ body{
 }
 .startmenu-item:hover{ background:var(--tb1);color:#fff; }
 
-/* ---------- snake ---------- */
-.snake{ pointer-events:none; }
-.snake-right,.snake-top,.snake-left{
-  position:fixed;
-  background:linear-gradient(180deg,var(--tb1),var(--tb2));
+/* ---------- snake: the loading bar itself slips its track and roams free ---------- */
+.snake{
+  position:fixed;inset:0 0 32px 0;
+  pointer-events:none;
   z-index:15;
 }
-.snake-right{ right:0;bottom:32px;width:4px;height:0; }
-.snake-top{ top:0;right:0;height:4px;width:0; }
-.snake-left{ top:0;left:0;width:4px;height:0; }
+.snake-seg{
+  position:absolute;
+  background:var(--hi);
+  background-image:repeating-linear-gradient(45deg, var(--green) 0 6px, transparent 6px 8px);
+  box-shadow:0 0 0 1px var(--sh), 0 0 8px rgba(0,128,0,.5);
+}
 
 /* ---------- BSOD glimpse ---------- */
 .bsod{
@@ -394,7 +389,7 @@ body{
   <div class="winbody">
     <div id="headline">Please wait.</div>
     <div class="track sunken"><div class="fill" id="fill"></div></div>
-    <div class="timeremaining">Time remaining: calculating…</div>
+    <div class="timeremaining" id="timeRemaining">Time remaining: calculating…</div>
 
     <div class="statuslist" id="log"></div>
 
@@ -427,15 +422,10 @@ body{
     Start
   </div>
   <div class="taskbar-sep" id="taskbarSep"></div>
-  <div class="timer2 sunken" id="timer2"></div>
   <div class="clock sunken" id="clock"></div>
 </div>
 
-<div class="snake" id="snake">
-  <div class="snake-right" id="snakeRight"></div>
-  <div class="snake-top" id="snakeTop"></div>
-  <div class="snake-left" id="snakeLeft"></div>
-</div>
+<div class="snake" id="snake"></div>
 
 <div class="finale-overlay" id="finaleOverlay">
   <div class="finale" id="finale"></div>
@@ -463,10 +453,8 @@ body{
   var taskbarEl   = document.getElementById('taskbar');
   var startBtn    = document.getElementById('startBtn');
   var startMenu   = document.getElementById('startMenu');
-  var timer2      = document.getElementById('timer2');
-  var snakeRight  = document.getElementById('snakeRight');
-  var snakeTop    = document.getElementById('snakeTop');
-  var snakeLeft   = document.getElementById('snakeLeft');
+  var timeRemainingEl = document.getElementById('timeRemaining');
+  var snakeContainer = document.getElementById('snake');
 
   var active = 0;
   var lastTick = null;
@@ -555,6 +543,10 @@ body{
   });
 
   // ---------- ambient sound, off by default, generated (no asset) ----------
+  // Each stopSound() call closes over its OWN osc/lfo/gain/ctx locals rather
+  // than the shared outer vars — otherwise a quick uncheck+recheck lets the
+  // pending stop-timeout fire against the newly-started audio graph instead
+  // of the one it was meant to close, killing the new sound before it plays.
   var audioCtx = null, osc = null, lfo = null, gain = null, playing = false;
   function startSound(){
     if(playing) return;
@@ -582,11 +574,12 @@ body{
   }
   function stopSound(){
     if(!playing) return;
-    try{
-      gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.2);
-      setTimeout(function(){ try{ osc.stop(); lfo.stop(); audioCtx.close(); }catch(e){} }, 1300);
-    }catch(e){}
     playing = false;
+    var ctxToClose = audioCtx, oscToStop = osc, lfoToStop = lfo, gainToRamp = gain;
+    try{
+      gainToRamp.gain.linearRampToValueAtTime(0, ctxToClose.currentTime + 1.2);
+      setTimeout(function(){ try{ oscToStop.stop(); lfoToStop.stop(); ctxToClose.close(); }catch(e){} }, 1300);
+    }catch(e){}
   }
   listenCheck.addEventListener('change', function(){
     listenCheck.checked ? startSound() : stopSound();
@@ -627,7 +620,8 @@ body{
     }, 2400);
   }
 
-  // ---------- taskbar: extends once, resets once, gains ghost slots ----------
+  // ---------- taskbar: grows rightward once (past the viewport edge,
+  // opening scrollable "room" for slots to load into), resets once ----------
   var taskbarExtended = false;
   function flickerTaskbar(){
     taskbarEl.classList.remove('flicker');
@@ -638,6 +632,7 @@ body{
     if(taskbarExtended) return;
     taskbarExtended = true;
     taskbarEl.classList.add('extended');
+    document.body.classList.add('roomy');
     ['untitled','untitled (1)','[no response]'].forEach(function(label, i){
       setTimeout(function(){
         var el = document.createElement('div');
@@ -650,6 +645,8 @@ body{
   }
   function resetTaskbar(){
     taskbarEl.classList.remove('extended');
+    document.body.classList.remove('roomy');
+    try{ window.scrollTo({left:0, behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
     Array.prototype.forEach.call(taskbarEl.querySelectorAll('.ghostslot'), function(el){
       el.classList.remove('show');
       setTimeout(function(){ el.remove(); }, 500);
@@ -672,19 +669,142 @@ body{
   }
   function startTimer2(){
     timer2On = true;
-    timer2.classList.add('show');
-    timer2.textContent = formatTimer2(timer2Value);
+    timeRemainingEl.textContent = 'Time remaining: ' + formatTimer2(timer2Value);
   }
 
-  // ---------- snake: taskbar unspools and traces the edges of the screen ----------
-  var SNAKE_EDGE_DURATION = 20;
-  var snakePhase = 0; // 0 idle, 1 right, 2 top, 3 left, 4 done
-  var snakeT = 0;
+  // ---------- snake: the loading bar slips its track and roams the open screen ----------
+  var SNAKE_CELL = 10;             // worm thickness, px
+  var SNAKE_SPEED = 110;           // px/sec
+  var SNAKE_MAX_LENGTH = 460;      // total worm length, px — constant, like a real snake sliding
+  var SNAKE_TURN_CHANCE = 0.45;    // average turns per second on the open floor
+  var SNAKE_EDGE_MARGIN = 28;
+  var SNAKE_ROAM_DURATION = 55;    // seconds of attended time before it fades
+
+  var snakeRunning = false;
+  var snakeStartAt = 0;
   var snakeComplete = false;
   var snakeCompleteAt = 0;
+  var snakePath = [];   // {x,y} waypoints, tail..head, in viewport coordinates
+  var snakeDir = {x:1,y:0};
+  var snakeSegs = [];   // pooled .snake-seg elements, one per path segment
+
+  function pickSnakeDir(exclude, x, y){
+    var dirs = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
+    if(exclude){
+      dirs = dirs.filter(function(d){ return !(d.x === -exclude.x && d.y === -exclude.y); });
+    }
+    var w = window.innerWidth, h = window.innerHeight - 32;
+    var open = dirs.filter(function(d){
+      if(d.x ===  1 && x > w - SNAKE_EDGE_MARGIN) return false;
+      if(d.x === -1 && x < SNAKE_EDGE_MARGIN) return false;
+      if(d.y ===  1 && y > h - SNAKE_EDGE_MARGIN) return false;
+      if(d.y === -1 && y < SNAKE_EDGE_MARGIN) return false;
+      return true;
+    });
+    if(open.length === 0){ open = exclude ? [{x:-exclude.x,y:-exclude.y}] : dirs; }
+    return open[Math.floor(Math.random()*open.length)];
+  }
+
+  function snakePathLength(){
+    var total = 0;
+    for(var i=1;i<snakePath.length;i++){
+      total += Math.abs(snakePath[i].x-snakePath[i-1].x) + Math.abs(snakePath[i].y-snakePath[i-1].y);
+    }
+    return total;
+  }
+
+  function trimSnakeTail(){
+    while(snakePath.length > 2 && snakePathLength() > SNAKE_MAX_LENGTH){
+      var p0 = snakePath[0], p1 = snakePath[1];
+      var segLen = Math.abs(p1.x-p0.x) + Math.abs(p1.y-p0.y);
+      var over = snakePathLength() - SNAKE_MAX_LENGTH;
+      if(over >= segLen || segLen === 0){
+        snakePath.shift();
+      } else {
+        var t = over/segLen;
+        p0.x += (p1.x-p0.x)*t;
+        p0.y += (p1.y-p0.y)*t;
+        break;
+      }
+    }
+  }
+
+  function renderSnake(){
+    var need = Math.max(0, snakePath.length-1);
+    while(snakeSegs.length < need){
+      var el = document.createElement('div');
+      el.className = 'snake-seg';
+      snakeContainer.appendChild(el);
+      snakeSegs.push(el);
+    }
+    while(snakeSegs.length > need){
+      snakeSegs.pop().remove();
+    }
+    for(var i=0;i<need;i++){
+      var a = snakePath[i], b = snakePath[i+1], el = snakeSegs[i];
+      if(a.x === b.x){
+        el.style.left = (a.x - SNAKE_CELL/2)+'px';
+        el.style.top = Math.min(a.y,b.y)+'px';
+        el.style.width = SNAKE_CELL+'px';
+        el.style.height = Math.max(Math.abs(b.y-a.y), SNAKE_CELL)+'px';
+      } else {
+        el.style.left = Math.min(a.x,b.x)+'px';
+        el.style.top = (a.y - SNAKE_CELL/2)+'px';
+        el.style.width = Math.max(Math.abs(b.x-a.x), SNAKE_CELL)+'px';
+        el.style.height = SNAKE_CELL+'px';
+      }
+    }
+  }
+
+  function updateSnake(dt){
+    var head = snakePath[snakePath.length-1];
+    var w = window.innerWidth, h = window.innerHeight - 32, lookahead = 40;
+    var approachingWall =
+      (snakeDir.x ===  1 && head.x + lookahead > w) ||
+      (snakeDir.x === -1 && head.x - lookahead < 0) ||
+      (snakeDir.y ===  1 && head.y + lookahead > h) ||
+      (snakeDir.y === -1 && head.y - lookahead < 0);
+
+    if(approachingWall || Math.random() < SNAKE_TURN_CHANCE*dt){
+      var newDir = pickSnakeDir(snakeDir, head.x, head.y);
+      if(newDir.x !== snakeDir.x || newDir.y !== snakeDir.y){
+        snakeDir = newDir;
+        snakePath.push({x:head.x, y:head.y});
+        head = snakePath[snakePath.length-1];
+      }
+    }
+
+    head.x = Math.max(0, Math.min(w, head.x + snakeDir.x*SNAKE_SPEED*dt));
+    head.y = Math.max(0, Math.min(h, head.y + snakeDir.y*SNAKE_SPEED*dt));
+
+    trimSnakeTail();
+    renderSnake();
+  }
+
   function startSnake(){
-    snakePhase = 1;
-    snakeT = 0;
+    var rect = fill.getBoundingClientRect();
+    fill.style.transition = 'opacity .6s ease';
+    fill.style.opacity = '0';
+    var x = rect.left + rect.width;
+    var y = rect.top + rect.height/2;
+    snakePath = [{x:x,y:y},{x:x,y:y}];
+    snakeDir = pickSnakeDir(null, x, y);
+    snakeRunning = true;
+    snakeStartAt = active;
+  }
+
+  function fadeSnake(){
+    snakeRunning = false;
+    snakeComplete = true;
+    snakeCompleteAt = active;
+    snakeContainer.style.transition = 'opacity 2.4s ease';
+    snakeContainer.style.opacity = '0';
+    setTimeout(function(){
+      snakeSegs.forEach(function(el){ el.remove(); });
+      snakeSegs = [];
+      snakePath = [];
+    }, 2500);
+    addLine('it did not come back.');
   }
 
   function addLineDeep(text){
@@ -777,29 +897,13 @@ body{
         resetTaskbar();
         startSnake();
       }
-      timer2.textContent = formatTimer2(timer2Value);
-      timer2.classList.toggle('negative', timer2Value < 0);
+      timeRemainingEl.textContent = 'Time remaining: ' + formatTimer2(timer2Value);
+      timeRemainingEl.classList.toggle('negative', timer2Value < 0);
     }
 
-    if(isAttending() && snakePhase > 0 && snakePhase < 4){
-      snakeT += dt;
-      var frac = Math.min(snakeT/SNAKE_EDGE_DURATION, 1);
-      var vEdge = window.innerHeight - 32;
-      if(snakePhase === 1){
-        snakeRight.style.height = (frac*vEdge) + 'px';
-        if(frac >= 1){ snakePhase = 2; snakeT = 0; }
-      } else if(snakePhase === 2){
-        snakeTop.style.width = (frac*window.innerWidth) + 'px';
-        if(frac >= 1){ snakePhase = 3; snakeT = 0; }
-      } else if(snakePhase === 3){
-        snakeLeft.style.height = (frac*vEdge) + 'px';
-        if(frac >= 1){
-          snakePhase = 4;
-          snakeComplete = true;
-          snakeCompleteAt = active;
-          addLine('the loop closed. it started here and it ends here.');
-        }
-      }
+    if(isAttending() && snakeRunning){
+      updateSnake(dt);
+      if(active - snakeStartAt > SNAKE_ROAM_DURATION) fadeSnake();
     }
 
     var fallbackDue = active > 900;
