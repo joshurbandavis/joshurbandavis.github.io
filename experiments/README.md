@@ -540,6 +540,19 @@ behavioral art. Each lives in its own folder as a self-contained page.
     honest about never doing. Fixed by building the reveal layer from the
     scarred canvas once the real scar count is known, not the raw image.
 
+    That live-tremble reveal was the *only* payoff for a long stretch,
+    and it's only ever visible during real, substantial neglect — maybe
+    17+ hours of drought before the tremble even starts — so on a
+    normally-tended page there was usually nothing there to reverse, and
+    wiping read as inert no matter how the animation itself was tuned.
+    Fixed by giving the whole canvas an always-present haze
+    (`HAZE_FILTER` — `blur(6px) saturate(.45) brightness(.82)`,
+    independent of the real drought/scar state) that wiping always clears
+    back to full color and focus within the mask. Guarantees something
+    satisfying to wipe on every visit regardless of the real shared
+    clock, while leaving the honest mechanics underneath (scars stay,
+    only tremble clears) completely unchanged.
+
     An earlier version of this piece tried making the wipe gesture itself
     the only way to register a tend (closing the "refresh does nothing"
     gap decay/mutate already accept); in practice the tuning needed to
@@ -589,6 +602,32 @@ behavioral art. Each lives in its own folder as a self-contained page.
     peek mode — a look that never counts as a visit.
   - `?drought=<hours>&?scars=<n>` — pure rendering preview, no network;
     wiping still animates but nothing is read or written anywhere.
+
+- `in-other-words/` — say something plainly and four voices answer with
+  the one line each of them ever wrote that sits closest in *meaning*:
+  Taylor Swift, Shakespeare's Sonnets, Emily Dickinson, and Proverbs &
+  Ecclesiastes (KJV). Built so more voices are cheap to add later.
+  - **Offline:** `build/build.mjs` downloads each corpus (cached in
+    `build/.cache/`, gitignored), cuts it into units (a line plus the line
+    after it; a verse for Proverbs), embeds every unit with
+    `all-MiniLM-L6-v2` via transformers.js, and writes `data/<voice>.json`
+    (text + source) and `data/<voice>.bin` (int8 vectors with one float32
+    scale each, a quarter the size of float32) plus `data/voices.json`.
+    `cd in-other-words/build && npm install && npm run build` rebuilds
+    everything in about 90s, or `npm run build -- swift` rebuilds one voice.
+  - **In the browser:** the same model (~23 MB, fetched once from Hugging
+    Face via jsDelivr, then cached) embeds the visitor's sentence, and an
+    exact scan over all ~18k vectors finds each voice's top 5 ("another ↻"
+    steps through them). The voice with the highest best score gets marked
+    "closest." No backend; nothing typed leaves the page. `?q=<text>`
+    pre-fills and runs a query, so results are shareable as links.
+  - **Adding a voice:** add an entry to `VOICES` in `build.mjs` (a name, a
+    credit, and a `units()` that returns `{ a, b, src }`), rebuild, and give
+    it an accent colour in `index.html` (`.voice[data-id="…"]`).
+  - Model and dtype must match between `build.mjs` and `index.html`, or
+    query and corpus vectors end up in different spaces.
+  - The Swift lyrics are copyrighted; `data/swift.json` holds all ~10k
+    lines in plain text. The other three corpora are public domain.
 
 Not linked from the main site nav — open directly, e.g. locally:
 

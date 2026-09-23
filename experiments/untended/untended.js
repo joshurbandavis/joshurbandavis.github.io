@@ -16,6 +16,18 @@
  * flipping on/off (an earlier, too-instant version of this read as the
  * whole thing "snapping" rather than wiping).
  *
+ * The whole canvas defaults to a soft haze — blurred, desaturated, dimmed
+ * (HAZE_FILTER) — independent of the real drought/scar state, and wiping
+ * always clears it back to full sharpness and color within the mask. This
+ * exists because the *real* payoff (clearing the live ephemeral tremble)
+ * is only ever visible during actual, substantial neglect — maybe 17+
+ * hours of real drought — so on a normally-tended page there was often
+ * nothing there to reverse, and the gesture read as inert no matter how
+ * the reveal animation itself was tuned. The haze guarantees something
+ * satisfying to wipe away on every single visit, regardless of the real
+ * shared clock, while the honest mechanics underneath (scars stay, only
+ * tremble clears) are completely unchanged by it.
+ *
  * What it actually reveals matters: the scarred painting as it really
  * stands, with only the live ephemeral trembling wiped away — never the
  * never-scarred original (`revealBase`, built from `scarred`, not
@@ -72,6 +84,12 @@
   // ~4-5s — quick enough to feel responsive, slow enough to read as a
   // fade rather than a cut.
   var WIPE_FADE_PER_SEC = 0.6;
+  // the always-present haze that wiping clears (see header) — a Canvas
+  // filter string applied to the whole base render before the reveal
+  // mask carves the sharp/true version back out of it. Soft-focus rather
+  // than heavy blur: enough that clear-vs-hazy is unmistakable even on a
+  // freshly-tended page, not so much the painting reads as broken.
+  var HAZE_FILTER = 'blur(6px) saturate(0.45) brightness(0.82)';
   // cumulative internal-px sweep distance before THIS VISIT's tending is
   // considered "done" — a purely local, session-only ritual on top of the
   // already-real tend that already fired on load (see header). Once
@@ -472,13 +490,19 @@
 
         function composite() {
           if (settled) {
-            // stays put: the calm, scarred-but-untrembling state, final
+            // stays put: the calm, scarred-but-untrembling state, final —
+            // fully clear, no haze, everywhere
             visCtx.clearRect(0, 0, INTERNAL_SIZE, INTERNAL_SIZE);
+            visCtx.filter = 'none';
             visCtx.drawImage(revealBase, 0, 0);
             return;
           }
           visCtx.clearRect(0, 0, INTERNAL_SIZE, INTERNAL_SIZE);
+          // hazed by default, everywhere — this is what makes the gesture
+          // legible regardless of how much real drought/tremble there is
+          visCtx.filter = HAZE_FILTER;
           visCtx.drawImage(damaged, 0, 0);
+          visCtx.filter = 'none';
           if (maskDirty) {
             maskTempCtx.clearRect(0, 0, INTERNAL_SIZE, INTERNAL_SIZE);
             maskTempCtx.globalCompositeOperation = 'source-over';
