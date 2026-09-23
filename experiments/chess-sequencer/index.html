@@ -211,6 +211,71 @@
 [data-skin="fungal"] .panel{border-radius:18px 10px 18px 10px;border-color:rgba(143,170,107,.25)}
 [data-skin="fungal"] .board{border-radius:12px}
 
+/* comet: a 16th-century "wonder book" comet plate -- gold blaze over a dusk-violet sky,
+   storm clouds banking below. comet.jpg -- from an Augsburg-style Wunderzeichenbuch
+   comet-omen illustration (public domain), experiments/_shared/textures/. */
+:root[data-skin="comet"]{
+  --bg:#14101f;--fg:#ede6f0;--dim:#6b5f7a;--dim2:#2a2038;
+  --accent:#e8b64a;--accent2:#c77b8f;--accent3:#6b7c8a;
+  --light-sq:#241c36;--dark-sq:#150f22;
+  --piece-light:#ede6f0;--piece-dark:#3a2f4a;
+}
+[data-skin="comet"] body{background-image:
+  radial-gradient(circle at 75% 20%,rgba(232,182,74,.1),transparent 45%),
+  radial-gradient(circle at 20% 80%,rgba(199,123,143,.06),transparent 45%),
+  linear-gradient(rgba(20,16,31,.78),rgba(20,16,31,.85)),
+  url(../_shared/textures/comet.jpg);
+  background-size:auto,auto,auto,cover;
+  background-position:center,center,center,center 20%;
+}
+[data-skin="comet"] .panel{background:rgba(42,32,56,.5);backdrop-filter:blur(8px);border-color:rgba(232,182,74,.22);box-shadow:0 0 24px -14px rgba(232,182,74,.35)}
+[data-skin="comet"] .board{box-shadow:0 0 60px -18px rgba(232,182,74,.45)}
+[data-skin="comet"] .sweep-bar{background:linear-gradient(180deg,rgba(232,182,74,.2),rgba(199,123,143,.05));border-color:rgba(232,182,74,.55);box-shadow:0 0 20px rgba(232,182,74,.4)}
+
+/* danse macabre: Death leads a jester in a woodcut Totentanz -- bone, ink and a little
+   blood. macabre.jpg -- 19th-c. lithograph "Der Tod zum Narren", public domain,
+   experiments/_shared/textures/. */
+:root[data-skin="macabre"]{
+  --bg:#14100c;--fg:#e8ddc8;--dim:#7a6d5a;--dim2:#2e2418;
+  --accent:#b8392c;--accent2:#b8934a;--accent3:#cbbfa8;
+  --light-sq:#241c14;--dark-sq:#15100b;
+  --piece-light:#cbbfa8;--piece-dark:#241a10;
+}
+[data-skin="macabre"] body{background-image:
+  linear-gradient(rgba(20,16,12,.82),rgba(20,16,12,.88)),
+  url(../_shared/textures/macabre.jpg);
+  background-size:auto,cover;
+  background-position:center,center 10%;
+}
+[data-skin="macabre"] .panel{background:rgba(46,36,24,.5);border-color:rgba(184,147,74,.25);box-shadow:0 10px 24px -16px rgba(0,0,0,.6)}
+[data-skin="macabre"] .board{box-shadow:0 20px 50px -20px rgba(0,0,0,.7)}
+[data-skin="macabre"] .sweep-bar{background:linear-gradient(180deg,rgba(184,57,44,.22),rgba(184,147,74,.05));border-color:rgba(184,57,44,.55)}
+
+/* grimoire: a hooded tribunal by candlelight, sword and skull on the altar cloth --
+   grimoire.jpg -- 19th-c. wood engraving "Initiation of a member of the Vehm", public
+   domain, experiments/_shared/textures/. The seal (motifs/seal-faint.svg, also public
+   domain) glows faintly behind the title and lede -- the board's own squares paint
+   edge-to-edge with no gaps, so a background-image sitting behind them would be
+   invisible there. */
+:root[data-skin="grimoire"]{
+  --bg:#0d0a0a;--fg:#d8cbb0;--dim:#5c5248;--dim2:#201a16;
+  --accent:#9c2b2b;--accent2:#b8863c;--accent3:#5a3d6e;
+  --light-sq:#1c1512;--dark-sq:#0e0a08;
+  --piece-light:#d8cbb0;--piece-dark:#2a1c1c;
+}
+[data-skin="grimoire"] body{background-image:
+  url(../_shared/textures/motifs/seal-faint.svg),
+  radial-gradient(circle at 50% 30%,rgba(184,134,60,.06),transparent 50%),
+  linear-gradient(rgba(13,10,10,.84),rgba(13,10,10,.9)),
+  url(../_shared/textures/grimoire.jpg);
+  background-size:640px,auto,auto,cover;
+  background-position:center 210px,center,center,center 25%;
+  background-repeat:no-repeat,no-repeat,no-repeat,no-repeat;
+}
+[data-skin="grimoire"] .panel{background:rgba(32,26,22,.55);border-color:rgba(156,43,43,.3);box-shadow:0 0 24px -16px rgba(156,43,43,.4)}
+[data-skin="grimoire"] .board{box-shadow:0 0 0 1px rgba(184,134,60,.18),0 0 50px -18px rgba(156,43,43,.5)}
+[data-skin="grimoire"] .sweep-bar{background:linear-gradient(180deg,rgba(156,43,43,.22),rgba(184,134,60,.06));border-color:rgba(156,43,43,.55)}
+
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
@@ -418,6 +483,57 @@ h1 em{font-style:italic;color:var(--accent)}
 }
 [data-skin="fungal"] .piece-glyph{filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
 
+/* comet: two bodies streaking past each other -- a gold comet trailing left behind
+   white's glyphs, a dusty rose one trailing right behind black's, each tail just an
+   offset glow so it reads at a glance. Both twinkle gently. */
+[data-skin="comet"] .piece-glyph::before{border-radius:62% 38% 55% 45% / 55% 45% 58% 42%}
+[data-skin="comet"] .piece-glyph.white::before{background:radial-gradient(ellipse at 32% 28%,rgba(255,255,255,.35),transparent 60%)}
+[data-skin="comet"] .piece-glyph.black::before{background:radial-gradient(ellipse at 32% 28%,rgba(255,255,255,.28),transparent 60%)}
+[data-skin="comet"] .piece-glyph.white{animation:cometGlyphGold 2.6s ease-in-out infinite}
+[data-skin="comet"] .piece-glyph.black{animation:cometGlyphRose 2.6s ease-in-out infinite}
+[data-skin="comet"] .piece-glyph.white.pulse{animation:cometGlyphPulseGold .3s ease}
+[data-skin="comet"] .piece-glyph.black.pulse{animation:cometGlyphPulseRose .3s ease}
+@keyframes cometGlyphGold{0%,100%{filter:drop-shadow(-3px 1px 5px rgba(232,182,74,.5))}50%{filter:drop-shadow(-5px 2px 8px rgba(232,182,74,.85))}}
+@keyframes cometGlyphRose{0%,100%{filter:drop-shadow(3px 1px 5px rgba(199,123,143,.45))}50%{filter:drop-shadow(5px 2px 8px rgba(199,123,143,.8))}}
+@keyframes cometGlyphPulseGold{0%{filter:brightness(2) drop-shadow(-3px 1px 5px rgba(232,182,74,.5))}100%{filter:brightness(1) drop-shadow(-3px 1px 5px rgba(232,182,74,.5))}}
+@keyframes cometGlyphPulseRose{0%{filter:brightness(2) drop-shadow(3px 1px 5px rgba(199,123,143,.45))}100%{filter:brightness(1) drop-shadow(3px 1px 5px rgba(199,123,143,.45))}}
+
+/* danse macabre: bone against motley -- white's coin is aged ivory scored with fine
+   hairline cracks, black's is a harlequin diamond check in the jester's own
+   red-and-umber, like a coin cut from his own motley sleeve. */
+[data-skin="macabre"] .piece-glyph.white::before{
+  background:
+    radial-gradient(circle at 30% 70%, transparent 62%, rgba(40,30,20,.14) 63%, transparent 65%),
+    radial-gradient(circle at 65% 35%, transparent 68%, rgba(40,30,20,.11) 69%, transparent 71%),
+    var(--accent3);
+}
+[data-skin="macabre"] .piece-glyph.black::before{
+  background:repeating-conic-gradient(var(--accent) 0deg 45deg, var(--dim2) 45deg 90deg);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),inset 0 0 0 2px rgba(0,0,0,.25);
+}
+[data-skin="macabre"] .piece-glyph{filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
+
+/* grimoire: a wax seal pressed in blood-red behind white's glyphs, a brass sigil
+   medallion (rim scored with the same four tick marks as the seal on the page) behind
+   black's. */
+[data-skin="grimoire"] .piece-glyph.white::before{
+  background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.25),transparent 55%),var(--accent);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.15),0 0 10px -2px rgba(156,43,43,.6);
+}
+[data-skin="grimoire"] .piece-glyph.black::before{
+  background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.2),transparent 55%),var(--accent2);
+}
+[data-skin="grimoire"] .piece-glyph.black::after{
+  content:'';position:absolute;inset:14%;border-radius:50%;pointer-events:none;z-index:-1;
+  border:1px solid rgba(0,0,0,.4);
+  background:
+    radial-gradient(circle 1.2px at 50% 6%, rgba(0,0,0,.4) 90%, transparent 100%),
+    radial-gradient(circle 1.2px at 50% 94%, rgba(0,0,0,.4) 90%, transparent 100%),
+    radial-gradient(circle 1.2px at 6% 50%, rgba(0,0,0,.4) 90%, transparent 100%),
+    radial-gradient(circle 1.2px at 94% 50%, rgba(0,0,0,.4) 90%, transparent 100%);
+}
+[data-skin="grimoire"] .piece-glyph{filter:drop-shadow(0 1px 2px rgba(0,0,0,.55))}
+
 .sweep-bar{
   position:absolute;top:0;bottom:0;width:12.5%;left:0;
   background:linear-gradient(180deg,rgba(200,255,46,.16),rgba(200,255,46,.03));
@@ -559,6 +675,9 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
           <option value="deepsea">Deep Sea</option>
           <option value="glitch">Glitch</option>
           <option value="fungal">Fungal</option>
+          <option value="comet">Comet</option>
+          <option value="macabre">Danse Macabre</option>
+          <option value="grimoire">Grimoire</option>
         </select>
       </div>
 
@@ -1545,12 +1664,66 @@ const PALETTES = {
       new Tone.Chorus({frequency:0.7, delayTime:3, depth:0.3, wet:0.2}).start(), // murky thickness
     ],
   }) },
+  // omen: a dark, distant bell across the whole board -- low harmonicity keeps every
+  // voice inharmonic and gong-like rather than bright, escalating from a short pawn
+  // chime to a slow, cavernous king toll, all sharing a slow chorus and a wide,
+  // spaced-out echo so each one hangs in the air like it's rolling across a valley.
+  omen: { label:'Omen', make: () => ({
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.FMSynth, {harmonicity:2, modulationIndex:3, envelope:{attack:0.01,decay:0.3,sustain:0.05,release:0.6}, modulationEnvelope:{attack:0.05,decay:0.2,sustain:0,release:0.3}}),
+      knight: new Tone.PolySynth(Tone.FMSynth, {harmonicity:1.8, modulationIndex:4, envelope:{attack:0.005,decay:0.25,sustain:0,release:0.5}, modulationEnvelope:{attack:0.02,decay:0.15,sustain:0,release:0.25}}),
+      bishop: new Tone.PolySynth(Tone.FMSynth, {harmonicity:1.5, modulationIndex:5, envelope:{attack:0.05,decay:0.6,sustain:0.2,release:1.4}, modulationEnvelope:{attack:0.15,decay:0.4,sustain:0.1,release:0.8}}),
+      rook:   new Tone.PolySynth(Tone.FMSynth, {harmonicity:1.2, modulationIndex:6, envelope:{attack:0.02,decay:0.8,sustain:0.2,release:1.8}, modulationEnvelope:{attack:0.3,decay:0.5,sustain:0.1,release:1.0}}),
+      queen:  new Tone.PolySynth(Tone.FMSynth, {harmonicity:1.6, modulationIndex:7, envelope:{attack:0.03,decay:1.0,sustain:0.25,release:2.2}, modulationEnvelope:{attack:0.35,decay:0.6,sustain:0.15,release:1.2}}),
+      king:   new Tone.PolySynth(Tone.FMSynth, {harmonicity:1.5, modulationIndex:6, envelope:{attack:0.05,decay:1.4,sustain:0.3,release:3.2}, modulationEnvelope:{attack:0.5,decay:0.9,sustain:0.15,release:1.8}}),
+    },
+    effects: () => [
+      new Tone.Chorus({frequency:0.3, delayTime:6, depth:0.5, wet:0.35}).start(),
+      new Tone.FeedbackDelay({delayTime:'4n.', feedback:0.4, wet:0.28}),
+    ],
+  }) },
+  // macabre: a music box playing just slightly wrong across the board -- deep chorus
+  // detunes every voice against itself for that toy-piano waver, and a touch of
+  // vibrato keeps nothing ever quite landing in tune, like the mechanism is worn.
+  macabre: { label:'Danse Macabre', make: () => ({
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'triangle'}, envelope:{attack:0.001,decay:0.2,sustain:0.02,release:0.25}}),
+      knight: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.12,sustain:0,release:0.15}}),
+      bishop: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'triangle'}, envelope:{attack:0.02,decay:0.3,sustain:0.2,release:0.5}}),
+      rook:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'sawtooth'}, envelope:{attack:0.005,decay:0.3,sustain:0.15,release:0.4}}),
+      queen:  new Tone.PolySynth(Tone.Synth, {oscillator:{type:'triangle'}, envelope:{attack:0.02,decay:0.4,sustain:0.25,release:0.7}}),
+      king:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'triangle'}, envelope:{attack:0.05,decay:0.6,sustain:0.3,release:1.1}}),
+    },
+    effects: () => [
+      new Tone.Vibrato({frequency:4.5, depth:0.22}),
+      new Tone.Chorus({frequency:1.1, delayTime:3.5, depth:0.6, wet:0.45}).start(),
+    ],
+  }) },
+  // grimoire: a struck bowl over a held chant across the board -- low harmonicity AM
+  // keeps every voice close to a single dark fundamental instead of a bright bell, a
+  // slow tremolo gives the whole palette a chant-like pulse, and a slow phaser is the
+  // only "movement" in the room.
+  grimoire: { label:'Grimoire', make: () => ({
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.AMSynth, {harmonicity:1, oscillator:{type:'sine'}, envelope:{attack:0.02,decay:0.2,sustain:0.1,release:0.35}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.05,decay:0.15,sustain:0.05,release:0.2}}),
+      knight: new Tone.PolySynth(Tone.AMSynth, {harmonicity:0.8, oscillator:{type:'sine'}, envelope:{attack:0.01,decay:0.18,sustain:0.08,release:0.3}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.03,decay:0.12,sustain:0,release:0.2}}),
+      bishop: new Tone.PolySynth(Tone.AMSynth, {harmonicity:0.5, oscillator:{type:'sine'}, envelope:{attack:0.2,decay:0.5,sustain:0.4,release:1.4}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.3,decay:0.3,sustain:0.3,release:0.8}}),
+      rook:   new Tone.PolySynth(Tone.AMSynth, {harmonicity:0.4, oscillator:{type:'sine'}, envelope:{attack:0.05,decay:0.5,sustain:0.3,release:1.2}, modulation:{type:'triangle'}, modulationEnvelope:{attack:0.15,decay:0.3,sustain:0.2,release:0.7}}),
+      queen:  new Tone.PolySynth(Tone.AMSynth, {harmonicity:0.6, oscillator:{type:'sine'}, envelope:{attack:0.15,decay:0.7,sustain:0.45,release:1.8}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.3,decay:0.4,sustain:0.35,release:1.0}}),
+      king:   new Tone.PolySynth(Tone.AMSynth, {harmonicity:0.5, oscillator:{type:'sine'}, envelope:{attack:0.3,decay:1.0,sustain:0.5,release:2.6}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.5,decay:0.6,sustain:0.4,release:1.6}}),
+    },
+    effects: () => [
+      new Tone.Tremolo({frequency:1.8, depth:0.4, wet:0.5}).start(),
+      new Tone.Phaser({frequency:0.2, octaves:2.5, baseFrequency:200, wet:0.3}),
+    ],
+  }) },
 };
 // every skin IS a sound palette now -- picking a skin rebuilds all six piece-type voices
 const SKIN_PALETTE = {
   dark:'percussive', light:'orchestral', neon:'electronic', alien:'percussive',
   tr808:'tr808', tb303:'tb303', modular:'modular', op1:'op1',
   deepsea:'deepsea', glitch:'glitch', fungal:'fungal',
+  comet:'omen', macabre:'macabre', grimoire:'grimoire',
 };
 
 let paletteSynths = null, alertSynth = null, reverb = null;
