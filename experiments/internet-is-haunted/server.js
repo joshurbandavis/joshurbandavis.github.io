@@ -111,7 +111,7 @@ async function fetchWithTimeout(url, opts, timeoutMs) {
 // Never omit the timestamp or pass today's actual date for "latest" — a
 // live-tested archive.org quirk where that can come back empty near the
 // most recent real capture.
-async function getSnapshotAvailability(targetUrl, timestamp) {
+async function getSnapshotAvailabilityOnce(targetUrl, timestamp) {
   const api = `https://archive.org/wayback/available?url=${encodeURIComponent(targetUrl)}&timestamp=${timestamp}`;
   const res = await fetchWithTimeout(api, {}, 12000);
   const data = await res.json();
@@ -119,6 +119,38 @@ async function getSnapshotAvailability(targetUrl, timestamp) {
   if (!closest || !closest.available) return null;
   const match = /^https?:\/\/web\.archive\.org\/web\/\d+\/(.+)$/.exec(closest.url || '');
   return { timestamp: closest.timestamp, originalUrl: match ? match[1] : targetUrl };
+}
+
+// Confirmed live (2026-09-22) that archive.org has a per-exact-timestamp
+// cache bug: querying '19960101' returns a stuck-empty result every time
+// (same backend node, same empty body), while '19960102' — a functionally
+// identical query, since "closest snapshot" doesn't care about the exact
+// day — returns the real answer. The broken timestamps aren't predictable
+// (19960101, 19960115, and 20000101 were all stuck; 19960102, 19960201,
+// and 20050101 all worked), so a retry has to use a genuinely different
+// timestamp, not just repeat the same request — retrying the identical
+// query would hit the exact same poisoned cache entry and gain nothing.
+function jitterTimestamp(timestamp, days) {
+  const y = parseInt(timestamp.slice(0, 4), 10);
+  const m = parseInt(timestamp.slice(4, 6), 10) - 1;
+  const d = parseInt(timestamp.slice(6, 8), 10);
+  const date = new Date(Date.UTC(y, m, d));
+  date.setUTCDate(date.getUTCDate() + days);
+  const yyyy = date.getUTCFullYear();
+  const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(date.getUTCDate()).padStart(2, '0');
+  return `${yyyy}${mm}${dd}`;
+}
+
+// This is the more reliable of the two archive.org endpoints — worth one
+// retry on an empty result before falling through to CDX, since an empty
+// result has previously turned out to be this API's own known flakiness
+// rather than a genuine absence.
+async function getSnapshotAvailability(targetUrl, timestamp) {
+  const first = await getSnapshotAvailabilityOnce(targetUrl, timestamp);
+  if (first) return first;
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  return getSnapshotAvailabilityOnce(targetUrl, jitterTimestamp(timestamp, 14));
 }
 
 // limit=1 (ascending default order) gets the earliest capture; limit=-1

@@ -16,6 +16,20 @@
  * and unpredictably, so this only concludes "never archived" when BOTH
  * agree there's nothing — see getCapture() below.
  *
+ * Diagnosed live (2026-09-22) that CDX specifically is degraded *because
+ * this runs on Cloudflare's network*: archive.org's own response headers
+ * include `x-nid: Cloudflare` (their network-identity fingerprint) on CDX
+ * requests from this Worker, versus `x-nid: ATT-INTERNET4` for the exact
+ * same request from a residential IP — and the Cloudflare-tagged requests
+ * came back as three different failures in three consecutive tries (a 400
+ * from archive.org's own nginx, a 521 from Cloudflare's edge saying their
+ * origin refused the connection, and a full 15s hang), while Availability
+ * succeeded every time from the same Worker. CDX is kept as a fallback
+ * because it isn't *always* broken, but its timeout is kept short (see
+ * getSnapshotCdx) since it's unlikely to pay off, and getSnapshotAvailability
+ * retries once before giving up, since it's the one path actually reliable
+ * from this network.
+ *
  * Availability answers a differently-shaped question ("closest snapshot to
  * a timestamp") but that covers first/last capture too: a timestamp from
  * the web's infancy returns the closest snapshot to it, which for any real
@@ -93,7 +107,11 @@ async function fetchWithTimeout(url, opts, timeoutMs) {
   }
 }
 
-async function getSnapshotAvailability(targetUrl, timestamp) {
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function getSnapshotAvailabilityOnce(targetUrl, timestamp) {
   const api = `https://archive.org/wayback/available?url=${encodeURIComponent(targetUrl)}&timestamp=${timestamp}`;
   const res = await fetchWithTimeout(api, {}, 12000);
   const data = await res.json();
@@ -103,9 +121,44 @@ async function getSnapshotAvailability(targetUrl, timestamp) {
   return { timestamp: closest.timestamp, originalUrl: match ? match[1] : targetUrl };
 }
 
+// Confirmed live (2026-09-22) that archive.org has a per-exact-timestamp
+// cache bug: querying '19960101' returns a stuck-empty result every time
+// (same backend node, same empty body), while '19960102' — a functionally
+// identical query, since "closest snapshot" doesn't care about the exact
+// day — returns the real answer. The broken timestamps aren't predictable
+// (19960101, 19960115, and 20000101 were all stuck; 19960102, 19960201,
+// and 20050101 all worked), so a retry has to use a genuinely different
+// timestamp, not just repeat the same request — retrying the identical
+// query would hit the exact same poisoned cache entry and gain nothing.
+function jitterTimestamp(timestamp, days) {
+  const y = parseInt(timestamp.slice(0, 4), 10);
+  const m = parseInt(timestamp.slice(4, 6), 10) - 1;
+  const d = parseInt(timestamp.slice(6, 8), 10);
+  const date = new Date(Date.UTC(y, m, d));
+  date.setUTCDate(date.getUTCDate() + days);
+  const yyyy = date.getUTCFullYear();
+  const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(date.getUTCDate()).padStart(2, '0');
+  return `${yyyy}${mm}${dd}`;
+}
+
+// This is the one archive.org path confirmed reliable from Cloudflare's
+// network (see the file header) — worth one retry on an empty result before
+// falling through to CDX, since an empty result here has previously turned
+// out to be this API's own known flakiness rather than a genuine absence.
+async function getSnapshotAvailability(targetUrl, timestamp) {
+  const first = await getSnapshotAvailabilityOnce(targetUrl, timestamp);
+  if (first) return first;
+  await sleep(400);
+  return getSnapshotAvailabilityOnce(targetUrl, jitterTimestamp(timestamp, 14));
+}
+
 async function getSnapshotCdx(targetUrl, limit) {
   const api = `https://web.archive.org/cdx/search/cdx?url=${encodeURIComponent(targetUrl)}&output=json&limit=${limit}`;
-  const res = await fetchWithTimeout(api, {}, 15000);
+  // Short timeout: confirmed live that this path is frequently degraded
+  // specifically for Cloudflare-network traffic (see file header), so a
+  // long wait here rarely pays off — fail fast and let the caller move on.
+  const res = await fetchWithTimeout(api, {}, 6000);
   const text = await res.text();
   const rows = JSON.parse(text);
   if (!rows || rows.length < 2) return null;
