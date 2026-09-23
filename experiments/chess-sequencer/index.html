@@ -334,6 +334,62 @@
 [data-skin="marbled"] .board{box-shadow:0 0 50px -16px rgba(201,162,74,.35)}
 [data-skin="marbled"] .sweep-bar{background:linear-gradient(180deg,rgba(201,162,74,.2),rgba(58,90,138,.08));border-color:rgba(201,162,74,.55)}
 
+/* clockwork: an exposed pocket-watch movement, engraved gilt gearwork under an open
+   case back. clockwork.jpg -- public domain, experiments/_shared/textures/. */
+:root[data-skin="clockwork"]{
+  --bg:#1b140c;--fg:#e7d9bd;--dim:#8a7455;--dim2:#2b2013;
+  --accent:#7d8a72;--accent2:#c17a3f;--accent3:#d9c48f;
+  --light-sq:#2c2013;--dark-sq:#160f09;
+  --piece-light:#e8d9b0;--piece-dark:#3a3226;
+}
+[data-skin="clockwork"] body{background-image:
+  radial-gradient(circle at 50% 18%,rgba(201,164,74,.08),transparent 45%),
+  linear-gradient(rgba(27,20,12,.78),rgba(27,20,12,.86)),
+  url(../_shared/textures/clockwork.jpg);
+  background-size:auto,auto,cover;
+  background-position:center,center,center 25%;
+}
+[data-skin="clockwork"] .panel{background:rgba(43,32,19,.5);backdrop-filter:blur(8px);border-color:rgba(193,122,63,.25);box-shadow:0 0 24px -14px rgba(193,122,63,.35)}
+[data-skin="clockwork"] .board{box-shadow:0 0 50px -16px rgba(193,122,63,.4)}
+[data-skin="clockwork"] .sweep-bar{background:linear-gradient(180deg,rgba(193,122,63,.22),rgba(125,138,114,.06));border-color:rgba(193,122,63,.55)}
+
+/* lux mathematica: a 17th-c. compass-and-rule construction plate -- thin ink diagrams
+   on aged parchment. luxmath.jpg -- public domain, experiments/_shared/textures/. */
+:root[data-skin="luxmath"]{
+  --bg:#171310;--fg:#e4d9bf;--dim:#7d7460;--dim2:#241f18;
+  --accent:#3f4a52;--accent2:#8a4a3a;--accent3:#c9b98a;
+  --light-sq:#241f16;--dark-sq:#120f0a;
+  --piece-light:#e4d9bf;--piece-dark:#2a3238;
+}
+[data-skin="luxmath"] body{background-image:
+  linear-gradient(rgba(23,19,16,.82),rgba(23,19,16,.88)),
+  url(../_shared/textures/luxmath.jpg);
+  background-size:auto,cover;
+  background-position:center,center 10%;
+}
+[data-skin="luxmath"] .panel{background:rgba(36,31,24,.5);border-color:rgba(138,74,58,.25);box-shadow:0 10px 22px -16px rgba(0,0,0,.55)}
+[data-skin="luxmath"] .board{box-shadow:0 20px 46px -20px rgba(0,0,0,.7)}
+[data-skin="luxmath"] .sweep-bar{background:linear-gradient(180deg,rgba(138,74,58,.22),rgba(58,50,40,.08));border-color:rgba(138,74,58,.5)}
+
+/* ouroboros: a dragon coiled to bite its own tail, deep in a cross-hatched forest.
+   ouroboros.jpg -- public domain, experiments/_shared/textures/. */
+:root[data-skin="ouroboros"]{
+  --bg:#0c1710;--fg:#d9d0b4;--dim:#5c6b52;--dim2:#162417;
+  --accent:#3f5c3a;--accent2:#9a4530;--accent3:#c9b877;
+  --light-sq:#1c2b1a;--dark-sq:#0e150d;
+  --piece-light:#d4c48a;--piece-dark:#1c2818;
+}
+[data-skin="ouroboros"] body{background-image:
+  radial-gradient(circle at 50% 30%,rgba(154,69,48,.07),transparent 45%),
+  linear-gradient(rgba(12,23,16,.78),rgba(12,23,16,.87)),
+  url(../_shared/textures/ouroboros.jpg);
+  background-size:auto,auto,cover;
+  background-position:center,center,center 30%;
+}
+[data-skin="ouroboros"] .panel{background:rgba(22,36,23,.5);backdrop-filter:blur(8px);border-color:rgba(154,69,48,.25);box-shadow:0 0 24px -14px rgba(154,69,48,.35)}
+[data-skin="ouroboros"] .board{box-shadow:0 0 50px -16px rgba(63,92,58,.4)}
+[data-skin="ouroboros"] .sweep-bar{background:linear-gradient(180deg,rgba(154,69,48,.22),rgba(63,92,58,.08));border-color:rgba(154,69,48,.55)}
+
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
@@ -636,6 +692,62 @@ h1 em{font-style:italic;color:var(--accent)}
     var(--accent);
 }
 
+/* clockwork: each coin is a little gear -- radiating brass spokes (conic-gradient,
+   not an image) around a raised center pivot hub, like the movement on the page. */
+[data-skin="clockwork"] .piece-glyph.white::before{
+  background:repeating-conic-gradient(from 0deg at 50% 50%,color-mix(in srgb,var(--accent2) 88%,white) 0deg 8deg,var(--accent2) 8deg 16deg);
+}
+[data-skin="clockwork"] .piece-glyph.white::after{
+  content:'';position:absolute;inset:32%;border-radius:50%;pointer-events:none;z-index:-1;
+  background:radial-gradient(circle,color-mix(in srgb,var(--accent2) 60%,white),color-mix(in srgb,var(--accent2) 40%,black));
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.3);
+}
+[data-skin="clockwork"] .piece-glyph.black::before{
+  background:repeating-conic-gradient(from 0deg at 50% 50%,color-mix(in srgb,var(--accent) 75%,white) 0deg 8deg,var(--accent) 8deg 16deg);
+}
+[data-skin="clockwork"] .piece-glyph.black::after{
+  content:'';position:absolute;inset:32%;border-radius:50%;pointer-events:none;z-index:-1;
+  background:radial-gradient(circle,color-mix(in srgb,var(--accent) 55%,white),color-mix(in srgb,var(--accent) 35%,black));
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.3);
+}
+
+/* lux mathematica: a compass-drawn construction circle -- a thin ring, a pinprick
+   center point, and a faint crosshair through it, exactly how the source plate
+   draws its own circles. */
+[data-skin="luxmath"] .piece-glyph.white::before{
+  background:radial-gradient(ellipse at 35% 25%,color-mix(in srgb,var(--accent2) 55%,white),var(--accent2) 60%,color-mix(in srgb,var(--accent2) 60%,black) 100%);
+}
+[data-skin="luxmath"] .piece-glyph.white::after{
+  content:'';position:absolute;inset:16%;border-radius:50%;pointer-events:none;z-index:-1;
+  border:1.5px solid rgba(20,14,8,.4);
+  background:
+    linear-gradient(0deg,transparent 48%,rgba(20,14,8,.28) 49% 51%,transparent 52%),
+    linear-gradient(90deg,transparent 48%,rgba(20,14,8,.28) 49% 51%,transparent 52%);
+}
+[data-skin="luxmath"] .piece-glyph.black::before{
+  background:radial-gradient(ellipse at 35% 25%,color-mix(in srgb,var(--accent) 60%,white),color-mix(in srgb,var(--accent) 75%,var(--fg)) 55%,color-mix(in srgb,var(--accent) 70%,black) 100%);
+}
+[data-skin="luxmath"] .piece-glyph.black::after{
+  content:'';position:absolute;inset:16%;border-radius:50%;pointer-events:none;z-index:-1;
+  border:1.5px solid rgba(0,0,0,.35);
+  background:
+    linear-gradient(0deg,transparent 48%,rgba(255,255,255,.22) 49% 51%,transparent 52%),
+    linear-gradient(90deg,transparent 48%,rgba(255,255,255,.22) 49% 51%,transparent 52%);
+}
+
+/* ouroboros: dragon-scale texture -- diagonal overlapping rows (repeating-linear-
+   gradient), the same technique real scale illustrations use to shade a coiled body. */
+[data-skin="ouroboros"] .piece-glyph.white::before{
+  background:
+    repeating-linear-gradient(135deg,color-mix(in srgb,var(--accent2) 80%,white) 0 3px,var(--accent2) 3px 6px,color-mix(in srgb,var(--accent2) 55%,black) 6px 9px),
+    radial-gradient(circle at 30% 25%,rgba(255,255,255,.12),transparent 55%);
+}
+[data-skin="ouroboros"] .piece-glyph.black::before{
+  background:
+    repeating-linear-gradient(135deg,color-mix(in srgb,var(--accent) 88%,white) 0 3px,color-mix(in srgb,var(--accent) 70%,white) 3px 6px,var(--accent) 6px 9px),
+    radial-gradient(circle at 30% 25%,rgba(255,255,255,.18),transparent 55%);
+}
+
 .sweep-bar{
   position:absolute;top:0;bottom:0;width:12.5%;left:0;
   background:linear-gradient(180deg,rgba(200,255,46,.16),rgba(200,255,46,.03));
@@ -783,6 +895,9 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
           <option value="orrery">Orrery</option>
           <option value="anatomy">Anatomy Theatre</option>
           <option value="marbled">Marbled</option>
+          <option value="clockwork">Clockwork</option>
+          <option value="luxmath">Lux Mathematica</option>
+          <option value="ouroboros">Ouroboros</option>
         </select>
       </div>
 
@@ -1808,18 +1923,70 @@ const PALETTES = {
   // keeps every voice close to a single dark fundamental instead of a bright bell, a
   // slow tremolo gives the whole palette a chant-like pulse, and a slow phaser is the
   // only "movement" in the room.
+  // grimoire: rebuilt around a filter-envelope swell instead of AM synthesis -- see
+  // the single-voice games for the full rationale (it no longer shares Alien's or
+  // Deep Sea's AMSynth-and-sine DNA).
   grimoire: { label:'Grimoire', make: () => ({
     voices: {
-      pawn:   new Tone.PolySynth(Tone.AMSynth, {harmonicity:1, oscillator:{type:'sine'}, envelope:{attack:0.02,decay:0.2,sustain:0.1,release:0.35}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.05,decay:0.15,sustain:0.05,release:0.2}}),
-      knight: new Tone.PolySynth(Tone.AMSynth, {harmonicity:0.8, oscillator:{type:'sine'}, envelope:{attack:0.01,decay:0.18,sustain:0.08,release:0.3}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.03,decay:0.12,sustain:0,release:0.2}}),
-      bishop: new Tone.PolySynth(Tone.AMSynth, {harmonicity:0.5, oscillator:{type:'sine'}, envelope:{attack:0.2,decay:0.5,sustain:0.4,release:1.4}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.3,decay:0.3,sustain:0.3,release:0.8}}),
-      rook:   new Tone.PolySynth(Tone.AMSynth, {harmonicity:0.4, oscillator:{type:'sine'}, envelope:{attack:0.05,decay:0.5,sustain:0.3,release:1.2}, modulation:{type:'triangle'}, modulationEnvelope:{attack:0.15,decay:0.3,sustain:0.2,release:0.7}}),
-      queen:  new Tone.PolySynth(Tone.AMSynth, {harmonicity:0.6, oscillator:{type:'sine'}, envelope:{attack:0.15,decay:0.7,sustain:0.45,release:1.8}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.3,decay:0.4,sustain:0.35,release:1.0}}),
-      king:   new Tone.PolySynth(Tone.AMSynth, {harmonicity:0.5, oscillator:{type:'sine'}, envelope:{attack:0.3,decay:1.0,sustain:0.5,release:2.6}, modulation:{type:'sine'}, modulationEnvelope:{attack:0.5,decay:0.6,sustain:0.4,release:1.6}}),
+      pawn:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:2,type:'lowpass',rolloff:-12}, envelope:{attack:0.01,decay:0.18,sustain:0.15,release:0.35}, filterEnvelope:{attack:0.15,decay:0.2,sustain:0.2,release:0.4,baseFrequency:250,octaves:2}}),
+      knight: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:2.5,type:'lowpass',rolloff:-12}, envelope:{attack:0.005,decay:0.14,sustain:0.1,release:0.3}, filterEnvelope:{attack:0.1,decay:0.15,sustain:0.15,release:0.3,baseFrequency:320,octaves:2.2}}),
+      bishop: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:2,type:'lowpass',rolloff:-12}, envelope:{attack:0.05,decay:0.5,sustain:0.4,release:1.3}, filterEnvelope:{attack:0.4,decay:0.5,sustain:0.4,release:1.1,baseFrequency:180,octaves:2.8}}),
+      rook:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:2.2,type:'lowpass',rolloff:-12}, envelope:{attack:0.02,decay:0.45,sustain:0.3,release:1.1}, filterEnvelope:{attack:0.3,decay:0.4,sustain:0.3,release:0.9,baseFrequency:150,octaves:3}}),
+      queen:  new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:2,type:'lowpass',rolloff:-12}, envelope:{attack:0.1,decay:0.6,sustain:0.45,release:1.7}, filterEnvelope:{attack:0.5,decay:0.55,sustain:0.45,release:1.4,baseFrequency:130,octaves:3.2}}),
+      king:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:1.8,type:'lowpass',rolloff:-12}, envelope:{attack:0.2,decay:0.9,sustain:0.5,release:2.5}, filterEnvelope:{attack:0.8,decay:0.8,sustain:0.5,release:2.2,baseFrequency:100,octaves:3.5}}),
     },
     effects: () => [
       new Tone.Tremolo({frequency:1.8, depth:0.4, wet:0.5}).start(),
       new Tone.Phaser({frequency:0.2, octaves:2.5, baseFrequency:200, wet:0.3}),
+    ],
+  }) },
+  // clockwork: Tone.MetalSynth -- real inharmonic FM-cluster "metal" modeling, tuned
+  // tight and short for a small brass gear-tick, escalating resonance/octaves/decay
+  // per piece for weight, exactly like the other voice families in this set.
+  clockwork: { label:'Clockwork', make: () => ({
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.MetalSynth, {harmonicity:4.2, modulationIndex:12, resonance:3200, octaves:0.8, envelope:{attack:0.001,decay:0.12,release:0.08}}),
+      knight: new Tone.PolySynth(Tone.MetalSynth, {harmonicity:5.1, modulationIndex:16, resonance:3600, octaves:0.9, envelope:{attack:0.001,decay:0.09,release:0.06}}),
+      bishop: new Tone.PolySynth(Tone.MetalSynth, {harmonicity:3.8, modulationIndex:10, resonance:2600, octaves:1.1, envelope:{attack:0.001,decay:0.28,release:0.2}}),
+      rook:   new Tone.PolySynth(Tone.MetalSynth, {harmonicity:3.5, modulationIndex:9, resonance:2200, octaves:1.3, envelope:{attack:0.001,decay:0.35,release:0.25}}),
+      queen:  new Tone.PolySynth(Tone.MetalSynth, {harmonicity:4.0, modulationIndex:13, resonance:2000, octaves:1.5, envelope:{attack:0.001,decay:0.5,release:0.35}}),
+      king:   new Tone.PolySynth(Tone.MetalSynth, {harmonicity:3.2, modulationIndex:8, resonance:1600, octaves:1.8, envelope:{attack:0.002,decay:0.7,release:0.5}}),
+    },
+    effects: () => [
+      new Tone.PingPongDelay({delayTime:'32n', feedback:0.22, wet:0.22}),
+    ],
+  }) },
+  // lux mathematica: a PWM oscillator -- the duty cycle itself sweeps for a precise,
+  // reedy, faintly nasal tone, a different mechanism than any AM or FM voice here.
+  luxmath: { label:'Lux Mathematica', make: () => ({
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'pwm', modulationFrequency:0.5}, envelope:{attack:0.02,decay:0.15,sustain:0.2,release:0.3}}),
+      knight: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'pwm', modulationFrequency:0.7}, envelope:{attack:0.005,decay:0.1,sustain:0.1,release:0.2}}),
+      bishop: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'pwm', modulationFrequency:0.3}, envelope:{attack:0.08,decay:0.35,sustain:0.35,release:0.7}}),
+      rook:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'pwm', modulationFrequency:0.25}, envelope:{attack:0.03,decay:0.3,sustain:0.3,release:0.55}}),
+      queen:  new Tone.PolySynth(Tone.Synth, {oscillator:{type:'pwm', modulationFrequency:0.4}, envelope:{attack:0.1,decay:0.45,sustain:0.4,release:0.95}}),
+      king:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'pwm', modulationFrequency:0.18}, envelope:{attack:0.18,decay:0.6,sustain:0.45,release:1.4}}),
+    },
+    effects: () => [
+      new Tone.AutoFilter({frequency:0.4, baseFrequency:400, octaves:2.5, wet:0.35}).start(),
+      new Tone.FeedbackDelay({delayTime:'8n', feedback:0.2, wet:0.18}),
+    ],
+  }) },
+  // ouroboros: a FatOscillator -- a small detuned unison stack baked into the
+  // oscillator itself for a thick, wide drone that breathes on its own, escalating
+  // unison count/spread per piece for weight.
+  ouroboros: { label:'Ouroboros', make: () => ({
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'fatsawtooth', count:2, spread:15}, envelope:{attack:0.02,decay:0.2,sustain:0.25,release:0.4}}),
+      knight: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'fatsawtooth', count:2, spread:20}, envelope:{attack:0.005,decay:0.15,sustain:0.15,release:0.3}}),
+      bishop: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'fatsawtooth', count:3, spread:22}, envelope:{attack:0.1,decay:0.4,sustain:0.4,release:0.9}}),
+      rook:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'fatsawtooth', count:3, spread:25}, envelope:{attack:0.05,decay:0.35,sustain:0.35,release:0.75}}),
+      queen:  new Tone.PolySynth(Tone.Synth, {oscillator:{type:'fatsawtooth', count:3, spread:28}, envelope:{attack:0.15,decay:0.5,sustain:0.5,release:1.2}}),
+      king:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'fatsawtooth', count:4, spread:32}, envelope:{attack:0.25,decay:0.7,sustain:0.55,release:1.8}}),
+    },
+    effects: () => [
+      new Tone.Filter({frequency:1400, type:'lowpass', rolloff:-12}),
+      new Tone.FeedbackDelay({delayTime:'4n.', feedback:0.35, wet:0.25}),
     ],
   }) },
   orrery: { label:'Orrery', make: () => ({
@@ -1871,6 +2038,7 @@ const SKIN_PALETTE = {
   deepsea:'deepsea', glitch:'glitch', fungal:'fungal',
   comet:'omen', macabre:'macabre', grimoire:'grimoire',
   orrery:'orrery', anatomy:'anatomy', marbled:'marbled',
+  clockwork:'clockwork', luxmath:'luxmath', ouroboros:'ouroboros',
 };
 
 let paletteSynths = null, alertSynth = null, reverb = null;

@@ -356,6 +356,71 @@
 [data-skin="marbled"] .panel{background:rgba(22,34,58,.5);backdrop-filter:blur(8px);border-color:rgba(201,162,74,.25);box-shadow:0 0 24px -14px rgba(201,162,74,.3)}
 [data-skin="marbled"] .board{box-shadow:0 0 50px -16px rgba(201,162,74,.35)}
 [data-skin="marbled"] .sweep-bar{background:linear-gradient(180deg,rgba(201,162,74,.2),rgba(58,90,138,.08));border-color:rgba(201,162,74,.55)}
+
+/* clockwork: an exposed pocket-watch movement, engraved gilt gearwork under an open
+   case back. clockwork.jpg -- public domain, experiments/_shared/textures/. */
+:root[data-skin="clockwork"]{
+  --bg:#1b140c;--fg:#e7d9bd;--dim:#8a7455;--dim2:#2b2013;
+  --accent:#7d8a72;--accent2:#c17a3f;--accent3:#d9c48f;
+  --light-sq:#2c2013;--dark-sq:#160f09;
+}
+[data-skin="clockwork"] body{background-image:
+  radial-gradient(circle at 50% 18%,rgba(201,164,74,.08),transparent 45%),
+  linear-gradient(rgba(27,20,12,.78),rgba(27,20,12,.86)),
+  url(../_shared/textures/clockwork.jpg);
+  background-size:auto,auto,cover;
+  background-position:center,center,center 25%;
+}
+[data-skin="clockwork"] .panel{background:rgba(43,32,19,.5);backdrop-filter:blur(8px);border-color:rgba(193,122,63,.25);box-shadow:0 0 24px -14px rgba(193,122,63,.35)}
+[data-skin="clockwork"] .board{box-shadow:0 0 50px -16px rgba(193,122,63,.4)}
+[data-skin="clockwork"] .sweep-bar{background:linear-gradient(180deg,rgba(193,122,63,.22),rgba(125,138,114,.06));border-color:rgba(193,122,63,.55)}
+
+/* lux mathematica: a 17th-c. compass-and-rule construction plate -- thin ink diagrams
+   on aged parchment. luxmath.jpg -- public domain, experiments/_shared/textures/. */
+:root[data-skin="luxmath"]{
+  --bg:#171310;--fg:#e4d9bf;--dim:#7d7460;--dim2:#241f18;
+  --accent:#3f4a52;--accent2:#8a4a3a;--accent3:#c9b98a;
+  --light-sq:#241f16;--dark-sq:#120f0a;
+}
+[data-skin="luxmath"] body{background-image:
+  linear-gradient(rgba(23,19,16,.82),rgba(23,19,16,.88)),
+  url(../_shared/textures/luxmath.jpg);
+  background-size:auto,cover;
+  background-position:center,center 10%;
+}
+[data-skin="luxmath"] .panel{background:rgba(36,31,24,.5);border-color:rgba(138,74,58,.25);box-shadow:0 10px 22px -16px rgba(0,0,0,.55)}
+[data-skin="luxmath"] .board{box-shadow:0 20px 46px -20px rgba(0,0,0,.7)}
+[data-skin="luxmath"] .sweep-bar{background:linear-gradient(180deg,rgba(138,74,58,.22),rgba(58,50,40,.08));border-color:rgba(138,74,58,.5)}
+
+/* ouroboros: a dragon coiled to bite its own tail, deep in a cross-hatched forest.
+   ouroboros.jpg -- public domain, experiments/_shared/textures/. */
+:root[data-skin="ouroboros"]{
+  --bg:#0c1710;--fg:#d9d0b4;--dim:#5c6b52;--dim2:#162417;
+  --accent:#3f5c3a;--accent2:#9a4530;--accent3:#c9b877;
+  --light-sq:#1c2b1a;--dark-sq:#0e150d;
+}
+[data-skin="ouroboros"] body{background-image:
+  radial-gradient(circle at 50% 30%,rgba(154,69,48,.07),transparent 45%),
+  linear-gradient(rgba(12,23,16,.78),rgba(12,23,16,.87)),
+  url(../_shared/textures/ouroboros.jpg);
+  background-size:auto,auto,cover;
+  background-position:center,center,center 30%;
+}
+[data-skin="ouroboros"] .panel{background:rgba(22,36,23,.5);backdrop-filter:blur(8px);border-color:rgba(154,69,48,.25);box-shadow:0 0 24px -14px rgba(154,69,48,.35)}
+[data-skin="ouroboros"] .board{box-shadow:0 0 50px -16px rgba(63,92,58,.4)}
+[data-skin="ouroboros"] .sweep-bar{background:linear-gradient(180deg,rgba(154,69,48,.22),rgba(63,92,58,.08));border-color:rgba(154,69,48,.55)}
+[data-skin="clockwork"] .store{
+  background:radial-gradient(ellipse at 50% 35%,rgba(193,122,63,.32),transparent 65%),var(--dark-sq);
+  box-shadow:inset 0 0 18px 2px rgba(193,122,63,.25);
+}
+[data-skin="luxmath"] .store{
+  background:radial-gradient(ellipse at 50% 35%,rgba(138,74,58,.3),transparent 65%),var(--dark-sq);
+  box-shadow:inset 0 0 16px 2px rgba(138,74,58,.22);
+}
+[data-skin="ouroboros"] .store{
+  background:radial-gradient(ellipse at 50% 35%,rgba(154,69,48,.32),transparent 65%),var(--dark-sq);
+  box-shadow:inset 0 0 18px 2px rgba(154,69,48,.25);
+}
 [data-skin="marbled"] .store{
   background:radial-gradient(ellipse at 50% 35%,rgba(201,162,74,.32),transparent 65%),var(--dark-sq);
   box-shadow:inset 0 0 18px 2px rgba(201,162,74,.25);
@@ -580,6 +645,9 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
           <option value="orrery">Orrery</option>
           <option value="anatomy">Anatomy Theatre</option>
           <option value="marbled">Marbled</option>
+          <option value="clockwork">Clockwork</option>
+          <option value="luxmath">Lux Mathematica</option>
+          <option value="ouroboros">Ouroboros</option>
         </select>
       </div>
 
@@ -1113,15 +1181,55 @@ const PRESETS = {
   // grimoire: a struck bowl over a held chant -- low harmonicity AM keeps the tone
   // close to a single dark fundamental instead of a bright bell, a slow tremolo gives
   // it a chant-like pulse, and a slow phaser is the only "movement" in the room.
+  // grimoire: rebuilt around a filter-envelope swell instead of AM synthesis -- a bare
+  // sine fed through a slow-opening lowpass reads as a struck bowl ringing open, rather
+  // than the beating "two-oscillator" texture AM gives, so it no longer shares Alien's
+  // or Deep Sea's AMSynth-and-sine DNA even though all three are slow and dark.
   grimoire: { label:'Grimoire', build: () => {
-    const synth = new Tone.PolySynth(Tone.AMSynth, {
-      harmonicity:0.5, oscillator:{type:'sine'},
-      envelope:{attack:0.15, decay:0.6, sustain:0.4, release:2.2},
-      modulation:{type:'sine'}, modulationEnvelope:{attack:0.3, decay:0.4, sustain:0.3, release:1}
+    const synth = new Tone.PolySynth(Tone.MonoSynth, {
+      oscillator:{type:'sine'},
+      filter:{Q:2.5, type:'lowpass', rolloff:-12},
+      envelope:{attack:0.02, decay:0.3, sustain:0.35, release:2.4},
+      filterEnvelope:{attack:0.5, decay:0.6, sustain:0.5, release:2.0, baseFrequency:150, octaves:3}
     });
     const tremolo = new Tone.Tremolo({frequency:1.8, depth:0.4, wet:0.5}).start();
     const phaser = new Tone.Phaser({frequency:0.2, octaves:2.5, baseFrequency:200, wet:0.3});
     return [synth, tremolo, phaser];
+  }},
+  // clockwork: Tone.MetalSynth -- real inharmonic FM-cluster "metal" modeling, not used
+  // anywhere else in this set. Tuned tight and short for a small brass gear-tick rather
+  // than a cymbal wash, with a ping-pong delay for a whole mechanism ticking at once.
+  clockwork: { label:'Clockwork', build: () => {
+    const synth = new Tone.PolySynth(Tone.MetalSynth, {
+      harmonicity:4.2, modulationIndex:14, resonance:2800, octaves:1.0,
+      envelope:{attack:0.001, decay:0.22, release:0.15}
+    });
+    const pingpong = new Tone.PingPongDelay({delayTime:'32n', feedback:0.22, wet:0.22});
+    return [synth, pingpong];
+  }},
+  // lux mathematica: a PWM (pulse-width-modulation) oscillator instead of AM/FM --
+  // the duty cycle itself sweeps, which reads as a precise, reedy, faintly nasal tone
+  // that's still quietly alive, a different mechanism than any AM or FM voice here.
+  luxmath: { label:'Lux Mathematica', build: () => {
+    const synth = new Tone.PolySynth(Tone.Synth, {
+      oscillator:{type:'pwm', modulationFrequency:0.35},
+      envelope:{attack:0.08, decay:0.3, sustain:0.4, release:0.9}
+    });
+    const filter = new Tone.AutoFilter({frequency:0.4, baseFrequency:400, octaves:2.5, wet:0.35}).start();
+    const delay = new Tone.FeedbackDelay({delayTime:'8n', feedback:0.2, wet:0.18});
+    return [synth, filter, delay];
+  }},
+  // ouroboros: a FatOscillator -- a small detuned unison stack baked into the oscillator
+  // itself (not a Chorus effect bolted on after), for a thick, wide drone that breathes
+  // on its own. A dotted echo keeps every note circling back, biting its own tail.
+  ouroboros: { label:'Ouroboros', build: () => {
+    const synth = new Tone.PolySynth(Tone.Synth, {
+      oscillator:{type:'fatsawtooth', count:3, spread:25},
+      envelope:{attack:0.15, decay:0.5, sustain:0.55, release:1.8}
+    });
+    const filter = new Tone.Filter({frequency:1400, type:'lowpass', rolloff:-12});
+    const echo = new Tone.FeedbackDelay({delayTime:'4n.', feedback:0.35, wet:0.25});
+    return [synth, filter, echo];
   }},
   // orrery: bright, mechanical, evenly-ticking bells -- higher harmonicity than Omen
   // keeps the partials clean and metallic rather than gong-like, a fast tremolo gives
@@ -1173,6 +1281,7 @@ const SKIN_VOICE = {
   tr808:'tr808', tb303:'tb303', modular:'modular', op1:'op1',
   deepsea:'deepsea', glitch:'glitch', fungal:'fungal',
   comet:'omen', macabre:'macabre', grimoire:'grimoire',
+  clockwork:'clockwork', luxmath:'luxmath', ouroboros:'ouroboros',
 };
 
 // seed count -> velocity/pitch-intensity, not a binary note-on/off: an empty pit stays
