@@ -1,0 +1,1521 @@
+<!doctype html>
+<html lang="en" data-skin="neon">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>backgammon sequencer</title>
+<meta name="description" content="Backgammon where every checker move sweeps a bar once across all 24 points -- and how many checkers are stacked on a point sets how loud and how bright its note rings out.">
+<link rel="apple-touch-icon" sizes="180x180" href="../../logo_personalweb_favicon_io/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../../logo_personalweb_favicon_io/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../../logo_personalweb_favicon_io/favicon-16x16.png">
+<link rel="manifest" href="../../logo_personalweb_favicon_io/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Share+Tech+Mono&family=Space+Grotesk:wght@400;500;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tone@14/build/Tone.js"></script>
+<style>
+:root{
+  --bg:#050505;--fg:#ddd8d0;--dim:#5a564f;--dim2:#39362f;
+  --accent:#c8ff2e;--accent2:#ff5e5b;--accent3:#d4a843;
+  --serif:'Instrument Serif',Georgia,serif;
+  --mono:'Space Mono',monospace;
+  --light-sq:#141310;--dark-sq:#0a0908;
+}
+
+/* ---- skins: everything below only ever overrides the tokens above (plus a few
+   signature touches per skin) -- component rules never hardcode a skin's colors ----
+   wood.jpg, deepsea.jpg and fungal.jpg are real public-domain imagery, downloaded
+   locally rather than hotlinked, in experiments/_shared/textures/ -- see
+   mancala-sequencer's identical file-level comment for full attribution. ---- */
+:root[data-skin="light"]{
+  --bg:#f6f2ea;--fg:#211f1a;--dim:#8b8577;--dim2:#d8d2c4;
+  --accent:#2f6b3d;--accent2:#b3392b;--accent3:#a67c2e;
+  --light-sq:#efe9db;--dark-sq:#c9c0aa;
+}
+[data-skin="light"] body{cursor:default}
+[data-skin="light"] .panel{background:rgba(0,0,0,.02);box-shadow:none}
+[data-skin="light"] .board{box-shadow:0 14px 30px -20px rgba(0,0,0,.25)}
+[data-skin="light"] .sweep-bar{background:linear-gradient(180deg,rgba(47,107,61,.18),rgba(47,107,61,.04));border-color:rgba(47,107,61,.4)}
+
+:root[data-skin="neon"]{
+  --bg:#07060f;--fg:#eef0ff;--dim:#6b6a8a;--dim2:#211f3a;
+  --accent:#4dfcff;--accent2:#ff4dd8;--accent3:#b46dff;
+  --light-sq:#161328;--dark-sq:#0a081a;
+}
+[data-skin="neon"] .panel{background:rgba(24,20,48,.45);backdrop-filter:blur(10px);border-color:rgba(180,109,255,.25);border-radius:16px;box-shadow:0 0 30px -18px rgba(77,252,255,.3)}
+[data-skin="neon"] button:hover{box-shadow:0 0 16px -4px rgba(77,252,255,.65)}
+[data-skin="neon"] .board{box-shadow:0 0 50px -16px rgba(180,109,255,.4)}
+[data-skin="neon"] .sweep-bar{background:linear-gradient(180deg,rgba(77,252,255,.22),rgba(180,109,255,.05));border-color:rgba(77,252,255,.6);box-shadow:0 0 20px rgba(77,252,255,.4)}
+
+:root[data-skin="alien"]{
+  --bg:#020604;--fg:#d8ffe9;--dim:#3d6e57;--dim2:#0c2018;
+  --accent:#7dffb3;--accent2:#c86bff;--accent3:#38e6c8;
+  --light-sq:#0c2a1c;--dark-sq:#03110a;
+}
+[data-skin="alien"] h1,[data-skin="alien"] .kicker,[data-skin="alien"] nav .logo{font-family:'Orbitron',var(--mono);letter-spacing:.05em}
+[data-skin="alien"] .panel{border-radius:22px 8px 22px 8px;border-color:rgba(125,255,179,.25);box-shadow:0 0 24px -14px rgba(125,255,179,.4)}
+[data-skin="alien"] .board{border-radius:16px;box-shadow:0 0 50px -16px rgba(125,255,179,.45)}
+[data-skin="alien"] .sweep-bar{animation:alienPulse 1.6s ease-in-out infinite}
+@keyframes alienPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.6)}}
+
+:root[data-skin="tr808"]{
+  --bg:#161616;--fg:#f0ede6;--dim:#8a8a86;--dim2:#2b2b2b;
+  --accent:#ff6a00;--accent2:#ff2b2b;--accent3:#ffb400;
+  --light-sq:#2a2a2a;--dark-sq:#141414;
+}
+[data-skin="tr808"] .panel{border-radius:6px;border-color:rgba(255,106,0,.3)}
+[data-skin="tr808"] button{border-radius:4px;letter-spacing:.1em}
+[data-skin="tr808"] .tempo-val,[data-skin="tr808"] #tempoVal,[data-skin="tr808"] .turn-indicator{
+  font-family:'Share Tech Mono',var(--mono);color:var(--accent2);text-shadow:0 0 6px rgba(255,43,43,.55);
+}
+[data-skin="tr808"] .board{border-radius:4px}
+[data-skin="tr808"] body{background-image:
+  repeating-linear-gradient(90deg,rgba(255,106,0,.05) 0 1px,transparent 1px 40px),
+  repeating-linear-gradient(0deg,rgba(255,106,0,.05) 0 1px,transparent 1px 40px);
+}
+[data-skin="tr808"] .device-frame{
+  max-width:960px;padding:1.8rem 1.6rem 2.2rem;margin:0 auto;border-radius:14px;
+  background:linear-gradient(180deg,#242220,#171513);
+  box-shadow:0 40px 80px -30px rgba(0,0,0,.85),inset 0 1px 0 rgba(255,255,255,.06),inset 0 0 0 1px rgba(0,0,0,.6);
+  border-top:3px solid var(--accent2);
+}
+[data-skin="tr808"] .device-label{
+  display:block;text-align:center;font-family:'Share Tech Mono',var(--mono);
+  font-size:.7rem;letter-spacing:.35em;text-transform:uppercase;color:var(--accent2);
+  text-shadow:0 0 8px rgba(255,43,43,.5);
+  padding-bottom:1rem;margin-bottom:1.2rem;border-bottom:1px solid rgba(255,106,0,.25);
+}
+[data-skin="tr808"] .device-label::before{content:'Rhythm Machine · Step Sequencer'}
+
+:root[data-skin="tb303"]{
+  --bg:#cfc9b4;--fg:#231f18;--dim:#7a7460;--dim2:#b7b096;
+  --accent:#2a5fb0;--accent2:#c98a00;--accent3:#555049;
+  --light-sq:#e4dfcb;--dark-sq:#b7b096;
+}
+[data-skin="tb303"] body{cursor:default}
+[data-skin="tb303"] .panel{background:#e4dfcb;border-color:#9a917a;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+[data-skin="tb303"] .board{border-color:#9a917a;box-shadow:0 14px 30px -20px rgba(0,0,0,.3)}
+[data-skin="tb303"] .device-frame{
+  max-width:960px;padding:1.8rem 1.6rem 2.2rem;margin:0 auto;border-radius:20px;
+  background:
+    linear-gradient(90deg,#2a5fb0 50%,#e0b400 50%) top left / 100% 4px no-repeat,
+    linear-gradient(180deg,#ddd7c2,#c4bea6);
+  box-shadow:0 40px 80px -30px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.7),inset 0 0 0 1px rgba(0,0,0,.15);
+}
+[data-skin="tb303"] .device-label{
+  display:block;text-align:center;font-family:var(--mono);
+  font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;color:#4a4436;
+  padding-bottom:1rem;margin-bottom:1.2rem;border-bottom:1px solid rgba(0,0,0,.15);
+}
+[data-skin="tb303"] .device-label::before{content:'Computer Controlled · Bass Line'}
+
+:root[data-skin="modular"]{
+  --bg:#1b1310;--fg:#efe6d2;--dim:#a08a63;--dim2:#3a2a1a;
+  --accent:#d4a843;--accent2:#b5651d;--accent3:#8a6a3e;
+  --light-sq:#3a2a1a;--dark-sq:#1b1310;
+}
+[data-skin="modular"] body{
+  background:linear-gradient(rgba(15,10,6,.82),rgba(15,10,6,.88)),url(../_shared/textures/wood.jpg);
+  background-size:auto,600px;background-repeat:repeat,repeat;
+}
+[data-skin="modular"] .panel{--fg:#2a1f14;--dim:#6b5636;--bg:#efe6d2;background:#efe6d2;border-color:#8a6a3e;color:var(--fg)}
+[data-skin="modular"] .device-frame{
+  max-width:960px;padding:2.2rem 2rem;margin:0 auto;border-radius:8px;
+  background:linear-gradient(rgba(20,14,8,.55),rgba(20,14,8,.7)),url(../_shared/textures/wood.jpg);
+  background-size:cover;
+  box-shadow:0 40px 80px -30px rgba(0,0,0,.85),inset 0 0 0 3px rgba(212,168,67,.35),inset 0 1px 0 rgba(255,255,255,.08);
+}
+[data-skin="modular"] .device-label{
+  display:block;text-align:center;font-family:var(--serif);font-style:italic;
+  font-size:1.1rem;color:var(--accent3);
+  padding-bottom:1rem;margin-bottom:1.2rem;border-bottom:1px solid rgba(212,168,67,.3);
+}
+[data-skin="modular"] .device-label::before{content:'Modular System'}
+
+:root[data-skin="op1"]{
+  --bg:#f2f2f0;--fg:#1a1a1a;--dim:#8f8f8a;--dim2:#e2e2de;
+  --accent:#ff7a45;--accent2:#4d8fee;--accent3:#39b37a;
+  --light-sq:#e8e8e4;--dark-sq:#cfcfc9;
+}
+[data-skin="op1"] body{cursor:default}
+[data-skin="op1"] h1,[data-skin="op1"] .kicker,[data-skin="op1"] nav .logo{font-family:'Space Grotesk',var(--mono)}
+[data-skin="op1"] .panel{border-radius:10px;box-shadow:none}
+[data-skin="op1"] button{border-radius:8px}
+[data-skin="op1"] .device-frame{
+  max-width:960px;padding:1.8rem 1.6rem 1.6rem;margin:0 auto;border-radius:22px;
+  background:
+    linear-gradient(90deg,#ff7a45 0 20%,#4d8fee 20% 40%,#39b37a 40% 60%,#ffd166 60% 80%,#c77dff 80% 100%) top left / 100% 5px no-repeat,
+    linear-gradient(180deg,#fbfbfa,#ecece8);
+  box-shadow:0 30px 60px -30px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(0,0,0,.06);
+}
+
+:root[data-skin="deepsea"]{
+  --bg:#020a12;--fg:#cdeef2;--dim:#3a6b78;--dim2:#0a2530;
+  --accent:#29e6c9;--accent2:#ff6ec7;--accent3:#7fffd4;
+  --light-sq:#0d2b38;--dark-sq:#041018;
+}
+[data-skin="deepsea"] body{background-image:
+  radial-gradient(circle at 20% 30%,rgba(41,230,201,.08),transparent 40%),
+  radial-gradient(circle at 80% 70%,rgba(255,110,199,.06),transparent 45%),
+  linear-gradient(rgba(2,10,18,.72),rgba(2,10,18,.8)),
+  url(../_shared/textures/deepsea.jpg);
+  background-size:auto,auto,auto,cover;
+  background-position:center,center,center,center 15%;
+}
+[data-skin="deepsea"] .panel{background:rgba(10,37,48,.55);backdrop-filter:blur(8px);border-color:rgba(41,230,201,.25);box-shadow:0 0 24px -14px rgba(41,230,201,.35)}
+[data-skin="deepsea"] .board{box-shadow:0 0 50px -16px rgba(41,230,201,.4)}
+[data-skin="deepsea"] .sweep-bar{background:linear-gradient(180deg,rgba(41,230,201,.22),rgba(255,110,199,.05));border-color:rgba(41,230,201,.6);box-shadow:0 0 20px rgba(41,230,201,.4)}
+
+:root[data-skin="glitch"]{
+  --bg:#050507;--fg:#e6e6ea;--dim:#4a4a55;--dim2:#1a1a22;
+  --accent:#00ffea;--accent2:#ff003c;--accent3:#39ff14;
+  --light-sq:#16161e;--dark-sq:#0a0a0f;
+}
+[data-skin="glitch"] h1,[data-skin="glitch"] .kicker,[data-skin="glitch"] nav .logo{font-family:'Share Tech Mono',var(--mono)}
+[data-skin="glitch"] body{background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px)}
+[data-skin="glitch"] .panel{border-radius:2px;box-shadow:0 0 0 1px rgba(255,0,60,.25),0 0 0 2px rgba(0,255,234,.15)}
+
+:root[data-skin="fungal"]{
+  --bg:#0a0e08;--fg:#e4ddc8;--dim:#5c6b4a;--dim2:#1e2416;
+  --accent:#c9a86a;--accent2:#9b6b9e;--accent3:#8faa6b;
+  --light-sq:#232a18;--dark-sq:#12160c;
+}
+[data-skin="fungal"] body{background-image:
+  radial-gradient(circle at 15% 25%,rgba(143,170,107,.07),transparent 35%),
+  radial-gradient(circle at 70% 60%,rgba(201,168,106,.05),transparent 40%),
+  radial-gradient(circle at 40% 85%,rgba(155,107,158,.05),transparent 30%),
+  linear-gradient(rgba(10,14,8,.82),rgba(10,14,8,.88)),
+  url(../_shared/textures/fungal.jpg);
+  background-size:auto,auto,auto,auto,cover;
+}
+[data-skin="fungal"] .panel{border-radius:18px 10px 18px 10px;border-color:rgba(143,170,107,.25)}
+[data-skin="fungal"] .board{border-radius:12px}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--fg);font-family:var(--mono);
+  min-height:100vh;display:flex;flex-direction:column;
+}
+nav{display:flex;align-items:center;gap:.6rem;padding:1.2rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.05)}
+nav a{color:var(--fg);opacity:.6;text-decoration:none;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;transition:opacity .3s}
+nav a:hover{opacity:1;color:var(--accent)}
+nav .logo{font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;opacity:1}
+nav .sep{opacity:.35;font-size:.65rem}
+
+main{flex:1;display:flex;align-items:flex-start;justify-content:center;gap:2.4rem;padding:2.4rem 1.5rem 4rem;flex-wrap:wrap}
+
+.title-block{width:100%;max-width:980px;margin:0 auto 1.6rem;text-align:center}
+.kicker{font-size:.62rem;letter-spacing:.35em;text-transform:uppercase;color:var(--dim);margin-bottom:.7rem}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(1.8rem,4vw,2.6rem);margin:0 0 .6rem;letter-spacing:-.01em}
+h1 em{font-style:italic;color:var(--accent)}
+.lede{max-width:660px;margin:0 auto;font-size:.85rem;line-height:1.7;color:var(--fg);opacity:.62}
+
+.layout{display:flex;gap:2.4rem;align-items:flex-start;flex-wrap:wrap;justify-content:center;width:100%}
+
+/* device-frame: an outer "chassis" wrapper, invisible no-op by default. Only the
+   hardware-homage skins (tr808/tb303/modular/op1) dress it up below. */
+.device-frame{width:100%;display:flex;flex-direction:column;align-items:center}
+.device-label{display:none}
+
+.board-wrap{position:relative;width:min(96vw,800px);flex-shrink:0;display:flex;gap:8px;align-items:stretch}
+/* 13 columns: 6 points, the bar (narrower), 6 more points. 2 rows: top-row triangles
+   point down, bottom-row triangles point up -- the classic backgammon "racetrack"
+   layout. See the JS comment above gridPosForPoint() for the point-index mapping. */
+.board{
+  position:relative;flex:1;min-width:0;aspect-ratio:13/7;
+  display:grid;grid-template-columns:repeat(6,1fr) 0.62fr repeat(6,1fr);grid-template-rows:repeat(2,1fr);
+  gap:2px;padding:10px;
+  border:1px solid rgba(255,255,255,.08);border-radius:10px;overflow:hidden;
+  background:var(--dark-sq);
+  box-shadow:0 30px 60px -30px rgba(0,0,0,.8);
+}
+
+/* both home boards sit on this same (visually right) edge in standard backgammon --
+   red bears off from the bottom-right quadrant, black from the top-right -- so a
+   single tray split top/bottom serves both colors, and doubles as the bear-off click
+   target since there's no on-board "off" cell to click otherwise. */
+.off-tray{
+  width:11%;min-width:38px;flex:none;display:flex;flex-direction:column;justify-content:space-between;
+  background:var(--dark-sq);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:6px 3px;
+}
+.off-zone{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;justify-content:center;border-radius:6px;transition:box-shadow .15s ease}
+.off-zone.movable{cursor:pointer;box-shadow:inset 0 0 0 2px rgba(200,255,46,.5)}
+.off-zone .off-count{font-family:var(--serif);font-size:1.1rem;color:var(--fg)}
+.off-zone .checker{width:60%;max-width:20px}
+
+.point{
+  position:relative;background:var(--light-sq);cursor:default;
+  display:flex;align-items:flex-start;justify-content:center;
+  transition:box-shadow .15s ease;
+}
+.point.row-top{align-items:flex-start;clip-path:polygon(8% 0,92% 0,50% 92%)}
+.point.row-bottom{align-items:flex-end;clip-path:polygon(8% 100%,92% 100%,50% 8%)}
+.point:nth-child(4n){filter:brightness(1.12)} /* alternating point shading, purely cosmetic */
+.point.movable{cursor:pointer;box-shadow:inset 0 0 0 3px rgba(200,255,46,.5)}
+.point.selected-src{box-shadow:inset 0 0 0 3px var(--accent)}
+.point.sown{animation:pointSown .3s ease}
+@keyframes pointSown{0%{filter:brightness(1.9)}100%{filter:brightness(1)}}
+
+.checker-stack{
+  display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;
+  width:100%;
+}
+.point.row-bottom .checker-stack{flex-direction:column-reverse;justify-content:flex-end;height:100%}
+.checker{
+  width:76%;max-width:34px;aspect-ratio:1/1;border-radius:50%;flex:none;
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.2),inset 0 -3px 5px rgba(0,0,0,.5),0 2px 4px rgba(0,0,0,.5);
+}
+.checker.red{background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.4),transparent 45%),linear-gradient(160deg,color-mix(in srgb,var(--accent2) 45%,white),var(--accent2) 60%,color-mix(in srgb,var(--accent2) 65%,black))}
+.checker.black{background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.28),transparent 45%),linear-gradient(160deg,color-mix(in srgb,var(--dim2) 65%,white),var(--dim2) 55%,color-mix(in srgb,var(--bg) 55%,black))}
+.stack-count{font-size:.6rem;color:var(--fg);opacity:.8;text-align:center;margin-top:2px}
+
+.bar{
+  grid-column:7;grid-row:1 / 3;position:relative;background:var(--dark-sq);
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  border-left:1px solid rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.08);
+  padding:8px 0;cursor:default;
+}
+.bar.movable{cursor:pointer;box-shadow:inset 0 0 0 3px rgba(200,255,46,.5)}
+.bar.selected-src{box-shadow:inset 0 0 0 3px var(--accent)}
+.bar-group{display:flex;flex-direction:column;align-items:center;gap:2px}
+.bar-group .checker{width:60%}
+.bar.sown{animation:pointSown .3s ease}
+
+.sweep-bar{
+  position:absolute;top:10px;bottom:10px;width:calc(100%/13 - 1.8px);left:10px;
+  background:linear-gradient(180deg,rgba(200,255,46,.16),rgba(200,255,46,.03));
+  border-left:1px solid rgba(200,255,46,.45);border-right:1px solid rgba(200,255,46,.45);
+  transition:left .06s linear;pointer-events:none;opacity:0;border-radius:6px;
+}
+.sweep-bar.on{opacity:1}
+
+.sidebar{width:min(92vw,300px);display:flex;flex-direction:column;gap:1.4rem}
+.panel{border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:1.1rem 1.2rem;background:rgba(255,255,255,.015)}
+.panel h2{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin:0 0 .8rem;font-weight:400}
+
+.turn-indicator{display:flex;align-items:center;gap:.6rem;font-size:.85rem}
+.turn-dot{width:12px;height:12px;border-radius:50%}
+.turn-dot.red{background:var(--accent2);border:1px solid rgba(0,0,0,.25)}
+.turn-dot.black{background:#3a382f;border:1px solid rgba(255,255,255,.2)}
+.dice-row{display:flex;gap:.5rem;margin-top:.7rem;align-items:center}
+.die{
+  width:28px;height:28px;border-radius:6px;background:var(--fg);color:var(--bg);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
+}
+.die.used{opacity:.25;box-shadow:none}
+.status-notice{margin-top:.6rem;font-size:.68rem;color:var(--accent);opacity:.85;letter-spacing:.03em}
+.game-over{margin-top:.6rem;font-size:.85rem;color:var(--accent3)}
+.tallies{margin-top:.7rem;font-size:.65rem;line-height:1.9;color:var(--dim)}
+.tallies b{color:var(--fg);font-weight:400}
+
+button{
+  font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;
+  background:transparent;color:var(--fg);border:1px solid rgba(255,255,255,.18);
+  border-radius:100px;padding:.6em 1.1em;cursor:pointer;transition:border-color .3s,color .3s,background .3s;
+}
+button:hover{border-color:rgba(200,255,46,.5);color:var(--accent)}
+button:disabled{opacity:.35;cursor:default}
+button:disabled:hover{border-color:rgba(255,255,255,.18);color:var(--fg)}
+.btn-row{display:flex;gap:.6rem;flex-wrap:wrap}
+
+select{
+  width:100%;font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
+  background:var(--bg);color:var(--fg);border:1px solid rgba(255,255,255,.18);
+  border-radius:8px;padding:.6em .8em;cursor:pointer;
+}
+
+.color-btn.active{border-color:var(--fg);color:var(--fg);background:rgba(255,255,255,.06)}
+.color-btn.active:hover{border-color:var(--fg);color:var(--fg)}
+.color-btn[data-color="red"].active{border-color:var(--accent2);color:var(--accent2);background:rgba(255,94,91,.1)}
+.voice-btn{font-size:.6rem;padding:.5em .9em}
+.voice-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(200,255,46,.08)}
+.opponent-btn.active,.difficulty-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(200,255,46,.08)}
+.difficulty-btn{font-size:.6rem;padding:.5em .9em}
+.thinking-indicator{
+  display:none;align-items:center;gap:.5em;margin-top:.7rem;font-size:.68rem;color:var(--accent);
+}
+.thinking-indicator.on{display:flex}
+.thinking-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:thinkingPulse 1s ease-in-out infinite}
+.thinking-dot:nth-child(2){animation-delay:.15s}
+.thinking-dot:nth-child(3){animation-delay:.3s}
+@keyframes thinkingPulse{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.field-label{font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin-bottom:.5rem}
+
+.slider-row{display:flex;align-items:center;gap:.7rem;font-size:.68rem;color:var(--dim)}
+input[type=range]{flex:1;accent-color:var(--accent)}
+.tempo-val{color:var(--fg);width:3.2em;text-align:right}
+
+.legend{font-size:.72rem;line-height:1.8;color:var(--fg);opacity:.7}
+.legend .sw{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:.5em}
+.legend .sw.red{background:var(--accent2)}
+.legend .sw.black{background:#3a382f;border:1px solid rgba(255,255,255,.25)}
+
+.gate{
+  position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
+  background:rgba(5,5,5,.82);backdrop-filter:blur(2px);border-radius:10px;
+  flex-direction:column;gap:.9rem;text-align:center;padding:1rem;
+}
+.gate p{max-width:280px;font-size:.72rem;line-height:1.6;color:var(--fg);opacity:.65;margin:0}
+.gate.hidden{display:none}
+
+.win-modal{
+  position:absolute;inset:0;z-index:6;display:flex;align-items:center;justify-content:center;
+  background:rgba(5,5,5,.9);backdrop-filter:blur(3px);border-radius:10px;
+  flex-direction:column;gap:1rem;text-align:center;padding:1rem;
+}
+.win-modal.hidden{display:none}
+.win-modal-title{
+  font-family:var(--serif);font-style:italic;font-size:clamp(1.5rem,5.5vw,2.1rem);
+  color:var(--accent);text-shadow:0 0 24px currentColor;
+}
+.win-modal p{max-width:300px;font-size:.72rem;line-height:1.6;color:var(--fg);opacity:.65;margin:0}
+
+footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1em;color:var(--dim);text-transform:uppercase}
+
+@media(max-width:760px){
+  .layout{flex-direction:column;align-items:center}
+  .sidebar{width:min(92vw,520px)}
+  .board{aspect-ratio:13/10}
+  .stack-count{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="../../index.html" class="logo">JUD</a>
+  <span class="sep">/</span>
+  <a href="../index.html">experiments</a>
+  <span class="sep">/</span>
+  <a href="#" style="opacity:1;color:var(--accent)">backgammon sequencer</a>
+</nav>
+
+<main>
+  <div class="title-block">
+    <div class="kicker">two-player · full rules · no backend</div>
+    <h1>backgammon, played as a <em>sequencer</em></h1>
+    <p class="lede">Standard Backgammon: roll two dice, move your checkers around the 24-point track
+      toward your own home board, hit a lone opposing checker to send it to the bar (it must re-enter
+      before anything else can move), and bear off once your whole army is home. Win with the
+      opponent still stuck outside their home for a gammon, or on the bar / in your home board for a
+      backgammon. The twist: every single checker move sweeps a bar once across all 24 points, and
+      how many checkers are stacked on a point sets how loud and how bright its note rings out --
+      not just whether it's occupied. The skin you choose is the instrument, and bearing a checker
+      off rings its own little triumphant chime.</p>
+  </div>
+
+  <div class="device-frame">
+    <div class="device-label"></div>
+  <div class="layout">
+    <div class="board-wrap">
+      <div class="board" id="board">
+        <div class="sweep-bar" id="sweepBar"></div>
+      </div>
+      <div class="off-tray" id="offTray">
+        <div class="off-zone off-zone-black" id="offZoneBlack"></div>
+        <div class="off-zone off-zone-red" id="offZoneRed"></div>
+      </div>
+      <div class="gate" id="gate">
+        <p>Sound needs a tap to start (browser rule, not ours).</p>
+        <button id="startBtn">▶ enable sound</button>
+      </div>
+      <div class="win-modal hidden" id="winModal">
+        <div class="win-modal-title" id="winModalTitle"></div>
+        <p>the board just played its winning move back to you</p>
+        <button id="playAgainBtn">play again</button>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="panel">
+        <h2>skin</h2>
+        <select id="skinSelect">
+          <option value="dark">Dark</option>
+          <option value="light">Light / paper</option>
+          <option value="neon" selected>Glassy neon (default)</option>
+          <option value="alien">Alien</option>
+          <option value="tr808">Roland TR-808</option>
+          <option value="tb303">Roland TB-303</option>
+          <option value="modular">Modular / Moog</option>
+          <option value="op1">Teenage Engineering OP-1</option>
+          <option value="deepsea">Deep Sea</option>
+          <option value="glitch">Glitch</option>
+          <option value="fungal">Fungal</option>
+        </select>
+      </div>
+
+      <div class="panel">
+        <h2>you're playing</h2>
+        <div class="btn-row" id="colorPicker">
+          <button class="color-btn" data-color="red">red</button>
+          <button class="color-btn" data-color="black">black</button>
+        </div>
+        <div style="margin-top:.6rem;font-size:.65rem;color:var(--dim)" id="colorPickerHint">just frames the turn indicator as "you" vs "opponent" -- doesn't restrict who can click</div>
+      </div>
+
+      <div class="panel">
+        <h2>opponent</h2>
+        <div class="btn-row" id="opponentPicker">
+          <button class="opponent-btn active" data-opponent="human">human</button>
+          <button class="opponent-btn" data-opponent="computer">computer</button>
+        </div>
+        <div class="btn-row" id="difficultyPicker" style="margin-top:.7rem;display:none">
+          <button class="difficulty-btn" data-difficulty="easy">easy</button>
+          <button class="difficulty-btn active" data-difficulty="medium">medium</button>
+          <button class="difficulty-btn" data-difficulty="hard">hard</button>
+        </div>
+        <div class="thinking-indicator" id="thinkingIndicator">
+          <span class="thinking-dot"></span><span class="thinking-dot"></span><span class="thinking-dot"></span>
+          thinking
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>turn</h2>
+        <div class="turn-indicator"><span class="turn-dot" id="turnDot"></span><span id="turnLabel">red to move</span></div>
+        <div class="dice-row" id="diceRow"></div>
+        <div class="status-notice" id="statusNotice" style="display:none"></div>
+        <div class="game-over" id="gameOver" style="display:none"></div>
+        <div class="tallies" id="tallies"></div>
+        <div class="btn-row" style="margin-top:1rem">
+          <button id="rollBtn">roll dice</button>
+          <button id="newGameBtn">new game</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>sound</h2>
+        <div class="slider-row">
+          <span>tempo</span>
+          <input type="range" id="tempoSlider" min="60" max="170" value="104" step="1">
+          <span class="tempo-val"><span id="tempoVal">104</span> bpm</span>
+        </div>
+        <p style="margin:.8rem 0 0;font-size:.68rem;line-height:1.6;color:var(--fg);opacity:.6">
+          Every checker move sweeps the board once, left to right.
+        </p>
+      </div>
+
+      <div class="panel legend">
+        <h2>how it sounds</h2>
+        <div>voice — <span id="voiceLabel"></span> (set by the skin above)</div>
+        <div style="margin-top:.3rem"><span class="sw red"></span>red plays lower · <span class="sw black"></span>black plays higher, same instrument</div>
+        <div style="margin-top:.6rem;opacity:.75">how many checkers are stacked on a point sets how
+          loud and how bright its note rings out · the bar plays its own tense, held note that grows
+          as more checkers get stuck there · bearing a checker off rings a bright ascending chime that
+          climbs the closer you get to winning · everything's drawn from one pentatonic scale, so no
+          combination ever clashes.</div>
+      </div>
+    </div>
+  </div>
+  </div>
+</main>
+
+<footer>joshurbandavis — backgammon sequencer</footer>
+
+<!-- AI search worker source, kept in-page (type="text/plain" so the browser never
+     executes it directly) and spawned as a real Worker via a Blob URL below -- see
+     checker-sequencer's identical pattern for why. This is a full, separate copy of
+     the rules engine (operating on an explicit {points,bar,off} state object rather
+     than the main thread's live globals, since a Worker can't see that closure at
+     all) because a Worker can't see the main thread's closures; if the backgammon
+     rules ever change, this copy needs updating too. -->
+<script type="text/plain" id="backgammonAIWorkerSrc">
+"use strict";
+// points[0..23]: index i holds either null or {color,count}. Red's home is 0-5 and
+// red moves toward index 0 (bearing off past -1); black's home is 18-23 and black
+// moves toward index 23 (bearing off past 24). bar/off are {red:N, black:N}.
+function opponent(color){ return color==='red' ? 'black' : 'red'; }
+function direction(color){ return color==='red' ? -1 : 1; }
+function homeRange(color){ return color==='red' ? [0,5] : [18,23]; }
+function pointColor(state, idx){ return state.points[idx] ? state.points[idx].color : null; }
+function pointCount(state, idx){ return state.points[idx] ? state.points[idx].count : 0; }
+
+function cloneState(state){
+  return {
+    points: state.points.map(p => p ? {color:p.color, count:p.count} : null),
+    bar: {red:state.bar.red, black:state.bar.black},
+    off: {red:state.off.red, black:state.off.black},
+  };
+}
+
+function canLand(state, idx, color){
+  const p = state.points[idx];
+  if(!p) return true;
+  if(p.color===color) return true;
+  return p.count===1; // a lone opposing checker (a "blot") can be hit
+}
+
+function canBearOffColor(state, color){
+  if(state.bar[color] > 0) return false;
+  const [a,b] = homeRange(color);
+  for(let idx=0; idx<24; idx++){
+    if(pointColor(state,idx)===color && (idx<a || idx>b)) return false;
+  }
+  return true;
+}
+
+// Standard bear-off legality: the exact point matching the die always works; an
+// "overage" die (bigger than needed) may only bear off from a point if no checkers
+// of that color sit on any higher point (i.e. this is the farthest-back checker left).
+function isLegalBearOff(state, color, idx, die){
+  if(color==='red'){
+    const point = idx+1;
+    if(point===die) return true;
+    if(point<die){
+      for(let j=idx+1; j<=5; j++) if(pointColor(state,j)==='red') return false;
+      return true;
+    }
+    return false;
+  } else {
+    const point = 24-idx;
+    if(point===die) return true;
+    if(point<die){
+      for(let j=idx-1; j>=18; j--) if(pointColor(state,j)==='black') return false;
+      return true;
+    }
+    return false;
+  }
+}
+
+function legalMovesForDie(state, color, die){
+  const moves = [];
+  if(state.bar[color] > 0){
+    const idx = color==='red' ? 24-die : die-1;
+    if(canLand(state, idx, color)) moves.push({from:'bar', to:idx});
+    return moves; // bar checkers must enter before anything else can move
+  }
+  const canOff = canBearOffColor(state, color);
+  for(let idx=0; idx<24; idx++){
+    if(pointColor(state,idx)!==color) continue;
+    const dest = idx + direction(color)*die;
+    if(dest>=0 && dest<=23){
+      if(canLand(state, dest, color)) moves.push({from:idx, to:dest});
+    } else if(canOff && isLegalBearOff(state, color, idx, die)){
+      moves.push({from:idx, to:'off'});
+    }
+  }
+  return moves;
+}
+
+// mutates state in place; returns true if this move hit an opposing blot
+function applyMoveToState(state, from, to, color){
+  let hit = false;
+  if(from==='bar'){ state.bar[color]--; }
+  else {
+    state.points[from].count--;
+    if(state.points[from].count===0) state.points[from] = null;
+  }
+  if(to==='off'){ state.off[color]++; }
+  else {
+    const p = state.points[to];
+    if(p && p.color!==color){ state.bar[p.color]++; state.points[to] = null; hit = true; }
+    if(state.points[to]) state.points[to].count++;
+    else state.points[to] = {color, count:1};
+  }
+  return hit;
+}
+
+// ---- AI: heuristic evaluation + a per-roll greedy planner ----
+// Well-known single-shot hit probabilities out of 36, by pip distance (a standard
+// backgammon reference table -- combined dice can hit at distances up to 24, but
+// beyond 12 the odds are negligible for a heuristic and are treated as 0 here).
+const HIT_PROB = {1:11/36,2:12/36,3:14/36,4:15/36,5:15/36,6:17/36,7:6/36,8:6/36,9:5/36,10:3/36,11:2/36,12:1/36};
+
+function pipCount(state, color){
+  let total = 0;
+  for(let idx=0; idx<24; idx++){
+    const p = state.points[idx];
+    if(p && p.color===color) total += (color==='red' ? idx+1 : 24-idx) * p.count;
+  }
+  total += state.bar[color] * 25; // a bar checker is worth a full lap, pip-wise
+  return total;
+}
+function pipsTraveled(color, idx){
+  const remaining = color==='red' ? idx+1 : 24-idx;
+  return 25 - remaining;
+}
+// Expected pip loss from exposure: for each of my blots, P(getting hit) times how
+// many pips that checker has already traveled (what a hit would cost me), summed.
+function blotExposure(state, color){
+  const opp = opponent(color);
+  let exposure = 0;
+  for(let idx=0; idx<24; idx++){
+    const p = state.points[idx];
+    if(!(p && p.color===color && p.count===1)) continue;
+    let risk = 0;
+    for(let j=0; j<24; j++){
+      const q = state.points[j];
+      if(!(q && q.color===opp)) continue;
+      const dist = opp==='red' ? (j-idx) : (idx-j);
+      if(dist>=1 && dist<=12) risk += (HIT_PROB[dist] || 0);
+    }
+    risk = Math.min(risk, 1);
+    exposure += risk * pipsTraveled(color, idx);
+  }
+  return exposure;
+}
+function homeBoardStrength(state, color){
+  const [a,b] = homeRange(color);
+  let made = 0;
+  for(let idx=a; idx<=b; idx++){
+    const p = state.points[idx];
+    if(p && p.color===color && p.count>=2) made++;
+  }
+  return made;
+}
+function evaluateBoard(state, aiColor, w){
+  const opp = opponent(aiColor);
+  const pipDiff = pipCount(state, opp) - pipCount(state, aiColor); // positive when aiColor is ahead
+  const myExposure = blotExposure(state, aiColor);
+  const oppExposure = blotExposure(state, opp);
+  const myHome = homeBoardStrength(state, aiColor);
+  const oppHome = homeBoardStrength(state, opp);
+  return pipDiff * w.pip
+    - myExposure * w.blotPenalty
+    + oppExposure * w.oppExposureWeight
+    + (myHome - oppHome) * w.homeBoard
+    - state.bar[aiColor] * w.barPenalty
+    + state.bar[opp] * w.barPenalty * 0.6
+    + state.off[aiColor] * 2;
+}
+
+// Greedy per-die planning for the CURRENT roll only: for each possible dice order,
+// repeatedly pick the single best-scoring legal move for the next die, then compare
+// the final positions across orderings. This is NOT a multi-ply search across future
+// rolls -- doing that properly means expectiminimax over the 21 possible next rolls
+// per node, a fundamentally heavier algorithm than the alpha-beta search the other
+// sequencers use, since backgammon's branching includes chance nodes. A per-roll
+// greedy plan is the standard scope for a casual bot, and it's what every difficulty
+// here builds on -- they differ only in evaluation weights and, on easy, injected
+// noise (see DIFFICULTY_WEIGHTS below).
+function planTurn(state, color, diceValues, w){
+  function greedySequence(order){
+    let s = cloneState(state);
+    const moves = [];
+    for(const die of order){
+      const legal = legalMovesForDie(s, color, die);
+      if(legal.length===0) continue;
+      let best = null, bestScore = -Infinity;
+      for(const m of legal){
+        const s2 = cloneState(s);
+        applyMoveToState(s2, m.from, m.to, color);
+        let score = evaluateBoard(s2, color, w);
+        if(w.noise) score += (Math.random()-0.5) * w.noise;
+        if(score > bestScore){ bestScore = score; best = m; }
+      }
+      applyMoveToState(s, best.from, best.to, color);
+      moves.push(best);
+    }
+    return { state:s, moves, score: evaluateBoard(s, color, w) };
+  }
+  const orderings = (diceValues.length===2 && diceValues[0]!==diceValues[1])
+    ? [diceValues, [diceValues[1], diceValues[0]]]
+    : [diceValues];
+  let best = null;
+  for(const order of orderings){
+    const result = greedySequence(order);
+    if(!best || result.score > best.score) best = result;
+  }
+  return best.moves;
+}
+
+self.onmessage = function(e){
+  const { points, bar, off, color, dice, weights } = e.data;
+  const state = { points, bar, off };
+  const moves = planTurn(state, color, dice, weights);
+  self.postMessage({ moves });
+};
+</script>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- backgammon rules engine ---------------- */
+// See the worker's header comment above for the point-index/direction convention --
+// this is the live, interactive counterpart of that same pure logic.
+let points; // 24-length array, each null or {color, count}
+let bar, off; // {red:N, black:N}
+let currentPlayer, gameOver;
+let dice = []; // the rolled values, for display (e.g. [4,2] or [5,5,5,5] for doubles)
+let diceRemaining = []; // unused die values left this turn
+let selectedPoint = null; // an index, 'bar', or null
+let lastMoves = []; // {from,to} entries applied this sweep -- drives the "sown" flash
+let playerColor = 'red'; // when opponentMode is 'human' this is cosmetic (just the turn label);
+                          // when it's 'computer' it also decides who the AI plays as
+let opponentMode = 'human'; // 'human' | 'computer'
+let aiDifficulty = 'medium'; // 'easy' | 'medium' | 'hard'
+let aiColor = null; // set from playerColor whenever opponentMode is 'computer'
+
+function opponent(color){ return color==='red' ? 'black' : 'red'; }
+function direction(color){ return color==='red' ? -1 : 1; }
+function homeRange(color){ return color==='red' ? [0,5] : [18,23]; }
+function pointColor(idx){ return points[idx] ? points[idx].color : null; }
+function pointCount(idx){ return points[idx] ? points[idx].count : 0; }
+
+function canLand(idx, color){
+  const p = points[idx];
+  if(!p) return true;
+  if(p.color===color) return true;
+  return p.count===1;
+}
+
+function canBearOffColor(color){
+  if(bar[color] > 0) return false;
+  const [a,b] = homeRange(color);
+  for(let idx=0; idx<24; idx++){
+    if(pointColor(idx)===color && (idx<a || idx>b)) return false;
+  }
+  return true;
+}
+
+function isLegalBearOff(color, idx, die){
+  if(color==='red'){
+    const point = idx+1;
+    if(point===die) return true;
+    if(point<die){
+      for(let j=idx+1; j<=5; j++) if(pointColor(j)==='red') return false;
+      return true;
+    }
+    return false;
+  } else {
+    const point = 24-idx;
+    if(point===die) return true;
+    if(point<die){
+      for(let j=idx-1; j>=18; j--) if(pointColor(j)==='black') return false;
+      return true;
+    }
+    return false;
+  }
+}
+
+function legalMovesForDie(color, die){
+  const moves = [];
+  if(bar[color] > 0){
+    const idx = color==='red' ? 24-die : die-1;
+    if(canLand(idx, color)) moves.push({from:'bar', to:idx});
+    return moves;
+  }
+  const canOff = canBearOffColor(color);
+  for(let idx=0; idx<24; idx++){
+    if(pointColor(idx)!==color) continue;
+    const dest = idx + direction(color)*die;
+    if(dest>=0 && dest<=23){
+      if(canLand(dest, color)) moves.push({from:idx, to:dest});
+    } else if(canOff && isLegalBearOff(color, idx, die)){
+      moves.push({from:idx, to:'off'});
+    }
+  }
+  return moves;
+}
+
+function anyLegalMoveExists(color){
+  for(const die of new Set(diceRemaining)){
+    if(legalMovesForDie(color, die).length>0) return true;
+  }
+  return false;
+}
+
+function applyMoveToState(from, to, color){
+  let hit = false;
+  if(from==='bar'){ bar[color]--; }
+  else {
+    points[from].count--;
+    if(points[from].count===0) points[from] = null;
+  }
+  if(to==='off'){ off[color]++; }
+  else {
+    const p = points[to];
+    if(p && p.color!==color){ bar[p.color]++; points[to] = null; hit = true; }
+    if(points[to]) points[to].count++;
+    else points[to] = {color, count:1};
+  }
+  return hit;
+}
+
+function initBoard(){
+  points = Array(24).fill(null);
+  points[23] = {color:'red', count:2};
+  points[12] = {color:'red', count:5};
+  points[7]  = {color:'red', count:3};
+  points[5]  = {color:'red', count:5};
+  points[0]  = {color:'black', count:2};
+  points[11] = {color:'black', count:5};
+  points[16] = {color:'black', count:3};
+  points[18] = {color:'black', count:5};
+  bar = {red:0, black:0};
+  off = {red:0, black:0};
+}
+
+function resetGame(){
+  initBoard();
+  currentPlayer = 'red';
+  gameOver = null; dice = []; diceRemaining = []; selectedPoint = null; lastMoves = [];
+  winModal.classList.add('hidden'); // in case a prior win's celebration left it open
+  render();
+  maybeTriggerAI();
+}
+
+function checkWin(){
+  let winner = null;
+  if(off.red===15) winner = 'red';
+  else if(off.black===15) winner = 'black';
+  if(!winner) return;
+  const loser = opponent(winner);
+  const gammon = off[loser]===0;
+  let backgammon = false;
+  if(gammon){
+    const [a,b] = homeRange(winner);
+    let stuck = bar[loser] > 0;
+    for(let idx=a; idx<=b; idx++) if(pointColor(idx)===loser) stuck = true;
+    backgammon = stuck;
+  }
+  gameOver = { winner, gammon, backgammon };
+  dice = []; diceRemaining = [];
+  render();
+  celebrateWin(gameOver);
+}
+
+function maybeEndTurn(){
+  if(gameOver) return;
+  if(diceRemaining.length===0 || !anyLegalMoveExists(currentPlayer)){
+    diceRemaining = []; dice = []; selectedPoint = null;
+    currentPlayer = opponent(currentPlayer);
+  }
+}
+
+function rollDice(){
+  if(gameOver || diceRemaining.length>0) return;
+  const d1 = 1 + Math.floor(Math.random()*6);
+  const d2 = 1 + Math.floor(Math.random()*6);
+  dice = [d1, d2];
+  diceRemaining = d1===d2 ? [d1,d1,d1,d1] : [d1,d2];
+  selectedPoint = null; lastMoves = [];
+  if(!anyLegalMoveExists(currentPlayer)){
+    diceRemaining = []; dice = [];
+    currentPlayer = opponent(currentPlayer);
+  }
+  render();
+  maybeTriggerAI();
+}
+
+// executes selectedPoint -> target using whichever remaining die makes that move legal
+function attemptMove(target){
+  const color = currentPlayer;
+  let die;
+  if(selectedPoint==='bar'){
+    die = color==='red' ? 24-target : target+1;
+  } else if(target==='off'){
+    const candidates = diceRemaining.filter(d => canBearOffColor(color) && isLegalBearOff(color, selectedPoint, d));
+    if(candidates.length===0) return;
+    die = Math.min(...candidates); // deterministic tie-break when more than one die could bear it off
+  } else {
+    die = color==='red' ? selectedPoint-target : target-selectedPoint;
+  }
+  if(die===undefined || die===null || !diceRemaining.includes(die)) return;
+  const legal = legalMovesForDie(color, die).some(m => m.from===selectedPoint && m.to===target);
+  if(!legal) return;
+
+  applyMoveToState(selectedPoint, target, color);
+  lastMoves = [{from:selectedPoint, to:target}];
+  diceRemaining.splice(diceRemaining.indexOf(die), 1);
+  selectedPoint = null;
+  sweepOnce();
+  checkWin();
+  if(!gameOver){
+    maybeEndTurn();
+    render();
+    maybeTriggerAI();
+  } else {
+    render();
+  }
+}
+
+function handlePointClick(target){
+  if(gameOver) return;
+  if(opponentMode==='computer' && currentPlayer===aiColor) return;
+  if(diceRemaining.length===0) return; // must roll first
+
+  if(selectedPoint===null){
+    if(target==='bar'){ if(bar[currentPlayer]>0) selectedPoint = 'bar'; render(); return; }
+    // a checker on the bar must enter before any other checker can move -- matches
+    // the same gate legalMovesForDie applies, and the .movable CSS class already
+    // reflects visually
+    if(bar[currentPlayer]>0) return;
+    if(pointColor(target)===currentPlayer){ selectedPoint = target; render(); }
+    return;
+  }
+  if(selectedPoint===target){ selectedPoint = null; render(); return; } // click again to deselect
+  attemptMove(target);
+}
+
+/* ---------------- board DOM ---------------- */
+// 13 sweep columns: 6 points, the bar, 6 more points -- see the header comment for the
+// classic backgammon "racetrack" numbering this maps onto. gridPosForPoint() places
+// each point index at its physical column/row; the inverse math (col -> idx) is used
+// both when creating the cells and when driving the sweep-bar's per-column audio.
+const boardEl = document.getElementById('board');
+const sweepBar = document.getElementById('sweepBar');
+const pointEls = {}; // point index (0-23) -> DOM element
+let barEl;
+
+function gridPosForPoint(idx){
+  if(idx>=0 && idx<=5) return { col:13-idx, row:2 };   // red home, bottom-right
+  if(idx>=6 && idx<=11) return { col:12-idx, row:2 };  // bottom-left
+  if(idx>=12 && idx<=17) return { col:idx-11, row:1 }; // top-left
+  return { col:idx-10, row:1 };                        // black home, top-right (18-23)
+}
+
+for(let idx=0; idx<24; idx++){
+  const pos = gridPosForPoint(idx);
+  const el = document.createElement('div');
+  el.className = 'point ' + (pos.row===1 ? 'row-top' : 'row-bottom');
+  el.style.gridColumn = String(pos.col);
+  el.style.gridRow = String(pos.row);
+  el.innerHTML = '<div class="checker-stack"></div><div class="stack-count"></div>';
+  el.addEventListener('click', ()=>handlePointClick(idx));
+  boardEl.appendChild(el);
+  pointEls[idx] = el;
+}
+barEl = document.createElement('div');
+barEl.className = 'bar';
+barEl.innerHTML = '<div class="bar-group bar-group-black"></div><div class="bar-group bar-group-red"></div>';
+barEl.addEventListener('click', ()=>handlePointClick('bar'));
+boardEl.appendChild(barEl);
+boardEl.appendChild(sweepBar); // keep sweep bar as last child, above everything else
+
+const turnDot = document.getElementById('turnDot');
+const turnLabel = document.getElementById('turnLabel');
+const diceRowEl = document.getElementById('diceRow');
+const statusNoticeEl = document.getElementById('statusNotice');
+const gameOverEl = document.getElementById('gameOver');
+const talliesEl = document.getElementById('tallies');
+const MAX_VISIBLE_CHECKERS = 5;
+
+function renderPoint(idx){
+  const el = pointEls[idx];
+  const p = points[idx];
+  const stack = el.querySelector('.checker-stack');
+  const count = p ? p.count : 0;
+  let html = '';
+  if(p){
+    const visible = Math.min(count, MAX_VISIBLE_CHECKERS);
+    for(let i=0;i<visible;i++) html += '<span class="checker ' + p.color + '"></span>';
+  }
+  stack.innerHTML = html;
+  el.querySelector('.stack-count').textContent = count>MAX_VISIBLE_CHECKERS ? ('×'+count) : (count>0 ? String(count) : '');
+
+  const isSelected = selectedPoint===idx;
+  el.classList.toggle('selected-src', isSelected);
+  el.classList.toggle('movable', !gameOver && !isSelected && (
+    selectedPoint===null
+      ? pointColor(idx)===currentPlayer && diceRemaining.length>0 && bar[currentPlayer]===0
+      : diceRemaining.some(d => legalMovesForDie(currentPlayer, d).some(m=>m.from===selectedPoint && m.to===idx))
+  ));
+}
+
+const offZoneRedEl = document.getElementById('offZoneRed');
+const offZoneBlackEl = document.getElementById('offZoneBlack');
+offZoneRedEl.addEventListener('click', ()=>handlePointClick('off'));
+offZoneBlackEl.addEventListener('click', ()=>handlePointClick('off'));
+
+function renderOffTray(){
+  const visRed = Math.min(off.red, 6), visBlack = Math.min(off.black, 6);
+  offZoneRedEl.innerHTML = '<div class="off-count">' + off.red + '</div>' +
+    Array(visRed).fill('<span class="checker red"></span>').join('');
+  offZoneBlackEl.innerHTML = '<div class="off-count">' + off.black + '</div>' +
+    Array(visBlack).fill('<span class="checker black"></span>').join('');
+  const canOff = !gameOver && selectedPoint!==null && selectedPoint!=='bar' &&
+    diceRemaining.some(d => legalMovesForDie(currentPlayer, d).some(m=>m.from===selectedPoint && m.to==='off'));
+  offZoneRedEl.classList.toggle('movable', canOff && currentPlayer==='red');
+  offZoneBlackEl.classList.toggle('movable', canOff && currentPlayer==='black');
+}
+
+function renderBar(){
+  const barBlack = barEl.querySelector('.bar-group-black');
+  const barRed = barEl.querySelector('.bar-group-red');
+  const visBlack = Math.min(bar.black, 4), visRed = Math.min(bar.red, 4);
+  barBlack.innerHTML = Array(visBlack).fill('<span class="checker black"></span>').join('') +
+    (bar.black>4 ? ('<div class="stack-count">×' + bar.black + '</div>') : '');
+  barRed.innerHTML = Array(visRed).fill('<span class="checker red"></span>').join('') +
+    (bar.red>4 ? ('<div class="stack-count">×' + bar.red + '</div>') : '');
+  const isSelected = selectedPoint==='bar';
+  barEl.classList.toggle('selected-src', isSelected);
+  barEl.classList.toggle('movable', !gameOver && !isSelected && selectedPoint===null && bar[currentPlayer]>0 && diceRemaining.length>0);
+}
+
+function renderDice(){
+  const remainingCopy = diceRemaining.slice();
+  diceRowEl.innerHTML = dice.map(d => {
+    const idx = remainingCopy.indexOf(d);
+    let used;
+    if(idx===-1){ used = true; } else { remainingCopy.splice(idx,1); used = false; }
+    return '<div class="die' + (used ? ' used' : '') + '">' + d + '</div>';
+  }).join('');
+}
+
+function render(){
+  for(let idx=0; idx<24; idx++) renderPoint(idx);
+  renderBar();
+  renderOffTray();
+  renderDice();
+
+  turnDot.className = 'turn-dot ' + currentPlayer;
+  if(gameOver){
+    turnLabel.textContent = 'game over';
+    gameOverEl.style.display = 'block';
+    const kind = gameOver.backgammon ? 'a backgammon' : gameOver.gammon ? 'a gammon' : 'a single game';
+    gameOverEl.textContent = gameOver.winner + ' wins -- ' + kind;
+    statusNoticeEl.style.display = 'none';
+  } else {
+    turnLabel.textContent = currentPlayer + ' to move' + (currentPlayer===playerColor ? ' (you)' : ' (opponent)');
+    gameOverEl.style.display = 'none';
+    if(dice.length===0){
+      statusNoticeEl.style.display = 'block';
+      statusNoticeEl.textContent = 'roll the dice to move';
+    } else if(bar[currentPlayer]>0){
+      statusNoticeEl.style.display = 'block';
+      statusNoticeEl.textContent = 'you have a checker on the bar -- enter it first';
+    } else {
+      statusNoticeEl.style.display = 'none';
+    }
+  }
+  talliesEl.innerHTML =
+    'on the bar — <b>red ' + bar.red + '</b> · <b>black ' + bar.black + '</b><br>' +
+    'borne off — <b>red ' + off.red + '</b> · <b>black ' + off.black + '</b>';
+}
+
+/* ---------------- audio / sequencer ---------------- */
+const BLACK_NOTES = ["C5","D5","E5","G5","A5"]; // low stack -> tall stack, black's register
+const RED_NOTES   = ["C4","D4","E4","G4","A4"]; // same pentatonic degrees, one octave down
+const BAR_DRONE = "C3"; // a lower octave of the same scale -- the bar reads as tense
+                         // through register and sustain, not dissonance, so the "no
+                         // combination ever clashes" claim in the legend still holds
+
+let voice, reverb, started = false, sweepEndTimer = null;
+let currentSkin = 'neon'; // matches the <select>'s default; skin IS the instrument now
+
+// Each preset's build() returns an array of Tone nodes forming its full signal path,
+// synth first, then any signature effects, in connection order (buildVoice() wires them
+// together and appends the shared reverb; rebuildVoice() disposes the whole array on skin
+// change). Every synth engine below extends Monophonic, which Tone.PolySynth requires --
+// see the Fungal/PluckSynth note further down for why that matters.
+const PRESETS = {
+  pluck: { label:'Pluck', build: () => {
+    const synth = new Tone.PolySynth(Tone.MonoSynth, {
+      oscillator:{type:'triangle'},
+      envelope:{attack:0.002, decay:0.22, sustain:0, release:0.3},
+      filter:{Q:1.5, type:'lowpass', rolloff:-24},
+      filterEnvelope:{attack:0.001, decay:0.14, sustain:0, release:0.2, baseFrequency:180, octaves:4.5}
+    });
+    const chorus = new Tone.Chorus({frequency:2.4, delayTime:2, depth:0.3, wet:0.3}).start();
+    const slap = new Tone.FeedbackDelay({delayTime:'16n', feedback:0.12, wet:0.16});
+    return [synth, chorus, slap];
+  }},
+  blip: { label:'Blip', build: () => {
+    const synth = new Tone.PolySynth(Tone.Synth, {
+      oscillator:{type:'triangle'},
+      envelope:{attack:0.001, decay:0.09, sustain:0, release:0.12}
+    });
+    return [synth];
+  }},
+  bell: { label:'Bell', build: () => {
+    const synth = new Tone.PolySynth(Tone.FMSynth, {
+      harmonicity:3.01, modulationIndex:10,
+      envelope:{attack:0.003, decay:0.5, sustain:0.08, release:1.1},
+      modulationEnvelope:{attack:0.008, decay:0.25, sustain:0, release:0.4}
+    });
+    const chorus = new Tone.Chorus({frequency:1.4, delayTime:3.2, depth:0.4, wet:0.32}).start();
+    const echo = new Tone.FeedbackDelay({delayTime:'8n', feedback:0.22, wet:0.22});
+    return [synth, chorus, echo];
+  }},
+  pad: { label:'Pad', build: () => {
+    const synth = new Tone.PolySynth(Tone.AMSynth, {
+      harmonicity:1.99, oscillator:{type:'sine'},
+      envelope:{attack:0.5, decay:0.4, sustain:0.65, release:1.6},
+      modulation:{type:'sine'}, modulationEnvelope:{attack:0.6, decay:0.2, sustain:1, release:0.8}
+    });
+    const vibrato = new Tone.Vibrato({frequency:3.2, depth:0.06});
+    const chorus = new Tone.Chorus({frequency:0.6, delayTime:4.5, depth:0.55, wet:0.4}).start();
+    const filter = new Tone.AutoFilter({frequency:0.18, baseFrequency:300, octaves:3.5, wet:0.5}).start();
+    return [synth, vibrato, chorus, filter];
+  }},
+  tr808: { label:'TR-808', build: () => {
+    const synth = new Tone.PolySynth(Tone.MembraneSynth, {
+      pitchDecay:0.05, octaves:4,
+      envelope:{attack:0.001, decay:0.35, sustain:0, release:0.4}
+    });
+    const drive = new Tone.Distortion({distortion:0.18, wet:0.4});
+    return [synth, drive];
+  }},
+  tb303: { label:'TB-303', build: () => {
+    const synth = new Tone.PolySynth(Tone.MonoSynth, {
+      oscillator:{type:'sawtooth'},
+      filter:{Q:12, type:'lowpass', rolloff:-24},
+      envelope:{attack:0.005, decay:0.2, sustain:0.1, release:0.25},
+      filterEnvelope:{attack:0.003, decay:0.28, sustain:0.05, release:0.3, baseFrequency:150, octaves:4.5}
+    });
+    const drive = new Tone.Distortion({distortion:0.32, wet:0.35});
+    const phaser = new Tone.Phaser({frequency:0.6, octaves:3, baseFrequency:400, wet:0.18});
+    return [synth, drive, phaser];
+  }},
+  modular: { label:'Modular', build: () => {
+    const synth = new Tone.PolySynth(Tone.MonoSynth, {
+      oscillator:{type:'sawtooth'},
+      filter:{Q:2, type:'lowpass', rolloff:-24},
+      envelope:{attack:0.02, decay:0.3, sustain:0.4, release:0.8},
+      filterEnvelope:{attack:0.05, decay:0.4, sustain:0.3, release:0.6, baseFrequency:200, octaves:3}
+    });
+    const drive = new Tone.Distortion({distortion:0.08, wet:0.25});
+    const chorus = new Tone.Chorus({frequency:0.8, delayTime:3.5, depth:0.45, wet:0.35}).start();
+    return [synth, drive, chorus];
+  }},
+  op1: { label:'OP-1', build: () => {
+    const synth = new Tone.PolySynth(Tone.FMSynth, {
+      harmonicity:2.5, modulationIndex:3,
+      oscillator:{type:'square'},
+      envelope:{attack:0.002, decay:0.15, sustain:0.15, release:0.2},
+      modulationEnvelope:{attack:0.002, decay:0.1, sustain:0, release:0.1}
+    });
+    const vibrato = new Tone.Vibrato({frequency:5.5, depth:0.12});
+    const pingpong = new Tone.PingPongDelay({delayTime:'16n', feedback:0.25, wet:0.25});
+    return [synth, vibrato, pingpong];
+  }},
+  deepsea: { label:'Deep Sea', build: () => {
+    const synth = new Tone.PolySynth(Tone.AMSynth, {
+      harmonicity:1.01, oscillator:{type:'sine'},
+      envelope:{attack:0.3, decay:0.4, sustain:0.5, release:1.8},
+      modulation:{type:'sine'}, modulationEnvelope:{attack:0.6, decay:0.3, sustain:0.7, release:1.2}
+    });
+    const chorus = new Tone.Chorus({frequency:0.5, delayTime:5, depth:0.5, wet:0.35}).start();
+    const echo = new Tone.FeedbackDelay({delayTime:'8n.', feedback:0.35, wet:0.3});
+    return [synth, chorus, echo];
+  }},
+  glitch: { label:'Glitch', build: () => {
+    const synth = new Tone.PolySynth(Tone.Synth, {
+      oscillator:{type:'square'},
+      envelope:{attack:0.001, decay:0.04, sustain:0, release:0.03}
+    });
+    const drive = new Tone.Distortion({distortion:0.55, wet:0.45});
+    const stutter = new Tone.PingPongDelay({delayTime:'32n', feedback:0.5, wet:0.32});
+    return [synth, drive, stutter];
+  }},
+  fungal: { label:'Fungal', build: () => {
+    const synth = new Tone.PolySynth(Tone.MonoSynth, {
+      oscillator:{type:'triangle'},
+      filter:{Q:1, type:'lowpass', rolloff:-24},
+      envelope:{attack:0.005, decay:0.3, sustain:0, release:0.4},
+      filterEnvelope:{attack:0.01, decay:0.25, sustain:0, release:0.3, baseFrequency:300, octaves:1.5}
+    });
+    const tremolo = new Tone.Tremolo({frequency:2.6, depth:0.55, wet:0.7}).start();
+    const chorus = new Tone.Chorus({frequency:0.7, delayTime:3, depth:0.3, wet:0.2}).start();
+    return [synth, tremolo, chorus];
+  }},
+};
+// every skin IS an instrument now -- picking a skin rebuilds the one shared synth
+// both colors play through (red/black just differ by register, see RED/BLACK_NOTES)
+const SKIN_VOICE = {
+  dark:'pluck', light:'blip', neon:'bell', alien:'pad',
+  tr808:'tr808', tb303:'tb303', modular:'modular', op1:'op1',
+  deepsea:'deepsea', glitch:'glitch', fungal:'fungal',
+};
+
+// stack size -> velocity/pitch-intensity, not a binary note-on/off: an empty point
+// stays silent, but a well-stocked point is genuinely louder and reaches a brighter
+// note within its register than a lone checker does.
+function playPoint(idx, time){
+  const p = points[idx];
+  if(!p) return;
+  const notes = p.color==='red' ? RED_NOTES : BLACK_NOTES;
+  const noteIdx = Math.min(Math.floor(p.count/2), notes.length-1);
+  const note = notes[noteIdx];
+  const velocity = 0.28 + Math.min(p.count,8)/8 * 0.55;
+  voice.synth.triggerAttackRelease(note, "8n", time, velocity);
+  if(lastMoves.some(m => m.to===idx)){
+    const shimmer = Tone.Frequency(note).transpose(12).toNote();
+    voice.synth.triggerAttackRelease(shimmer, "16n", time, 0.3);
+  }
+}
+function playBar(time){
+  const total = bar.red + bar.black;
+  if(total<=0) return;
+  const velocity = 0.2 + Math.min(total,6)/6 * 0.6;
+  voice.synth.triggerAttackRelease(BAR_DRONE, "4n", time, velocity);
+}
+// a standalone, immediate chime (not part of the sweep) the moment a checker bears
+// off -- climbs higher the closer that color gets to bearing off all 15, so the last
+// few checkers home ring out audibly brighter than the first
+function playBearOffChime(color, offCount){
+  if(!started || !voice) return;
+  const t = Tone.now() + 0.02;
+  const progress = Math.min(offCount, 15) / 15;
+  const note = Tone.Frequency("C5").transpose(Math.round(progress*12)).toNote();
+  voice.synth.triggerAttackRelease(note, "16n", t, 0.6);
+}
+
+// 13 sweep columns: 6 points, the bar, 6 more points -- see gridPosForPoint()'s header
+// comment for the same numbering. This is its inverse: sweep column -> the pair of
+// point indices (bottom row, top row) stacked in that column, or null for the bar.
+function pointsForSweepCol(col){
+  if(col===6) return null;
+  if(col<=5) return { bottom: 11-col, top: col+12 };
+  return { bottom: 12-col, top: col+11 };
+}
+function playColumn(col, time){
+  const pair = pointsForSweepCol(col);
+  if(!pair){ playBar(time); return; }
+  playPoint(pair.bottom, time);
+  playPoint(pair.top, time);
+}
+
+function pulseCell(el){
+  el.classList.remove('sown');
+  // eslint-disable-next-line no-unused-expressions
+  void el.offsetWidth;
+  el.classList.add('sown');
+}
+function setActiveColumn(col){
+  sweepBar.style.left = 'calc(' + (col * (100/13)) + '% + 10px)';
+  const pair = pointsForSweepCol(col);
+  if(!pair){ if(bar.red+bar.black>0) pulseCell(barEl); return; }
+  if(points[pair.bottom]) pulseCell(pointEls[pair.bottom]);
+  if(points[pair.top]) pulseCell(pointEls[pair.top]);
+}
+
+const SWEEP_COLS = 13;
+function stepDuration(){
+  const bpm = Number(tempoSlider.value);
+  return (60 / bpm) / 2; // one eighth note, in seconds
+}
+function sweepDurationMs(){
+  return (SWEEP_COLS * stepDuration() + 0.15) * 1000;
+}
+
+function sweepOnce(){
+  if(!started || !voice) return; // audio still warming up (rare click-then-instant-move race)
+  const stepDur = stepDuration();
+  const startTime = Tone.now() + 0.03;
+
+  sweepBar.classList.add('on');
+  for(let col=0; col<SWEEP_COLS; col++){
+    const t = startTime + col * stepDur;
+    playColumn(col, t);
+    Tone.Draw.schedule(()=>setActiveColumn(col), t);
+  }
+
+  clearTimeout(sweepEndTimer);
+  sweepEndTimer = setTimeout(()=>{ sweepBar.classList.remove('on'); }, sweepDurationMs());
+}
+
+const gate = document.getElementById('gate');
+const startBtn = document.getElementById('startBtn');
+const tempoSlider = document.getElementById('tempoSlider');
+const tempoVal = document.getElementById('tempoVal');
+
+function buildVoice(presetKey){
+  const nodes = PRESETS[presetKey].build();
+  for(let i=0;i<nodes.length-1;i++) nodes[i].connect(nodes[i+1]);
+  nodes[nodes.length-1].connect(reverb);
+  return { synth: nodes[0], nodes };
+}
+
+function rebuildSynth(){
+  if(!reverb) return; // audio not started yet -- startAudio() will build with the current skin's voice
+  if(voice) voice.nodes.forEach(n=>n.dispose());
+  voice = buildVoice(SKIN_VOICE[currentSkin]);
+}
+
+function startAudio(){
+  if(started) return;
+  started = true;
+  Tone.start().then(()=>{
+    reverb = new Tone.Reverb({decay:1.8, wet:0.22}).toDestination();
+    rebuildSynth();
+    gate.classList.add('hidden');
+    sweepOnce(); // preview the starting board immediately
+  });
+}
+
+const colorButtons = Array.from(document.querySelectorAll('.color-btn'));
+const voiceLabelEl = document.getElementById('voiceLabel');
+const winModal = document.getElementById('winModal');
+const winModalTitle = document.getElementById('winModalTitle');
+const playAgainBtn = document.getElementById('playAgainBtn');
+const REPLAY_SWEEPS = 3; // how many times the winning board "plays itself back" as a little song
+
+function updateSkinUI(){
+  colorButtons.forEach(b => b.classList.toggle('active', b.dataset.color===playerColor));
+  voiceLabelEl.textContent = PRESETS[SKIN_VOICE[currentSkin]].label;
+}
+
+colorButtons.forEach(b => b.addEventListener('click', ()=>{
+  playerColor = b.dataset.color;
+  syncAIColor();
+  render(); // refresh the "(you)"/"(opponent)" turn label
+  maybeTriggerAI(); // switching sides mid-game can hand the very next move to the AI
+}));
+
+/* ---------------- AI opponent ---------------- */
+// Difficulty here isn't a search-depth knob like the grid games -- dice make a real
+// multi-ply search a fundamentally different (expectiminimax) algorithm, out of scope
+// for a per-roll greedy planner (see the worker's header comment). Instead, difficulty
+// comes from how the position is scored: easy weighs almost nothing but the race and
+// adds real noise (so it visibly blunders and leaves blots), medium plays the full
+// heuristic straight, and hard leans harder on safety and priming.
+const DIFFICULTY_WEIGHTS = {
+  easy:   { pip:1, blotPenalty:0.3, oppExposureWeight:0.1, homeBoard:2, barPenalty:6,  noise:9 },
+  medium: { pip:1, blotPenalty:1,   oppExposureWeight:0.3, homeBoard:5, barPenalty:12, noise:0 },
+  hard:   { pip:1, blotPenalty:1.6, oppExposureWeight:0.5, homeBoard:8, barPenalty:16, noise:0 },
+};
+const backgammonAIWorker = new Worker(URL.createObjectURL(new Blob(
+  [document.getElementById('backgammonAIWorkerSrc').textContent],
+  { type:'application/javascript' }
+)));
+let aiThinking = false;
+
+const opponentButtons = Array.from(document.querySelectorAll('.opponent-btn'));
+const difficultyButtons = Array.from(document.querySelectorAll('.difficulty-btn'));
+const difficultyPicker = document.getElementById('difficultyPicker');
+const colorPickerHint = document.getElementById('colorPickerHint');
+const thinkingIndicator = document.getElementById('thinkingIndicator');
+
+function syncAIColor(){
+  aiColor = opponentMode==='computer' ? opponent(playerColor) : null;
+}
+
+function updateOpponentUI(){
+  opponentButtons.forEach(b => b.classList.toggle('active', b.dataset.opponent===opponentMode));
+  difficultyButtons.forEach(b => b.classList.toggle('active', b.dataset.difficulty===aiDifficulty));
+  difficultyPicker.style.display = opponentMode==='computer' ? 'flex' : 'none';
+  colorPickerHint.textContent = opponentMode==='computer'
+    ? 'you play this color -- the computer plays the other, and its points aren\'t clickable'
+    : 'just frames the turn indicator as "you" vs "opponent" -- doesn\'t restrict who can click';
+}
+
+opponentButtons.forEach(b => b.addEventListener('click', ()=>{
+  opponentMode = b.dataset.opponent;
+  syncAIColor();
+  updateOpponentUI();
+  maybeTriggerAI();
+}));
+difficultyButtons.forEach(b => b.addEventListener('click', ()=>{
+  aiDifficulty = b.dataset.difficulty;
+  updateOpponentUI();
+}));
+
+function maybeTriggerAI(){
+  if(opponentMode!=='computer' || gameOver || currentPlayer!==aiColor || aiThinking) return;
+  if(diceRemaining.length===0){
+    aiThinking = true;
+    thinkingIndicator.classList.add('on');
+    setTimeout(()=>{
+      aiThinking = false;
+      thinkingIndicator.classList.remove('on');
+      rollDice(); // rollDice() itself renders and calls maybeTriggerAI() again -- if
+                  // it's still the AI's turn with dice now available, that re-entry
+                  // falls through to the requestAIMove() branch below
+    }, 400);
+    return;
+  }
+  requestAIMove();
+}
+
+function requestAIMove(){
+  if(aiThinking || diceRemaining.length===0) return;
+  aiThinking = true;
+  thinkingIndicator.classList.add('on');
+  // postMessage structured-clones its payload, so the worker gets its own copy of the
+  // board and can't accidentally mutate what the main thread is still rendering
+  backgammonAIWorker.postMessage({
+    points, bar, off, color: currentPlayer, dice: diceRemaining.slice(), weights: DIFFICULTY_WEIGHTS[aiDifficulty],
+  });
+}
+
+// steps through the AI's planned moves one at a time (like checkers' multi-hop chain
+// driver) so each one gets its own sweep instead of silently resolving the whole turn
+function driveAIMoves(moves, i){
+  if(i>=moves.length){
+    checkWin();
+    if(!gameOver){ maybeEndTurn(); render(); maybeTriggerAI(); } else render();
+    return;
+  }
+  const mv = moves[i];
+  const color = currentPlayer;
+  let die;
+  if(mv.from==='bar') die = color==='red' ? 24-mv.to : mv.to+1;
+  else if(mv.to==='off') die = diceRemaining.find(d => legalMovesForDie(color, d).some(m=>m.from===mv.from && m.to==='off'));
+  else die = color==='red' ? mv.from-mv.to : mv.to-mv.from;
+
+  applyMoveToState(mv.from, mv.to, color);
+  lastMoves = [mv];
+  if(mv.to==='off') playBearOffChime(color, off[color]);
+  const dieIdx = diceRemaining.indexOf(die);
+  if(dieIdx!==-1) diceRemaining.splice(dieIdx, 1);
+  sweepOnce();
+  render();
+  setTimeout(()=>driveAIMoves(moves, i+1), started ? sweepDurationMs()+120 : 120);
+}
+
+backgammonAIWorker.onmessage = function(e){
+  aiThinking = false;
+  thinkingIndicator.classList.remove('on');
+  if(gameOver) return;
+  const moves = e.data.moves || [];
+  if(moves.length===0){
+    diceRemaining = []; dice = [];
+    currentPlayer = opponent(currentPlayer);
+    render();
+    maybeTriggerAI();
+    return;
+  }
+  driveAIMoves(moves, 0);
+};
+
+function celebrateWin(result){
+  if(!started){ showWinModal(result); return; } // no audio yet -- just show the modal
+  const dur = sweepDurationMs();
+  let plays = 0;
+  (function playNext(){
+    sweepOnce();
+    plays++;
+    setTimeout(plays < REPLAY_SWEEPS ? playNext : ()=>showWinModal(result), dur);
+  })();
+}
+
+function showWinModal(result){
+  const kind = result.backgammon ? 'backgammon' : result.gammon ? 'gammon' : 'single game';
+  winModalTitle.textContent = result.winner + ' wins — ' + kind;
+  winModal.classList.remove('hidden');
+}
+
+playAgainBtn.addEventListener('click', ()=>{
+  winModal.classList.add('hidden');
+  resetGame();
+});
+
+startBtn.addEventListener('click', startAudio);
+tempoSlider.addEventListener('input', ()=>{
+  tempoVal.textContent = tempoSlider.value;
+});
+document.getElementById('rollBtn').addEventListener('click', ()=>{
+  if(opponentMode==='computer' && currentPlayer===aiColor) return;
+  rollDice();
+});
+document.getElementById('newGameBtn').addEventListener('click', resetGame);
+document.getElementById('skinSelect').addEventListener('change', (e)=>{
+  currentSkin = e.target.value;
+  document.documentElement.dataset.skin = currentSkin;
+  rebuildSynth();
+  updateSkinUI();
+});
+
+updateSkinUI();
+updateOpponentUI();
+
+resetGame();
+})();
+</script>
+</body>
+</html>
