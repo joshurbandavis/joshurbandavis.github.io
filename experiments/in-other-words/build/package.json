@@ -1,0 +1,16 @@
+{
+  "name": "in-other-words-build",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Offline build for in-other-words: parses each voice's corpus and embeds every line pair into ../data/.",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "3.8.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

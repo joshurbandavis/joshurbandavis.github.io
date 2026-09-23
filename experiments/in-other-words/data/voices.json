@@ -1,0 +1,31 @@
+{
+  "model": "Xenova/all-MiniLM-L6-v2",
+  "dtype": "q8",
+  "dim": 384,
+  "voices": [
+    {
+      "id": "swift",
+      "name": "Taylor Swift",
+      "credit": "lyrics via github.com/shaynak/taylor-swift-lyrics",
+      "count": 10319
+    },
+    {
+      "id": "sonnets",
+      "name": "Shakespeare",
+      "credit": "Shakespeare's Sonnets, Project Gutenberg #1041",
+      "count": 2000
+    },
+    {
+      "id": "dickinson",
+      "name": "Emily Dickinson",
+      "credit": "Poems, Three Series, Project Gutenberg #12242",
+      "count": 4336
+    },
+    {
+      "id": "solomon",
+      "name": "Proverbs",
+      "credit": "Proverbs & Ecclesiastes, King James Version, Project Gutenberg #10",
+      "count": 1116
+    }
+  ]
+}
