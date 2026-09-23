@@ -300,7 +300,14 @@ async function buildMemorial(targetUrl) {
     const rawUrl = `https://web.archive.org/web/${lastTimestamp}id_/${originalUrl}`;
     const res = await fetchWithTimeout(rawUrl, {}, 15000);
     const ct = res.headers.get('content-type') || '';
-    if (ct.includes('text/html') && res.body) {
+    // A non-2xx here (429 from archive.org rate-limiting this specific
+    // fetch, a stray 5xx, etc.) still often comes back as text/html — but
+    // it's archive.org's own error page, not the archived page. Parsing it
+    // anyway means the "fragment" scraper had picked up "429 Too Many
+    // Requests / You have sent too many requests..." and presented it as if
+    // it were real salvaged text from the page, which is exactly backwards
+    // from this piece's "real salvage over invented flavor" principle.
+    if (res.ok && ct.includes('text/html') && res.body) {
       const reader = res.body.getReader();
       const chunks = [];
       let received = 0;
