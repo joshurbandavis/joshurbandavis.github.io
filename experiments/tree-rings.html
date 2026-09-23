@@ -32,7 +32,7 @@ html{scroll-behavior:smooth}
 
 body{
   font-family:var(--sans);
-  height:230rem;
+  height:288rem;
   background:var(--bg);
   color:var(--fg);
   touch-action:pan-y;
@@ -362,7 +362,7 @@ main{
 }
 
 @media screen and (min-width:1800px) and (min-height:1000px){
-  body{height:250rem}
+  body{height:308rem}
   .ring-title{font-size:2.3rem}
   .ring-phrase{font-size:1.9rem}
 }
@@ -495,11 +495,47 @@ main{
     </a>
 
     <a class="ring" data-cls="chess-sequencer" data-img="_shared/snapshots/chess-sequencer.jpg" href="chess-sequencer/index.html" target="_blank" rel="noopener" style="--i:12">
-      <div class="ring-shape" style="--jr:1; --jb:1.5; --wobble:49% 51% 49% 51% / 50% 49% 51% 50%"></div>
+      <div class="ring-shape" style="--jr:.95; --jb:1.1; --wobble:49% 51% 49% 51% / 50% 49% 51% 50%"></div>
       <div class="ring-label">
         <div class="ring-plate"></div>
-        <span class="ring-num">ring 12 &middot; bark</span>
+        <span class="ring-num">ring 12</span>
         <div class="ring-text"><span class="ring-title">chess sequencer</span><span class="ring-phrase">Six pieces, six instruments, always mid-song.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="reversi-sequencer" data-img="_shared/snapshots/reversi-sequencer.jpg" href="reversi-sequencer/index.html" target="_blank" rel="noopener" style="--i:13">
+      <div class="ring-shape" style="--jr:1.03; --jb:.92; --wobble:50% 49% 51% 48% / 49% 50% 48% 51%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 13</span>
+        <div class="ring-text"><span class="ring-title">reversi sequencer</span><span class="ring-phrase">Flip a line of discs and hear it cascade.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="connectfour-sequencer" data-img="_shared/snapshots/connectfour-sequencer.jpg" href="connectfour-sequencer/index.html" target="_blank" rel="noopener" style="--i:14">
+      <div class="ring-shape" style="--jr:.93; --jb:1.35; --wobble:48% 51% 50% 49% / 51% 49% 50% 48%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 14</span>
+        <div class="ring-text"><span class="ring-title">connect four sequencer</span><span class="ring-phrase">Every drop is a downbeat.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="mancala-sequencer" data-img="_shared/snapshots/mancala-sequencer.jpg" href="mancala-sequencer/index.html" target="_blank" rel="noopener" style="--i:15">
+      <div class="ring-shape" style="--jr:1.05; --jb:.87; --wobble:51% 50% 48% 49% / 50% 48% 49% 51%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 15</span>
+        <div class="ring-text"><span class="ring-title">mancala sequencer</span><span class="ring-phrase">The fuller the pit, the louder it sings.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="backgammon-sequencer" data-img="_shared/snapshots/backgammon-sequencer.jpg" href="backgammon-sequencer/index.html" target="_blank" rel="noopener" style="--i:16">
+      <div class="ring-shape" style="--jr:1; --jb:1.5; --wobble:49% 50% 51% 50% / 48% 51% 50% 49%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 16 &middot; bark</span>
+        <div class="ring-text"><span class="ring-title">backgammon sequencer</span><span class="ring-phrase">The dice write the rhythm; the board sings it.</span></div>
       </div>
     </a>
 
@@ -520,7 +556,7 @@ main{
 </div>
 
 <div class="depth-rail" aria-hidden="true">
-  <span class="depth-count" id="depthCount">01 / 12</span>
+  <span class="depth-count" id="depthCount">01 / 16</span>
   <div class="depth-track"><div class="depth-fill" id="depthFill"></div></div>
 </div>
 
@@ -594,7 +630,7 @@ const SWEET_SPOT = 0.14; // fraction of ringGap "past" the lens, where a ring re
 const scrollCue = document.getElementById('scrollCue');
 const depthCount = document.getElementById('depthCount');
 const depthFill = document.getElementById('depthFill');
-const TOTAL_RINGS = 12;
+const TOTAL_RINGS = 16;
 
 const update = () => {
   const y = cachedScrollY;
