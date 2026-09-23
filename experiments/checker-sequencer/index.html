@@ -24,8 +24,8 @@
 
 /* ---- skins: everything below only ever overrides the tokens above (plus a few
    signature touches per skin) -- component rules never hardcode a skin's colors ----
-   Three skins (Modular, Deep Sea, Fungal) use real public-domain imagery, downloaded
-   locally rather than hotlinked, in experiments/_shared/textures/:
+   Three skins (Modular, Deep Sea, Fungal) use real public-domain imagery as page
+   backdrops, downloaded locally rather than hotlinked, in experiments/_shared/textures/:
    - wood.jpg     -- "Artificial wood grain texture.jpg", John Harvey, public domain
                       https://commons.wikimedia.org/wiki/File:Artificial_wood_grain_texture.jpg
    - deepsea.jpg  -- Ernst Haeckel, "Kunstformen der Natur" (1904), Tafel 8
@@ -35,15 +35,11 @@
    - fungal.jpg   -- Eugen Gramberg, "Pilze der Heimat" (1913), Tafel 6, "Samtfuss-
                       Krempling, Paxillus atrotomentosus." Public domain (1913, Quelle &
                       Meyer, Leipzig); digitized by the Biodiversity Heritage Library.
-   The Deep Sea and Fungal pieces themselves (not just the page background) are also cut
-   from real plates, in experiments/_shared/textures/pieces/. These are true cutouts,
-   not photos-in-a-circle: each PNG is segmented out of its source plate (background
-   removed) so the piece takes the actual silhouette of the specimen.
-   - deepsea-*.png -- Ernst Haeckel, "Kunstformen der Natur" (1904), Tafel 49 "Actiniae"
-                      (sea anemones). Same public-domain LOC scan as above
-                      (loc.gov/pnp/ds.05318), individual specimens cropped out.
-   - fungal-*.png  -- Eugen Gramberg, "Pilze der Heimat" (1913), several plates (Tafel 3,
-                      13, 15, 38, 45), each a different species, cropped to one specimen.
+   Deep Sea and Fungal's PIECES are CSS-only (an organic blob glow and a speckled
+   mushroom-cap dome, respectively) rather than cropped photos -- an earlier version
+   used real cutout specimens here, but two tints of the same photo silhouette turned
+   out to be hard to tell apart at a glance; two distinctly-shaped, distinctly-colored
+   CSS pieces read far more clearly at a board's usual zoom level.
    Attribution isn't legally required for any of these (public domain / CC0) but is
    included anyway. (Clockwork skin removed -- it broke reliably in practice.) ---- */
 :root[data-skin="light"]{
@@ -374,47 +370,38 @@ h1 em{font-style:italic;color:var(--accent)}
 }
 [data-skin="op1"] .piece.black::before{background:rgba(255,255,255,.65)}
 
-/* deepsea: real Haeckel Actiniae (sea anemone) cutouts AS the piece itself -- segmented
-   out of the plate with soft, glowing edges (not a hard silhouette, to match the
-   specimens' own painted glow-from-darkness look) so the piece takes the actual shape
-   of the creature, not a circle with a photo inside. The turned ring (::before) is
-   suppressed since it doesn't make sense floating over an irregular cutout, and kinged
-   pieces switch to the plate's most dramatic specimen.
-   Color tint is baked directly into dedicated keyframes -- for BOTH the ambient ripple
-   and the sweep-hit pulse flash -- because an animated `filter`/`animation` always wins
-   over a same-property declaration for as long as it runs. That cuts two ways here: a
-   plain static filter would get silently overwritten every ripple cycle (the same bug
-   the king crown's glow hit earlier), AND the ripple's own `animation` property has
-   higher specificity than the generic .piece.pulse flash, which would otherwise mean
-   the sweep-hit flash never plays at all on this skin -- so the pulse variant needs its
-   own even-more-specific keyframe too. */
-[data-skin="deepsea"] .piece{
-  width:85%;height:85%;border-radius:0;
-  background-image:url(../_shared/textures/pieces/deepsea-piece.png);
-  background-size:contain;background-repeat:no-repeat;background-position:center;
+/* deepsea: a bioluminescent blob, not a photo -- an organic border-radius (the same
+   trick alien uses) reads as a jellyfish/anemone bell far better than a hard circle,
+   a soft off-center highlight stands in for the turned wood ring, and the glow itself
+   pulses outward via box-shadow. Red glows warm pink (--accent2), black glows cool
+   teal (--accent) -- two clearly different hues, not just two tints of one photo,
+   which is what made the old cutout pieces hard to tell apart at a glance. */
+[data-skin="deepsea"] .piece{border-radius:62% 38% 55% 45% / 55% 45% 58% 42%}
+[data-skin="deepsea"] .piece::before{
+  content:'';position:absolute;inset:14%;border-radius:inherit;border:none;
+  background:radial-gradient(ellipse at 32% 28%,rgba(255,255,255,.55),transparent 55%);
+  box-shadow:none;pointer-events:none;
 }
-[data-skin="deepsea"] .piece::before{content:none}
-[data-skin="deepsea"] .piece.king{background-image:url(../_shared/textures/pieces/deepsea-king.png)}
-[data-skin="deepsea"] .piece.red{animation:deepseaRippleRed 3s ease-in-out infinite}
-[data-skin="deepsea"] .piece.black{animation:deepseaRippleBlack 3s ease-in-out infinite}
+[data-skin="deepsea"] .piece.red{
+  background:radial-gradient(circle at 30% 25%,color-mix(in srgb,var(--accent2) 65%,white),var(--accent2) 50%,color-mix(in srgb,var(--accent2) 60%,black) 100%);
+  animation:deepseaGlowRed 3s ease-in-out infinite;
+}
+[data-skin="deepsea"] .piece.black{
+  background:radial-gradient(circle at 30% 25%,color-mix(in srgb,var(--accent) 65%,white),var(--accent) 50%,color-mix(in srgb,var(--accent) 55%,black) 100%);
+  animation:deepseaGlowBlack 3s ease-in-out infinite;
+}
 [data-skin="deepsea"] .piece.red.pulse{animation:deepseaPulseRed .3s ease}
 [data-skin="deepsea"] .piece.black.pulse{animation:deepseaPulseBlack .3s ease}
-@keyframes deepseaRippleRed{
-  0%,100%{filter:saturate(1.3) hue-rotate(-8deg) brightness(.95) drop-shadow(0 3px 6px rgba(0,0,0,.5))}
-  50%{filter:saturate(1.3) hue-rotate(-8deg) brightness(1.2) drop-shadow(0 3px 6px rgba(0,0,0,.5))}
+@keyframes deepseaGlowRed{
+  0%,100%{box-shadow:0 0 12px 1px rgba(255,110,199,.4),inset 0 2px 4px rgba(255,255,255,.25),inset 0 -3px 6px rgba(0,0,0,.4)}
+  50%{box-shadow:0 0 22px 4px rgba(255,110,199,.75),inset 0 2px 4px rgba(255,255,255,.25),inset 0 -3px 6px rgba(0,0,0,.4)}
 }
-@keyframes deepseaRippleBlack{
-  0%,100%{filter:saturate(1.1) hue-rotate(150deg) brightness(.72) drop-shadow(0 3px 6px rgba(0,0,0,.6))}
-  50%{filter:saturate(1.1) hue-rotate(150deg) brightness(.92) drop-shadow(0 3px 6px rgba(0,0,0,.6))}
+@keyframes deepseaGlowBlack{
+  0%,100%{box-shadow:0 0 12px 1px rgba(41,230,201,.4),inset 0 2px 4px rgba(255,255,255,.2),inset 0 -3px 6px rgba(0,0,0,.5)}
+  50%{box-shadow:0 0 22px 4px rgba(41,230,201,.75),inset 0 2px 4px rgba(255,255,255,.2),inset 0 -3px 6px rgba(0,0,0,.5)}
 }
-@keyframes deepseaPulseRed{
-  0%{filter:saturate(1.3) hue-rotate(-8deg) brightness(2) drop-shadow(0 3px 6px rgba(0,0,0,.5))}
-  100%{filter:saturate(1.3) hue-rotate(-8deg) brightness(.95) drop-shadow(0 3px 6px rgba(0,0,0,.5))}
-}
-@keyframes deepseaPulseBlack{
-  0%{filter:saturate(1.1) hue-rotate(150deg) brightness(1.5) drop-shadow(0 3px 6px rgba(0,0,0,.6))}
-  100%{filter:saturate(1.1) hue-rotate(150deg) brightness(.72) drop-shadow(0 3px 6px rgba(0,0,0,.6))}
-}
+@keyframes deepseaPulseRed{0%{filter:brightness(2.1)}100%{filter:brightness(1)}}
+@keyframes deepseaPulseBlack{0%{filter:brightness(2.1)}100%{filter:brightness(1)}}
 
 /* glitch: the jitter now also punches jump-cut clip-path slices, not just a translate,
    plus a scanline overlay on the (still-independent) ring pseudo-element. Same as alien
@@ -436,35 +423,35 @@ h1 em{font-style:italic;color:var(--accent)}
   96%{transform:translate(0,0);clip-path:inset(0 0 0 0)}
 }
 
-/* fungal: real Pilze der Heimat mushroom cutouts AS the piece itself -- segmented out of
-   the plate's clean pale background, so the piece takes the actual silhouette of the
-   mushroom cluster rather than a circle with a photo inside. The turned ring (::before)
-   is suppressed for the same reason as deepsea above, and kings switch to the plate's
-   darkest, most dramatic specimen.
-   No ambient animation runs on this skin's pieces (unlike deepsea), but the sweep-hit
-   pulse flash still needs its own color-aware keyframe rather than a plain static
-   filter: an animated `filter` always overrides a static declaration on the same
-   property for as long as it runs, so a static tint here would flash back to untinted
-   colors for the pulse's 0.3s -- same bug class as deepsea's ripple, smaller stakes. */
-[data-skin="fungal"] .piece{
-  width:85%;height:85%;border-radius:0;
-  background-image:url(../_shared/textures/pieces/fungal-piece.png);
-  background-size:contain;background-repeat:no-repeat;background-position:center;
+/* fungal: a mushroom cap silhouette, not a photo -- an asymmetric border-radius (round
+   top, flatter bottom) reads as a domed cap, and a scatter of pale speckle dots stands
+   in for the turned wood ring, like an Amanita's spots. Red caps warm tan/gold
+   (--accent), black caps cool purple (--accent2) -- distinct colors rather than two
+   tints of the same photo, which is what made the old cutout pieces hard to tell
+   apart. No ambient animation here (mushrooms don't pulse), but the sweep-hit flash
+   still needs its own keyframe: an animated `filter` always overrides a static
+   declaration on the same property for as long as it runs, so a plain static tint
+   would flash back to untinted for the pulse's 0.3s. */
+[data-skin="fungal"] .piece{border-radius:50% 50% 8% 8% / 62% 62% 14% 14%}
+[data-skin="fungal"] .piece::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;border:none;box-shadow:none;
+  background:
+    radial-gradient(circle 3px at 28% 30%,rgba(255,255,255,.5) 90%,transparent 100%),
+    radial-gradient(circle 2.5px at 62% 22%,rgba(255,255,255,.4) 90%,transparent 100%),
+    radial-gradient(circle 2px at 45% 42%,rgba(255,255,255,.35) 90%,transparent 100%),
+    radial-gradient(circle 2.5px at 72% 48%,rgba(255,255,255,.3) 90%,transparent 100%);
+  pointer-events:none;
 }
-[data-skin="fungal"] .piece::before{content:none}
-[data-skin="fungal"] .piece.king{background-image:url(../_shared/textures/pieces/fungal-king.png)}
-[data-skin="fungal"] .piece.red{filter:saturate(1.2) hue-rotate(-6deg) brightness(1.05) drop-shadow(0 3px 5px rgba(0,0,0,.45))}
-[data-skin="fungal"] .piece.black{filter:saturate(.85) brightness(.62) contrast(1.15) drop-shadow(0 3px 5px rgba(0,0,0,.45))}
+[data-skin="fungal"] .piece.red{
+  background:radial-gradient(ellipse at 35% 25%,color-mix(in srgb,var(--accent) 55%,white),var(--accent) 55%,color-mix(in srgb,var(--accent) 60%,black) 100%);
+}
+[data-skin="fungal"] .piece.black{
+  background:radial-gradient(ellipse at 35% 25%,color-mix(in srgb,var(--accent2) 55%,white),var(--accent2) 55%,color-mix(in srgb,var(--accent2) 60%,black) 100%);
+}
 [data-skin="fungal"] .piece.red.pulse{animation:fungalPulseRed .3s ease}
 [data-skin="fungal"] .piece.black.pulse{animation:fungalPulseBlack .3s ease}
-@keyframes fungalPulseRed{
-  0%{filter:saturate(1.2) hue-rotate(-6deg) brightness(2.3) drop-shadow(0 3px 5px rgba(0,0,0,.45))}
-  100%{filter:saturate(1.2) hue-rotate(-6deg) brightness(1.05) drop-shadow(0 3px 5px rgba(0,0,0,.45))}
-}
-@keyframes fungalPulseBlack{
-  0%{filter:saturate(.85) contrast(1.15) brightness(1.3) drop-shadow(0 3px 5px rgba(0,0,0,.45))}
-  100%{filter:saturate(.85) contrast(1.15) brightness(.62) drop-shadow(0 3px 5px rgba(0,0,0,.45))}
-}
+@keyframes fungalPulseRed{0%{filter:brightness(2.2)}100%{filter:brightness(1)}}
+@keyframes fungalPulseBlack{0%{filter:brightness(2.2)}100%{filter:brightness(1)}}
 
 .sweep-bar{
   position:absolute;top:0;bottom:0;width:12.5%;left:0;

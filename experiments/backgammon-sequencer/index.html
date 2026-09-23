@@ -268,6 +268,51 @@ h1 em{font-style:italic;color:var(--accent)}
 }
 .checker.red{background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.4),transparent 45%),linear-gradient(160deg,color-mix(in srgb,var(--accent2) 45%,white),var(--accent2) 60%,color-mix(in srgb,var(--accent2) 65%,black))}
 .checker.black{background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.28),transparent 45%),linear-gradient(160deg,color-mix(in srgb,var(--dim2) 65%,white),var(--dim2) 55%,color-mix(in srgb,var(--bg) 55%,black))}
+
+/* deepsea: a bioluminescent blob, not a solid disc -- an organic border-radius reads
+   as a jellyfish/anemone bell, and the glow pulses outward via box-shadow. Red glows
+   warm pink (--accent2), black glows cool teal (--accent) -- two clearly different
+   hues, matching the same CSS-only piece language every other sequencer on the site
+   uses for this skin (no cropped specimen photos here either). The sweep-hit flash on
+   this board lives on the point/bar cell itself (see pointSown), not on the checker,
+   so there's no pulse-vs-ambient-animation specificity fight to work around here. */
+[data-skin="deepsea"] .checker{border-radius:62% 38% 55% 45% / 55% 45% 58% 42%}
+[data-skin="deepsea"] .checker.red{
+  background:radial-gradient(circle at 30% 25%,color-mix(in srgb,var(--accent2) 65%,white),var(--accent2) 50%,color-mix(in srgb,var(--accent2) 60%,black) 100%);
+  animation:deepseaGlowRed 3s ease-in-out infinite;
+}
+[data-skin="deepsea"] .checker.black{
+  background:radial-gradient(circle at 30% 25%,color-mix(in srgb,var(--accent) 65%,white),var(--accent) 50%,color-mix(in srgb,var(--accent) 55%,black) 100%);
+  animation:deepseaGlowBlack 3s ease-in-out infinite;
+}
+@keyframes deepseaGlowRed{
+  0%,100%{box-shadow:0 0 10px 1px rgba(255,110,199,.4),inset 0 2px 4px rgba(255,255,255,.25),inset 0 -3px 6px rgba(0,0,0,.4)}
+  50%{box-shadow:0 0 18px 3px rgba(255,110,199,.7),inset 0 2px 4px rgba(255,255,255,.25),inset 0 -3px 6px rgba(0,0,0,.4)}
+}
+@keyframes deepseaGlowBlack{
+  0%,100%{box-shadow:0 0 10px 1px rgba(41,230,201,.4),inset 0 2px 4px rgba(255,255,255,.2),inset 0 -3px 6px rgba(0,0,0,.5)}
+  50%{box-shadow:0 0 18px 3px rgba(41,230,201,.7),inset 0 2px 4px rgba(255,255,255,.2),inset 0 -3px 6px rgba(0,0,0,.5)}
+}
+
+/* fungal: a mushroom cap silhouette, not a solid disc -- an asymmetric border-radius
+   (round top, flatter bottom) reads as a domed cap, with a scatter of pale speckle
+   dots like an Amanita's spots. Red caps warm tan/gold (--accent), black caps cool
+   purple (--accent2) -- same CSS-only piece language the other sequencers use. */
+[data-skin="fungal"] .checker{border-radius:50% 50% 8% 8% / 62% 62% 14% 14%;position:relative}
+[data-skin="fungal"] .checker::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:
+    radial-gradient(circle 2.5px at 28% 30%,rgba(255,255,255,.5) 90%,transparent 100%),
+    radial-gradient(circle 2px at 62% 22%,rgba(255,255,255,.4) 90%,transparent 100%),
+    radial-gradient(circle 1.5px at 45% 42%,rgba(255,255,255,.35) 90%,transparent 100%);
+}
+[data-skin="fungal"] .checker.red{
+  background:radial-gradient(ellipse at 35% 25%,color-mix(in srgb,var(--accent) 55%,white),var(--accent) 55%,color-mix(in srgb,var(--accent) 60%,black) 100%);
+}
+[data-skin="fungal"] .checker.black{
+  background:radial-gradient(ellipse at 35% 25%,color-mix(in srgb,var(--accent2) 55%,white),var(--accent2) 55%,color-mix(in srgb,var(--accent2) 60%,black) 100%);
+}
+
 .stack-count{font-size:.6rem;color:var(--fg);opacity:.8;text-align:center;margin-top:2px}
 
 .bar{
