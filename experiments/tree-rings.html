@@ -32,7 +32,7 @@ html{scroll-behavior:smooth}
 
 body{
   font-family:var(--sans);
-  height:288rem;
+  height:302rem;
   background:var(--bg);
   color:var(--fg);
   touch-action:pan-y;
@@ -362,7 +362,7 @@ main{
 }
 
 @media screen and (min-width:1800px) and (min-height:1000px){
-  body{height:308rem}
+  body{height:322rem}
   .ring-title{font-size:2.3rem}
   .ring-phrase{font-size:1.9rem}
 }
@@ -531,11 +531,20 @@ main{
     </a>
 
     <a class="ring" data-cls="backgammon-sequencer" data-img="_shared/snapshots/backgammon-sequencer.jpg" href="backgammon-sequencer/index.html" target="_blank" rel="noopener" style="--i:16">
-      <div class="ring-shape" style="--jr:1; --jb:1.5; --wobble:49% 50% 51% 50% / 48% 51% 50% 49%"></div>
+      <div class="ring-shape" style="--jr:.96; --jb:1.18; --wobble:49% 50% 51% 50% / 48% 51% 50% 49%"></div>
       <div class="ring-label">
         <div class="ring-plate"></div>
-        <span class="ring-num">ring 16 &middot; bark</span>
+        <span class="ring-num">ring 16</span>
         <div class="ring-text"><span class="ring-title">backgammon sequencer</span><span class="ring-phrase">The dice write the rhythm; the board sings it.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="house-band" data-img="_shared/snapshots/house-band.jpg" href="house-band/index.html" target="_blank" rel="noopener" style="--i:17">
+      <div class="ring-shape" style="--jr:1; --jb:1.5; --wobble:50% 49% 50% 51% / 49% 50% 51% 48%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 17 &middot; bark</span>
+        <div class="ring-text"><span class="ring-title">the house band</span><span class="ring-phrase">Six games, left on, and everyone hears the same move.</span></div>
       </div>
     </a>
 
@@ -556,7 +565,7 @@ main{
 </div>
 
 <div class="depth-rail" aria-hidden="true">
-  <span class="depth-count" id="depthCount">01 / 16</span>
+  <span class="depth-count" id="depthCount">01 / 17</span>
   <div class="depth-track"><div class="depth-fill" id="depthFill"></div></div>
 </div>
 
@@ -630,7 +639,7 @@ const SWEET_SPOT = 0.14; // fraction of ringGap "past" the lens, where a ring re
 const scrollCue = document.getElementById('scrollCue');
 const depthCount = document.getElementById('depthCount');
 const depthFill = document.getElementById('depthFill');
-const TOTAL_RINGS = 16;
+const TOTAL_RINGS = 17;
 
 const update = () => {
   const y = cachedScrollY;

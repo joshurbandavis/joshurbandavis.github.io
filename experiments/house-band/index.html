@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>the house band</title>
+<meta name="description" content="The six board-game sequencers, left on: two engines playing each other forever, one game per ten-minute set, and everyone tuned in hears the same move at the same moment.">
+<link rel="apple-touch-icon" sizes="180x180" href="../../logo_personalweb_favicon_io/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../../logo_personalweb_favicon_io/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../../logo_personalweb_favicon_io/favicon-16x16.png">
+<link rel="manifest" href="../../logo_personalweb_favicon_io/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tone@14/build/Tone.js"></script>
+<style>
+:root{
+  --bg:#050505;--fg:#ddd8d0;--dim:#5a564f;--dim2:#39362f;
+  --accent:#c8ff2e;--accent2:#ff5e5b;--accent3:#d4a843;
+  --serif:'Instrument Serif',Georgia,serif;
+  --mono:'Space Mono',monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--mono);min-height:100vh;display:flex;flex-direction:column}
+a{color:inherit}
+
+nav{display:flex;align-items:center;gap:.6rem;padding:1.2rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.05)}
+nav a{color:var(--fg);opacity:.6;text-decoration:none;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;transition:opacity .3s}
+nav a:hover{opacity:1;color:var(--accent)}
+nav .logo{font-size:.8rem;letter-spacing:.2em;opacity:1}
+nav .sep{opacity:.35;font-size:.65rem}
+
+main{flex:1;padding:2.4rem 1.5rem 4rem}
+.title-block{max-width:980px;margin:0 auto 2rem;text-align:center}
+.kicker{font-size:.62rem;letter-spacing:.35em;text-transform:uppercase;color:var(--dim);margin-bottom:.7rem}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(1.8rem,4vw,2.6rem);margin:0 0 .6rem;letter-spacing:-.01em}
+h1 em{font-style:italic;color:var(--accent)}
+.lede{max-width:640px;margin:0 auto;font-size:.85rem;line-height:1.7;opacity:.62}
+
+.layout{display:flex;gap:2.4rem;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+
+.stage{flex:0 1 600px;min-width:0}
+.board-wrap{position:relative;width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.07);border-radius:14px;background:#0a0908;overflow:hidden}
+canvas{display:block;width:100%;height:100%}
+.caption{margin-top:1rem;min-height:3.4em}
+.caption .game-line{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.caption .move-line{font-size:.82rem;line-height:1.5;margin-top:.35rem}
+.caption .move-line.result{font-family:var(--serif);font-style:italic;font-size:1.25rem;color:var(--accent)}
+.caption .extra-line{font-size:.68rem;color:var(--dim);margin-top:.25rem}
+
+.gate{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.9rem;
+  text-align:center;padding:1rem;background:rgba(5,5,5,.72);backdrop-filter:blur(2px)}
+.gate p{max-width:300px;font-size:.72rem;line-height:1.6;opacity:.7;margin:0}
+.gate.hidden{display:none}
+.tuning{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;
+  font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);background:rgba(5,5,5,.6)}
+.tuning.hidden{display:none}
+
+button{font-family:var(--mono);cursor:pointer}
+.pill{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.3rem;border-radius:100px;font-size:.62rem;letter-spacing:.14em;
+  text-transform:uppercase;border:1px solid rgba(255,255,255,.14);background:transparent;color:var(--fg);transition:all .3s;text-decoration:none}
+.pill:hover{border-color:var(--accent);color:var(--accent);box-shadow:0 0 12px rgba(200,255,46,.25)}
+.pill.filled{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.pill.filled:hover{color:var(--bg);background:#d4ff55}
+
+.sidebar{flex:0 1 320px;min-width:0;display:flex;flex-direction:column;gap:1rem}
+.panel{border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:1.2rem 1.3rem;background:rgba(255,255,255,.015)}
+.field-label{font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin-bottom:.7rem;display:flex;justify-content:space-between;align-items:center}
+.on-air{display:inline-flex;align-items:center;gap:.45em;color:var(--accent2);letter-spacing:.2em}
+.on-air::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--accent2);box-shadow:0 0 8px var(--accent2);animation:blink 2s ease-in-out infinite}
+@keyframes blink{50%{opacity:.35}}
+.clock{font-size:1.9rem;letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.clock-note{font-size:.62rem;color:var(--dim);margin-top:.3rem;line-height:1.5}
+
+.guide{list-style:none;margin:0;padding:0}
+.guide li{position:relative;display:flex;gap:.9rem;align-items:baseline;padding:.5rem .1rem;font-size:.75rem;border-top:1px solid rgba(255,255,255,.04);color:var(--dim)}
+.guide li:first-child{border-top:none}
+.guide .t{font-variant-numeric:tabular-nums;width:3.2em}
+.guide li.now{color:var(--fg)}
+.guide li.now .t{color:var(--accent)}
+.guide li.now::after{content:'on air';margin-left:auto;font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent2)}
+.guide li.next::after{content:'up next';margin-left:auto;font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.progress{height:2px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:.6rem;overflow:hidden}
+.progress > div{height:100%;width:0;background:var(--accent);box-shadow:0 0 6px rgba(200,255,46,.5)}
+
+.slider-row{display:flex;align-items:center;gap:.7rem;font-size:.68rem;color:var(--dim)}
+input[type=range]{flex:1;accent-color:var(--accent)}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.9rem}
+
+footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1em;color:var(--dim);text-transform:uppercase}
+
+@media(max-width:760px){
+  main{padding-top:1.6rem}
+  .layout{flex-direction:column;align-items:stretch}
+  .stage,.sidebar{flex:none;width:100%}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="../../index.html" class="logo">JUD</a>
+  <span class="sep">/</span>
+  <a href="../index.html">experiments</a>
+  <span class="sep">/</span>
+  <a href="#" style="opacity:1;color:var(--accent)">the house band</a>
+</nav>
+
+<main>
+  <div class="title-block">
+    <div class="kicker">six games · one hour · on a loop</div>
+    <h1>the house <em>band</em></h1>
+    <p class="lede">The six sequencers, left on. Two engines play each other forever, a different
+      game every ten minutes: chess on the hour, then checkers, reversi, connect four,
+      mancala and backgammon. Nothing is streamed. Every move is worked out from the
+      clock, so everyone tuned in hears the same move at the same moment.</p>
+  </div>
+
+  <div class="layout">
+    <div class="stage">
+      <div class="board-wrap" id="boardWrap">
+        <canvas id="board"></canvas>
+        <div class="tuning hidden" id="tuning">tuning in…</div>
+        <div class="gate" id="gate">
+          <p>The band is already playing. Sound needs a tap to start (browser rule, not ours).</p>
+          <button class="pill filled" id="tuneIn">▶ tune in</button>
+        </div>
+      </div>
+      <div class="caption">
+        <div class="game-line" id="gameLine">&nbsp;</div>
+        <div class="move-line" id="moveLine">&nbsp;</div>
+        <div class="extra-line" id="extraLine">&nbsp;</div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="panel">
+        <div class="field-label"><span>station time</span><span class="on-air">on air</span></div>
+        <div class="clock" id="clock">--:--:--</div>
+        <div class="clock-note" id="clockNote">&nbsp;</div>
+      </div>
+      <div class="panel">
+        <div class="field-label"><span>this hour</span></div>
+        <ul class="guide" id="guide"></ul>
+        <div class="progress"><div id="progress"></div></div>
+      </div>
+      <div class="panel">
+        <div class="field-label"><span>volume</span></div>
+        <div class="slider-row"><input type="range" id="volume" min="-40" max="0" value="-8" step="1" aria-label="volume"></div>
+        <div class="controls">
+          <button class="pill" id="muteBtn" disabled>mute</button>
+          <a class="pill" id="playLink" href="../chess-sequencer/" target="_blank" rel="noopener">play this one yourself →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>JUD © 2026 · prototypes, not products</footer>
+
+<script src="engines.js"></script>
+<script src="station.js"></script>
+<script>
+"use strict";
+const { SLOT_MS, STEP_MS, GAMES, moveMs, slotIndexAt, gameIdForSlot } = STATION;
+
+// ---- station clock: the device clock, nudged to the server's if they disagree ----
+// Everyone has to agree on "now" for everyone to hear the same move. The Date header
+// only has one-second resolution, so a smaller difference is left alone.
+let clockOffset = 0;
+function nowMs(){ return Date.now() + clockOffset; }
+(async function syncClock(){
+  try{
+    const t0 = Date.now();
+    const res = await fetch(location.href.split('#')[0], { method:'HEAD', cache:'no-store' });
+    const t1 = Date.now();
+    const server = Date.parse(res.headers.get('date'));
+    if(!isNaN(server)){
+      const offset = server + 500 - (t0 + t1) / 2; // +500: the header truncates to the second
+      if(Math.abs(offset) > 1500) clockOffset = offset;
+    }
+  } catch(e){ /* offline or blocked: the device clock is the best we have */ }
+  document.getElementById('clockNote').textContent = clockOffset
+    ? `your clock is ${Math.abs(clockOffset / 1000).toFixed(0)}s ${clockOffset > 0 ? 'behind' : 'ahead'}; corrected so you hear what everyone hears`
+    : 'in sync with everyone else tuned in';
+})();
+
+// ---- timelines, computed in a worker one set at a time ----
+const timelines = new Map(); // slot index -> { events:[], done:bool }
+const worker = new Worker('station-worker.js');
+worker.onmessage = e => {
+  const { slot, events, done } = e.data;
+  const tl = timelines.get(slot);
+  if(!tl) return;
+  if(events) tl.events.push(...events);
+  if(done) tl.done = true;
+};
+function ensureSlot(slot){
+  if(timelines.has(slot)) return;
+  timelines.set(slot, { events:[], done:false });
+  worker.postMessage({ slot });
+}
+function pruneSlots(current){
+  for(const s of timelines.keys()) if(s < current - 1) timelines.delete(s);
+}
+// The event on the air at offset t within a set, or null while the worker is still
+// catching up to t. Events arrive a whole game at a time, so if t is past the last
+// one by more than a move plus an intermission, the game that's actually on the
+// air just hasn't been computed yet.
+function eventAt(tl, t, id){
+  const ev = tl.events;
+  if(!ev.length) return null;
+  if(!tl.done && t > ev[ev.length - 1].t + moveMs(GAMES[id]) + 5000) return null;
+  let lo = 0, hi = ev.length - 1, found = -1;
+  while(lo <= hi){
+    const mid = (lo + hi) >> 1;
+    if(ev[mid].t <= t){ found = mid; lo = mid + 1; } else hi = mid - 1;
+  }
+  return found < 0 ? null : ev[found];
+}
+
+// ---- drawing ----
+const canvas = document.getElementById('board');
+const ctx = canvas.getContext('2d');
+const wrap = document.getElementById('boardWrap');
+const ASPECT = { chess:1, checkers:1, reversi:1, connect4:7/6, mancala:8/3.2, backgammon:13/9 };
+const C = {
+  light:'#171512', dark:'#0d0c0a', grid:'rgba(255,255,255,.06)',
+  // the dark side is a lifted charcoal, not near-black: on these near-black boards a
+  // truly black piece reads as an empty outline (the chess sequencer hit the same thing)
+  cream:'#efe9dc', ink:'#3b3833', inkEdge:'#a39d91', red:'#ff5e5b', chessDark:'#716b61',
+  accent:'#c8ff2e', gold:'#d4a843', band:'rgba(200,255,46,.09)',
+};
+let dpr = 1, W = 0, H = 0, currentAspect = 0;
+function sizeCanvas(aspect){
+  const box = wrap.getBoundingClientRect();
+  dpr = window.devicePixelRatio || 1;
+  let w = box.width, h = box.width / aspect;
+  if(h > box.height){ h = box.height; w = h * aspect; }
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+  W = w; H = h; currentAspect = aspect;
+}
+window.addEventListener('resize', () => { currentAspect = 0; });
+
+function glow(fn, on, color){
+  ctx.save();
+  if(on){ ctx.shadowColor = color || C.accent; ctx.shadowBlur = 18; }
+  fn();
+  ctx.restore();
+}
+function disc(x, y, r, fill, stroke){
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = fill; ctx.fill();
+  if(stroke){ ctx.lineWidth = 1.2; ctx.strokeStyle = stroke; ctx.stroke(); }
+}
+function squares(rows, cols, cell, x0, y0, tint){
+  for(let r = 0; r < rows; r++) for(let c = 0; c < cols; c++){
+    ctx.fillStyle = (r + c) % 2 ? C.dark : C.light;
+    ctx.fillRect(x0 + c * cell, y0 + r * cell, cell, cell);
+    const t = tint && tint(r, c);
+    if(t){ ctx.fillStyle = t; ctx.fillRect(x0 + c * cell, y0 + r * cell, cell, cell); }
+  }
+}
+function band(x, w, h){
+  ctx.fillStyle = C.band; ctx.fillRect(x, 0, w, h);
+  ctx.fillStyle = C.accent; ctx.fillRect(x, 0, w, 2); ctx.fillRect(x, h - 2, w, 2);
+}
+
+// U+FE0E asks for the plain text glyph: some systems otherwise draw ♟ as a color emoji
+const GLYPH = { king:'♚\uFE0E', queen:'♛\uFE0E', rook:'♜\uFE0E', bishop:'♝\uFE0E', knight:'♞\uFE0E', pawn:'♟\uFE0E' };
+const DRAW = {
+  chess(s, col){
+    const cell = W / 8;
+    const kingInCheck = s.check && findPiece(s.board, 'king', s.toMove);
+    squares(8, 8, cell, 0, 0, (r, c) => {
+      if(kingInCheck && kingInCheck.r === r && kingInCheck.c === c) return 'rgba(255,94,91,.28)';
+      if(s.last && ((s.last.from.r === r && s.last.from.c === c) || (s.last.to.r === r && s.last.to.c === c))) return 'rgba(212,168,67,.16)';
+      return null;
+    });
+    if(col >= 0) band(col * cell, cell, H);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = `${cell * .74}px "Segoe UI Symbol","Noto Sans Symbols 2","Apple Symbols",serif`;
+    for(let r = 0; r < 8; r++) for(let c = 0; c < 8; c++){
+      const p = s.board[r][c]; if(!p) continue;
+      const x = c * cell + cell / 2, y = r * cell + cell / 2 + cell * .03;
+      glow(() => {
+        ctx.fillStyle = p.color === 'white' ? C.cream : C.chessDark;
+        ctx.fillText(GLYPH[p.type], x, y);
+        ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(0,0,0,.55)';
+        ctx.strokeText(GLYPH[p.type], x, y);
+      }, c === col);
+    }
+  },
+  checkers(s, col){
+    const cell = W / 8;
+    const path = s.last ? s.last.path : [];
+    squares(8, 8, cell, 0, 0, (r, c) => path.some(p => p.r === r && p.c === c) ? 'rgba(212,168,67,.16)' : null);
+    if(col >= 0) band(col * cell, cell, H);
+    for(let r = 0; r < 8; r++) for(let c = 0; c < 8; c++){
+      const p = s.board[r][c]; if(!p) continue;
+      const x = c * cell + cell / 2, y = r * cell + cell / 2;
+      glow(() => {
+        disc(x, y, cell * .36, p.color === 'red' ? C.red : C.ink, p.color === 'red' ? null : C.inkEdge);
+        if(p.king){ ctx.beginPath(); ctx.arc(x, y, cell * .2, 0, Math.PI * 2); ctx.lineWidth = 2; ctx.strokeStyle = C.gold; ctx.stroke(); }
+      }, c === col, p.color === 'red' ? C.red : C.accent);
+    }
+  },
+  reversi(s, col){
+    const cell = W / 8;
+    const changed = (r, c) => s.last && ((s.last.r === r && s.last.c === c) || s.last.flips.some(f => f.r === r && f.c === c));
+    squares(8, 8, cell, 0, 0, (r, c) => s.last && s.last.r === r && s.last.c === c ? 'rgba(212,168,67,.16)' : null);
+    if(col >= 0) band(col * cell, cell, H);
+    for(let r = 0; r < 8; r++) for(let c = 0; c < 8; c++){
+      const p = s.board[r][c]; if(!p) continue;
+      const x = c * cell + cell / 2, y = r * cell + cell / 2;
+      glow(() => {
+        disc(x, y, cell * .38, p.color === 'white' ? C.cream : C.ink, p.color === 'white' ? null : C.inkEdge);
+        if(changed(r, c)){ ctx.beginPath(); ctx.arc(x, y, cell * .44, 0, Math.PI * 2); ctx.lineWidth = 1.5; ctx.strokeStyle = C.gold; ctx.stroke(); }
+      }, c === col);
+    }
+  },
+  connect4(s, col){
+    const cell = W / 7;
+    ctx.fillStyle = '#121110'; ctx.fillRect(0, 0, W, H);
+    if(col >= 0) band(col * cell, cell, H);
+    const inLine = (r, c) => s.line && s.line.some(p => p.r === r && p.c === c);
+    for(let r = 0; r < 6; r++) for(let c = 0; c < 7; c++){
+      const x = c * cell + cell / 2, y = r * cell + cell / 2, p = s.board[r][c];
+      if(!p){ disc(x, y, cell * .38, '#050505'); continue; }
+      glow(() => {
+        disc(x, y, cell * .38, p.color === 'red' ? C.red : C.ink, p.color === 'red' ? null : C.inkEdge);
+        if(inLine(r, c) || (s.last && s.last.r === r && s.last.c === c)){
+          ctx.beginPath(); ctx.arc(x, y, cell * .43, 0, Math.PI * 2); ctx.lineWidth = 2;
+          ctx.strokeStyle = inLine(r, c) ? C.accent : C.gold; ctx.stroke();
+        }
+      }, c === col, p.color === 'red' ? C.red : C.accent);
+    }
+  },
+  mancala(s, col){
+    const cw = W / 8, rh = H / 2;
+    ctx.fillStyle = '#100f0d'; ctx.fillRect(0, 0, W, H);
+    if(col >= 0) band(col * cw, cw, H);
+    const store = (c, idx, color) => {
+      const x = c * cw + cw * .12, w = cw * .76, y = H * .08, h = H * .84;
+      glow(() => {
+        ctx.fillStyle = '#070706'; roundRect(x, y, w, h, w / 2); ctx.fill();
+        ctx.lineWidth = 1; ctx.strokeStyle = color === 'red' ? 'rgba(255,94,91,.4)' : 'rgba(255,255,255,.15)'; ctx.stroke();
+      }, c === col && s.pits[idx] > 0, color === 'red' ? C.red : C.accent);
+      label(s.pits[idx], c * cw + cw / 2, H / 2, cw * .34, color === 'red' ? C.red : C.cream);
+    };
+    store(0, 13, 'black'); store(7, 6, 'red');
+    for(let c = 1; c <= 6; c++){
+      for(const [row, idx, color] of [[0, 13 - c, 'black'], [1, c - 1, 'red']]){
+        const x = c * cw + cw / 2, y = row * rh + rh / 2, rad = Math.min(cw, rh) * .4;
+        const lit = s.trail.includes(idx);
+        glow(() => {
+          disc(x, y, rad, '#070706', lit ? C.gold : 'rgba(255,255,255,.1)');
+          seeds(x, y - rad * .14, rad * .5, s.pits[idx], color === 'red' ? C.red : C.cream);
+        }, c === col && s.pits[idx] > 0, color === 'red' ? C.red : C.accent);
+        label(s.pits[idx], x, y + rad * .66, rad * .32, 'rgba(221,216,208,.55)');
+      }
+    }
+  },
+  backgammon(s, col){
+    const cw = W / 13, half = H / 2, stackR = Math.min(cw * .42, H / 22);
+    ctx.fillStyle = '#100f0d'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#0a0908'; ctx.fillRect(6 * cw, 0, cw, H); // the bar
+    if(col >= 0) band(col * cw, cw, H);
+    const pair = c => c === 6 ? null : c <= 5 ? { bottom: 11 - c, top: c + 12 } : { bottom: 12 - c, top: c + 11 };
+    for(let c = 0; c < 13; c++){
+      const pr = pair(c); if(!pr) continue;
+      for(const [idx, top] of [[pr.top, true], [pr.bottom, false]]){
+        const x0 = c * cw, tipY = top ? H * .42 : H * .58, baseY = top ? 0 : H;
+        ctx.beginPath(); ctx.moveTo(x0 + cw * .08, baseY); ctx.lineTo(x0 + cw * .92, baseY); ctx.lineTo(x0 + cw / 2, tipY); ctx.closePath();
+        ctx.fillStyle = (c + (top ? 0 : 1)) % 2 ? '#1c1a16' : '#26221b'; ctx.fill();
+        const p = s.points[idx];
+        if(s.moves.some(m => m.to === idx)){ ctx.lineWidth = 1.5; ctx.strokeStyle = C.gold; ctx.stroke(); }
+        if(!p) continue;
+        const shown = Math.min(p.count, 5);
+        for(let k = 0; k < shown; k++){
+          const y = top ? stackR + k * stackR * 2 + 2 : H - stackR - k * stackR * 2 - 2;
+          glow(() => disc(x0 + cw / 2, y, stackR * .92, p.color === 'red' ? C.red : C.ink, p.color === 'red' ? null : C.inkEdge),
+               c === col, p.color === 'red' ? C.red : C.accent);
+        }
+        if(p.count > 5){
+          const y = top ? stackR + 4 * stackR * 2 + 2 : H - stackR - 4 * stackR * 2 - 2;
+          label(p.count, x0 + cw / 2, y, stackR * 1.1, p.color === 'red' ? '#050505' : C.cream);
+        }
+      }
+    }
+    for(const [color, y] of [['black', half - stackR * 1.4], ['red', half + stackR * 1.4]]){
+      if(!s.bar[color]) continue;
+      glow(() => disc(6 * cw + cw / 2, y, stackR * .92, color === 'red' ? C.red : C.ink, color === 'red' ? null : C.inkEdge), col === 6);
+      if(s.bar[color] > 1) label(s.bar[color], 6 * cw + cw / 2, y, stackR * 1.1, color === 'red' ? '#050505' : C.cream);
+    }
+  },
+};
+function findPiece(b, type, color){
+  for(let r = 0; r < 8; r++) for(let c = 0; c < 8; c++){ const p = b[r][c]; if(p && p.type === type && p.color === color) return {r, c}; }
+  return null;
+}
+function roundRect(x, y, w, h, r){
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function label(text, x, y, size, color){
+  ctx.fillStyle = color; ctx.font = `${size}px "Space Mono",monospace`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(text), x, y);
+}
+// a loose ring of seed dots, capped so a heavy pit still reads (the count sits below)
+function seeds(x, y, rad, n, color){
+  const shown = Math.min(n, 12);
+  for(let i = 0; i < shown; i++){
+    const a = i * 2.39996, d = rad * Math.sqrt((i + .5) / Math.max(shown, 1));
+    disc(x + Math.cos(a) * d, y + Math.sin(a) * d, rad * .16, color);
+  }
+}
+
+// ---- sound: the same row/column mappings as the sequencers themselves ----
+const HI8 = ["C5","A4","G4","E4","D4","C4","A3","G3"], LO8 = ["C4","A3","G3","E3","D3","C3","A2","G2"];
+const HI6 = HI8.slice(0, 6), LO6 = LO8.slice(0, 6);
+const HI5 = ["C5","D5","E5","G5","A5"], LO5 = ["C4","D4","E4","G4","A4"];
+const up = n => Tone.Frequency(n).transpose(12).toNote();
+
+// notes for one sweep column: [voice, note, duration, velocity]
+const SONIFY = {
+  chess(s, col){
+    const out = [];
+    for(let r = 0; r < 8; r++){ const p = s.board[r][col]; if(p) out.push([p.type, (p.color === 'white' ? LO8 : HI8)[r], '8n', .7]); }
+    return out;
+  },
+  checkers(s, col){
+    const out = [];
+    for(let r = 0; r < 8; r++){
+      const p = s.board[r][col]; if(!p) continue;
+      const n = (p.color === 'red' ? LO8 : HI8)[r];
+      out.push(['main', n, '8n', .75]);
+      if(p.king) out.push(['main', up(n), '16n', .3]);
+    }
+    return out;
+  },
+  reversi(s, col){
+    const out = [];
+    for(let r = 0; r < 8; r++){
+      const p = s.board[r][col]; if(!p) continue;
+      const n = (p.color === 'white' ? LO8 : HI8)[r];
+      out.push(['main', n, '8n', .6]);
+      if(s.last && ((s.last.r === r && s.last.c === col) || s.last.flips.some(f => f.r === r && f.c === col))) out.push(['main', up(n), '16n', .3]);
+    }
+    return out;
+  },
+  connect4(s, col){
+    const out = [];
+    for(let r = 0; r < 6; r++){
+      const p = s.board[r][col]; if(!p) continue;
+      const n = (p.color === 'red' ? LO6 : HI6)[r];
+      out.push(['main', n, '8n', .75]);
+      if((s.last && s.last.r === r && s.last.c === col) || (s.line && s.line.some(w => w.r === r && w.c === col))) out.push(['main', up(n), '16n', .3]);
+    }
+    return out;
+  },
+  mancala(s, col){
+    const pit = (idx, out) => {
+      const n = s.pits[idx]; if(n <= 0) return;
+      const notes = idx <= 5 ? LO5 : HI5, note = notes[Math.min(Math.floor(n / 2), 4)];
+      out.push(['main', note, '8n', .28 + Math.min(n, 10) / 10 * .55]);
+      if(s.trail.includes(idx)) out.push(['main', up(note), '16n', .3]);
+    };
+    const store = (idx, out) => { const n = s.pits[idx]; if(n > 0) out.push(['drone', (idx === 6 ? LO5 : HI5)[0], '4n', .2 + Math.min(n, 24) / 24 * .6]); };
+    const out = [];
+    if(col === 0) store(13, out); else if(col === 7) store(6, out); else { pit(13 - col, out); pit(col - 1, out); }
+    return out;
+  },
+  backgammon(s, col){
+    const out = [];
+    const point = idx => {
+      const p = s.points[idx]; if(!p) return;
+      const note = (p.color === 'red' ? LO5 : HI5)[Math.min(Math.floor(p.count / 2), 4)];
+      out.push(['main', note, '8n', .28 + Math.min(p.count, 8) / 8 * .55]);
+      if(s.moves.some(m => m.to === idx)) out.push(['main', up(note), '16n', .3]);
+    };
+    if(col === 6){ const n = s.bar.red + s.bar.black; if(n > 0) out.push(['drone', 'C3', '4n', .2 + Math.min(n, 6) / 6 * .6]); }
+    else if(col <= 5){ point(11 - col); point(col + 12); }
+    else { point(12 - col); point(col + 11); }
+    return out;
+  },
+};
+
+// one instrument set per game, so the hour moves through six different rooms
+const VOICES = {
+  chess: () => ({
+    pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'triangle'}, envelope:{attack:.004,decay:.14,sustain:.05,release:.25}}),
+    knight: new Tone.PolySynth(Tone.FMSynth, {harmonicity:3, modulationIndex:3, envelope:{attack:.002,decay:.12,sustain:0,release:.15}}),
+    bishop: new Tone.PolySynth(Tone.AMSynth, {harmonicity:1.5, envelope:{attack:.02,decay:.3,sustain:.2,release:.5}}),
+    rook:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:2,type:'lowpass'}, envelope:{attack:.01,decay:.25,sustain:.15,release:.4}, filterEnvelope:{attack:.01,decay:.2,sustain:.2,release:.3,baseFrequency:220,octaves:2.5}}),
+    queen:  new Tone.PolySynth(Tone.FMSynth, {harmonicity:2.5, modulationIndex:4, envelope:{attack:.01,decay:.45,sustain:.2,release:.8}}),
+    king:   new Tone.PolySynth(Tone.AMSynth, {harmonicity:2, envelope:{attack:.08,decay:.5,sustain:.4,release:1.2}}),
+    alert:  new Tone.PolySynth(Tone.Synth, {oscillator:{type:'sawtooth'}, envelope:{attack:.001,decay:.15,sustain:0,release:.1}}),
+  }),
+  checkers: () => ({
+    main: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'triangle'}, filter:{Q:1,type:'lowpass'}, envelope:{attack:.003,decay:.2,sustain:0,release:.2}, filterEnvelope:{attack:.004,decay:.15,sustain:0,release:.15,baseFrequency:500,octaves:2}}),
+  }),
+  reversi: () => ({
+    main: new Tone.PolySynth(Tone.FMSynth, {harmonicity:3.01, modulationIndex:5, envelope:{attack:.002,decay:.6,sustain:0,release:.8}, modulationEnvelope:{attack:.002,decay:.3,sustain:0,release:.3}}),
+  }),
+  connect4: () => ({
+    main: new Tone.PolySynth(Tone.FMSynth, {harmonicity:4, modulationIndex:1.2, oscillator:{type:'sine'}, envelope:{attack:.001,decay:.35,sustain:0,release:.3}, modulationEnvelope:{attack:.001,decay:.08,sustain:0,release:.05}}),
+  }),
+  mancala: () => ({
+    main:  new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'triangle'}, filter:{Q:.8,type:'lowpass'}, envelope:{attack:.005,decay:.3,sustain:.05,release:.35}, filterEnvelope:{attack:.01,decay:.25,sustain:.1,release:.3,baseFrequency:300,octaves:1.6}}),
+    drone: new Tone.PolySynth(Tone.AMSynth, {harmonicity:.5, envelope:{attack:.2,decay:.4,sustain:.5,release:1.2}}),
+  }),
+  backgammon: () => ({
+    main:  new Tone.PolySynth(Tone.AMSynth, {harmonicity:1.01, envelope:{attack:.03,decay:.4,sustain:.3,release:.9}, modulationEnvelope:{attack:.1,decay:.3,sustain:.4,release:.8}}),
+    drone: new Tone.PolySynth(Tone.AMSynth, {harmonicity:.5, envelope:{attack:.2,decay:.4,sustain:.5,release:1.2}}),
+    chime: new Tone.PolySynth(Tone.FMSynth, {harmonicity:3, modulationIndex:3, envelope:{attack:.001,decay:.5,sustain:0,release:.5}}),
+  }),
+};
+
+let audioOn = false, bus = null, master = null;
+let scheduledThrough = 0; // wall-clock ms of the last event already handed to the audio clock
+
+// built once per game and kept: near a set boundary the scheduler is handing notes to
+// both the outgoing and incoming game in the same pass, so swapping one set of synths
+// for the other would cut off the last sweep of a set
+const voiceCache = {};
+function voicesForGame(id){
+  if(!voiceCache[id]){
+    const set = VOICES[id]();
+    for(const v of Object.values(set)){ v.maxPolyphony = 32; v.volume.value = -10; v.connect(bus); }
+    voiceCache[id] = set;
+  }
+  return voiceCache[id];
+}
+
+async function tuneIn(){
+  await Tone.start();
+  master = new Tone.Volume(Number(document.getElementById('volume').value)).toDestination();
+  const limiter = new Tone.Limiter(-2).connect(master);
+  const reverb = new Tone.Reverb({ decay:2.6, wet:.24 }).connect(limiter);
+  bus = new Tone.FeedbackDelay({ delayTime:'8n.', feedback:.12, wet:.1 }).connect(reverb);
+  audioOn = true;
+  scheduledThrough = nowMs(); // start from the next event, never replay the past
+  document.getElementById('gate').classList.add('hidden');
+  const mute = document.getElementById('muteBtn');
+  mute.disabled = false;
+}
+document.getElementById('tuneIn').addEventListener('click', tuneIn);
+document.getElementById('volume').addEventListener('input', e => { if(master) master.volume.rampTo(Number(e.target.value), .1); });
+document.getElementById('muteBtn').addEventListener('click', e => {
+  if(!master) return;
+  master.mute = !master.mute;
+  e.target.textContent = master.mute ? 'unmute' : 'mute';
+});
+
+// Hands every event in the next few seconds to the audio clock. Runs on a timer
+// rather than per animation frame so it keeps going in a background tab (an audible
+// tab isn't throttled hard enough to matter with this much lookahead).
+const LOOKAHEAD_MS = 2500;
+function scheduleAudio(){
+  if(!audioOn) return;
+  const now = nowMs(), horizon = now + LOOKAHEAD_MS;
+  const slot = slotIndexAt(now);
+  for(const s of [slot, slot + 1]){
+    const tl = timelines.get(s); if(!tl) continue;
+    const id = gameIdForSlot(s), start = s * SLOT_MS;
+    for(const e of tl.events){
+      const at = start + e.t;
+      if(at <= scheduledThrough || at > horizon) continue;
+      playEvent(id, e, at, now);
+      scheduledThrough = at;
+    }
+  }
+}
+function playEvent(id, e, at, now){
+  const v = voicesForGame(id), cols = GAMES[id].cols;
+  const base = Tone.now() + (at - now) / 1000;
+  for(let col = 0; col < cols; col++){
+    const t = base + col * STEP_MS / 1000;
+    for(const [voice, note, dur, vel] of SONIFY[id](e.snap, col)) v[voice].triggerAttackRelease(note, dur, t, vel);
+  }
+  if(id === 'chess' && e.snap.check && e.kind === 'move') v.alert.triggerAttackRelease(['C6','D6'], '16n', base, .35);
+  if(id === 'backgammon' && e.kind === 'move' && e.snap.bearOffs > 0){
+    const off = e.snap.off[e.snap.mover];
+    v.chime.triggerAttackRelease(Tone.Frequency('C5').transpose(Math.round(Math.min(off, 15) / 15 * 12)).toNote(), '16n', base, .5);
+  }
+}
+setInterval(scheduleAudio, 250);
+
+// ---- the program guide and captions ----
+const guideEl = document.getElementById('guide');
+const pad = n => String(n).padStart(2, '0');
+function renderGuide(slot){
+  const hourStart = slot - ((slot % 6) + 6) % 6;
+  guideEl.innerHTML = '';
+  for(let k = 0; k < 6; k++){
+    const s = hourStart + k, d = new Date(s * SLOT_MS);
+    const li = document.createElement('li');
+    if(s === slot) li.className = 'now';
+    else if(s === slot + 1) li.className = 'next';
+    li.innerHTML = `<span class="t">${pad(d.getHours())}:${pad(d.getMinutes())}</span><span>${GAMES[gameIdForSlot(s)].label}</span>`;
+    guideEl.appendChild(li);
+  }
+}
+
+const gameLine = document.getElementById('gameLine'), moveLine = document.getElementById('moveLine'), extraLine = document.getElementById('extraLine');
+const tuningEl = document.getElementById('tuning'), playLink = document.getElementById('playLink');
+let shownSlot = null, shownEvent = null;
+
+function caption(id, e){
+  const g = GAMES[id];
+  const who = `${g.players[0]} vs ${g.players[1]}`;
+  gameLine.textContent = `${g.label} · game ${e.gameNo} of this set · ${who}`;
+  moveLine.classList.toggle('result', e.kind === 'replay');
+  moveLine.textContent = e.kind === 'start' ? 'opening position' : e.kind === 'replay' ? e.result : `${e.move}. ${e.text}`;
+  let extra = '';
+  if(e.kind === 'move' && e.result) extra = e.result;
+  if(id === 'backgammon' && e.kind !== 'start'){
+    extra = [extra, `borne off: red ${e.snap.off.red}, black ${e.snap.off.black}`].filter(Boolean).join(' · ');
+  }
+  if(id === 'mancala') extra = [extra, `stores: red ${e.snap.pits[6]}, black ${e.snap.pits[13]}`].filter(Boolean).join(' · ');
+  if(e.kind === 'replay') extra = 'the final board, played back';
+  extraLine.textContent = extra || ' ';
+}
+
+function frame(){
+  const now = nowMs(), slot = slotIndexAt(now), id = gameIdForSlot(slot);
+  ensureSlot(slot);
+  if(now - slot * SLOT_MS > SLOT_MS - 90000) ensureSlot(slot + 1); // warm up the next set
+  pruneSlots(slot);
+
+  if(slot !== shownSlot){
+    shownSlot = slot;
+    renderGuide(slot);
+    playLink.href = GAMES[id].href;
+    currentAspect = 0;
+  }
+  const d = new Date(now);
+  document.getElementById('clock').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  const offset = now - slot * SLOT_MS;
+  document.getElementById('progress').style.width = (offset / SLOT_MS * 100).toFixed(2) + '%';
+
+  const e = eventAt(timelines.get(slot), offset, id);
+  tuningEl.classList.toggle('hidden', !!e);
+  if(e){
+    if(ASPECT[id] !== currentAspect) sizeCanvas(ASPECT[id]);
+    const since = offset - e.t, cols = GAMES[id].cols;
+    const col = since < cols * STEP_MS ? Math.floor(since / STEP_MS) : -1;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    DRAW[id](e.snap, col);
+    if(e !== shownEvent){ shownEvent = e; caption(id, e); }
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
