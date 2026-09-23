@@ -249,7 +249,7 @@
    experiments/_shared/textures/. */
 :root[data-skin="macabre"]{
   --bg:#14100c;--fg:#e8ddc8;--dim:#7a6d5a;--dim2:#2e2418;
-  --accent:#b8392c;--accent2:#b8934a;--accent3:#cbbfa8;
+  --accent:#b8392c;--accent2:#cbbfa8;--accent3:#b8934a;
   --light-sq:#241c14;--dark-sq:#15100b;
 }
 [data-skin="macabre"] body{background-image:
@@ -292,6 +292,73 @@
 [data-skin="grimoire"] .store{
   background:radial-gradient(ellipse at 50% 35%,rgba(156,43,43,.3),transparent 65%),var(--dark-sq);
   box-shadow:inset 0 0 18px 2px rgba(156,43,43,.25);
+}
+
+/* orrery: a Cellarius celestial-atlas plate -- nested gold zodiac spheres around the
+   earth on a sky-blue ground, cherubs in the corners. orrery.jpg -- from "Harmonia
+   Macrocosmica" (1660/1708), public domain, experiments/_shared/textures/. */
+:root[data-skin="orrery"]{
+  --bg:#101b2e;--fg:#ece0c4;--dim:#5b7089;--dim2:#16283e;
+  --accent:#d4af5a;--accent2:#c97b82;--accent3:#7a9b6e;
+  --light-sq:#1c2e48;--dark-sq:#0d1728;
+}
+[data-skin="orrery"] body{background-image:
+  radial-gradient(circle at 50% 15%,rgba(212,175,90,.09),transparent 45%),
+  linear-gradient(rgba(16,27,46,.76),rgba(16,27,46,.84)),
+  url(../_shared/textures/orrery.jpg);
+  background-size:auto,auto,cover;
+  background-position:center,center,center 30%;
+}
+[data-skin="orrery"] .panel{background:rgba(22,40,62,.5);backdrop-filter:blur(8px);border-color:rgba(212,175,90,.25);box-shadow:0 0 24px -14px rgba(212,175,90,.35)}
+[data-skin="orrery"] .board{box-shadow:0 0 50px -16px rgba(212,175,90,.4)}
+[data-skin="orrery"] .sweep-bar{background:linear-gradient(180deg,rgba(212,175,90,.22),rgba(201,123,130,.05));border-color:rgba(212,175,90,.6);box-shadow:0 0 20px rgba(212,175,90,.4)}
+[data-skin="orrery"] .store{
+  background:radial-gradient(ellipse at 50% 35%,rgba(212,175,90,.32),transparent 65%),var(--dark-sq);
+  box-shadow:inset 0 0 18px 2px rgba(212,175,90,.25);
+}
+
+/* anatomy theatre: an 18th-c. osteology plate (Cheselden's "Osteographia") -- engraved
+   ribcage and pelvis on aged cream paper. anatomy.jpg -- public domain, experiments/
+   _shared/textures/. */
+:root[data-skin="anatomy"]{
+  --bg:#14100b;--fg:#e8dfc8;--dim:#7d7360;--dim2:#2a2318;
+  --accent:#a9895c;--accent2:#d6c9a8;--accent3:#5c564c;
+  --light-sq:#241d13;--dark-sq:#140f0a;
+}
+[data-skin="anatomy"] body{background-image:
+  linear-gradient(rgba(20,16,11,.8),rgba(20,16,11,.88)),
+  url(../_shared/textures/anatomy.jpg);
+  background-size:auto,cover;
+  background-position:center,center 15%;
+}
+[data-skin="anatomy"] .panel{background:rgba(42,35,24,.5);border-color:rgba(169,137,92,.25);box-shadow:0 10px 22px -16px rgba(0,0,0,.55)}
+[data-skin="anatomy"] .board{box-shadow:0 20px 46px -20px rgba(0,0,0,.7)}
+[data-skin="anatomy"] .sweep-bar{background:linear-gradient(180deg,rgba(169,137,92,.22),rgba(58,47,34,.08));border-color:rgba(169,137,92,.5)}
+[data-skin="anatomy"] .store{
+  background:radial-gradient(ellipse at 50% 35%,rgba(169,137,92,.28),transparent 65%),var(--dark-sq);
+  box-shadow:inset 0 0 16px 2px rgba(169,137,92,.22);
+}
+
+/* marbled: 1880s German book-cover marbling -- deep indigo with gold veining, black
+   and white accents. marbled.jpg -- public domain, experiments/_shared/textures/. */
+:root[data-skin="marbled"]{
+  --bg:#0d1830;--fg:#e8dfc0;--dim:#5a6b85;--dim2:#16223a;
+  --accent:#c9a24a;--accent2:#3a5a8a;--accent3:#d8cfa8;
+  --light-sq:#1a2846;--dark-sq:#0c1526;
+}
+[data-skin="marbled"] body{background-image:
+  radial-gradient(circle at 30% 20%,rgba(201,162,74,.08),transparent 45%),
+  linear-gradient(rgba(13,24,48,.76),rgba(13,24,48,.85)),
+  url(../_shared/textures/marbled.jpg);
+  background-size:auto,auto,cover;
+  background-position:center,center,center 20%;
+}
+[data-skin="marbled"] .panel{background:rgba(22,34,58,.5);backdrop-filter:blur(8px);border-color:rgba(201,162,74,.25);box-shadow:0 0 24px -14px rgba(201,162,74,.3)}
+[data-skin="marbled"] .board{box-shadow:0 0 50px -16px rgba(201,162,74,.35)}
+[data-skin="marbled"] .sweep-bar{background:linear-gradient(180deg,rgba(201,162,74,.2),rgba(58,90,138,.08));border-color:rgba(201,162,74,.55)}
+[data-skin="marbled"] .store{
+  background:radial-gradient(ellipse at 50% 35%,rgba(201,162,74,.32),transparent 65%),var(--dark-sq);
+  box-shadow:inset 0 0 18px 2px rgba(201,162,74,.25);
 }
 
 *{box-sizing:border-box}
@@ -510,6 +577,9 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
           <option value="comet">Comet</option>
           <option value="macabre">Danse Macabre</option>
           <option value="grimoire">Grimoire</option>
+          <option value="orrery">Orrery</option>
+          <option value="anatomy">Anatomy Theatre</option>
+          <option value="marbled">Marbled</option>
         </select>
       </div>
 
@@ -1053,11 +1123,53 @@ const PRESETS = {
     const phaser = new Tone.Phaser({frequency:0.2, octaves:2.5, baseFrequency:200, wet:0.3});
     return [synth, tremolo, phaser];
   }},
+  // orrery: bright, mechanical, evenly-ticking bells -- higher harmonicity than Omen
+  // keeps the partials clean and metallic rather than gong-like, a fast tremolo gives
+  // it a steady "gear train" pulse, and a ping-pong delay is the echo of a whole
+  // room full of turning brass rather than one slow, spacious toll.
+  orrery: { label:'Orrery', build: () => {
+    const synth = new Tone.PolySynth(Tone.FMSynth, {
+      harmonicity:3.5, modulationIndex:8,
+      envelope:{attack:0.001, decay:0.25, sustain:0.05, release:0.4},
+      modulationEnvelope:{attack:0.001, decay:0.15, sustain:0, release:0.2}
+    });
+    const tremolo = new Tone.Tremolo({frequency:6, depth:0.3, wet:0.4}).start();
+    const pingpong = new Tone.PingPongDelay({delayTime:'16n', feedback:0.3, wet:0.28});
+    return [synth, tremolo, pingpong];
+  }},
+  // anatomy theatre: dry, clicking, precise -- a fast-closing filter on a bare square
+  // wave gives a hard little knock with almost no tail, and a faint touch of drive is
+  // the only coloring, for a clinical, bone-on-bone precision with nothing washing it out.
+  anatomy: { label:'Anatomy Theatre', build: () => {
+    const synth = new Tone.PolySynth(Tone.MonoSynth, {
+      oscillator:{type:'square'},
+      filter:{Q:3, type:'lowpass', rolloff:-24},
+      envelope:{attack:0.001, decay:0.1, sustain:0, release:0.08},
+      filterEnvelope:{attack:0.001, decay:0.06, sustain:0, release:0.05, baseFrequency:600, octaves:3.5}
+    });
+    const drive = new Tone.Distortion({distortion:0.08, wet:0.15});
+    return [synth, drive];
+  }},
+  // marbled: a warm plucked harpsichord/lute -- a filtered sawtooth with a plucky
+  // filter envelope for that combed-string attack, a touch of chorus for ensemble
+  // richness, and a short slapback for a small, refined room, not a cavern.
+  marbled: { label:'Marbled', build: () => {
+    const synth = new Tone.PolySynth(Tone.MonoSynth, {
+      oscillator:{type:'sawtooth'},
+      filter:{Q:1.2, type:'lowpass', rolloff:-24},
+      envelope:{attack:0.002, decay:0.4, sustain:0, release:0.5},
+      filterEnvelope:{attack:0.001, decay:0.25, sustain:0, release:0.3, baseFrequency:250, octaves:3.5}
+    });
+    const chorus = new Tone.Chorus({frequency:1.8, delayTime:2.5, depth:0.35, wet:0.25}).start();
+    const slap = new Tone.FeedbackDelay({delayTime:'8n', feedback:0.15, wet:0.15});
+    return [synth, chorus, slap];
+  }},
 };
 // every skin IS an instrument now -- picking a skin rebuilds the one shared synth
 // both colors play through (red/black just differ by register, see RED/BLACK_NOTES)
 const SKIN_VOICE = {
   dark:'pluck', light:'blip', neon:'bell', alien:'pad',
+  orrery:'orrery', anatomy:'anatomy', marbled:'marbled',
   tr808:'tr808', tb303:'tb303', modular:'modular', op1:'op1',
   deepsea:'deepsea', glitch:'glitch', fungal:'fungal',
   comet:'omen', macabre:'macabre', grimoire:'grimoire',

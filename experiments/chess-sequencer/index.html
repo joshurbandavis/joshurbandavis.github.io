@@ -237,7 +237,7 @@
    experiments/_shared/textures/. */
 :root[data-skin="macabre"]{
   --bg:#14100c;--fg:#e8ddc8;--dim:#7a6d5a;--dim2:#2e2418;
-  --accent:#b8392c;--accent2:#b8934a;--accent3:#cbbfa8;
+  --accent:#b8392c;--accent2:#cbbfa8;--accent3:#b8934a;
   --light-sq:#241c14;--dark-sq:#15100b;
   --piece-light:#cbbfa8;--piece-dark:#241a10;
 }
@@ -275,6 +275,64 @@
 [data-skin="grimoire"] .panel{background:rgba(32,26,22,.55);border-color:rgba(156,43,43,.3);box-shadow:0 0 24px -16px rgba(156,43,43,.4)}
 [data-skin="grimoire"] .board{box-shadow:0 0 0 1px rgba(184,134,60,.18),0 0 50px -18px rgba(156,43,43,.5)}
 [data-skin="grimoire"] .sweep-bar{background:linear-gradient(180deg,rgba(156,43,43,.22),rgba(184,134,60,.06));border-color:rgba(156,43,43,.55)}
+
+/* orrery: a Cellarius celestial-atlas plate -- nested gold zodiac spheres around the
+   earth on a sky-blue ground, cherubs in the corners. orrery.jpg -- from "Harmonia
+   Macrocosmica" (1660/1708), public domain, experiments/_shared/textures/. */
+:root[data-skin="orrery"]{
+  --bg:#101b2e;--fg:#ece0c4;--dim:#5b7089;--dim2:#16283e;
+  --accent:#d4af5a;--accent2:#c97b82;--accent3:#7a9b6e;
+  --light-sq:#1c2e48;--dark-sq:#0d1728;
+  --piece-light:#ece0c4;--piece-dark:#2a2038;
+}
+[data-skin="orrery"] body{background-image:
+  radial-gradient(circle at 50% 15%,rgba(212,175,90,.09),transparent 45%),
+  linear-gradient(rgba(16,27,46,.76),rgba(16,27,46,.84)),
+  url(../_shared/textures/orrery.jpg);
+  background-size:auto,auto,cover;
+  background-position:center,center,center 30%;
+}
+[data-skin="orrery"] .panel{background:rgba(22,40,62,.5);backdrop-filter:blur(8px);border-color:rgba(212,175,90,.25);box-shadow:0 0 24px -14px rgba(212,175,90,.35)}
+[data-skin="orrery"] .board{box-shadow:0 0 50px -16px rgba(212,175,90,.4)}
+[data-skin="orrery"] .sweep-bar{background:linear-gradient(180deg,rgba(212,175,90,.22),rgba(201,123,130,.05));border-color:rgba(212,175,90,.6);box-shadow:0 0 20px rgba(212,175,90,.4)}
+
+/* anatomy theatre: an 18th-c. osteology plate (Cheselden's "Osteographia") -- engraved
+   ribcage and pelvis on aged cream paper. anatomy.jpg -- public domain, experiments/
+   _shared/textures/. */
+:root[data-skin="anatomy"]{
+  --bg:#14100b;--fg:#e8dfc8;--dim:#7d7360;--dim2:#2a2318;
+  --accent:#a9895c;--accent2:#d6c9a8;--accent3:#5c564c;
+  --light-sq:#241d13;--dark-sq:#140f0a;
+  --piece-light:#e8dfc8;--piece-dark:#241d13;
+}
+[data-skin="anatomy"] body{background-image:
+  linear-gradient(rgba(20,16,11,.8),rgba(20,16,11,.88)),
+  url(../_shared/textures/anatomy.jpg);
+  background-size:auto,cover;
+  background-position:center,center 15%;
+}
+[data-skin="anatomy"] .panel{background:rgba(42,35,24,.5);border-color:rgba(169,137,92,.25);box-shadow:0 10px 22px -16px rgba(0,0,0,.55)}
+[data-skin="anatomy"] .board{box-shadow:0 20px 46px -20px rgba(0,0,0,.7)}
+[data-skin="anatomy"] .sweep-bar{background:linear-gradient(180deg,rgba(169,137,92,.22),rgba(58,47,34,.08));border-color:rgba(169,137,92,.5)}
+
+/* marbled: 1880s German book-cover marbling -- deep indigo with gold veining, black
+   and white accents. marbled.jpg -- public domain, experiments/_shared/textures/. */
+:root[data-skin="marbled"]{
+  --bg:#0d1830;--fg:#e8dfc0;--dim:#5a6b85;--dim2:#16223a;
+  --accent:#c9a24a;--accent2:#3a5a8a;--accent3:#d8cfa8;
+  --light-sq:#1a2846;--dark-sq:#0c1526;
+  --piece-light:#e8dfc0;--piece-dark:#16223a;
+}
+[data-skin="marbled"] body{background-image:
+  radial-gradient(circle at 30% 20%,rgba(201,162,74,.08),transparent 45%),
+  linear-gradient(rgba(13,24,48,.76),rgba(13,24,48,.85)),
+  url(../_shared/textures/marbled.jpg);
+  background-size:auto,auto,cover;
+  background-position:center,center,center 20%;
+}
+[data-skin="marbled"] .panel{background:rgba(22,34,58,.5);backdrop-filter:blur(8px);border-color:rgba(201,162,74,.25);box-shadow:0 0 24px -14px rgba(201,162,74,.3)}
+[data-skin="marbled"] .board{box-shadow:0 0 50px -16px rgba(201,162,74,.35)}
+[data-skin="marbled"] .sweep-bar{background:linear-gradient(180deg,rgba(201,162,74,.2),rgba(58,90,138,.08));border-color:rgba(201,162,74,.55)}
 
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -505,7 +563,7 @@ h1 em{font-style:italic;color:var(--accent)}
   background:
     radial-gradient(circle at 30% 70%, transparent 62%, rgba(40,30,20,.14) 63%, transparent 65%),
     radial-gradient(circle at 65% 35%, transparent 68%, rgba(40,30,20,.11) 69%, transparent 71%),
-    var(--accent3);
+    var(--accent2);
 }
 [data-skin="macabre"] .piece-glyph.black::before{
   background:repeating-conic-gradient(var(--accent) 0deg 45deg, var(--dim2) 45deg 90deg);
@@ -533,6 +591,50 @@ h1 em{font-style:italic;color:var(--accent)}
     radial-gradient(circle 1.2px at 94% 50%, rgba(0,0,0,.4) 90%, transparent 100%);
 }
 [data-skin="grimoire"] .piece-glyph{filter:drop-shadow(0 1px 2px rgba(0,0,0,.55))}
+
+/* orrery: two bodies streaking past each other -- a gold comet trailing left behind
+   white's glyphs, a dusty rose one trailing right behind black's, each tail just an
+   offset glow so it reads at a glance. Both twinkle gently. */
+[data-skin="orrery"] .piece-glyph::before{border-radius:50%}
+[data-skin="orrery"] .piece-glyph.white::before{
+  background:repeating-radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--accent2) 80%,white) 0 2px,var(--accent2) 2px 4px,color-mix(in srgb,var(--accent2) 55%,black) 4px 6px);
+}
+[data-skin="orrery"] .piece-glyph.black::before{
+  background:repeating-radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--accent) 78%,white) 0 2px,var(--accent) 2px 4px,color-mix(in srgb,var(--accent) 55%,black) 4px 6px);
+}
+
+/* anatomy theatre: bone against ink -- white's coin is aged ivory scored with fine
+   cross-hatch (the same shading technique the source engraving itself uses), black's
+   is a stippled-ink disc, dots only, like a printer's aquatint. */
+[data-skin="anatomy"] .piece-glyph.white::before{
+  background:
+    repeating-linear-gradient(115deg,transparent 0 3px,rgba(50,38,22,.14) 3px 4px),
+    var(--accent2);
+}
+[data-skin="anatomy"] .piece-glyph.black::before{
+  background:
+    radial-gradient(circle 1px at 30% 28%,rgba(255,255,255,.35) 90%,transparent 100%),
+    radial-gradient(circle 1px at 55% 42%,rgba(255,255,255,.3) 90%,transparent 100%),
+    radial-gradient(circle 1px at 40% 60%,rgba(255,255,255,.28) 90%,transparent 100%),
+    radial-gradient(circle 1px at 68% 65%,rgba(255,255,255,.3) 90%,transparent 100%),
+    var(--accent);
+}
+[data-skin="anatomy"] .piece-glyph{filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
+
+/* marbled: two combed-paper coins -- gold marbling veined over the page's own indigo
+   behind white, ink-blue marbling veined over gold behind black. */
+[data-skin="marbled"] .piece-glyph.white::before{
+  background:
+    radial-gradient(ellipse 55% 38% at 30% 68%,transparent 41%,rgba(20,15,5,.16) 42% 44%,transparent 45%),
+    radial-gradient(ellipse 48% 32% at 68% 32%,transparent 41%,rgba(20,15,5,.13) 42% 44%,transparent 45%),
+    var(--accent2);
+}
+[data-skin="marbled"] .piece-glyph.black::before{
+  background:
+    radial-gradient(ellipse 55% 38% at 32% 30%,transparent 41%,rgba(255,255,255,.1) 42% 44%,transparent 45%),
+    radial-gradient(ellipse 48% 32% at 65% 68%,transparent 41%,rgba(255,255,255,.08) 42% 44%,transparent 45%),
+    var(--accent);
+}
 
 .sweep-bar{
   position:absolute;top:0;bottom:0;width:12.5%;left:0;
@@ -678,6 +780,9 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
           <option value="comet">Comet</option>
           <option value="macabre">Danse Macabre</option>
           <option value="grimoire">Grimoire</option>
+          <option value="orrery">Orrery</option>
+          <option value="anatomy">Anatomy Theatre</option>
+          <option value="marbled">Marbled</option>
         </select>
       </div>
 
@@ -1717,6 +1822,47 @@ const PALETTES = {
       new Tone.Phaser({frequency:0.2, octaves:2.5, baseFrequency:200, wet:0.3}),
     ],
   }) },
+  orrery: { label:'Orrery', make: () => ({
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.FMSynth, {harmonicity:3.5, modulationIndex:8, envelope:{attack:0.001,decay:0.15,sustain:0,release:0.2}, modulationEnvelope:{attack:0.001,decay:0.08,sustain:0,release:0.1}}),
+      knight: new Tone.PolySynth(Tone.FMSynth, {harmonicity:4.5, modulationIndex:10, envelope:{attack:0.001,decay:0.1,sustain:0,release:0.15}, modulationEnvelope:{attack:0.001,decay:0.06,sustain:0,release:0.08}}),
+      bishop: new Tone.PolySynth(Tone.FMSynth, {harmonicity:2.5, modulationIndex:6, envelope:{attack:0.005,decay:0.3,sustain:0.1,release:0.5}, modulationEnvelope:{attack:0.01,decay:0.2,sustain:0.05,release:0.3}}),
+      rook:   new Tone.PolySynth(Tone.FMSynth, {harmonicity:3, modulationIndex:9, envelope:{attack:0.002,decay:0.25,sustain:0.08,release:0.4}, modulationEnvelope:{attack:0.005,decay:0.15,sustain:0,release:0.2}}),
+      queen:  new Tone.PolySynth(Tone.FMSynth, {harmonicity:3.5, modulationIndex:11, envelope:{attack:0.005,decay:0.4,sustain:0.12,release:0.7}, modulationEnvelope:{attack:0.01,decay:0.25,sustain:0.05,release:0.35}}),
+      king:   new Tone.PolySynth(Tone.FMSynth, {harmonicity:3, modulationIndex:7, envelope:{attack:0.01,decay:0.6,sustain:0.15,release:1.1}, modulationEnvelope:{attack:0.02,decay:0.4,sustain:0.1,release:0.6}}),
+    },
+    effects: () => [
+      new Tone.Tremolo({frequency:6, depth:0.3, wet:0.4}).start(),
+      new Tone.PingPongDelay({delayTime:'16n', feedback:0.3, wet:0.28}),
+    ],
+  }) },
+  anatomy: { label:'Anatomy Theatre', make: () => ({
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'square'}, filter:{Q:3,type:'lowpass',rolloff:-24}, envelope:{attack:0.001,decay:0.08,sustain:0,release:0.06}, filterEnvelope:{attack:0.001,decay:0.05,sustain:0,release:0.04,baseFrequency:600,octaves:3}}),
+      knight: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'square'}, filter:{Q:4,type:'lowpass',rolloff:-24}, envelope:{attack:0.001,decay:0.06,sustain:0,release:0.05}, filterEnvelope:{attack:0.001,decay:0.04,sustain:0,release:0.03,baseFrequency:750,octaves:3.5}}),
+      bishop: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'square'}, filter:{Q:2,type:'lowpass',rolloff:-24}, envelope:{attack:0.001,decay:0.14,sustain:0,release:0.1}, filterEnvelope:{attack:0.001,decay:0.1,sustain:0,release:0.08,baseFrequency:500,octaves:3}}),
+      rook:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'square'}, filter:{Q:2.5,type:'lowpass',rolloff:-24}, envelope:{attack:0.001,decay:0.12,sustain:0,release:0.09}, filterEnvelope:{attack:0.001,decay:0.08,sustain:0,release:0.06,baseFrequency:400,octaves:3.5}}),
+      queen:  new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'square'}, filter:{Q:2,type:'lowpass',rolloff:-24}, envelope:{attack:0.001,decay:0.18,sustain:0,release:0.14}, filterEnvelope:{attack:0.001,decay:0.12,sustain:0,release:0.1,baseFrequency:350,octaves:4}}),
+      king:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'square'}, filter:{Q:1.5,type:'lowpass',rolloff:-24}, envelope:{attack:0.001,decay:0.22,sustain:0,release:0.18}, filterEnvelope:{attack:0.001,decay:0.16,sustain:0,release:0.12,baseFrequency:250,octaves:4.5}}),
+    },
+    effects: () => [
+      new Tone.Distortion({distortion:0.08, wet:0.15}),
+    ],
+  }) },
+  marbled: { label:'Marbled', make: () => ({
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:1.2,type:'lowpass',rolloff:-24}, envelope:{attack:0.002,decay:0.25,sustain:0,release:0.3}, filterEnvelope:{attack:0.001,decay:0.15,sustain:0,release:0.2,baseFrequency:250,octaves:3}}),
+      knight: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:1.5,type:'lowpass',rolloff:-24}, envelope:{attack:0.001,decay:0.18,sustain:0,release:0.22}, filterEnvelope:{attack:0.001,decay:0.1,sustain:0,release:0.14,baseFrequency:320,octaves:3.5}}),
+      bishop: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:1,type:'lowpass',rolloff:-24}, envelope:{attack:0.01,decay:0.45,sustain:0.1,release:0.7}, filterEnvelope:{attack:0.02,decay:0.3,sustain:0.08,release:0.45,baseFrequency:200,octaves:3.5}}),
+      rook:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:1.3,type:'lowpass',rolloff:-24}, envelope:{attack:0.005,decay:0.35,sustain:0.05,release:0.5}, filterEnvelope:{attack:0.01,decay:0.22,sustain:0.05,release:0.32,baseFrequency:160,octaves:4}}),
+      queen:  new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:1.1,type:'lowpass',rolloff:-24}, envelope:{attack:0.02,decay:0.6,sustain:0.12,release:1.0}, filterEnvelope:{attack:0.03,decay:0.4,sustain:0.1,release:0.6,baseFrequency:180,octaves:3.8}}),
+      king:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, filter:{Q:0.9,type:'lowpass',rolloff:-24}, envelope:{attack:0.05,decay:0.9,sustain:0.18,release:1.6}, filterEnvelope:{attack:0.08,decay:0.6,sustain:0.15,release:1.0,baseFrequency:130,octaves:3.2}}),
+    },
+    effects: () => [
+      new Tone.Chorus({frequency:1.8, delayTime:2.5, depth:0.35, wet:0.25}).start(),
+      new Tone.FeedbackDelay({delayTime:'8n', feedback:0.15, wet:0.15}),
+    ],
+  }) },
 };
 // every skin IS a sound palette now -- picking a skin rebuilds all six piece-type voices
 const SKIN_PALETTE = {
@@ -1724,6 +1870,7 @@ const SKIN_PALETTE = {
   tr808:'tr808', tb303:'tb303', modular:'modular', op1:'op1',
   deepsea:'deepsea', glitch:'glitch', fungal:'fungal',
   comet:'omen', macabre:'macabre', grimoire:'grimoire',
+  orrery:'orrery', anatomy:'anatomy', marbled:'marbled',
 };
 
 let paletteSynths = null, alertSynth = null, reverb = null;
