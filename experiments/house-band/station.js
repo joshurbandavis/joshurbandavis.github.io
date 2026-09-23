@@ -1,9 +1,10 @@
-// The House Band's schedule: which game is on the air at any moment, and every move
-// of it, derived purely from the clock. The hour is six 10-minute sets (UTC-aligned,
-// so :00 is chess everywhere with a whole-hour timezone), and each set is a run of
-// back-to-back games between two engines, seeded by the set's index. Nothing here
-// touches a server or Math.random: every listener computes the identical timeline
-// independently, which is the whole trick -- everyone hears the same move at once.
+// The House Band's schedule: every move of every game, derived purely from the clock.
+// All six games run all the time, each at its own tempo so their sweeps drift in and
+// out of phase. Time is cut into 10-minute sets (UTC-aligned), and in each set every
+// game is a run of back-to-back matches between two engines, seeded by the set's
+// index and the game. Nothing here touches a server or Math.random: every listener
+// computes the identical timelines independently, which is the whole trick --
+// everyone hears the same moves at once, however they choose to mix them.
 //
 // Needs engines.js loaded first (CHESS, CHECKERS, ...). Used by station-worker.js in
 // the browser and by test.js under Node.
@@ -12,7 +13,6 @@ var STATION = (function(){
 "use strict";
 
 const SLOT_MS = 10 * 60 * 1000;
-const STEP_MS = 300;          // one sweep column: an eighth note at 100bpm
 const SWEEP_TAIL_MS = 900;    // breath between one sweep ending and the next move
 const REPLAYS = 3;            // a finished board plays itself back this many times
 const INTERMISSION_MS = 5000; // silence between games within a set
@@ -26,8 +26,8 @@ function mulberry32(a){
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
-function seedFor(slotIndex, gameNo){
-  let h = 2166136261 ^ (slotIndex | 0);
+function seedFor(slotIndex, gameNo, salt){
+  let h = 2166136261 ^ (slotIndex | 0) ^ Math.imul(salt, 0x9E3779B1);
   h = Math.imul(h ^ (h >>> 16), 2246822507);
   h = Math.imul(h ^ gameNo ^ (h >>> 13), 3266489909);
   return (h ^ (h >>> 16)) >>> 0;
@@ -58,7 +58,7 @@ function sq(r, c){ return FILES[c] + (8 - r); }
 const GAMES = {};
 
 GAMES.chess = {
-  label: 'chess', cols: 8, href: '../chess-sequencer/',
+  label: 'chess', cols: 8, stepMs: 300, href: '../chess-sequencer/',
   players: ['white', 'black'],
   DEPTH: 2, NOISE: 25, MAX_PLIES: 160,
   init(){
@@ -145,7 +145,7 @@ function material(b){
 }
 
 GAMES.checkers = {
-  label: 'checkers', cols: 8, href: '../checker-sequencer/',
+  label: 'checkers', cols: 8, stepMs: 340, href: '../checker-sequencer/',
   players: ['red', 'black'],
   DEPTH: 4, NOISE: 12, MAX_PLIES: 150,
   init(){
@@ -194,7 +194,7 @@ function count(b, color){
 }
 
 GAMES.reversi = {
-  label: 'reversi', cols: 8, href: '../reversi-sequencer/',
+  label: 'reversi', cols: 8, stepMs: 410, href: '../reversi-sequencer/',
   players: ['black', 'white'],
   DEPTH: 3, NOISE: 30,
   init(){
@@ -232,7 +232,7 @@ GAMES.reversi = {
 };
 
 GAMES.connect4 = {
-  label: 'connect four', cols: 7, href: '../connectfour-sequencer/',
+  label: 'connect four', cols: 7, stepMs: 280, href: '../connectfour-sequencer/',
   players: ['red', 'black'],
   DEPTH: 5, NOISE: 8,
   init(){
@@ -263,7 +263,7 @@ GAMES.connect4 = {
 };
 
 GAMES.mancala = {
-  label: 'mancala', cols: 8, href: '../mancala-sequencer/',
+  label: 'mancala', cols: 8, stepMs: 450, href: '../mancala-sequencer/',
   players: ['red', 'black'],
   DEPTH: 6, NOISE: 6, MAX_PLIES: 200,
   init(){
@@ -312,7 +312,7 @@ function sowTrail(pits, start, color){
 }
 
 GAMES.backgammon = {
-  label: 'backgammon', cols: 13, href: '../backgammon-sequencer/',
+  label: 'backgammon', cols: 13, stepMs: 230, href: '../backgammon-sequencer/',
   players: ['red', 'black'],
   // the sequencer's "medium" weights, plus a little noise so the planner's
   // greedy choices vary between games with the same dice
@@ -359,22 +359,24 @@ GAMES.backgammon = {
 
 const ORDER = ['chess', 'checkers', 'reversi', 'connect4', 'mancala', 'backgammon'];
 
-function moveMs(game){ return game.cols * STEP_MS + SWEEP_TAIL_MS; }
+// Each game's sweep column (stepMs) is a different, deliberately unrelated length,
+// so no two games' moves line up for long: the ensemble keeps shifting instead of
+// pulsing on one shared beat.
+function moveMs(game){ return game.cols * game.stepMs + SWEEP_TAIL_MS; }
 function slotIndexAt(ms){ return Math.floor(ms / SLOT_MS); }
-function gameIdForSlot(slotIndex){ return ORDER[((slotIndex % 6) + 6) % 6]; }
 
-// The full timeline of one 10-minute set: every event (a new game's opening board, a
+// The full timeline of one game over one 10-minute set: every event (a new game's opening board, a
 // move, a replay of a finished board) with its offset from the start of the set.
 // onGame(events) is called as each game finishes computing, so a listener tuning in
 // early in a set doesn't wait on games that haven't happened yet.
-function buildSlot(slotIndex, onGame){
-  const id = gameIdForSlot(slotIndex), game = GAMES[id];
+function buildSlot(slotIndex, id, onGame){
+  const game = GAMES[id], salt = ORDER.indexOf(id) + 1;
   const interval = moveMs(game);
   const all = [];
   let t = 0, gameNo = 0;
   while(t < SLOT_MS){
     gameNo++;
-    const rng = mulberry32(seedFor(slotIndex, gameNo));
+    const rng = mulberry32(seedFor(slotIndex, gameNo, salt));
     const st = game.init(rng);
     const events = [{ t, kind:'start', gameNo, move:0, text:'opening position', snap:game.snap(st) }];
     t += interval;
@@ -400,5 +402,5 @@ function buildSlot(slotIndex, onGame){
   return all;
 }
 
-return { SLOT_MS, STEP_MS, SWEEP_TAIL_MS, GAMES, ORDER, moveMs, slotIndexAt, gameIdForSlot, buildSlot, chessReplyScore };
+return { SLOT_MS, SWEEP_TAIL_MS, GAMES, ORDER, moveMs, slotIndexAt, buildSlot, chessReplyScore };
 })();

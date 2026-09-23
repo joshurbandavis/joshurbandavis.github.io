@@ -40,17 +40,32 @@ h1 em{font-style:italic;color:var(--accent)}
 
 .layout{display:flex;gap:2.4rem;align-items:flex-start;justify-content:center;flex-wrap:wrap}
 
-.stage{flex:0 1 600px;min-width:0}
+.stage{flex:0 1 640px;min-width:0;position:relative;min-height:320px}
+.stage-grid{display:grid;gap:18px 14px;grid-template-columns:1fr}
+.stage-grid.n2,.stage-grid.n3,.stage-grid.n4{grid-template-columns:repeat(2,minmax(0,1fr))}
+.stage-grid.n5,.stage-grid.n6{grid-template-columns:repeat(3,minmax(0,1fr))}
+.tile{min-width:0}
+.tile[hidden]{display:none}
+.stage-grid:not(.n1) .caption{margin-top:.55rem;min-height:2.6em}
+.stage-grid:not(.n1) .caption .game-line{font-size:.55rem;letter-spacing:.14em}
+.stage-grid:not(.n1) .caption .move-line{font-size:.68rem}
+.stage-grid:not(.n1) .caption .move-line.result{font-size:.95rem}
+.stage-grid:not(.n1) .caption .extra-line{display:none}
+.caption .game-line a{color:var(--fg);text-decoration:none}
+.caption .game-line a:hover{color:var(--accent)}
+.empty{display:flex;align-items:center;justify-content:center;min-height:320px;border:1px dashed rgba(255,255,255,.1);
+  border-radius:14px;font-size:.72rem;color:var(--dim);text-align:center;padding:1rem}
+.empty[hidden]{display:none}
 .board-wrap{position:relative;width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;
   border:1px solid rgba(255,255,255,.07);border-radius:14px;background:#0a0908;overflow:hidden}
-canvas{display:block;width:100%;height:100%}
+canvas{display:block;width:100%;height:100%;max-width:100%;max-height:100%}
 .caption{margin-top:1rem;min-height:3.4em}
 .caption .game-line{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
 .caption .move-line{font-size:.82rem;line-height:1.5;margin-top:.35rem}
 .caption .move-line.result{font-family:var(--serif);font-style:italic;font-size:1.25rem;color:var(--accent)}
 .caption .extra-line{font-size:.68rem;color:var(--dim);margin-top:.25rem}
 
-.gate{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.9rem;
+.gate{position:absolute;inset:0;z-index:5;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.9rem;
   text-align:center;padding:1rem;background:rgba(5,5,5,.72);backdrop-filter:blur(2px)}
 .gate p{max-width:300px;font-size:.72rem;line-height:1.6;opacity:.7;margin:0}
 .gate.hidden{display:none}
@@ -74,16 +89,16 @@ button{font-family:var(--mono);cursor:pointer}
 .clock{font-size:1.9rem;letter-spacing:.04em;font-variant-numeric:tabular-nums}
 .clock-note{font-size:.62rem;color:var(--dim);margin-top:.3rem;line-height:1.5}
 
-.guide{list-style:none;margin:0;padding:0}
-.guide li{position:relative;display:flex;gap:.9rem;align-items:baseline;padding:.5rem .1rem;font-size:.75rem;border-top:1px solid rgba(255,255,255,.04);color:var(--dim)}
-.guide li:first-child{border-top:none}
-.guide .t{font-variant-numeric:tabular-nums;width:3.2em}
-.guide li.now{color:var(--fg)}
-.guide li.now .t{color:var(--accent)}
-.guide li.now::after{content:'on air';margin-left:auto;font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent2)}
-.guide li.next::after{content:'up next';margin-left:auto;font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
-.progress{height:2px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:.6rem;overflow:hidden}
-.progress > div{height:100%;width:0;background:var(--accent);box-shadow:0 0 6px rgba(200,255,46,.5)}
+.members{display:flex;flex-direction:column;gap:.45rem}
+.member{display:flex;align-items:center;gap:.8rem;width:100%;padding:.6rem .8rem;border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;background:transparent;color:var(--dim);font-size:.74rem;text-align:left;transition:all .3s}
+.member:hover{border-color:rgba(255,255,255,.2);color:var(--fg)}
+.member .dot{flex:none;width:8px;height:8px;border-radius:50%;border:1px solid var(--dim);transition:all .3s}
+.member .name{flex:1}
+.member .meta{font-size:.56rem;letter-spacing:.08em;color:var(--dim)}
+.member.on{color:var(--fg);border-color:rgba(200,255,46,.35)}
+.member.on .dot{background:var(--accent);border-color:var(--accent);box-shadow:0 0 8px var(--accent)}
+.members-note{font-size:.6rem;line-height:1.6;color:var(--dim);margin-top:.8rem}
 
 .slider-row{display:flex;align-items:center;gap:.7rem;font-size:.68rem;color:var(--dim)}
 input[type=range]{flex:1;accent-color:var(--accent)}
@@ -95,6 +110,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
   main{padding-top:1.6rem}
   .layout{flex-direction:column;align-items:stretch}
   .stage,.sidebar{flex:none;width:100%}
+  .stage-grid.n5,.stage-grid.n6{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 </style>
 </head>
@@ -110,48 +126,42 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
 
 <main>
   <div class="title-block">
-    <div class="kicker">six games · one hour · on a loop</div>
+    <div class="kicker">six games · always on · pick your band</div>
     <h1>the house <em>band</em></h1>
-    <p class="lede">The six sequencers, left on. Two engines play each other forever, a different
-      game every ten minutes: chess on the hour, then checkers, reversi, connect four,
-      mancala and backgammon. Nothing is streamed. Every move is worked out from the
-      clock, so everyone tuned in hears the same move at the same moment.</p>
+    <p class="lede">The six sequencers, left on. Every game is always being played, engine
+      against engine, each at its own tempo, so their sweeps drift in and out of phase.
+      Choose which members are on: one alone is a solo, all six is a wash. Nothing is
+      streamed. Every move is worked out from the clock, so everyone hears the same games
+      at the same moment, each mixed their own way.</p>
   </div>
 
   <div class="layout">
     <div class="stage">
-      <div class="board-wrap" id="boardWrap">
-        <canvas id="board"></canvas>
-        <div class="tuning hidden" id="tuning">tuning in…</div>
-        <div class="gate" id="gate">
-          <p>The band is already playing. Sound needs a tap to start (browser rule, not ours).</p>
-          <button class="pill filled" id="tuneIn">▶ tune in</button>
-        </div>
-      </div>
-      <div class="caption">
-        <div class="game-line" id="gameLine">&nbsp;</div>
-        <div class="move-line" id="moveLine">&nbsp;</div>
-        <div class="extra-line" id="extraLine">&nbsp;</div>
+      <div class="stage-grid" id="stageGrid"></div>
+      <div class="empty" id="empty" hidden>nobody's on stage. switch a member on →</div>
+      <div class="gate" id="gate">
+        <p>The band is already playing. Sound needs a tap to start (browser rule, not ours).</p>
+        <button class="pill filled" id="tuneIn">▶ tune in</button>
       </div>
     </div>
 
     <div class="sidebar">
       <div class="panel">
-        <div class="field-label"><span>station time</span><span class="on-air">on air</span></div>
-        <div class="clock" id="clock">--:--:--</div>
-        <div class="clock-note" id="clockNote">&nbsp;</div>
+        <div class="field-label"><span>the band</span><span class="on-air">on air</span></div>
+        <div class="members" id="members"></div>
+        <div class="members-note">Every member keeps playing whether you hear them or not;
+          switching one on joins it mid-game.</div>
       </div>
       <div class="panel">
-        <div class="field-label"><span>this hour</span></div>
-        <ul class="guide" id="guide"></ul>
-        <div class="progress"><div id="progress"></div></div>
+        <div class="field-label"><span>station time</span></div>
+        <div class="clock" id="clock">--:--:--</div>
+        <div class="clock-note" id="clockNote">&nbsp;</div>
       </div>
       <div class="panel">
         <div class="field-label"><span>volume</span></div>
         <div class="slider-row"><input type="range" id="volume" min="-40" max="0" value="-8" step="1" aria-label="volume"></div>
         <div class="controls">
           <button class="pill" id="muteBtn" disabled>mute</button>
-          <a class="pill" id="playLink" href="../chess-sequencer/" target="_blank" rel="noopener">play this one yourself →</a>
         </div>
       </div>
     </div>
@@ -164,7 +174,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
 <script src="station.js"></script>
 <script>
 "use strict";
-const { SLOT_MS, STEP_MS, GAMES, moveMs, slotIndexAt, gameIdForSlot } = STATION;
+const { SLOT_MS, GAMES, ORDER, moveMs, slotIndexAt } = STATION;
 
 // ---- station clock: the device clock, nudged to the server's if they disagree ----
 // Everyone has to agree on "now" for everyone to hear the same move. The Date header
@@ -187,29 +197,48 @@ function nowMs(){ return Date.now() + clockOffset; }
     : 'in sync with everyone else tuned in';
 })();
 
-// ---- timelines, computed in a worker one set at a time ----
-const timelines = new Map(); // slot index -> { events:[], done:bool }
+// ---- who's on stage (remembered per device) ----
+const DEFAULT_ON = ['chess', 'reversi', 'backgammon']; // one middle, one high, one low
+let active = new Set(DEFAULT_ON);
+try{
+  const saved = JSON.parse(localStorage.getItem('houseband.members'));
+  if(Array.isArray(saved)) active = new Set(saved.filter(id => GAMES[id]));
+} catch(e){ /* storage blocked: fall back to the default lineup */ }
+function saveActive(){ try{ localStorage.setItem('houseband.members', JSON.stringify([...active])); } catch(e){} }
+// stage order always follows the band's order, not the order members were switched on
+const activeIds = () => ORDER.filter(id => active.has(id));
+
+// ---- timelines, computed in a worker one game-set at a time ----
+const timelines = new Map(); // "slot:game" -> { events:[], done:bool }
+const key = (slot, id) => slot + ':' + id;
 const worker = new Worker('station-worker.js');
 worker.onmessage = e => {
-  const { slot, events, done } = e.data;
-  const tl = timelines.get(slot);
+  const { slot, game, events, done } = e.data;
+  const tl = timelines.get(key(slot, game));
   if(!tl) return;
   if(events) tl.events.push(...events);
   if(done) tl.done = true;
 };
-function ensureSlot(slot){
-  if(timelines.has(slot)) return;
-  timelines.set(slot, { events:[], done:false });
-  worker.postMessage({ slot });
+function ensureSlot(slot, id){
+  if(timelines.has(key(slot, id))) return;
+  timelines.set(key(slot, id), { events:[], done:false });
+  worker.postMessage({ slot, game:id });
+}
+// members on stage are queued first; the rest still get computed so switching one
+// on later doesn't have to wait for it
+function ensureAll(slot){
+  for(const id of activeIds()) ensureSlot(slot, id);
+  for(const id of ORDER) ensureSlot(slot, id);
 }
 function pruneSlots(current){
-  for(const s of timelines.keys()) if(s < current - 1) timelines.delete(s);
+  for(const k of timelines.keys()) if(Number(k.split(':')[0]) < current - 1) timelines.delete(k);
 }
 // The event on the air at offset t within a set, or null while the worker is still
-// catching up to t. Events arrive a whole game at a time, so if t is past the last
-// one by more than a move plus an intermission, the game that's actually on the
+// catching up to t. Events arrive a whole match at a time, so if t is past the last
+// one by more than a move plus an intermission, the match that's actually on the
 // air just hasn't been computed yet.
 function eventAt(tl, t, id){
+  if(!tl) return null;
   const ev = tl.events;
   if(!ev.length) return null;
   if(!tl.done && t > ev[ev.length - 1].t + moveMs(GAMES[id]) + 5000) return null;
@@ -221,10 +250,8 @@ function eventAt(tl, t, id){
   return found < 0 ? null : ev[found];
 }
 
-// ---- drawing ----
-const canvas = document.getElementById('board');
-const ctx = canvas.getContext('2d');
-const wrap = document.getElementById('boardWrap');
+// ---- drawing: one tile per member; the draw routines below paint whichever tile's
+// context is current (ctx/W/H), so each tile points them at its own canvas first ----
 const ASPECT = { chess:1, checkers:1, reversi:1, connect4:7/6, mancala:8/3.2, backgammon:13/9 };
 const C = {
   light:'#171512', dark:'#0d0c0a', grid:'rgba(255,255,255,.06)',
@@ -233,17 +260,46 @@ const C = {
   cream:'#efe9dc', ink:'#3b3833', inkEdge:'#a39d91', red:'#ff5e5b', chessDark:'#716b61',
   accent:'#c8ff2e', gold:'#d4a843', band:'rgba(200,255,46,.09)',
 };
-let dpr = 1, W = 0, H = 0, currentAspect = 0;
-function sizeCanvas(aspect){
-  const box = wrap.getBoundingClientRect();
-  dpr = window.devicePixelRatio || 1;
+let ctx = null, W = 0, H = 0, dpr = 1;
+
+const stageGrid = document.getElementById('stageGrid');
+const tiles = {};
+for(const id of ORDER){
+  const g = GAMES[id];
+  const el = document.createElement('div');
+  el.className = 'tile'; el.hidden = true;
+  el.innerHTML = `<div class="board-wrap"><canvas></canvas><div class="tuning">tuning in…</div></div>
+    <div class="caption"><div class="game-line"><a href="${g.href}" target="_blank" rel="noopener" title="play it yourself">${g.label}</a><span class="game-meta"></span></div>
+    <div class="move-line">&nbsp;</div><div class="extra-line">&nbsp;</div></div>`;
+  stageGrid.appendChild(el);
+  const canvas = el.querySelector('canvas');
+  tiles[id] = { el, canvas, ctx: canvas.getContext('2d'), wrap: el.querySelector('.board-wrap'),
+    tuning: el.querySelector('.tuning'), meta: el.querySelector('.game-meta'),
+    moveLine: el.querySelector('.move-line'), extraLine: el.querySelector('.extra-line'),
+    W:0, H:0, dpr:1, sized:false, shown:null };
+}
+function sizeTile(t, aspect){
+  const box = t.wrap.getBoundingClientRect();
+  t.dpr = window.devicePixelRatio || 1;
   let w = box.width, h = box.width / aspect;
   if(h > box.height){ h = box.height; w = h * aspect; }
-  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
-  canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
-  W = w; H = h; currentAspect = aspect;
+  t.canvas.style.width = w + 'px'; t.canvas.style.height = h + 'px';
+  t.canvas.width = Math.round(w * t.dpr); t.canvas.height = Math.round(h * t.dpr);
+  t.W = w; t.H = h; t.sized = true;
 }
-window.addEventListener('resize', () => { currentAspect = 0; });
+function layoutStage(){
+  const ids = activeIds();
+  stageGrid.className = 'stage-grid n' + ids.length;
+  for(const id of ORDER) tiles[id].el.hidden = !active.has(id);
+  document.getElementById('empty').hidden = ids.length > 0;
+  unsizeTiles();
+}
+// drop each canvas's pixel size before re-measuring, or a canvas sized for the old
+// layout props its grid column open at the old width
+function unsizeTiles(){
+  for(const id of ORDER){ const t = tiles[id]; t.canvas.style.width = t.canvas.style.height = ''; t.sized = false; }
+}
+window.addEventListener('resize', unsizeTiles);
 
 function glow(fn, on, color){
   ctx.save();
@@ -521,32 +577,47 @@ const VOICES = {
 };
 
 let audioOn = false, bus = null, master = null;
-let scheduledThrough = 0; // wall-clock ms of the last event already handed to the audio clock
+const scheduledThrough = {}; // per game: wall-clock ms of the last event handed to the audio clock
 
-// built once per game and kept: near a set boundary the scheduler is handing notes to
-// both the outgoing and incoming game in the same pass, so swapping one set of synths
-// for the other would cut off the last sweep of a set
+// Each game sits in its own register so six at once spread out instead of piling up
+// in the middle; they already share one pentatonic scale, so any mix stays consonant.
+const OCTAVE = { chess:0, checkers:0, reversi:12, connect4:12, mancala:-12, backgammon:-12 };
+const shift = (id, note) => OCTAVE[id] ? Tone.Frequency(note).transpose(OCTAVE[id]).toNote() : note;
+
+// Every game gets its own fader. Members switched off fade to silence rather than
+// being cut, and each member's level drops as more join so the whole stays even.
+const faders = {};
 const voiceCache = {};
 function voicesForGame(id){
   if(!voiceCache[id]){
+    faders[id] = new Tone.Gain(0).connect(bus);
     const set = VOICES[id]();
-    for(const v of Object.values(set)){ v.maxPolyphony = 32; v.volume.value = -10; v.connect(bus); }
+    for(const v of Object.values(set)){ v.maxPolyphony = 32; v.volume.value = -10; v.connect(faders[id]); }
     voiceCache[id] = set;
   }
   return voiceCache[id];
+}
+function applyLevels(){
+  if(!audioOn) return;
+  const level = 1 / Math.sqrt(Math.max(active.size, 1));
+  for(const id of ORDER){
+    voicesForGame(id);
+    faders[id].gain.rampTo(active.has(id) ? level : 0, .8);
+  }
 }
 
 async function tuneIn(){
   await Tone.start();
   master = new Tone.Volume(Number(document.getElementById('volume').value)).toDestination();
   const limiter = new Tone.Limiter(-2).connect(master);
-  const reverb = new Tone.Reverb({ decay:2.6, wet:.24 }).connect(limiter);
-  bus = new Tone.FeedbackDelay({ delayTime:'8n.', feedback:.12, wet:.1 }).connect(reverb);
+  const reverb = new Tone.Reverb({ decay:3.4, wet:.3 }).connect(limiter);
+  bus = new Tone.FeedbackDelay({ delayTime:'8n.', feedback:.15, wet:.12 }).connect(reverb);
   audioOn = true;
-  scheduledThrough = nowMs(); // start from the next event, never replay the past
+  const now = nowMs(); // start from the next event, never replay the past
+  for(const id of ORDER) scheduledThrough[id] = now;
+  applyLevels();
   document.getElementById('gate').classList.add('hidden');
-  const mute = document.getElementById('muteBtn');
-  mute.disabled = false;
+  document.getElementById('muteBtn').disabled = false;
 }
 document.getElementById('tuneIn').addEventListener('click', tuneIn);
 document.getElementById('volume').addEventListener('input', e => { if(master) master.volume.rampTo(Number(e.target.value), .1); });
@@ -556,33 +627,35 @@ document.getElementById('muteBtn').addEventListener('click', e => {
   e.target.textContent = master.mute ? 'unmute' : 'mute';
 });
 
-// Hands every event in the next few seconds to the audio clock. Runs on a timer
-// rather than per animation frame so it keeps going in a background tab (an audible
-// tab isn't throttled hard enough to matter with this much lookahead).
+// Hands every event in the next few seconds to the audio clock, for each member on
+// stage. Runs on a timer rather than per animation frame so it keeps going in a
+// background tab (an audible tab isn't throttled hard enough to matter here).
 const LOOKAHEAD_MS = 2500;
 function scheduleAudio(){
   if(!audioOn) return;
   const now = nowMs(), horizon = now + LOOKAHEAD_MS;
   const slot = slotIndexAt(now);
-  for(const s of [slot, slot + 1]){
-    const tl = timelines.get(s); if(!tl) continue;
-    const id = gameIdForSlot(s), start = s * SLOT_MS;
-    for(const e of tl.events){
-      const at = start + e.t;
-      if(at <= scheduledThrough || at > horizon) continue;
-      playEvent(id, e, at, now);
-      scheduledThrough = at;
+  for(const id of activeIds()){
+    for(const s of [slot, slot + 1]){
+      const tl = timelines.get(key(s, id)); if(!tl) continue;
+      const start = s * SLOT_MS;
+      for(const e of tl.events){
+        const at = start + e.t;
+        if(at <= scheduledThrough[id] || at > horizon) continue;
+        playEvent(id, e, at, now);
+        scheduledThrough[id] = at;
+      }
     }
   }
 }
 function playEvent(id, e, at, now){
-  const v = voicesForGame(id), cols = GAMES[id].cols;
+  const v = voicesForGame(id), g = GAMES[id];
   const base = Tone.now() + (at - now) / 1000;
-  for(let col = 0; col < cols; col++){
-    const t = base + col * STEP_MS / 1000;
-    for(const [voice, note, dur, vel] of SONIFY[id](e.snap, col)) v[voice].triggerAttackRelease(note, dur, t, vel);
+  for(let col = 0; col < g.cols; col++){
+    const t = base + col * g.stepMs / 1000;
+    for(const [voice, note, dur, vel] of SONIFY[id](e.snap, col)) v[voice].triggerAttackRelease(shift(id, note), dur, t, vel);
   }
-  if(id === 'chess' && e.snap.check && e.kind === 'move') v.alert.triggerAttackRelease(['C6','D6'], '16n', base, .35);
+  if(id === 'chess' && e.snap.check && e.kind === 'move') v.alert.triggerAttackRelease(['C6','D6'], '16n', base, .3);
   if(id === 'backgammon' && e.kind === 'move' && e.snap.bearOffs > 0){
     const off = e.snap.off[e.snap.mover];
     v.chime.triggerAttackRelease(Tone.Frequency('C5').transpose(Math.round(Math.min(off, 15) / 15 * 12)).toNote(), '16n', base, .5);
@@ -590,32 +663,38 @@ function playEvent(id, e, at, now){
 }
 setInterval(scheduleAudio, 250);
 
-// ---- the program guide and captions ----
-const guideEl = document.getElementById('guide');
-const pad = n => String(n).padStart(2, '0');
-function renderGuide(slot){
-  const hourStart = slot - ((slot % 6) + 6) % 6;
-  guideEl.innerHTML = '';
-  for(let k = 0; k < 6; k++){
-    const s = hourStart + k, d = new Date(s * SLOT_MS);
-    const li = document.createElement('li');
-    if(s === slot) li.className = 'now';
-    else if(s === slot + 1) li.className = 'next';
-    li.innerHTML = `<span class="t">${pad(d.getHours())}:${pad(d.getMinutes())}</span><span>${GAMES[gameIdForSlot(s)].label}</span>`;
-    guideEl.appendChild(li);
+// ---- the band panel ----
+const MEMBER_META = {
+  chess:'six voices', checkers:'plucked', reversi:'bells',
+  connect4:'mallets', mancala:'wood + drone', backgammon:'pads + drone',
+};
+const membersEl = document.getElementById('members');
+function renderMembers(){
+  membersEl.innerHTML = '';
+  for(const id of ORDER){
+    const g = GAMES[id], bpm = Math.round(60000 / (g.stepMs * 2)); // a sweep column is an eighth note
+    const b = document.createElement('button');
+    b.className = 'member' + (active.has(id) ? ' on' : '');
+    b.setAttribute('aria-pressed', active.has(id));
+    b.innerHTML = `<span class="dot"></span><span class="name">${g.label}</span><span class="meta">${MEMBER_META[id]} · ${bpm} bpm</span>`;
+    b.addEventListener('click', () => {
+      if(active.has(id)) active.delete(id);
+      else { active.add(id); scheduledThrough[id] = nowMs(); }
+      saveActive(); renderMembers(); layoutStage(); applyLevels();
+    });
+    membersEl.appendChild(b);
   }
 }
+renderMembers();
+layoutStage();
 
-const gameLine = document.getElementById('gameLine'), moveLine = document.getElementById('moveLine'), extraLine = document.getElementById('extraLine');
-const tuningEl = document.getElementById('tuning'), playLink = document.getElementById('playLink');
-let shownSlot = null, shownEvent = null;
-
-function caption(id, e){
+// ---- captions ----
+const pad = n => String(n).padStart(2, '0');
+function caption(id, t, e){
   const g = GAMES[id];
-  const who = `${g.players[0]} vs ${g.players[1]}`;
-  gameLine.textContent = `${g.label} · game ${e.gameNo} of this set · ${who}`;
-  moveLine.classList.toggle('result', e.kind === 'replay');
-  moveLine.textContent = e.kind === 'start' ? 'opening position' : e.kind === 'replay' ? e.result : `${e.move}. ${e.text}`;
+  t.meta.textContent = ` · game ${e.gameNo} · ${g.players[0]} vs ${g.players[1]}`;
+  t.moveLine.classList.toggle('result', e.kind === 'replay');
+  t.moveLine.textContent = e.kind === 'start' ? 'opening position' : e.kind === 'replay' ? e.result : `${e.move}. ${e.text}`;
   let extra = '';
   if(e.kind === 'move' && e.result) extra = e.result;
   if(id === 'backgammon' && e.kind !== 'start'){
@@ -623,36 +702,32 @@ function caption(id, e){
   }
   if(id === 'mancala') extra = [extra, `stores: red ${e.snap.pits[6]}, black ${e.snap.pits[13]}`].filter(Boolean).join(' · ');
   if(e.kind === 'replay') extra = 'the final board, played back';
-  extraLine.textContent = extra || ' ';
+  t.extraLine.textContent = extra || '\u00a0';
 }
 
 function frame(){
-  const now = nowMs(), slot = slotIndexAt(now), id = gameIdForSlot(slot);
-  ensureSlot(slot);
-  if(now - slot * SLOT_MS > SLOT_MS - 90000) ensureSlot(slot + 1); // warm up the next set
+  const now = nowMs(), slot = slotIndexAt(now);
+  ensureAll(slot);
+  if(now - slot * SLOT_MS > SLOT_MS - 90000) ensureAll(slot + 1); // warm up the next set
   pruneSlots(slot);
 
-  if(slot !== shownSlot){
-    shownSlot = slot;
-    renderGuide(slot);
-    playLink.href = GAMES[id].href;
-    currentAspect = 0;
-  }
   const d = new Date(now);
   document.getElementById('clock').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   const offset = now - slot * SLOT_MS;
-  document.getElementById('progress').style.width = (offset / SLOT_MS * 100).toFixed(2) + '%';
 
-  const e = eventAt(timelines.get(slot), offset, id);
-  tuningEl.classList.toggle('hidden', !!e);
-  if(e){
-    if(ASPECT[id] !== currentAspect) sizeCanvas(ASPECT[id]);
-    const since = offset - e.t, cols = GAMES[id].cols;
-    const col = since < cols * STEP_MS ? Math.floor(since / STEP_MS) : -1;
+  for(const id of activeIds()){
+    const t = tiles[id], g = GAMES[id];
+    const e = eventAt(timelines.get(key(slot, id)), offset, id);
+    t.tuning.classList.toggle('hidden', !!e);
+    if(!e) continue;
+    if(!t.sized) sizeTile(t, ASPECT[id]);
+    const since = offset - e.t;
+    const col = since < g.cols * g.stepMs ? Math.floor(since / g.stepMs) : -1;
+    ctx = t.ctx; W = t.W; H = t.H; dpr = t.dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
     DRAW[id](e.snap, col);
-    if(e !== shownEvent){ shownEvent = e; caption(id, e); }
+    if(e !== t.shown){ t.shown = e; caption(id, t, e); }
   }
   requestAnimationFrame(frame);
 }
