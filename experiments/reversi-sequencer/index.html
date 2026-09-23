@@ -283,6 +283,15 @@ h1 em{font-style:italic;color:var(--accent)}
 .piece.selected{transform:scale(1.08);box-shadow:0 0 0 2px var(--accent),inset 0 2px 4px rgba(255,255,255,.2),0 3px 10px rgba(0,0,0,.6)}
 .piece.pulse{animation:pulse .3s ease}
 @keyframes pulse{0%{filter:brightness(2.1)}100%{filter:brightness(1)}}
+/* drop-in: the just-placed disc pops onto the board instead of simply appearing --
+   makes a computer's placement easy to spot even before the sweep bar reaches it.
+   flipping: outflanked discs squeeze to an edge-on sliver and back, like a coin
+   turning over, timed (in JS, see render()) to swap from the old color to the new one
+   right at the scaleX(0) midpoint -- a real flip, not just a squeeze-in-place. */
+.piece.drop-in{animation:pieceDropIn .28s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pieceDropIn{0%{transform:scale(.25);opacity:.4}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.piece.flipping{animation:pieceFlip .4s ease}
+@keyframes pieceFlip{0%{transform:scaleX(1)}45%,55%{transform:scaleX(0)}100%{transform:scaleX(1)}}
 
 /* piece style per skin: shape and finish, not just color -- every skin below changes
    the actual silhouette or material of the piece, not just its palette. Where a skin
@@ -801,6 +810,9 @@ self.onmessage = function(e){
 const SIZE = 8;
 const DIRS = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
 let board, currentPlayer, gameOver, movable;
+let lastMoveId = 0, animatedMoveId = -1; // guards against replaying the placement/flip
+                                          // animations on a render() that wasn't triggered
+                                          // by a new move (skin switch, opponent toggle, ...)
 let lastMove = null; // {r,c,flips} from the most recent placement -- drives the "just
                       // changed" audio shimmer and a highlight ring on the new piece
 let passNotice = null; // set to whichever color's turn just got skipped, for the turn panel
@@ -889,7 +901,7 @@ function applyMove(r,c){
   const entry = movable.find(m=>m.r===r && m.c===c);
   if(!entry) return; // not a legal square -- silently ignored, same as clicking empty board elsewhere
   applyPlacementToBoard(board, r, c, currentPlayer, entry.flips);
-  lastMove = { r, c, flips: entry.flips };
+  lastMove = { r, c, flips: entry.flips }; lastMoveId++;
   sweepOnce();
 
   const next = opponent(currentPlayer);
@@ -958,8 +970,18 @@ function render(){
       if(lastMove && lastMove.r===r && lastMove.c===c) pEl.classList.add('selected');
       pEl.dataset.r = r; pEl.dataset.c = c;
       sq.appendChild(pEl);
+      if(lastMove && lastMoveId!==animatedMoveId){
+        if(lastMove.r===r && lastMove.c===c){
+          pEl.classList.add('drop-in');
+        } else if(lastMove.flips.some(f=>f.r===r && f.c===c)){
+          const oldColor = piece.color==='white' ? 'black' : 'white';
+          pEl.classList.remove(piece.color); pEl.classList.add(oldColor, 'flipping');
+          setTimeout(()=>{ pEl.classList.remove(oldColor); pEl.classList.add(piece.color); }, 200);
+        }
+      }
     }
   }
+  if(lastMove) animatedMoveId = lastMoveId;
 
   turnDot.className = 'turn-dot ' + currentPlayer;
   if(gameOver){

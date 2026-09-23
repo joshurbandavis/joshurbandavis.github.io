@@ -699,6 +699,10 @@ function applyMove(pitIndex){
   const color = currentPlayer;
   const { lastIdx, trail } = sow(pitIndex, color);
   sownTrail = trail;
+  traceSowing(trail); // a fast staggered flash along the sowing path itself, distinct
+                       // from (and quicker than) the audio sweep -- otherwise a
+                       // multi-pit sow (especially the computer's) just silently
+                       // updates counts with nothing to show which pits it touched
 
   const store = storeOf(color);
   let landedInStore = false;
@@ -981,6 +985,16 @@ function pulseCell(el){
   // eslint-disable-next-line no-unused-expressions
   void el.offsetWidth;
   el.classList.add('sown');
+}
+
+// flashes each pit the sow touched, one at a time, in the actual sowing order -- a
+// fast trace of the path itself, separate from (and quicker than) the audio sweep
+// below, which sweeps by physical column rather than chronological sowing order and
+// wouldn't otherwise show WHICH pits a multi-pit sow actually reached
+function traceSowing(trail){
+  trail.forEach((idx, i) => {
+    setTimeout(()=>{ pulseCell(pitEls[idx]); }, i*55);
+  });
 }
 
 function setActiveColumn(col){

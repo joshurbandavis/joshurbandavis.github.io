@@ -268,6 +268,10 @@ h1 em{font-style:italic;color:var(--accent)}
 }
 .checker.red{background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.4),transparent 45%),linear-gradient(160deg,color-mix(in srgb,var(--accent2) 45%,white),var(--accent2) 60%,color-mix(in srgb,var(--accent2) 65%,black))}
 .checker.black{background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.28),transparent 45%),linear-gradient(160deg,color-mix(in srgb,var(--dim2) 65%,white),var(--dim2) 55%,color-mix(in srgb,var(--bg) 55%,black))}
+/* the flying "ghost" checker animateMove() creates for a move -- see its own comment.
+   position:fixed and a high z-index so it flies freely over the whole board (and the
+   bar, when leaving it) regardless of which point it starts or ends over. */
+.checker-ghost{position:fixed;top:0;left:0;z-index:20;pointer-events:none;margin:0}
 
 /* deepsea: a bioluminescent blob, not a solid disc -- an organic border-radius reads
    as a jellyfish/anemone bell, and the glow pulses outward via box-shadow. Red glows
@@ -963,6 +967,7 @@ function attemptMove(target){
   const legal = legalMovesForDie(color, die).some(m => m.from===selectedPoint && m.to===target);
   if(!legal) return;
 
+  animateMove(selectedPoint, target, color);
   applyMoveToState(selectedPoint, target, color);
   lastMoves = [{from:selectedPoint, to:target}];
   diceRemaining.splice(diceRemaining.indexOf(die), 1);
@@ -1038,6 +1043,36 @@ const statusNoticeEl = document.getElementById('statusNotice');
 const gameOverEl = document.getElementById('gameOver');
 const talliesEl = document.getElementById('tallies');
 const MAX_VISIBLE_CHECKERS = 5;
+
+// Backgammon's points render a whole STACK of checkers as a batch of HTML each time
+// (see renderPoint below), not one stable per-checker element the way the other
+// sequencers' single pieces work -- so there's no one persistent element to slide.
+// Instead, a synthetic "ghost" checker flies from the source cell to the destination
+// cell as a floating overlay, independent of the render() cycle, which otherwise just
+// snaps the stack counts to their new values with nothing to show a move happened --
+// especially the computer's, which lands with no click of your own to anchor it.
+function animateMove(from, to, color){
+  if(to==='off') return; // bearing off already has its own rising chime; nothing to fly to
+  const fromEl = from==='bar' ? barEl : pointEls[from];
+  const toEl = pointEls[to];
+  const fromRect = fromEl.getBoundingClientRect();
+  const toRect = toEl.getBoundingClientRect();
+  const size = Math.min(fromRect.width, fromRect.height) * 0.7;
+  const ghost = document.createElement('div');
+  ghost.className = 'checker ' + color + ' checker-ghost';
+  ghost.style.width = size + 'px';
+  ghost.style.height = size + 'px';
+  ghost.style.left = (fromRect.left + fromRect.width/2 - size/2) + 'px';
+  ghost.style.top = (fromRect.top + fromRect.height/2 - size/2) + 'px';
+  document.body.appendChild(ghost);
+  void ghost.offsetWidth; // force the start position to actually paint before animating
+  requestAnimationFrame(()=>{
+    ghost.style.transition = 'left .38s cubic-bezier(.22,.68,.36,1), top .38s cubic-bezier(.22,.68,.36,1)';
+    ghost.style.left = (toRect.left + toRect.width/2 - size/2) + 'px';
+    ghost.style.top = (toRect.top + toRect.height/2 - size/2) + 'px';
+  });
+  setTimeout(()=>{ ghost.remove(); }, 430);
+}
 
 function renderPoint(idx){
   const el = pointEls[idx];
@@ -1493,6 +1528,7 @@ function driveAIMoves(moves, i){
   else if(mv.to==='off') die = diceRemaining.find(d => legalMovesForDie(color, d).some(m=>m.from===mv.from && m.to==='off'));
   else die = color==='red' ? mv.from-mv.to : mv.to-mv.from;
 
+  animateMove(mv.from, mv.to, color);
   applyMoveToState(mv.from, mv.to, color);
   lastMoves = [mv];
   if(mv.to==='off') playBearOffChime(color, off[color]);

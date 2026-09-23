@@ -781,6 +781,8 @@ self.onmessage = function(e){
 /* ---------------- connect four rules engine ---------------- */
 const COLS = 7, ROWS = 6;
 let board, currentPlayer, gameOver, movable;
+let lastMoveId = 0, animatedMoveId = -1; // guards against replaying the drop animation
+                                          // on a render() that wasn't triggered by a new move
 let lastDrop = null; // {r,c} of the most recently dropped piece -- drives the audio shimmer
 let winningLine = null; // array of {r,c} once a 4-in-a-row lands -- shimmered every
                          // celebration sweep so the whole line "lights up" repeatedly
@@ -860,7 +862,7 @@ function finishGame(result){
 function applyMove(col){
   if(!movable.includes(col)) return; // column full or a stray click -- silently ignored
   const r = applyDropToBoard(board, col, currentPlayer);
-  lastDrop = { r, c: col };
+  lastDrop = { r, c: col }; lastMoveId++;
   const winLine = getWinningLine(board, r, col, currentPlayer);
   sweepOnce();
 
@@ -913,6 +915,30 @@ const turnDot = document.getElementById('turnDot');
 const turnLabel = document.getElementById('turnLabel');
 const gameOverEl = document.getElementById('gameOver');
 
+// FLIP-style slide: el has already been rendered at its real (landing) position; this
+// makes it LOOK like it's still at fromRect, then releases it, so a disc that would
+// otherwise just snap into place (especially the computer's, which lands with no click
+// of your own to anchor it) reads as a real drop into the column.
+function flipSlide(el, fromRect, duration){
+  const toRect = el.getBoundingClientRect();
+  const dx = fromRect.left + fromRect.width/2 - (toRect.left + toRect.width/2);
+  const dy = fromRect.top + fromRect.height/2 - (toRect.top + toRect.height/2);
+  if(!dx && !dy) return;
+  el.style.transition = 'none';
+  el.style.transform = `translate(${dx}px,${dy}px)`;
+  el.style.zIndex = '4';
+  void el.offsetWidth; // force the "start" position to actually paint before animating
+  requestAnimationFrame(()=>{
+    el.style.transition = `transform ${duration||320}ms cubic-bezier(.4,0,.2,1)`;
+    el.style.transform = '';
+  });
+  el.addEventListener('transitionend', function handler(e){
+    if(e.propertyName && e.propertyName!=='transform') return;
+    el.style.transition = ''; el.style.zIndex = '';
+    el.removeEventListener('transitionend', handler);
+  });
+}
+
 function render(){
   for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
     const sq = squareEls[r][c];
@@ -933,8 +959,19 @@ function render(){
       if(isLast || isWinning) pEl.classList.add('selected');
       pEl.dataset.r = r; pEl.dataset.c = c;
       sq.appendChild(pEl);
+      if(isLast && lastMoveId!==animatedMoveId){
+        // falls from directly above the board in the same column -- the distance
+        // scales with how far it actually dropped, so a disc landing near the bottom
+        // visibly falls further than one landing near the top
+        const topRect = squareEls[0][c].getBoundingClientRect();
+        flipSlide(pEl, {
+          left: topRect.left, width: topRect.width, height: topRect.height,
+          top: topRect.top - (r+1)*topRect.height,
+        }, 380);
+      }
     }
   }
+  if(lastDrop) animatedMoveId = lastMoveId;
 
   turnDot.className = 'turn-dot ' + currentPlayer;
   if(gameOver){
