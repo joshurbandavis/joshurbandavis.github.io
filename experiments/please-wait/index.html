@@ -150,16 +150,30 @@ body{
   min-height:0;
 }
 .side-item{
-  height:22px;flex:0 0 auto;
-  padding:0 8px;
-  font-size:11px;color:#000;
-  display:flex;align-items:center;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  flex:0 0 auto;
+  padding:5px 8px;
+  display:flex;flex-direction:column;gap:4px;
   opacity:0;
   transform:translateX(6px);
   transition:opacity .4s ease, transform .4s ease;
 }
 .side-item.show{ opacity:1;transform:translateX(0); }
+.side-item-label{
+  font-size:11px;color:#000;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.side-item-track{
+  height:9px;
+  position:relative;
+  background:var(--hi);
+  border-top:1px solid var(--sh);border-left:1px solid var(--sh);
+  border-right:1px solid var(--hi);border-bottom:1px solid var(--hi);
+  box-shadow:inset 1px 1px 0 var(--dk);
+}
+.side-item-fill{
+  position:absolute;left:1px;top:1px;bottom:1px;
+  background-image:repeating-linear-gradient(90deg, var(--green) 0 5px, transparent 5px 7px);
+}
 
 .winbody{
   padding:14px 16px 10px;
@@ -382,12 +396,6 @@ body{
   line-height:1.5;
   color:#000;
 }
-.note-body::before{
-  content:"» ";
-  font-size:11px;
-  color:#888;
-  vertical-align:1px;
-}
 .note.deep .note-body{ font-weight:bold; }
 .note-actions{
   display:flex;justify-content:center;
@@ -443,7 +451,7 @@ body{
       <div class="track sunken"><div class="fill" id="fill"></div></div>
       <div class="timeremaining" id="timeRemaining">Time remaining: calculating…</div>
 
-      <div class="checkrow" id="checkrow">
+      <div class="checkrow show" id="checkrow">
         <input type="checkbox" id="listenCheck">
         <label for="listenCheck">Enable audio feedback</label>
       </div>
@@ -491,7 +499,6 @@ body{
 
   var headline    = document.getElementById('headline');
   var fill        = document.getElementById('fill');
-  var checkrow    = document.getElementById('checkrow');
   var listenCheck = document.getElementById('listenCheck');
   var finale      = document.getElementById('finale');
   var finaleOv    = document.getElementById('finaleOverlay');
@@ -704,7 +711,7 @@ body{
       '<div class="note-body"></div>' +
       '<div class="note-actions"><div class="okbtn raised note-ok" role="button" tabindex="0"></div></div>';
     el.querySelector('.note-body').textContent = text;
-    el.querySelector('.note-ok').textContent = opts.ok || 'okay.';
+    el.querySelector('.note-ok').textContent = opts.ok || 'OK';
     document.body.appendChild(el);
 
     var h = el.offsetHeight;
@@ -730,7 +737,7 @@ body{
     okEl.addEventListener('keydown', function(e){
       if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); dismiss(); }
     });
-    setTimeout(dismiss, opts.holdMs || 11000);
+    // persists until the person closes it — they're meant to pile up
   }
   function addLine(text, ok){ spawnNote(text, {ok:ok}); }
   function addLineDeep(text, ok){ spawnNote(text, {deep:true, ok:ok}); }
@@ -757,8 +764,11 @@ body{
   // side pane where the "loading" ticks pile up; resets once the countdown
   // makes it back to zero ----------
   var windowExtended = false;
-  var TICK_NAMES = ['untitled','untitled (1)','[no response]','untitled (2)','System Idle Process',
-    'untitled (3)','[not responding]','untitled (4)','background task','untitled (5)','[waiting]','untitled (6)'];
+  // each tick is its own small stalled loading bar — more room made,
+  // more loading to fill it, never any closer to finishing
+  var TICK_LABELS = ['Preparing…','Verifying…','Initializing…','Almost done…','Optimizing…',
+    'Checking for updates…','Synchronizing…','Applying changes…','Finishing up…','Cleaning up…',
+    'Calculating time remaining…','Loading resources…'];
   var TICK_INTERVAL = 1.5;
   var tickRunning = false;
   var tickIdx = 0;
@@ -779,10 +789,14 @@ body{
   }
   function feedTicks(){
     if(!tickRunning || active < tickNextAt) return;
-    if(tickIdx >= TICK_NAMES.length){ tickRunning = false; return; }
+    if(tickIdx >= TICK_LABELS.length){ tickRunning = false; return; }
+    var pct = 3 + Math.random()*55;
     var el = document.createElement('div');
     el.className = 'side-item raised';
-    el.textContent = TICK_NAMES[tickIdx++];
+    el.innerHTML =
+      '<div class="side-item-label"></div>' +
+      '<div class="side-item-track"><div class="side-item-fill" style="width:' + pct.toFixed(0) + '%"></div></div>';
+    el.querySelector('.side-item-label').textContent = TICK_LABELS[tickIdx++];
     sideList.appendChild(el);
     requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.add('show'); }); });
     sideList.scrollTop = sideList.scrollHeight;
@@ -944,20 +958,19 @@ body{
       snakeSegs = [];
       snakePath = [];
     }, 2500);
-    addLine('it did not come back.', 'okay.');
+    addLine('it did not come back.');
   }
 
   var REVEALS = [
     { t: 5,   fn: function(){ showBsod('...nine minutes, then you left.'); } },
-    { t: 20,  fn: function(){ addLine('you were here before.', 'if you say so.'); } },
-    { t: 35,  fn: function(){ addLine('you stayed for eleven minutes.', 'okay.'); } },
-    { t: 50,  fn: function(){ addLine('you did not finish waiting then, either.', 'noted.'); } },
-    { t: 65,  fn: function(){ flickerTaskbar(); addLine('the bar is close now.', 'okay.'); } },
+    { t: 20,  fn: function(){ addLine('you were here before.'); } },
+    { t: 35,  fn: function(){ addLine('you stayed for eleven minutes.'); } },
+    { t: 50,  fn: function(){ addLine('you did not finish waiting then, either.'); } },
+    { t: 65,  fn: function(){ flickerTaskbar(); addLine('the bar is close now.'); } },
     { t: 75,  fn: function(){ addLine('someone was with you. we did not ask who.', 'we won’t ask now.'); } },
-    { t: 90,  fn: function(){ addLine('that one might be you.', 'maybe.'); ghostWindow(); } },
-    { t: 100, fn: function(){ extendWindow(); startTimer2(); addLine('the bar again. it’s making more room now.', 'okay.'); } },
-    { t: 130, fn: function(){ checkrow.classList.add('show'); } },
-    { t: 160, fn: function(){ addLine('there is less bar than there used to be.', 'okay.'); } },
+    { t: 90,  fn: function(){ addLine('that one might be you.'); ghostWindow(); } },
+    { t: 100, fn: function(){ extendWindow(); startTimer2(); addLine('the bar again. it’s making more room now.'); } },
+    { t: 160, fn: function(){ addLine('there is less bar than there used to be.'); } },
     { t: 190, fn: function(){ addLine('you are still here.', 'still.'); } }
   ];
   var revealed = new Array(REVEALS.length).fill(false);
