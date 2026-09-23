@@ -71,6 +71,7 @@
   .m-name { font-family: 'Source Serif 4', Georgia, serif; font-size: 26px; line-height: 1.35; color: #d8d5cf; }
   .m-url { margin-top: 6px; font-size: 12px; color: #6b6862; word-break: break-all; }
   .m-dates { margin-top: 14px; font-size: 13px; letter-spacing: 0.04em; color: #9c988f; }
+  .m-status { margin-top: 6px; font-size: 11.5px; letter-spacing: 0.04em; color: #605d57; }
   .m-rule { margin: 24px 0; height: 1px; background: #33322f; }
   .m-lede { font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; line-height: 1.65; color: #a5a29b; }
   .m-record { margin-top: 26px; display: flex; flex-direction: column; align-items: center; gap: 11px; font-size: 13px; }
@@ -145,10 +146,16 @@
         <div class="m-name" id="m-name"></div>
         <div class="m-url" id="m-url"></div>
         <div class="m-dates" id="m-dates"></div>
+        <div class="m-status" id="m-status"></div>
         <div class="m-rule"></div>
         <div class="m-lede" id="m-lede"></div>
+        <div class="m-salvage" id="m-desc-block">
+          <div class="m-salvage-label">Described itself as</div>
+          <div class="m-salvage-text" id="m-description"></div>
+        </div>
         <div class="m-record">
           <div class="m-row"><span class="m-k">Authored by</span><span class="m-v" id="m-author"></span></div>
+          <div class="m-row" id="m-generator-row"><span class="m-k">Built with</span><span class="m-v" id="m-generator"></span></div>
           <div class="m-row"><span class="m-k">Last known visitor</span><span class="m-v ember">unknown</span></div>
         </div>
         <div class="m-salvage">
@@ -256,28 +263,80 @@
       });
   }
 
+  // The crawler's last-recorded status, phrased as circumstance rather than
+  // a raw code — this is what archive.org saw at that one past visit, not a
+  // live check of the url right now, so it's phrased as "last time looked,"
+  // never as a certain cause or moment of death.
+  function statusPhrase(status) {
+    var code = parseInt(status, 10);
+    if (!status || isNaN(code)) return null;
+    if (code >= 200 && code < 300) return 'still answering, last time the crawler looked';
+    if (code >= 300 && code < 400) return 'already redirected elsewhere, last time the crawler looked';
+    if (code >= 400 && code < 500) return 'already gone, last time the crawler looked';
+    if (code >= 500) return 'already erroring, last time the crawler looked';
+    return null;
+  }
+
   function render(data) {
     if (!data || data.ok === false) { showState('state-down'); return; }
     if (!data.archived) { showState('state-empty'); return; }
 
     // The page's title stands in for a name — real obituaries lead with
-    // who, not where. When nothing legible survived to give it a title,
-    // the url is the only honest name left to use.
-    document.getElementById('m-name').textContent = data.title || data.url;
+    // who, not where. og:site_name is a fallback for pages whose <title>
+    // never survived the crawl; the url is the last resort.
+    document.getElementById('m-name').textContent = data.title || data.siteName || data.url;
     document.getElementById('m-url').textContent = data.url;
 
     var sameYear = data.firstYear === data.lastYear;
-    document.getElementById('m-dates').textContent = sameYear
-      ? 'seen only in ' + data.firstYear
-      : data.firstYear + '–' + data.lastYear;
+    var fmt = { year: 'numeric', month: 'short', day: 'numeric' };
+    var firstD = data.firstDate ? new Date(data.firstDate) : null;
+    var lastD = data.lastDate ? new Date(data.lastDate) : null;
+    var datesText;
+    if (firstD && lastD && !isNaN(firstD.getTime()) && !isNaN(lastD.getTime())) {
+      // Full dates when the API gave us them — a real obituary gives exact
+      // dates, not just years — falling back to year-only below if it didn't.
+      datesText = firstD.toDateString() === lastD.toDateString()
+        ? 'seen only on ' + firstD.toLocaleDateString('en-US', fmt)
+        : firstD.toLocaleDateString('en-US', fmt) + '–' + lastD.toLocaleDateString('en-US', fmt);
+    } else {
+      datesText = sameYear ? 'seen only in ' + data.firstYear : data.firstYear + '–' + data.lastYear;
+    }
+    document.getElementById('m-dates').textContent = datesText;
+
+    var statusEl = document.getElementById('m-status');
+    var statusText = statusPhrase(data.lastStatus);
+    statusEl.textContent = statusText || '';
+    statusEl.style.display = statusText ? '' : 'none';
 
     var years = data.lastYear - data.firstYear;
     var lede = sameYear
       ? 'It surfaces in the record only once, in ' + data.firstYear + '.'
       : 'It was reachable for about ' + (years === 1 ? 'a year' : years + ' years') + ' before going quiet.';
+    var sinceYears = new Date().getFullYear() - data.lastYear;
+    if (sinceYears >= 1) {
+      lede += ' It has been undisturbed for ' + (sinceYears === 1 ? 'a year' : sinceYears + ' years') + ' since.';
+    }
     document.getElementById('m-lede').textContent = lede;
 
+    // The page's own self-summary, when the crawl caught one — often a
+    // sharper "about" line than a randomly-selected body sentence.
+    var descBlock = document.getElementById('m-desc-block');
+    if (data.description) {
+      document.getElementById('m-description').textContent = '“' + data.description + '”';
+      descBlock.style.display = '';
+    } else {
+      descBlock.style.display = 'none';
+    }
+
     document.getElementById('m-author').textContent = data.author || 'unrecovered';
+
+    var genRow = document.getElementById('m-generator-row');
+    if (data.generator) {
+      document.getElementById('m-generator').textContent = data.generator;
+      genRow.style.display = '';
+    } else {
+      genRow.style.display = 'none';
+    }
 
     var fragEl = document.getElementById('m-fragment');
     var labelEl = document.getElementById('m-salvage-label');

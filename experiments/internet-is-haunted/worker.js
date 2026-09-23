@@ -128,7 +128,7 @@ async function getSnapshotAvailabilityOnce(targetUrl, timestamp) {
   const closest = data && data.archived_snapshots && data.archived_snapshots.closest;
   if (!closest || !closest.available) return null;
   const match = /^https?:\/\/web\.archive\.org\/web\/\d+\/(.+)$/.exec(closest.url || '');
-  return { timestamp: closest.timestamp, originalUrl: match ? match[1] : targetUrl };
+  return { timestamp: closest.timestamp, originalUrl: match ? match[1] : targetUrl, status: closest.status || null };
 }
 
 // Confirmed live (2026-09-22) that archive.org has a per-exact-timestamp
@@ -191,8 +191,9 @@ async function getSnapshotCdx(targetUrl, limit) {
   const cols = rows[0];
   const tIdx = cols.indexOf('timestamp');
   const oIdx = cols.indexOf('original');
+  const sIdx = cols.indexOf('statuscode');
   const row = rows[rows.length - 1];
-  return { timestamp: row[tIdx], originalUrl: row[oIdx] || targetUrl };
+  return { timestamp: row[tIdx], originalUrl: row[oIdx] || targetUrl, status: sIdx !== -1 ? row[sIdx] : null };
 }
 
 // Try Availability first (usually the simpler, faster call); if it comes
@@ -230,12 +231,8 @@ async function getCapture(targetUrl, timestamp, cdxLimit) {
 const BOILERPLATE_RE =
   /\b(cookies?|privacy (policy|choices|notice)|gdpr|consent|terms of (service|use)|all rights reserved|subscribe to our newsletter|javascript is (disabled|required)|enable javascript)\b/i;
 
-function stripTags(html) {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<!--[\s\S]*?-->/g, ' ')
-    .replace(/<[^>]+>/g, ' ')
+function decodeEntities(str) {
+  return str
     .replace(/&nbsp;/gi, ' ')
     .replace(/&amp;/gi, '&')
     .replace(/&#39;|&rsquo;|&apos;/gi, "'")
@@ -245,15 +242,40 @@ function stripTags(html) {
     .trim();
 }
 
-// Best-effort salvage: an author meta tag, a title, and one sentence-shaped
-// fragment of real body text. Old, chaotic HTML means this sometimes finds
-// nothing — that's reported honestly rather than papered over.
+function stripTags(html) {
+  return decodeEntities(
+    html
+      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<!--[\s\S]*?-->/g, ' ')
+      .replace(/<[^>]+>/g, ' ')
+  );
+}
+
+// Pulls a meta tag's content by name= or property=, trying content-before-
+// and content-after-the-identifying-attribute since real HTML isn't
+// consistent about attribute order.
+function metaContent(html, attr, key, maxLen) {
+  const esc = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re1 = new RegExp(`<meta[^>]+${attr}=["']${esc}["'][^>]*content=["']([^"']{2,${maxLen}})["']`, 'i');
+  const re2 = new RegExp(`<meta[^>]+content=["']([^"']{2,${maxLen}})["'][^>]*${attr}=["']${esc}["']`, 'i');
+  const match = html.match(re1) || html.match(re2);
+  return match ? decodeEntities(match[1]) : null;
+}
+
+// Best-effort salvage: meta tags and one sentence-shaped fragment of real
+// body text. Old, chaotic HTML means this sometimes finds nothing — that's
+// reported honestly rather than papered over.
 function extractMeta(html) {
-  let author = null;
-  const authorMatch =
-    html.match(/<meta[^>]+name=["']author["'][^>]*content=["']([^"']{2,80})["']/i) ||
-    html.match(/<meta[^>]+content=["']([^"']{2,80})["'][^>]*name=["']author["']/i);
-  if (authorMatch) author = authorMatch[1].trim();
+  const author = metaContent(html, 'name', 'author', 80);
+  // The page's own self-summary — often a better "about" line than a
+  // randomly-selected body sentence. og:description covers pages that only
+  // bothered with Open Graph tags, not the plain meta description.
+  const description = metaContent(html, 'name', 'description', 300) || metaContent(html, 'property', 'og:description', 300);
+  // What built it — WordPress, Movable Type, Dreamweaver, a GeoCities-era
+  // editor — a real, concrete detail, like a trade or craft.
+  const generator = metaContent(html, 'name', 'generator', 80);
+  const siteName = metaContent(html, 'property', 'og:site_name', 80);
 
   let title = null;
   const titleMatch = html.match(/<title[^>]*>([^<]{1,140})<\/title>/i);
@@ -268,7 +290,16 @@ function extractMeta(html) {
     fragment = c;
     break;
   }
-  return { author, title, fragment };
+  return { author, title, fragment, description, generator, siteName };
+}
+
+// Wayback timestamps are 'YYYYMMDDHHMMSS'; format as ISO 8601 so the
+// client can render an exact date (and, if it wants, time) instead of just
+// the year this file otherwise reduces every timestamp down to.
+function waybackTimestampToISO(ts) {
+  const y = ts.slice(0, 4), mo = ts.slice(4, 6), d = ts.slice(6, 8);
+  const h = ts.slice(8, 10) || '00', mi = ts.slice(10, 12) || '00', s = ts.slice(12, 14) || '00';
+  return `${y}-${mo}-${d}T${h}:${mi}:${s}Z`;
 }
 
 async function buildMemorial(targetUrl) {
@@ -293,8 +324,15 @@ async function buildMemorial(targetUrl) {
   const originalUrl = last.originalUrl || targetUrl;
   const lastTimestamp = last.timestamp;
   const lastSnapshotUrl = `https://web.archive.org/web/${lastTimestamp}/${originalUrl}`;
+  const firstDate = waybackTimestampToISO(first.timestamp);
+  const lastDate = waybackTimestampToISO(last.timestamp);
+  // The crawler's last-recorded status, not a live check of the url right
+  // now — this piece never re-checks liveness itself, so this only says
+  // what archive.org saw at that specific past visit, which may or may not
+  // be when the page actually went away.
+  const lastStatus = last.status || null;
 
-  let author = null, title = null, fragment = null;
+  let author = null, title = null, fragment = null, description = null, generator = null, siteName = null;
   try {
     // the "id_" modifier returns the raw captured bytes, no Wayback toolbar
     const rawUrl = `https://web.archive.org/web/${lastTimestamp}id_/${originalUrl}`;
@@ -327,6 +365,9 @@ async function buildMemorial(targetUrl) {
       author = meta.author;
       title = meta.title;
       fragment = meta.fragment;
+      description = meta.description;
+      generator = meta.generator;
+      siteName = meta.siteName;
     }
   } catch (err) {
     // salvage attempt failed; leaving these null is the honest outcome
@@ -338,10 +379,16 @@ async function buildMemorial(targetUrl) {
     archived: true,
     firstYear,
     lastYear,
+    firstDate,
+    lastDate,
+    lastStatus,
     lastSnapshotUrl,
     title,
     author,
     fragment,
+    description,
+    generator,
+    siteName,
   };
 }
 
