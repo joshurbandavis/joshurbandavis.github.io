@@ -97,11 +97,21 @@ function json(request, obj, status, extraHeaders) {
   });
 }
 
+// archive.org's endpoints are themselves Cloudflare-fronted (their
+// responses carry cf-ray / server: cloudflare), which means a plain
+// fetch() from inside a Worker can have its *outbound* request served
+// from Cloudflare's own edge cache for that exact URL — including a
+// cached failure. `cacheTtl: 0` + `cacheEverything: false` opts every
+// subrequest here out of that, so a retry actually reaches archive.org
+// again instead of getting the same cached answer back instantly.
 async function fetchWithTimeout(url, opts, timeoutMs) {
   const controller = new AbortController();
   const t = setTimeout(() => controller.abort(), timeoutMs || 9000);
   try {
-    return await fetch(url, Object.assign({}, opts, { signal: controller.signal }));
+    return await fetch(url, Object.assign({}, opts, {
+      signal: controller.signal,
+      cf: { cacheTtl: 0, cacheEverything: false },
+    }));
   } finally {
     clearTimeout(t);
   }
@@ -125,11 +135,13 @@ async function getSnapshotAvailabilityOnce(targetUrl, timestamp) {
 // cache bug: querying '19960101' returns a stuck-empty result every time
 // (same backend node, same empty body), while '19960102' — a functionally
 // identical query, since "closest snapshot" doesn't care about the exact
-// day — returns the real answer. The broken timestamps aren't predictable
-// (19960101, 19960115, and 20000101 were all stuck; 19960102, 19960201,
-// and 20050101 all worked), so a retry has to use a genuinely different
-// timestamp, not just repeat the same request — retrying the identical
-// query would hit the exact same poisoned cache entry and gain nothing.
+// day — returns the real answer. The broken timestamps cluster rather than
+// being isolated (19960101, 19960115 — exactly 14 days apart — and
+// 20000101/20000102 were all stuck together), so a retry needs a *random*
+// offset each time, not a fixed one: a fixed +14-day retry was verified to
+// land on another stuck date, which is exactly why every request and every
+// retry of a failed link were coming back identically dead instead of
+// eventually finding a working date.
 function jitterTimestamp(timestamp, days) {
   const y = parseInt(timestamp.slice(0, 4), 10);
   const m = parseInt(timestamp.slice(4, 6), 10) - 1;
@@ -142,15 +154,29 @@ function jitterTimestamp(timestamp, days) {
   return `${yyyy}${mm}${dd}`;
 }
 
+function randomJitterDays() {
+  // 20-400 days, always forward: far enough to dodge a clustered bad
+  // range, small enough that "closest to 1996" / "closest to 2200" still
+  // means the same thing semantically for any real site.
+  return 20 + Math.floor(Math.random() * 380);
+}
+
 // This is the one archive.org path confirmed reliable from Cloudflare's
-// network (see the file header) — worth one retry on an empty result before
+// network (see the file header) — worth retrying an empty result before
 // falling through to CDX, since an empty result here has previously turned
 // out to be this API's own known flakiness rather than a genuine absence.
+// Two retries (three attempts total), each with an independently random
+// offset, since the stuck dates cluster and a single retry can still land
+// on another one.
 async function getSnapshotAvailability(targetUrl, timestamp) {
   const first = await getSnapshotAvailabilityOnce(targetUrl, timestamp);
   if (first) return first;
-  await sleep(400);
-  return getSnapshotAvailabilityOnce(targetUrl, jitterTimestamp(timestamp, 14));
+  for (let i = 0; i < 2; i++) {
+    await sleep(300);
+    const retry = await getSnapshotAvailabilityOnce(targetUrl, jitterTimestamp(timestamp, randomJitterDays()));
+    if (retry) return retry;
+  }
+  return null;
 }
 
 async function getSnapshotCdx(targetUrl, limit) {
