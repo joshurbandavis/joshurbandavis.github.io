@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>worn (prototype)</title>
+<script>
+// the camera only opens on a secure page, and the site still answers on plain http
+if(location.protocol === 'http:' && !/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) location.replace('https:' + location.href.slice(5));
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050505;--fg:#ddd8d0;--dim:#6b665d;--accent:#c8ff2e;--serif:'Instrument Serif',Georgia,serif;--mono:'Space Mono',monospace}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:var(--mono);overflow:hidden}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block}
+#cam{position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none}
+
+#intro{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.1rem;
+  text-align:center;padding:2rem;background:var(--bg);z-index:3}
+#intro h1{font-family:var(--serif);font-weight:400;font-style:italic;font-size:clamp(2.4rem,7vw,4rem);margin:0}
+#intro p{max-width:440px;font-size:.78rem;line-height:1.7;opacity:.7;margin:0}
+#intro .fine{font-size:.66rem;opacity:.5}
+button{font-family:var(--mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;
+  padding:.6rem 1.1rem;border-radius:100px;border:1px solid rgba(255,255,255,.18);background:rgba(5,5,5,.55);color:var(--fg);
+  backdrop-filter:blur(6px);transition:all .25s}
+button:hover{border-color:var(--accent);color:var(--accent)}
+button.on{border-color:var(--accent);color:var(--bg);background:var(--accent)}
+button.primary{background:var(--fg);color:var(--bg);border-color:var(--fg);padding:.8rem 1.6rem}
+
+#bar{position:fixed;left:50%;bottom:1.2rem;transform:translateX(-50%);z-index:2;display:flex;flex-wrap:wrap;gap:.5rem;
+  justify-content:center;align-items:center;width:max-content;max-width:calc(100vw - 2rem)}
+#bar .sep{width:1px;height:1.4rem;background:rgba(255,255,255,.15);margin:0 .3rem}
+#status{position:fixed;left:50%;top:1.2rem;transform:translateX(-50%);z-index:2;font-size:.66rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--fg);opacity:.75;text-shadow:0 0 8px #000,0 0 16px #000;text-align:center;
+  max-width:calc(100vw - 2rem)}
+#who{position:fixed;left:1.2rem;bottom:4.6rem;z-index:2;font-size:.6rem;letter-spacing:.1em;color:var(--fg);opacity:.6;
+  text-shadow:0 0 8px #000;max-width:340px;line-height:1.5}
+[hidden]{display:none !important}
+</style>
+</head>
+<body>
+
+<canvas id="gl"></canvas>
+<video id="cam" playsinline muted></video>
+
+<div id="intro">
+  <h1>worn</h1>
+  <p>A mirror that fits you with other people's faces. It moves exactly as you move,
+    blinks when you blink, but the face is someone who looked before you.</p>
+  <button class="primary" id="openBtn">open the mirror</button>
+  <p class="fine">prototype · the camera stays on this computer · nothing is uploaded</p>
+</div>
+
+<div id="status" hidden></div>
+<div id="who" hidden></div>
+<div id="bar" hidden>
+  <button data-mode="previous">previous visitor</button>
+  <button data-mode="patchwork">patchwork</button>
+  <button data-mode="oscillate">oscillate</button>
+  <span class="sep"></span>
+  <button id="nextBtn">another face</button>
+  <button id="leaveBtn">leave your face</button>
+</div>
+
+<script type="module">
+import { FaceLandmarker, FilesetResolver } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs';
+import { TRIS, CANON } from './mesh.js';
+
+const N = 468;                       // mesh points (the landmarker's extra 10 are irises)
+const STRANGERS = 12;
+const VISITOR_KEY = 'worn.visitors'; // faces "left" on this machine, newest last
+const MAX_VISITORS = 8;
+
+const statusEl = document.getElementById('status');
+const whoEl = document.getElementById('who');
+const setStatus = t => { statusEl.textContent = t; statusEl.hidden = !t; };
+// a message that holds for a few seconds before the live "looking for a face" status
+// is allowed to overwrite it
+let noticeUntil = 0;
+const notice = (t, ms = 4000) => { setStatus(t); noticeUntil = performance.now() + ms; };
+
+// ---------------------------------------------------------------- landmarker
+let landmarker = null;
+async function loadLandmarker(){
+  const fileset = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
+  const make = delegate => FaceLandmarker.createFromOptions(fileset, {
+    baseOptions: {
+      modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
+      delegate,
+    },
+    runningMode: 'IMAGE', numFaces: 1,
+  });
+  try{ landmarker = await make('GPU'); }
+  catch(e){ landmarker = await make('CPU'); } // no usable GPU: slower, but it works
+}
+
+// ---------------------------------------------------------------- the faces we can wear
+// each: { label, kind, source (img/canvas), uv: Float32Array(N*2), mean, std, tex, uvBuf }
+const faces = [];
+
+function loadImage(src){
+  return new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
+}
+
+// mean/std colour of a face, sampled at its own landmark points -- used to relight a
+// borrowed face to match the live one, so it reads as skin in your light, not a sticker
+const sampler = document.createElement('canvas');
+const sctx = sampler.getContext('2d', { willReadFrequently: true });
+function faceStats(source, pts, w, h){
+  sampler.width = w; sampler.height = h;
+  sctx.drawImage(source, 0, 0, w, h);
+  const px = sctx.getImageData(0, 0, w, h).data;
+  const sum = [0,0,0], sq = [0,0,0]; let n = 0;
+  for(let i = 0; i < N; i += 2){
+    const x = Math.min(w - 1, Math.max(0, Math.round(pts[i*2] * w)));
+    const y = Math.min(h - 1, Math.max(0, Math.round(pts[i*2+1] * h)));
+    const o = (y * w + x) * 4;
+    for(let c = 0; c < 3; c++){ const v = px[o+c] / 255; sum[c] += v; sq[c] += v*v; }
+    n++;
+  }
+  const mean = sum.map(s => s / n);
+  const std = sq.map((s, c) => Math.sqrt(Math.max(1e-4, s / n - mean[c]*mean[c])));
+  return { mean, std };
+}
+
+function uvFromLandmarks(lms){
+  const uv = new Float32Array(N * 2);
+  for(let i = 0; i < N; i++){ uv[i*2] = lms[i].x; uv[i*2+1] = lms[i].y; }
+  return uv;
+}
+
+async function addFace(source, uv, label, kind){
+  const w = 200, h = Math.round(200 * (source.naturalHeight || source.height) / (source.naturalWidth || source.width));
+  const { mean, std } = faceStats(source, uv, w, h);
+  const f = { label, kind, source, uv, mean, std, tex: null, uvBuf: null };
+  uploadFace(f);
+  faces.push(f);
+  return f;
+}
+
+async function loadStrangers(){
+  for(let i = 1; i <= STRANGERS; i++){
+    const name = `faces/stranger-${String(i).padStart(2,'0')}.jpg`;
+    try{
+      const img = await loadImage(name);
+      const r = landmarker.detect(img);
+      if(!r.faceLandmarks.length) continue; // the model couldn't map this portrait
+      await addFace(img, uvFromLandmarks(r.faceLandmarks[0]), `a stranger, Roman Egypt · ${name.split('/')[1]}`, 'stranger');
+    } catch(e){ /* skip a portrait that won't load */ }
+  }
+}
+
+function readVisitors(){
+  try{ return JSON.parse(localStorage.getItem(VISITOR_KEY)) || []; } catch(e){ return []; }
+}
+async function loadVisitors(){
+  for(const v of readVisitors()){
+    try{
+      const img = await loadImage(v.data);
+      await addFace(img, new Float32Array(v.uv), `a visitor to this mirror · ${timeAgo(v.t)}`, 'visitor');
+    } catch(e){}
+  }
+}
+function timeAgo(t){
+  const s = (Date.now() - t) / 1000;
+  if(s < 90) return 'moments ago';
+  if(s < 5400) return Math.round(s / 60) + ' minutes ago';
+  if(s < 129600) return Math.round(s / 3600) + ' hours ago';
+  return Math.round(s / 86400) + ' days ago';
+}
+
+// ---------------------------------------------------------------- WebGL
+const canvas = document.getElementById('gl');
+const gl = canvas.getContext('webgl', { alpha: false, antialias: true, preserveDrawingBuffer: false });
+
+function shader(type, src){
+  const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+  if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+function program(vs, fs){
+  const p = gl.createProgram();
+  gl.attachShader(p, shader(gl.VERTEX_SHADER, vs)); gl.attachShader(p, shader(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(p);
+  if(!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+  return p;
+}
+
+// the live camera, as the mirror behind everything
+const bgProg = program(`
+  attribute vec2 aPos; attribute vec2 aUV; varying vec2 vUV;
+  void main(){ vUV = aUV; gl_Position = vec4(aPos, 0.0, 1.0); }`, `
+  precision mediump float; varying vec2 vUV; uniform sampler2D uTex;
+  void main(){ gl_FragColor = texture2D(uTex, vUV); }`);
+
+// a borrowed face, stretched over the live mesh and relit to the live face's colour
+const faceProg = program(`
+  attribute vec2 aPos; attribute vec2 aUV; attribute float aAlpha;
+  varying vec2 vUV; varying float vAlpha;
+  void main(){ vUV = aUV; vAlpha = aAlpha; gl_Position = vec4(aPos, 0.0, 1.0); }`, `
+  precision mediump float;
+  varying vec2 vUV; varying float vAlpha;
+  uniform sampler2D uTex;
+  uniform vec3 uSrcMean, uSrcStd, uLiveMean, uLiveStd;
+  uniform float uTransfer;
+  void main(){
+    vec3 c = texture2D(uTex, vUV).rgb;
+    vec3 t = (c - uSrcMean) / max(uSrcStd, vec3(0.03)) * uLiveStd + uLiveMean;
+    gl_FragColor = vec4(clamp(mix(c, t, uTransfer), 0.0, 1.0), vAlpha);
+  }`);
+
+function makeTexture(){
+  const t = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  return t;
+}
+function uploadFace(f){
+  f.tex = makeTexture();
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, f.source);
+  f.uvBuf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, f.uvBuf);
+  gl.bufferData(gl.ARRAY_BUFFER, f.uv, gl.STATIC_DRAW);
+}
+
+const camTex = makeTexture();
+const bgBuf = gl.createBuffer();
+const posBuf = gl.createBuffer();
+const alphaBuf = gl.createBuffer();
+
+// Soft edge: points on the face outline are fully transparent and the ring just
+// inside them half so, so the borrowed face melts into the live one instead of
+// ending in a hard cut-out line.
+const FACE_OVAL = [10,338,297,332,284,251,389,356,454,323,361,288,397,365,379,378,400,377,152,148,176,149,150,136,172,58,132,93,234,127,162,21,54,103,67,109];
+(function buildAlpha(){
+  const alpha = new Float32Array(N).fill(1);
+  const oval = new Set(FACE_OVAL);
+  for(let t = 0; t < TRIS.length; t += 3){
+    const tri = [TRIS[t], TRIS[t+1], TRIS[t+2]];
+    if(tri.some(i => oval.has(i))) for(const i of tri) if(!oval.has(i)) alpha[i] = Math.min(alpha[i], .55);
+  }
+  for(const i of oval) alpha[i] = 0;
+  gl.bindBuffer(gl.ARRAY_BUFFER, alphaBuf);
+  gl.bufferData(gl.ARRAY_BUFFER, alpha, gl.STATIC_DRAW);
+})();
+
+// ---------------------------------------------------------------- patches
+// A patchwork assigns every triangle to one of a handful of regions, each worn by a
+// different face. Regions grow from anchors on the neutral face (eyes, nose, mouth,
+// brow, chin, cheeks), nudged a little each reshuffle so the seams wander.
+const ANCHORS = [33, 263, 1, 13, 10, 152, 234, 454];
+const triCentroids = [];
+for(let t = 0; t < TRIS.length; t += 3){
+  let x = 0, y = 0;
+  for(let k = 0; k < 3; k++){ x += CANON[TRIS[t+k]*2]; y += CANON[TRIS[t+k]*2+1]; }
+  triCentroids.push([x/3, y/3]);
+}
+let drawGroups = []; // [{ face, indexBuf, count }]
+function buildGroups(assign){ // assign: per-triangle face index
+  for(const g of drawGroups) gl.deleteBuffer(g.indexBuf);
+  const byFace = new Map();
+  assign.forEach((fi, t) => {
+    if(!byFace.has(fi)) byFace.set(fi, []);
+    byFace.get(fi).push(TRIS[t*3], TRIS[t*3+1], TRIS[t*3+2]);
+  });
+  drawGroups = [...byFace].map(([fi, idx]) => {
+    const indexBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuf);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(idx), gl.STATIC_DRAW);
+    return { face: faces[fi], indexBuf, count: idx.length };
+  });
+}
+function wearOne(fi){
+  buildGroups(new Array(TRIS.length / 3).fill(fi));
+  whoEl.textContent = 'wearing: ' + faces[fi].label;
+}
+function wearPatchwork(){
+  const pool = shuffle(faces.map((_, i) => i));
+  const seeds = ANCHORS.map(a => [CANON[a*2] + (Math.random() - .5) * 1.4, CANON[a*2+1] + (Math.random() - .5) * 1.4]);
+  const owner = seeds.map((_, k) => pool[k % pool.length]);
+  const assign = triCentroids.map(([x, y]) => {
+    let best = 0, bd = Infinity;
+    seeds.forEach(([sx, sy], k) => { const d = (x-sx)*(x-sx) + (y-sy)*(y-sy); if(d < bd){ bd = d; best = k; } });
+    return owner[best];
+  });
+  buildGroups(assign);
+  whoEl.textContent = 'wearing: ' + new Set(owner).size + ' people at once';
+}
+function shuffle(a){ for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+// ---------------------------------------------------------------- modes
+let mode = 'previous', current = 0, oscTimer = null;
+function previousVisitorIndex(){
+  // the most recent face left on this machine; before anyone has, a stranger
+  for(let i = faces.length - 1; i >= 0; i--) if(faces[i].kind === 'visitor') return i;
+  return Math.floor(Math.random() * faces.length);
+}
+function setMode(m){
+  mode = m;
+  clearTimeout(oscTimer);
+  document.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+  if(m === 'previous'){ current = previousVisitorIndex(); wearOne(current); }
+  else if(m === 'patchwork') wearPatchwork();
+  else oscillate(true);
+}
+// cuts between one stranger and a patchwork, never on a steady beat -- a new face or
+// new seams every time, and no crossfade, so the change is always a small jolt
+function oscillate(single){
+  if(single){ current = Math.floor(Math.random() * faces.length); wearOne(current); }
+  else wearPatchwork();
+  oscTimer = setTimeout(() => oscillate(!single), single ? 3000 + Math.random() * 4000 : 1800 + Math.random() * 3200);
+}
+document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if(mode === 'patchwork'){ wearPatchwork(); return; }
+  if(mode === 'oscillate') setMode('previous');
+  current = (current + 1) % faces.length; wearOne(current);
+});
+
+// ---------------------------------------------------------------- the live loop
+const video = document.getElementById('cam');
+let live = null;          // latest live landmarks (normalized to the video frame)
+let liveStats = { mean:[.55,.45,.4], std:[.18,.16,.15] };
+let lastVideoTime = -1, frameNo = 0;
+let W = 0, H = 0, dpr = 1;
+
+function resize(){
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+  gl.viewport(0, 0, canvas.width, canvas.height);
+}
+window.addEventListener('resize', resize);
+
+// the video fills the window (cover) and is mirrored, like a mirror
+function coverRect(){
+  const vw = video.videoWidth, vh = video.videoHeight;
+  const s = Math.max(W / vw, H / vh);
+  const dw = vw * s, dh = vh * s;
+  return { ox: (W - dw) / 2, oy: (H - dh) / 2, dw, dh };
+}
+const toClipX = x => x / W * 2 - 1, toClipY = y => 1 - y / H * 2;
+
+function drawBackground(r){
+  const x0 = toClipX(r.ox), x1 = toClipX(r.ox + r.dw), y0 = toClipY(r.oy), y1 = toClipY(r.oy + r.dh);
+  // u runs 1 -> 0 left to right: the mirror flip
+  const data = new Float32Array([x0,y0, 1,0,  x1,y0, 0,0,  x0,y1, 1,1,  x1,y1, 0,1]);
+  gl.useProgram(bgProg);
+  gl.bindBuffer(gl.ARRAY_BUFFER, bgBuf); gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
+  const aPos = gl.getAttribLocation(bgProg, 'aPos'), aUV = gl.getAttribLocation(bgProg, 'aUV');
+  gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 16, 0);
+  gl.enableVertexAttribArray(aUV); gl.vertexAttribPointer(aUV, 2, gl.FLOAT, false, 16, 8);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, camTex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+  gl.uniform1i(gl.getUniformLocation(bgProg, 'uTex'), 0);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  gl.disableVertexAttribArray(aUV);
+}
+
+function drawFace(r){
+  const pos = new Float32Array(N * 2);
+  for(let i = 0; i < N; i++){
+    pos[i*2]   = toClipX(r.ox + (1 - live[i].x) * r.dw);
+    pos[i*2+1] = toClipY(r.oy + live[i].y * r.dh);
+  }
+  gl.useProgram(faceProg);
+  gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  const aPos = gl.getAttribLocation(faceProg, 'aPos'), aUV = gl.getAttribLocation(faceProg, 'aUV'), aAlpha = gl.getAttribLocation(faceProg, 'aAlpha');
+  gl.bindBuffer(gl.ARRAY_BUFFER, posBuf); gl.bufferData(gl.ARRAY_BUFFER, pos, gl.DYNAMIC_DRAW);
+  gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, alphaBuf);
+  gl.enableVertexAttribArray(aAlpha); gl.vertexAttribPointer(aAlpha, 1, gl.FLOAT, false, 0, 0);
+  gl.uniform3fv(gl.getUniformLocation(faceProg, 'uLiveMean'), liveStats.mean);
+  gl.uniform3fv(gl.getUniformLocation(faceProg, 'uLiveStd'), liveStats.std);
+  gl.uniform1f(gl.getUniformLocation(faceProg, 'uTransfer'), .82);
+  gl.uniform1i(gl.getUniformLocation(faceProg, 'uTex'), 0);
+  gl.enableVertexAttribArray(aUV);
+  for(const g of drawGroups){
+    gl.bindBuffer(gl.ARRAY_BUFFER, g.face.uvBuf); gl.vertexAttribPointer(aUV, 2, gl.FLOAT, false, 0, 0);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, g.face.tex);
+    gl.uniform3fv(gl.getUniformLocation(faceProg, 'uSrcMean'), g.face.mean);
+    gl.uniform3fv(gl.getUniformLocation(faceProg, 'uSrcStd'), g.face.std);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, g.indexBuf);
+    gl.drawElements(gl.TRIANGLES, g.count, gl.UNSIGNED_SHORT, 0);
+  }
+  gl.disableVertexAttribArray(aAlpha); gl.disableVertexAttribArray(aUV);
+  gl.disable(gl.BLEND);
+}
+
+function loop(){
+  if(video.readyState >= 2){
+    if(video.currentTime !== lastVideoTime){
+      lastVideoTime = video.currentTime;
+      const res = landmarker.detectForVideo(video, performance.now());
+      live = res.faceLandmarks.length ? res.faceLandmarks[0] : null;
+      if(live && frameNo++ % 8 === 0){
+        const pts = new Float32Array(N * 2);
+        for(let i = 0; i < N; i++){ pts[i*2] = live[i].x; pts[i*2+1] = live[i].y; }
+        const s = faceStats(video, pts, 192, Math.round(192 * video.videoHeight / video.videoWidth));
+        // ease toward the new reading so a flicker of light doesn't strobe the skin
+        liveStats = { mean: liveStats.mean.map((m, c) => m * .6 + s.mean[c] * .4), std: liveStats.std.map((m, c) => m * .6 + s.std[c] * .4) };
+      }
+    }
+    const r = coverRect();
+    gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT);
+    drawBackground(r);
+    if(live && drawGroups.length) drawFace(r);
+    if(performance.now() > noticeUntil) setStatus(live ? '' : 'looking for a face…');
+  }
+  requestAnimationFrame(loop);
+}
+
+// ---------------------------------------------------------------- leaving your face
+document.getElementById('leaveBtn').addEventListener('click', () => {
+  if(!live){ notice('no face to leave -- look into the mirror'); return; }
+  // crop the frame around the face (with some margin), keep the landmark map with it
+  let x0 = 1, y0 = 1, x1 = 0, y1 = 0;
+  for(let i = 0; i < N; i++){ x0 = Math.min(x0, live[i].x); y0 = Math.min(y0, live[i].y); x1 = Math.max(x1, live[i].x); y1 = Math.max(y1, live[i].y); }
+  const mx = (x1 - x0) * .25, my = (y1 - y0) * .25;
+  x0 = Math.max(0, x0 - mx); y0 = Math.max(0, y0 - my); x1 = Math.min(1, x1 + mx); y1 = Math.min(1, y1 + my);
+  const vw = video.videoWidth, vh = video.videoHeight;
+  const cw = Math.round((x1 - x0) * vw), ch = Math.round((y1 - y0) * vh);
+  const scale = Math.min(1, 420 / Math.max(cw, ch));
+  const c = document.createElement('canvas'); c.width = Math.round(cw * scale); c.height = Math.round(ch * scale);
+  c.getContext('2d').drawImage(video, x0 * vw, y0 * vh, cw, ch, 0, 0, c.width, c.height);
+  const uv = [];
+  for(let i = 0; i < N; i++) uv.push((live[i].x - x0) / (x1 - x0), (live[i].y - y0) / (y1 - y0));
+  const visitors = readVisitors();
+  visitors.push({ data: c.toDataURL('image/jpeg', .86), uv, t: Date.now() });
+  while(visitors.length > MAX_VISITORS) visitors.shift();
+  try{ localStorage.setItem(VISITOR_KEY, JSON.stringify(visitors)); }
+  catch(e){ notice('this browser would not keep the face'); return; }
+  addFace(c, new Float32Array(uv), 'a visitor to this mirror · moments ago', 'visitor');
+  notice('left. the next person to look into this mirror will wear your face');
+});
+
+// ---------------------------------------------------------------- start
+document.getElementById('openBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('openBtn');
+  btn.disabled = true; btn.textContent = 'opening…';
+  try{
+    await loadLandmarker();
+    await loadStrangers();
+    await loadVisitors();
+    await landmarker.setOptions({ runningMode: 'VIDEO' });
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, audio: false });
+    video.srcObject = stream;
+    await video.play();
+  } catch(e){
+    btn.disabled = false; btn.textContent = 'open the mirror';
+    document.querySelector('#intro .fine').textContent = 'could not open: ' + (e.message || e);
+    return;
+  }
+  resize();
+  document.getElementById('intro').hidden = true;
+  document.getElementById('bar').hidden = false;
+  whoEl.hidden = false;
+  setMode('previous');
+  requestAnimationFrame(loop);
+});
+</script>
+</body>
+</html>
