@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-skin="neon">
+<html lang="en" data-skin="sculpture">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -255,6 +255,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
   .sidebar{width:min(92vw,520px)}
 }
 </style>
+<link rel="stylesheet" href="design.css">
 </head>
 <body>
 
@@ -300,11 +301,12 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
     <div class="sidebar">
       <div class="panel">
         <h2>skin</h2>
-        <select id="skinSelect">
-          <option value="dark">Dark</option>
-          <option value="light">Light / paper</option>
-          <option value="neon" selected>Glassy neon (default)</option>
-          <option value="alien">Alien</option>
+        <select id="skinSelect" aria-label="Skin and instrument">
+          <option value="sculpture" selected>Sculpture · Bell</option>
+          <option value="dark">Dark · Pluck</option>
+          <option value="light">Light / paper · Blip</option>
+          <option value="neon">Glassy neon · Bell</option>
+          <option value="alien">Alien · Pad</option>
         </select>
       </div>
 
@@ -1022,7 +1024,7 @@ const H3_NOTES = ["C4","A3","G3","E3","D3","C3"];
 const NOTES_BY_HEIGHT = {1:H1_NOTES, 2:H2_NOTES, 3:H3_NOTES};
 
 let voice, reverb, started = false, sweepEndTimer = null;
-let currentSkin = 'neon';
+let currentSkin = 'sculpture';
 
 const PRESETS = {
   // ported verbatim from checker-sequencer's dark/light/neon/alien voices
@@ -1066,7 +1068,7 @@ const PRESETS = {
     return [synth, vibrato, chorus, filter];
   }},
 };
-const SKIN_VOICE = { dark:'pluck', light:'blip', neon:'bell', alien:'pad' };
+const SKIN_VOICE = { sculpture:'bell', dark:'pluck', light:'blip', neon:'bell', alien:'pad' };
 
 function playColumn(col, time){
   for(let r=0;r<SIZE;r++){
@@ -1287,7 +1289,10 @@ updateOpponentUI();
 syncAIColor();
 
 resetGame();
+
 })();
 </script>
+<a class="experiment-return" href="../index.html">← experiments</a>
+<script src="design.js" charset="utf-8"></script>
 </body>
 </html>

@@ -1,3 +1,5 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Bacterial Bloom</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
@@ -554,6 +556,8 @@
   }
 </style>
 
+<link rel="stylesheet" href="design.css">
+</head><body>
 <div class="page">
 
   <header>
@@ -1053,7 +1057,7 @@
   //    "overgrown" banners: with the safeguard active, those thresholds
   //    were no longer reachable through any exposed slider, so keeping
   //    the banners around would have meant shipping dead code.
-  var FW = 80, FH = 45;
+  var FW = 64, FH = 64; // square domain keeps the circular dish isotropic
   var PREY_OF = { R:'G', G:'B', B:'R' };       // R eats G, G eats B, B eats R
   var QUIET_EPS = 0.015;
   var FLOOD_EPS = 0.30;
@@ -2037,3 +2041,7 @@
   });
 })();
 </script>
+
+<a class="experiment-return" href="../index.html">← experiments</a>
+<script src="design.js" charset="utf-8"></script>
+</body></html>

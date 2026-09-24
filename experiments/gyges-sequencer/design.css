@@ -1,0 +1,55 @@
+html[data-skin="sculpture"] body,html[data-skin="sculpture"] body[data-skin]{--bg:#ded8ca;--fg:#292b27;--dim:#67695f;--dim2:#cbc5b7;--accent:#465b45;--accent2:#526247;--accent3:#986c3d;--light-sq:#d6d0c2;--dark-sq:#d6d0c2;background:radial-gradient(ellipse at 35% 50%,#eeeadd,#c7c1b3);color:var(--fg)}
+html[data-skin="sculpture"] body:before,html[data-skin="sculpture"] body:after{display:none}
+html[data-skin="sculpture"] nav{display:none}
+html[data-skin="sculpture"] main{padding:80px 5vw 30px!important}
+html[data-skin="sculpture"] .title-block{text-align:left;max-width:1100px;margin:0 auto 28px}
+html[data-skin="sculpture"] .title-block h1{font:normal clamp(52px,8vw,102px)/.9 Georgia,serif;letter-spacing:-.055em}
+html[data-skin="sculpture"] .title-block h1 em{color:inherit}
+html[data-skin="sculpture"] .kicker{font:10px monospace;letter-spacing:.2em}
+html[data-skin="sculpture"] .lede{margin:16px 0 0;max-width:400px;font:15px/1.5 system-ui;opacity:1}
+html[data-skin="sculpture"] .layout{gap:7vw;max-width:1100px;margin:auto;justify-content:flex-start}
+html[data-skin="sculpture"] .board-wrap{width:min(60vw,530px);padding:14px;background:#c9c2b0;border-radius:4px;box-shadow:8px 22px 0 -7px #8b8477,22px 40px 45px -15px #746d5966;transform:perspective(1300px) rotateX(12deg);transform-origin:center top}
+html[data-skin="sculpture"] .board{border:1px solid #a29c8b;border-radius:0!important;box-shadow:none!important;overflow:visible}
+html[data-skin="sculpture"] .sq{border:.5px solid #bab4a4}
+html[data-skin="sculpture"] .goal-strip.goal-north,html[data-skin="sculpture"] .goal-strip.goal-south{background:#bcb5a2;color:#3d4739;font-size:10px}
+html[data-skin="sculpture"] .sq.movable:after{border:1px dashed #5b715977;inset:7%}
+html[data-skin="sculpture"] .sq.selected{background:#b6c0a8}
+html[data-skin="sculpture"] .sq.dest:before{background:#3b614b;box-shadow:0 0 0 8px #52735822}
+html[data-skin="sculpture"] .piece{width:61%;height:61%;border:7px solid #e0c692!important;background:#b7a981!important;box-shadow:inset 1px 2px 4px #574723,0 4px 0 #8e764a,0 10px 9px #46391d66!important}
+html[data-skin="sculpture"] .piece.h2{border-color:#d7dfcf!important;background:#a4af99!important;box-shadow:inset 1px 2px 3px #637158,0 4px 0 #79896b,0 8px 0 #bec9b2,0 12px 0 #697c5a,0 18px 12px #26321c55!important;transform:translateY(-5px)}
+html[data-skin="sculpture"] .piece.h3{border-color:#858c7f!important;background:#4f5848!important;box-shadow:inset 1px 2px 3px #252e21,0 4px 0 #3a4732,0 8px 0 #828d76,0 12px 0 #3a4732,0 16px 0 #828d76,0 20px 0 #3a4732,0 26px 12px #202b1855!important;transform:translateY(-10px)}
+html[data-skin="sculpture"] .piece:before,html[data-skin="sculpture"] .piece:after{display:none!important}
+html[data-skin="sculpture"] .piece.selected{outline:3px solid #2e5533;outline-offset:5px}
+html[data-skin="sculpture"] .sidebar{width:260px;gap:14px}
+html[data-skin="sculpture"] .panel{border:0;border-bottom:1px solid #b4b1a3;background:transparent;padding:12px 0;border-radius:0}
+html[data-skin="sculpture"] .panel h2{color:#505b47}
+html[data-skin="sculpture"] button,html[data-skin="sculpture"] select{color:#303c2a!important;border:1px solid #a4ad98!important;background:#e7e6d9!important}
+html[data-skin="sculpture"] .active{background:#b7c4a7!important}
+html[data-skin="sculpture"] .gate{inset:auto 0 18px;background:#ebe7dcf2!important;padding:16px;box-shadow:0 3px 20px #5c604322;border:1px solid #aaa996;border-radius:0}
+html[data-skin="sculpture"] .gate p{display:none}
+html[data-skin="sculpture"] .gate button{background:#354e3a!important;color:#fff!important}
+html[data-skin="sculpture"] .legend{font-size:12px}
+html[data-skin="sculpture"] .height-key{display:flex;gap:24px;margin-top:28px;font:12px monospace;color:#495640}
+html[data-skin="sculpture"] .rules{font:13px/1.6 system-ui;max-width:600px;margin:32px auto}
+html[data-skin="sculpture"] .rules summary{cursor:pointer}
+html[data-skin="sculpture"] footer{color:#5c6055}
+@media(max-width:750px){html[data-skin="sculpture"] .layout{gap:34px;align-items:center}
+html[data-skin="sculpture"] .board-wrap{width:min(85vw,500px)}
+html[data-skin="sculpture"] .title-block h1{font-size:66px}
+html[data-skin="sculpture"] .sidebar{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+html[data-skin="sculpture"] .occupant-panel{grid-column:1/-1}
+html[data-skin="sculpture"] main{padding:80px 6vw 30px!important}
+}
+html[data-skin="sculpture"] .panel{background:transparent!important;border-radius:0!important}
+html[data-skin="sculpture"] .gate button{background:#354e3a!important;color:white!important}
+html[data-skin="sculpture"] .gate{z-index:20}
+@media(min-width:751px){html[data-skin="sculpture"] .title-block{display:grid;grid-template-columns:1fr 1fr;gap:8px 30px;margin-bottom:20px}
+html[data-skin="sculpture"] .title-block .kicker{grid-column:1/-1}
+html[data-skin="sculpture"] .title-block h1{font-size:72px;grid-row:2/4}
+html[data-skin="sculpture"] .title-block .lede{margin:0;max-width:400px;align-self:end}
+html[data-skin="sculpture"] .height-key{margin-top:8px}
+html[data-skin="sculpture"] .board-wrap{width:min(48vw,53vh,450px)}
+html[data-skin="sculpture"] .layout{gap:7vw}
+}
+
+.skin-panel{scroll-margin-top:30px}.height-key{display:flex;gap:24px;justify-content:center;font:12px monospace;margin-top:16px}.rules{font:13px/1.6 system-ui;max-width:600px;margin:32px auto}.rules summary{cursor:pointer}html[data-skin="sculpture"] .experiment-return{position:absolute;top:20px;left:5vw;color:var(--fg);font:11px monospace;text-decoration:none}html:not([data-skin="sculpture"]) .experiment-return{display:none}

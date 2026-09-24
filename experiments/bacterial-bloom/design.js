@@ -1,0 +1,4 @@
+
+const desc=document.getElementById('headerDesc'); const about=document.createElement('details');about.className='study-about';about.innerHTML='<summary>About this culture</summary>';about.append(desc.cloneNode(true));document.querySelector('.page').append(about);desc.textContent='Three colonies. One page. Paint into the dish and watch a reading emerge.';
+const tools=document.createElement('div');tools.className='quick-tools';tools.append(document.querySelector('.swatch-row'),document.getElementById('runBtn'),document.getElementById('captureBtn'));document.querySelector('header').append(tools);
+const rail=document.querySelector('.rail');const drawer=document.createElement('details');drawer.className='instrument-drawer';drawer.innerHTML='<summary>Open the instrument · growth, evolution & source text</summary>';rail.before(drawer);drawer.append(rail);

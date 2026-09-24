@@ -1042,6 +1042,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
 .win-modal-title{color:var(--accent3);font-size:clamp(1.4rem,4.5vw,1.9rem)}
 .win-modal p{opacity:.88;max-width:360px}
 </style>
+<link rel="stylesheet" href="relations.css">
 </head>
 <body>
 
@@ -1180,8 +1181,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
           <span>♛ queen</span><span>rich, elaborate</span>
           <span>♚ king</span><span>deep, resonant</span>
         </div>
-        <div style="margin-top:.6rem;opacity:.75">everything's drawn from one pentatonic scale,
-          so no combination of pieces ever clashes. a king in check adds a short alert flourish.</div>
+        <div style="margin-top:.6rem;opacity:.75">base pitches use a pentatonic scale; attacks add semitone tension, protection adds a fifth, and crowded sliding pieces shorten their notes. a king in check adds a short alert flourish.</div>
       </div>
     </div>
   </div>
@@ -2388,14 +2388,16 @@ let paletteSynths = null, alertSynth = null, reverb = null;
 let currentSkin = 'neon'; // matches the <select>'s default
 let started = false, sweepEndTimer = null;
 
-function playColumn(col, time){
+function playColumn(col,time){
   for(let r=0;r<SIZE;r++){
-    const p = board[r][col];
-    if(!p) continue;
-    const synth = paletteSynths.voices[p.type];
-    const notes = p.color==='white' ? WHITE_NOTES : BLACK_NOTES;
-    const note = notes[r];
-    synth.triggerAttackRelease(note, "8n", time, 0.8);
+    const p=board[r][col];if(!p)continue;
+    const synth=paletteSynths.voices[p.type],notes=p.color==='white'?WHITE_NOTES:BLACK_NOTES,note=notes[r];
+    const rel=relationshipAt(r,col);const dur=rel.blocked?'32n':rel.defenders?'4n':'8n';
+    synth.triggerAttackRelease(note,dur,time,rel.blocked?.16:rel.attackers?.58:.36);
+    // Pressure interrupts a sustained tone with a dissonant semitone reply.
+    if(rel.attackers){synth.triggerAttackRelease(Tone.Frequency(note).transpose(1).toNote(),'32n',time+stepDuration()*.55,.19);}
+    // A defended piece gets a soft fifth; a blocked slider speaks more briefly.
+    else if(rel.defenders){synth.triggerAttackRelease(Tone.Frequency(note).transpose(7).toNote(),'8n',time+stepDuration()*.3,.13);}
   }
 }
 
@@ -2584,10 +2586,27 @@ chessAIWorker.onmessage = function(e){
   completeMove(from, move, 'queen'); // the AI always promotes to a queen, skipping the picker UI
 };
 
+function relationshipAt(r,c){
+ const p=board[r][c];let attackers=0,defenders=0;
+ for(let y=0;y<SIZE;y++)for(let x=0;x<SIZE;x++){const q=board[y][x];if(!q||(y===r&&x===c))continue;if(attacksFrom(board,y,x).some(a=>a.r===r&&a.c===c)){if(q.color===p.color)defenders++;else attackers++;}}
+ const reach=attacksFrom(board,r,c);const blocked=['bishop','rook','queen'].includes(p.type)&&reach.filter(a=>!board[a.r][a.c]).length<3;
+ return{attackers,defenders,blocked};
+}
+function relationshipPaint(){
+ let pressure=0,support=0,blocked=0;
+ for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){const el=squareEls[r][c];el.querySelectorAll('.relation-crowded').forEach(n=>n.remove());el.classList.remove('under-pressure','supported','blocked-voice');if(!board[r][c])continue;const rel=relationshipAt(r,c);if(rel.attackers){pressure++;el.classList.add('under-pressure');}else if(rel.defenders){support++;el.classList.add('supported');}if(rel.blocked){blocked++;el.classList.add('blocked-voice');const mark=document.createElement('span');mark.className='relation-crowded';mark.textContent='· · ·';mark.setAttribute('aria-hidden','true');el.append(mark);}}
+ const status=document.getElementById('relationReadout');if(status)status.textContent=pressure+' under pressure · '+support+' supported · '+blocked+' crowded voices';
+}
+const nativeRender=render;render=function(){nativeRender();relationshipPaint();};
+const relationPanel=document.createElement('div');relationPanel.className='panel relation-panel';relationPanel.innerHTML='<h2>The position is the score</h2><p id="relationReadout" aria-live="polite"></p><p><span class="pressure-key">●</span> Attacked pieces answer a semitone apart.<br><span class="support-key">●</span> Protected pieces sustain a fifth.<br>Crowded bishops, rooks and queens fall quiet.</p><button id="hearPosition">Hear this position</button><button id="examplePosition">Try a tense position</button>';
+document.querySelector('.sidebar').prepend(relationPanel);
+document.getElementById('hearPosition').onclick=()=>{if(!started)startAudio();else sweepOnce();};
+document.getElementById('examplePosition').onclick=()=>{if(aiThinking)return;opponentMode='human';updateOpponentUI();resetGame();board=Array.from({length:8},()=>Array(8).fill(null));const pieces=[[7,7,'king','white'],[0,7,'king','black'],[7,0,'rook','white'],[0,0,'rook','black'],[4,2,'bishop','white'],[3,2,'bishop','black'],[4,4,'pawn','white'],[3,4,'pawn','black'],[5,5,'knight','white'],[2,5,'knight','black'],[7,3,'queen','white'],[0,3,'queen','black']];for(const[r,c,type,color]of pieces)board[r][c]={type,color,hasMoved:true};movable=computeAllLegal(board,currentPlayer,null);inCheck=isInCheck(board,currentPlayer);render();if(started)sweepOnce();};
 updateOpponentUI();
 updateSkinUI();
 resetGame();
 })();
 </script>
+
 </body>
 </html>

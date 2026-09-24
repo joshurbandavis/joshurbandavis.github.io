@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="untended.css">
+<link rel="stylesheet" href="care-record.css">
 </head>
 <body>
 
@@ -24,7 +25,7 @@
       into pixels and noise. It always sits behind a haze until you touch
       it — hover across the canvas to wipe a patch clear and see what
       still holds underneath.</p>
-    <p class="ut-thesis">It doesn't decay with time. It decays with absence.</p>
+    <p class="ut-thesis">It doesn't decay with time. It decays with absence.<br>You are not the only person keeping it alive.</p>
   </div>
 
   <!-- Shows only until WORKER_URL in untended.js is pointed at a deployed
@@ -51,6 +52,8 @@
   <div class="ut-chrome" id="utChrome" title="hover or drag across the bouquet — the ring shows how far your reach goes. inside it, the haze clears to full color and focus, and the live trembling clears too, but the scars stay: those are real, permanent, from actual elapsed time, and wiping never touches them. sweep enough and this visit settles — the frame goes solid and the whole painting stays clear for good, this session. purely local, it changes nothing shared. permanent damage is one real number underneath it all — how many full days this page has ever gone completely unvisited, folded together — and every real visit here (this one included) is what resets that clock."></div>
 </div>
 
+<section class="care-ledger" aria-label="A record of keeping"><h2>A record of keeping</h2><p id="careStatus" class="care-status" aria-live="polite">Listening for the last arrival…</p><ol id="careEvents"></ol><p id="careScope" class="care-note"></p></section>
+<script src="care-record.js" charset="utf-8"></script>
 <script src="untended.js"></script>
 </body>
 </html>

@@ -348,14 +348,21 @@
   function computeTend(storageKey, peek) {
     var raw;
     try { raw = localStorage.getItem(storageKey); } catch (e) { raw = null; }
-    var state = raw ? JSON.parse(raw) : { lastTendedAt: null, scarCount: 0 };
+    var state;
+    try { state = raw ? JSON.parse(raw) : null; } catch(e) {}
+    state = state || { lastTendedAt: null, scarCount: 0 };
+    state.events = Array.isArray(state.events) ? state.events : [];
     var now = Date.now();
     var drought = state.lastTendedAt === null ? 0 : Math.max(0, now - state.lastTendedAt);
-    if (peek) return { droughtMs: drought, scarCount: state.scarCount, now: now };
+    if (peek) return { droughtMs: drought, scarCount: state.scarCount, now: now, events: state.events };
     var newScars = Math.min(Math.floor(drought / SCAR_INTERVAL_MS), Math.max(0, SCAR_CAP - state.scarCount));
     var scarCount = state.scarCount + newScars;
-    try { localStorage.setItem(storageKey, JSON.stringify({ lastTendedAt: now, scarCount: scarCount })); } catch (e) { /* unavailable */ }
-    return { droughtMs: drought, scarCount: scarCount, now: now };
+    if (newScars) state.events.push({ at: now, kind:'absence', days:Math.floor(drought/SCAR_INTERVAL_MS), scars:newScars });
+    var previous=state.events[state.events.length-1];
+    if(!previous || previous.kind!=='care' || now-previous.at>=60000) state.events.push({at:now,kind:'care'});
+    state.events=state.events.slice(-24);
+    try { localStorage.setItem(storageKey, JSON.stringify({ lastTendedAt: now, scarCount: scarCount, events:state.events })); } catch (e) { /* unavailable */ }
+    return { droughtMs: drought, scarCount: scarCount, now: now, events:state.events };
   }
 
   // kind: 'tend' (the real visit — the default on every load) or 'peek'
@@ -397,6 +404,8 @@
           droughtMs: peek ? Math.max(0, data.now - (data.lastTendedAt || data.now)) : data.droughtMs,
           scarCount: Math.min(data.scarCount, SCAR_CAP),
           shared: true,
+          events: Array.isArray(data.events) ? data.events : [],
+          now: data.now,
         };
       })
       .catch(function () {
@@ -515,6 +524,7 @@
       var params = new URLSearchParams(location.search);
 
       fetchState(params.has('peek') ? 'peek' : 'tend').then(function (state) {
+        if(window.renderCareRecord) window.renderCareRecord(state,params.has('peek'));
         var scarCount = state.scarCount;
         var scarred = new ImageData(new Uint8ClampedArray(baseData.data), INTERNAL_SIZE, INTERNAL_SIZE);
         for (var i = 1; i <= scarCount; i++) applyScar(scarred, i);

@@ -40,6 +40,7 @@ button.primary{background:var(--fg);color:var(--bg);border-color:var(--fg);paddi
   text-shadow:0 0 8px #000;max-width:340px;line-height:1.5}
 [hidden]{display:none !important}
 </style>
+<link rel="stylesheet" href="design.css">
 </head>
 <body>
 
@@ -332,7 +333,7 @@ let W = 0, H = 0, dpr = 1;
 
 function resize(){
   dpr = Math.min(window.devicePixelRatio || 1, 2);
-  W = window.innerWidth; H = window.innerHeight;
+  W = canvas.clientWidth; H = canvas.clientHeight;
   canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
   gl.viewport(0, 0, canvas.width, canvas.height);
 }
@@ -455,6 +456,7 @@ document.getElementById('openBtn').addEventListener('click', async () => {
   } catch(e){
     btn.disabled = false; btn.textContent = 'open the mirror';
     document.querySelector('#intro .fine').textContent = 'could not open: ' + (e.message || e);
+    document.getElementById('mirror-study').hidden=false;
     return;
   }
   resize();
@@ -465,5 +467,8 @@ document.getElementById('openBtn').addEventListener('click', async () => {
   requestAnimationFrame(loop);
 });
 </script>
+<div id="mirror-study"><img src="faces/stranger-01.jpg" alt="A borrowed ancient portrait reflected in tarnished glass"></div><p id="mirror-caption">Someone else has<br>been here before you.</p><button id="closeMirror" hidden>Close mirror</button><script>document.querySelector('#intro p').textContent='Your movements. A borrowed face. An intimate mirror for someone you have never been.';document.querySelector('#intro .fine').textContent='Camera only with your permission. Saved faces stay in this browser.';const actions=document.createElement('div');actions.className='mirror-actions';actions.innerHTML='<button id="previewMirror">Look without a camera</button><button id="demo-next">Another reflection ↗</button>';document.getElementById('openBtn').after(actions);</script>
+<a class="experiment-return" href="../index.html">← experiments</a>
+<script src="design.js" charset="utf-8"></script>
 </body>
 </html>

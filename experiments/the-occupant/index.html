@@ -234,6 +234,7 @@
     .readout{ font-size: .6rem; }
   }
 </style>
+<link rel="stylesheet" href="design.css">
 </head>
 <body>
 
@@ -285,6 +286,7 @@
   <p class="sr-only">An interactive artwork: a small creature that lives inside this browser tab and slowly learns what exists beyond its rectangle. Move your mouse or finger, resize the window, switch tabs and come back, press enter on the creature to interact, click the small glowing points that appear near the edges, drag its popup windows by their title bar toward a corner, or choose what shape it might be: it has never seen itself. It reacts on its own over time even without input.</p>
 </div>
 
+<script src="memory.js" charset="utf-8"></script>
 <script>
 (function(){
   "use strict";
@@ -404,7 +406,7 @@
     } else if (kind === 'carry'){
       popupTitle.textContent = 'a window (portable)';
       popupBody.innerHTML =
-        '<p>i can’t move myself. not yet.</p>' +
+        '<p>this little window won’t move itself.</p>' +
         '<p>but you can move this. carry it to a corner — tell me what’s there.</p>';
     } else {
       popupTitle.textContent = 'a window (again)';
@@ -939,14 +941,15 @@
   function stageColor(){
     var stage = STAGES[stageIndex];
     if (stage === 'agitated') return { core: '#ffe9cf', mid: '#ff6a3a', wob: 2.4, speed: 2.6 };
-    if (stage === 'realizing') return { core: '#ffe1b8', mid: '#ff9d5c', wob: 1.4, speed: 1.4 };
+    if (stage === 'realizing') return { core: '#ffe1b8', mid: '#b56542', wob: 1.4, speed: 1.4 };
     if (stage === 'wondering') return { core: '#dff3f2', mid: '#8fd8d6', wob: 1.1, speed: 1.0 };
-    if (stage === 'resting') return { core: '#ffd7ab', mid: '#c98a5c', wob: 0.6, speed: 0.55 };
-    return { core: '#ffd7ab', mid: '#ff9d5c', wob: 1.2, speed: 1.0 };
+    if (stage === 'resting') return { core: '#dda672', mid: '#c98a5c', wob: 0.6, speed: 0.55 };
+    return { core: '#dda672', mid: '#b56542', wob: 1.2, speed: 1.0 };
   }
 
   function draw(t){
     ctx.clearRect(0, 0, W, H);
+    if(window.occupantMemory) window.occupantMemory.draw(ctx,W,H,t);
 
     // ambient motes
     ctx.save();
@@ -957,13 +960,15 @@
       if (py < 0) py += H;
       var tw = 0.15 + 0.15 * Math.sin(t * 0.001 + p.p);
       ctx.beginPath();
-      ctx.fillStyle = 'rgba(92,225,230,' + tw.toFixed(3) + ')';
+      ctx.fillStyle = 'rgba(110,99,73,' + tw.toFixed(3) + ')';
       ctx.arc(px, py, p.r, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.restore();
 
-    var cx = W / 2, cy = H / 2;
+    var home = window.occupantMemory ? window.occupantMemory.position(W,H,t) : {x:W/2,y:H/2};
+    var cx = home.x, cy = home.y;
+    poke.style.left=cx+"px";poke.style.top=cy+"px";
     var baseR = Math.min(W, H) * 0.15;
     baseR = Math.max(56, Math.min(150, baseR));
     if (!REDUCED && openAmount < 1) openAmount = Math.min(1, openAmount + 0.02);
@@ -1016,7 +1021,8 @@
 
   /* ---------- opening beat ---------- */
 
-  setTimeout(function(){ speak('hm.'); }, REDUCED ? 200 : 1400);
+  window.occupantSpeak = speak;
+  setTimeout(function(){ speak(window.occupantMemory && window.occupantMemory.visits>1 ? 'you fit the same doorway. is it you again?' : 'hm.'); }, REDUCED ? 200 : 1400);
   setTimeout(function(){ speak('warm in here.'); }, REDUCED ? 900 : 3400);
   setTimeout(function(){ speak('i don’t know what i look like. never seen myself. you can guess, if you want.'); }, REDUCED ? 1600 : 5200);
   setTimeout(function(){ shapesEl.classList.add('show'); }, REDUCED ? 1800 : 5600);
@@ -1024,5 +1030,8 @@
 })();
 </script>
 
+<div class="room-label"><strong>The Occupant</strong>A ROOM THAT REMEMBERS</div><details class="memory-note" open><summary>What it thinks it knows</summary><p id="memoryBelief"></p><small id="memoryRevision"></small><button id="correctBelief">That is not quite right.</button><small id="memoryVisits"></small></details>
+<a class="experiment-return" href="../index.html">← experiments</a>
+<script src="design.js" charset="utf-8"></script>
 </body>
 </html>

@@ -86,15 +86,16 @@ function json(request, obj, status) {
 
 async function readState(env) {
   const raw = await env.GARDEN_KV.get(STATE_KEY);
-  if (!raw) return { lastTendedAt: null, scarCount: 0 };
+  if (!raw) return { lastTendedAt: null, scarCount: 0, events: [] };
   try {
     const parsed = JSON.parse(raw);
     return {
       lastTendedAt: typeof parsed.lastTendedAt === 'number' ? parsed.lastTendedAt : null,
       scarCount: typeof parsed.scarCount === 'number' ? parsed.scarCount : 0,
+      events: Array.isArray(parsed.events) ? parsed.events.filter(e => Number.isFinite(e.at) && ['care','absence'].includes(e.kind)).slice(-24) : [],
     };
   } catch (e) {
-    return { lastTendedAt: null, scarCount: 0 };
+    return { lastTendedAt: null, scarCount: 0, events: [] };
   }
 }
 
@@ -115,6 +116,7 @@ export default {
       return json(request, {
         lastTendedAt: state.lastTendedAt,
         scarCount: state.scarCount,
+        events: state.events,
         now: Date.now(),
       });
     }
@@ -129,10 +131,18 @@ export default {
       );
       const scarCount = state.scarCount + newScars;
 
-      await writeState(env, { lastTendedAt: now, scarCount: scarCount });
+      // Record anonymous care, never identities or addresses. Coalesce arrivals
+      // in one minute so a busy period does not erase the sparse history.
+      const events = state.events || [];
+      if (newScars) events.push({ at: now, kind: 'absence', days: Math.floor(droughtMs / SCAR_INTERVAL_MS), scars: newScars });
+      const previous = events[events.length - 1];
+      if (!previous || previous.kind !== 'care' || now - previous.at >= 60000) events.push({ at: now, kind: 'care' });
+      const recent = events.slice(-24);
+      await writeState(env, { lastTendedAt: now, scarCount: scarCount, events: recent });
 
       return json(request, {
         droughtMs: droughtMs,
+        events: recent,
         scarCount: scarCount,
         scarCap: SCAR_CAP,
         newScars: newScars,
