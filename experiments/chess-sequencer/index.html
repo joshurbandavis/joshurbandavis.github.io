@@ -390,6 +390,26 @@
 [data-skin="ouroboros"] .board{box-shadow:0 0 50px -16px rgba(63,92,58,.4)}
 [data-skin="ouroboros"] .sweep-bar{background:linear-gradient(180deg,rgba(154,69,48,.22),rgba(63,92,58,.08));border-color:rgba(154,69,48,.55)}
 
+/* basso continuo: a 1723 engraving of a bass viol -- the Baroque namesake of the
+   sustained bass line, played here in wine and old brass. bassocontinuo.jpg --
+   public domain (Bonanni's Gabinetto Armonico), experiments/_shared/textures/. */
+:root[data-skin="bassocontinuo"]{
+  --bg:#180d0a;--fg:#e8dcc4;--dim:#8a6555;--dim2:#2a1512;
+  --accent:#4a3020;--accent2:#8a2f2a;--accent3:#c9a45a;
+  --light-sq:#2c1712;--dark-sq:#150a08;
+  --piece-light:#e0c896;--piece-dark:#2a1815;
+}
+[data-skin="bassocontinuo"] body{background-image:
+  radial-gradient(circle at 50% 22%,rgba(201,164,90,.07),transparent 45%),
+  linear-gradient(rgba(24,13,10,.78),rgba(24,13,10,.87)),
+  url(../_shared/textures/bassocontinuo.jpg);
+  background-size:auto,auto,cover;
+  background-position:center,center,center 20%;
+}
+[data-skin="bassocontinuo"] .panel{background:rgba(42,21,18,.5);backdrop-filter:blur(8px);border-color:rgba(138,47,42,.25);box-shadow:0 0 24px -14px rgba(138,47,42,.35)}
+[data-skin="bassocontinuo"] .board{box-shadow:0 0 50px -16px rgba(201,164,90,.3)}
+[data-skin="bassocontinuo"] .sweep-bar{background:linear-gradient(180deg,rgba(138,47,42,.22),rgba(201,164,90,.08));border-color:rgba(138,47,42,.55)}
+
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
@@ -748,6 +768,25 @@ h1 em{font-style:italic;color:var(--accent)}
     radial-gradient(circle at 30% 25%,rgba(255,255,255,.18),transparent 55%);
 }
 
+/* basso continuo: each coin is a little woofer cone -- wide concentric ripples
+   around a raised dust cap, like a speaker pushing out a sub-bass pulse. */
+[data-skin="bassocontinuo"] .piece-glyph.white::before{
+  background:repeating-radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--accent2) 75%,white) 0 5px,var(--accent2) 5px 10px,color-mix(in srgb,var(--accent2) 55%,black) 10px 15px);
+}
+[data-skin="bassocontinuo"] .piece-glyph.white::after{
+  content:'';position:absolute;inset:38%;border-radius:50%;pointer-events:none;z-index:-1;
+  background:radial-gradient(circle,color-mix(in srgb,var(--accent2) 55%,white),color-mix(in srgb,var(--accent2) 35%,black));
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.3);
+}
+[data-skin="bassocontinuo"] .piece-glyph.black::before{
+  background:repeating-radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--accent) 70%,white) 0 5px,var(--accent) 5px 10px,color-mix(in srgb,var(--accent) 50%,black) 10px 15px);
+}
+[data-skin="bassocontinuo"] .piece-glyph.black::after{
+  content:'';position:absolute;inset:38%;border-radius:50%;pointer-events:none;z-index:-1;
+  background:radial-gradient(circle,color-mix(in srgb,var(--accent) 55%,white),color-mix(in srgb,var(--accent) 30%,black));
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.3);
+}
+
 .sweep-bar{
   position:absolute;top:0;bottom:0;width:12.5%;left:0;
   background:linear-gradient(180deg,rgba(200,255,46,.16),rgba(200,255,46,.03));
@@ -833,6 +872,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
 [data-skin="dark"] .piece-glyph.black,[data-skin="glitch"] .piece-glyph.black,[data-skin="comet"] .piece-glyph.black,
 [data-skin="orrery"] .piece-glyph.black,[data-skin="marbled"] .piece-glyph.black,[data-skin="clockwork"] .piece-glyph.black,
 [data-skin="luxmath"] .piece-glyph.black,[data-skin="ouroboros"] .piece-glyph.black,[data-skin="modular"] .piece-glyph.black,
+[data-skin="bassocontinuo"] .piece-glyph.black,
 [data-skin="alien"] .piece-glyph.black{
   color:color-mix(in srgb,var(--piece-dark) 80%,white);
   -webkit-text-stroke:1.5px color-mix(in srgb,var(--piece-light) 72%,transparent);
@@ -941,6 +981,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
           <option value="clockwork">Clockwork</option>
           <option value="luxmath">Lux Mathematica</option>
           <option value="ouroboros">Ouroboros</option>
+          <option value="bassocontinuo">Basso Continuo</option>
         </select>
       </div>
 
@@ -2061,6 +2102,25 @@ const PALETTES = {
       new Tone.FeedbackDelay({delayTime:'4n.', feedback:0.35, wet:0.25}),
     ],
   }) },
+  // basso continuo: a reese-style wobble bass -- see the single-voice games for the
+  // full rationale. Escalates via portamento/decay/filter depth per piece (pawn is a
+  // tight quick pluck, king a slow, deep, heavily-glided sub swell) under one shared
+  // fast AutoFilter wobble, soft distortion and dub echo.
+  bassocontinuo: { label:'Basso Continuo', make: () => ({
+    voices: {
+      pawn:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, portamento:0.03, filter:{Q:5,type:'lowpass',rolloff:-24}, envelope:{attack:0.005,decay:0.15,sustain:0.4,release:0.25}, filterEnvelope:{attack:0.01,decay:0.15,sustain:0.3,release:0.2,baseFrequency:120,octaves:1.8}}),
+      knight: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, portamento:0.02, filter:{Q:6,type:'lowpass',rolloff:-24}, envelope:{attack:0.002,decay:0.1,sustain:0.25,release:0.18}, filterEnvelope:{attack:0.005,decay:0.1,sustain:0.2,release:0.15,baseFrequency:140,octaves:2}}),
+      bishop: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, portamento:0.06, filter:{Q:5,type:'lowpass',rolloff:-24}, envelope:{attack:0.02,decay:0.4,sustain:0.55,release:0.6}, filterEnvelope:{attack:0.05,decay:0.35,sustain:0.4,release:0.5,baseFrequency:90,octaves:2.2}}),
+      rook:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, portamento:0.04, filter:{Q:6,type:'lowpass',rolloff:-24}, envelope:{attack:0.01,decay:0.35,sustain:0.6,release:0.5}, filterEnvelope:{attack:0.02,decay:0.3,sustain:0.4,release:0.45,baseFrequency:75,octaves:2}}),
+      queen:  new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, portamento:0.08, filter:{Q:5,type:'lowpass',rolloff:-24}, envelope:{attack:0.03,decay:0.5,sustain:0.65,release:0.9}, filterEnvelope:{attack:0.08,decay:0.5,sustain:0.5,release:0.8,baseFrequency:65,octaves:2.4}}),
+      king:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sawtooth'}, portamento:0.12, filter:{Q:4,type:'lowpass',rolloff:-24}, envelope:{attack:0.06,decay:0.8,sustain:0.7,release:1.4}, filterEnvelope:{attack:0.15,decay:0.8,sustain:0.55,release:1.2,baseFrequency:50,octaves:2.6}}),
+    },
+    effects: () => [
+      new Tone.AutoFilter({frequency:5.5, baseFrequency:100, octaves:3, wet:0.85}).start(),
+      new Tone.Distortion({distortion:0.25, wet:0.3}),
+      new Tone.FeedbackDelay({delayTime:'8n.', feedback:0.45, wet:0.3}),
+    ],
+  }) },
   orrery: { label:'Orrery', make: () => ({
     voices: {
       pawn:   new Tone.PolySynth(Tone.FMSynth, {harmonicity:3.5, modulationIndex:8, envelope:{attack:0.001,decay:0.15,sustain:0,release:0.2}, modulationEnvelope:{attack:0.001,decay:0.08,sustain:0,release:0.1}}),
@@ -2111,6 +2171,7 @@ const SKIN_PALETTE = {
   comet:'omen', macabre:'macabre', grimoire:'grimoire',
   orrery:'orrery', anatomy:'anatomy', marbled:'marbled',
   clockwork:'clockwork', luxmath:'luxmath', ouroboros:'ouroboros',
+  bassocontinuo:'bassocontinuo',
 };
 
 let paletteSynths = null, alertSynth = null, reverb = null;
