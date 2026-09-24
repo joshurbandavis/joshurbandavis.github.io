@@ -574,6 +574,20 @@ behavioral art. Each lives in its own folder as a self-contained page.
     within a day to keep it from scarring further"). One settle per page
     load; reload and the invitation starts over.
 
+    Settling also fires three purely decorative flourishes, none of which
+    touch any real state: a warm bloom behind the canvas (`.ut-bloom`),
+    a scatter of dust motes that drift up off the canvas and fade
+    (`spawnParticles` — literalizes "the haze you just wiped away" as
+    something actually leaving), and a one-time toast overlaid near the
+    top of the canvas naming when to come back. The toast read as
+    invisible in both directions while building it: once from being a
+    sibling of `.ut-canvas-wrap` rather than a child, so its
+    `position:absolute` had nothing correctly-positioned to anchor to and
+    drifted toward the bottom of the viewport instead of sitting under
+    the canvas; and once more, after moving it inside the wrapper, from
+    sitting under the canvas's own `z-index:1` with no `z-index` of its
+    own.
+
   The six glitch techniques (`untended.js`) draw on both referenced
   folders: brightness-threshold run sorting is Kim Asendorf's ASDF Pixel
   Sort (2010, `~/Desktop/ASDFPixelSort-master`) narrowed to one band

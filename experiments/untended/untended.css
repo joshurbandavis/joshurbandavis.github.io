@@ -19,12 +19,15 @@ html,body{
   gap:1.15rem;padding:3rem 1.2rem;
 }
 
+.ut-canvas-wrap{position:relative;display:inline-block}
+
 /* the frame starts loose/incomplete (dashed, faint) and restores to a
    solid line once this visit's own tending sweep settles (.settled,
    toggled from untended.js) — a small, concrete "you did this" reward
    distinct from the wipe reveal itself, which stays smooth on purpose;
    this one is allowed to land with a definite click. */
 #gardenCanvas{
+  position:relative;z-index:1;
   width:min(88vw,640px);height:min(88vw,640px);
   background:#000;box-shadow:0 30px 70px -30px rgba(0,0,0,.8);
   border-radius:2px;cursor:pointer;touch-action:none;
@@ -38,6 +41,55 @@ html,body{
   0%{box-shadow:0 30px 70px -30px rgba(0,0,0,.8),0 0 0 2px rgba(221,216,208,.55);}
   100%{box-shadow:0 30px 70px -30px rgba(0,0,0,.8),0 0 0 16px rgba(221,216,208,0);}
 }
+
+/* a warm bloom behind the frame, dormant until settle() fires it — the
+   "the light finally reaches it" beat that the border-pulse alone was
+   carrying on its own. Sits behind the canvas (z-index:-1 inside the
+   wrap's own stacking context), so it only ever reads as a glow around
+   the painting, never over it. */
+.ut-bloom{
+  position:absolute;inset:-16%;z-index:-1;border-radius:50%;
+  background:radial-gradient(circle,rgba(212,168,67,.38),rgba(212,168,67,.12) 45%,transparent 72%);
+  opacity:0;pointer-events:none;
+}
+.ut-bloom.active{animation:ut-bloom-pulse 2.6s ease-out forwards}
+@keyframes ut-bloom-pulse{
+  0%{opacity:0;transform:scale(.85)}
+  28%{opacity:1;transform:scale(1.06)}
+  100%{opacity:.3;transform:scale(1)}
+}
+
+/* dust motes released at the moment of settling — literalizes "the haze
+   you just wiped away" as something actually drifting off, rather than
+   just vanishing. Spawned/removed from JS; each one sets its own --dx/
+   --dy/--dur so no two settles look identical. */
+.ut-particle{
+  position:fixed;z-index:60;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,250,235,.95),rgba(255,250,235,0) 70%);
+  opacity:0;
+  animation:ut-particle-rise var(--dur,1.8s) ease-out forwards;
+}
+@keyframes ut-particle-rise{
+  0%{opacity:0;transform:translate(0,0) scale(.5)}
+  14%{opacity:1}
+  100%{opacity:0;transform:translate(var(--dx,0),var(--dy,-90px)) scale(1)}
+}
+
+/* the one-time acknowledgment that settling earns — overlaid on the
+   canvas itself (near the top, where the painting's own background is
+   plain and dark) rather than placed in the flow below it, so it never
+   fights the museum caption for the same cramped strip of space. */
+.ut-toast{
+  position:absolute;left:50%;top:7%;margin:0;z-index:2;
+  transform:translate(-50%,-6px);
+  width:22rem;max-width:80%;text-align:center;
+  font-family:'Instrument Serif',Georgia,serif;font-style:italic;
+  font-size:clamp(.95rem,2vw,1.15rem);color:#f0ece2;
+  text-shadow:0 2px 10px rgba(0,0,0,.9),0 1px 3px rgba(0,0,0,.95);
+  opacity:0;transition:opacity .6s ease,transform .6s ease;
+  pointer-events:none;
+}
+.ut-toast.active{opacity:1;transform:translate(-50%,0)}
 
 /* the top-of-page explanation — the one place on this page allowed to
    just say what's going on, rather than making you find it by hovering.

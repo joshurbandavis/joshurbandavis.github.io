@@ -50,6 +50,22 @@
  * one-time, this-visit-only acknowledgment layered on top of the real
  * tend, not a second gate on it — the corner readout also switches from
  * inviting the sweep to naming when to come back.
+ *
+ * Settling also fires three small, purely decorative flourishes, none of
+ * which touch any real state: the frame's border-pulse already existed;
+ * added a warm bloom behind the canvas (.ut-bloom, dormant until
+ * settle()), a scatter of dust motes that drift up off the canvas and
+ * fade (spawnParticles — literalizes "the haze you just wiped away" as
+ * something actually leaving, rather than just vanishing), and a one-time
+ * toast overlaid near the top of the canvas naming when to come back
+ * (.ut-toast — placed *inside* .ut-canvas-wrap and above the canvas in
+ * z-index; it read as invisible in both directions the first time this
+ * was built, once from being a sibling of the positioned wrapper instead
+ * of a child — position:absolute had nothing correctly-positioned to
+ * anchor to and drifted off toward the bottom of the viewport — and once
+ * from sitting under the canvas's own z-index:1 with no z-index of its
+ * own). None of these three are the honest mechanic; they're just making
+ * the moment of finishing feel like finishing something.
  */
 (function () {
   var WORKER_URL = 'https://untended-garden.joshurbandavis.workers.dev';
@@ -389,6 +405,35 @@
   }
 
   // ---------- rendering ----------
+  // dust motes released once, at the moment of settling — literalizes
+  // "the haze you just wiped away" as something actually drifting off.
+  // Plain DOM elements (not another canvas layer): there are only ever a
+  // couple dozen of these, for a couple of seconds, once per visit.
+  function spawnParticles(canvasEl) {
+    var rect = canvasEl.getBoundingClientRect();
+    var count = 16 + Math.floor(Math.random() * 8);
+    for (var i = 0; i < count; i++) {
+      var el = document.createElement('div');
+      el.className = 'ut-particle';
+      var size = 3 + Math.random() * 6;
+      var x = rect.left + rect.width * (0.15 + Math.random() * 0.7);
+      var y = rect.top + rect.height * (0.2 + Math.random() * 0.65);
+      var dx = (Math.random() - 0.5) * 140;
+      var dy = -(60 + Math.random() * 130);
+      var dur = 1.3 + Math.random() * 1.3;
+      el.style.width = el.style.height = size + 'px';
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      el.style.setProperty('--dx', dx + 'px');
+      el.style.setProperty('--dy', dy + 'px');
+      el.style.setProperty('--dur', dur + 's');
+      document.body.appendChild(el);
+      (function (node, ms) {
+        setTimeout(function () { node.remove(); }, ms + 200);
+      })(el, dur * 1000);
+    }
+  }
+
   function formatDuration(ms) {
     var s = Math.floor(ms / 1000);
     if (s < 60) return 'moments';
@@ -404,6 +449,8 @@
     var canvas = document.getElementById('gardenCanvas');
     var chrome = document.getElementById('utChrome');
     var banner = document.getElementById('utBanner');
+    var bloom = document.getElementById('utBloom');
+    var toast = document.getElementById('utToast');
     if (!CONFIGURED && banner) banner.hidden = false;
 
     var img = new Image();
@@ -518,6 +565,13 @@
           settled = true;
           ratio = 0; // stop future live trembling for the rest of this visit
           canvas.classList.add('settled');
+          if (bloom) bloom.classList.add('active');
+          spawnParticles(canvas);
+          if (toast) {
+            toast.textContent = 'Tended. It has about a day before it needs you again.';
+            toast.classList.add('active');
+            setTimeout(function () { toast.classList.remove('active'); }, 4800);
+          }
           setChrome();
           composite();
         }

@@ -37,7 +37,11 @@
     near the top of <code>untended.js</code>.
   </div>
 
-  <canvas id="gardenCanvas" aria-label="A vanitas still life of a flower bouquet, sitting behind a soft haze that reflects how recently anyone has tended this page. Move the cursor across it to wipe a patch clear and reveal the sharp, true image underneath."></canvas>
+  <div class="ut-canvas-wrap">
+    <div class="ut-bloom" id="utBloom" aria-hidden="true"></div>
+    <canvas id="gardenCanvas" aria-label="A vanitas still life of a flower bouquet, sitting behind a soft haze that reflects how recently anyone has tended this page. Move the cursor across it to wipe a patch clear and reveal the sharp, true image underneath."></canvas>
+    <p class="ut-toast" id="utToast" aria-live="polite"></p>
+  </div>
 
   <figure class="ut-caption">
     <p>Vase of Flowers, after the Dutch manner.</p>
