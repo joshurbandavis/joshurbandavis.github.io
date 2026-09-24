@@ -106,6 +106,25 @@ input[type=range]{flex:1;accent-color:var(--accent)}
 
 footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1em;color:var(--dim);text-transform:uppercase}
 
+/* ---- the score: the page background is a live graphic score of what the band is
+   playing. Every note leaves a mark at the right edge, placed by pitch, drawn in its
+   member's colour and shape, and drifts left and fades over about a minute. Members
+   switched off don't draw, so each listener's page is the score of their own mix. ---- */
+#score{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+nav,main,footer{position:relative;z-index:1}
+nav{background:linear-gradient(var(--bg),color-mix(in srgb,var(--bg) 70%,transparent))}
+.title-block{position:relative}
+.title-block::before{content:'';position:absolute;inset:-1.5rem -3rem;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 50%,color-mix(in srgb,var(--bg) 88%,transparent) 30%,transparent 72%)}
+.panel{background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(6px)}
+.member.on .dot{background:var(--c);border-color:var(--c);box-shadow:0 0 8px var(--c)}
+.member.on{border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.kicker,h1,.lede,.caption,.clock-note,.members-note{
+  /* a halo in the page colour keeps text readable as marks drift behind it */
+  text-shadow:0 0 3px var(--bg),0 0 8px var(--bg),0 0 16px var(--bg),0 0 26px var(--bg);
+}
+
+
 @media(max-width:760px){
   main{padding-top:1.6rem}
   .layout{flex-direction:column;align-items:stretch}
@@ -115,6 +134,8 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
 </style>
 </head>
 <body>
+
+<canvas id="score" aria-hidden="true"></canvas>
 
 <nav>
   <a href="../../index.html" class="logo">JUD</a>
@@ -168,7 +189,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
   </div>
 </main>
 
-<footer>JUD © 2026 · prototypes, not products</footer>
+<footer>JUD © 2026 · prototypes, not products<br>the background is a live score of the last minute you've been hearing</footer>
 
 <script src="engines.js"></script>
 <script src="station.js"></script>
@@ -582,6 +603,11 @@ const scheduledThrough = {}; // per game: wall-clock ms of the last event handed
 // Each game sits in its own register so six at once spread out instead of piling up
 // in the middle; they already share one pentatonic scale, so any mix stays consonant.
 const OCTAVE = { chess:0, checkers:0, reversi:12, connect4:12, mancala:-12, backgammon:-12 };
+// each member's colour, shared by its band-panel dot and its marks in the background score
+const MEMBER_COLOR = {
+  chess:'#efe9dc', checkers:'#ff5e5b', reversi:'#d4a843',
+  connect4:'#c8ff2e', mancala:'#e8894a', backgammon:'#9fb4ff',
+};
 const shift = (id, note) => OCTAVE[id] ? Tone.Frequency(note).transpose(OCTAVE[id]).toNote() : note;
 
 // Every game gets its own fader. Members switched off fade to silence rather than
@@ -675,6 +701,7 @@ function renderMembers(){
     const g = GAMES[id], bpm = Math.round(60000 / (g.stepMs * 2)); // a sweep column is an eighth note
     const b = document.createElement('button');
     b.className = 'member' + (active.has(id) ? ' on' : '');
+    b.style.setProperty('--c', MEMBER_COLOR[id]);
     b.setAttribute('aria-pressed', active.has(id));
     b.innerHTML = `<span class="dot"></span><span class="name">${g.label}</span><span class="meta">${MEMBER_META[id]} · ${bpm} bpm</span>`;
     b.addEventListener('click', () => {
@@ -705,6 +732,118 @@ function caption(id, t, e){
   t.extraLine.textContent = extra || '\u00a0';
 }
 
+// ---- the score ----
+const scoreCanvas = document.getElementById('score');
+const sctx = scoreCanvas.getContext('2d');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SCORE_SPEED = reduceMotion ? 0 : 22;   // px per second the score drifts left
+const SCORE_LIFE = 60;                        // seconds a mark stays visible
+const PITCH_LO = 36, PITCH_HI = 96;           // midi range mapped to the page height
+const DUR_SEC = { '16n':.125, '8n':.25, '4n':.5 };
+let SW = 0, SH = 0, sdpr = 1, scoreStrength = 1;
+const marks = [];
+const struck = new Map(); // member -> "event|col" last drawn, so each column strikes once
+
+function sizeScore(){
+  sdpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  SW = window.innerWidth; SH = window.innerHeight;
+  // a phone has no margins for the score to live in -- it runs behind all the text --
+  // so it's drawn at half strength there
+  scoreStrength = SW < 760 ? .5 : 1;
+  scoreCanvas.width = Math.round(SW * sdpr); scoreCanvas.height = Math.round(SH * sdpr);
+}
+sizeScore();
+window.addEventListener('resize', sizeScore);
+
+const nowX = () => SW - 36;
+const pitchY = midi => {
+  const f = (midi - PITCH_LO) / (PITCH_HI - PITCH_LO);
+  return SH * .92 - Math.max(0, Math.min(1, f)) * SH * .84;
+};
+// the same notes the audio plays for this column, turned into marks
+function scoreStrike(id, e, col){
+  const tag = (e.gameNo + ':' + e.t) + '|' + col;
+  if(struck.get(id) === tag) return;
+  struck.set(id, tag);
+  const born = performance.now();
+  for(const [voice, note, dur, vel] of SONIFY[id](e.snap, col)){
+    const midi = Tone.Frequency(note).toMidi() + OCTAVE[id];
+    marks.push({ id, voice, born, y: pitchY(midi) + (Math.random() - .5) * 3, vel, dur: DUR_SEC[dur] || .25, jitter: Math.random() });
+  }
+  if(marks.length > 4000) marks.splice(0, marks.length - 4000);
+}
+
+function drawStaff(){
+  // faint staff paper: one line per pentatonic pitch, a little stronger on each C
+  const PENTA = [0, 2, 4, 7, 9];
+  for(let m = PITCH_LO; m <= PITCH_HI; m++){
+    const pc = m % 12;
+    if(!PENTA.includes(pc)) continue;
+    const y = Math.round(pitchY(m)) + .5;
+    sctx.strokeStyle = pc === 0 ? 'rgba(221,216,208,.07)' : 'rgba(221,216,208,.028)';
+    sctx.lineWidth = 1;
+    sctx.beginPath(); sctx.moveTo(0, y); sctx.lineTo(SW, y); sctx.stroke();
+  }
+  // the "now" hairline the marks are written at
+  const x = Math.round(nowX()) + .5;
+  const grad = sctx.createLinearGradient(0, SH * .05, 0, SH * .95);
+  grad.addColorStop(0, 'rgba(200,255,46,0)'); grad.addColorStop(.5, 'rgba(200,255,46,.22)'); grad.addColorStop(1, 'rgba(200,255,46,0)');
+  sctx.strokeStyle = grad; sctx.beginPath(); sctx.moveTo(x, SH * .05); sctx.lineTo(x, SH * .95); sctx.stroke();
+}
+
+function drawMark(m, x, fade){
+  const c = MEMBER_COLOR[m.id];
+  const a = fade * (.22 + m.vel * .55) * scoreStrength;
+  const s = 2.5 + m.vel * 5;
+  sctx.globalAlpha = a;
+  sctx.fillStyle = c; sctx.strokeStyle = c;
+  // a note's sustain trails behind it as a hairline, long for the drones
+  const tail = m.dur * (m.voice === 'drone' ? 6 : 2.5) * Math.max(SCORE_SPEED, 10);
+  sctx.lineWidth = 1;
+  sctx.globalAlpha = a * .45;
+  sctx.beginPath(); sctx.moveTo(x, m.y); sctx.lineTo(x + tail, m.y); sctx.stroke();
+  sctx.globalAlpha = a;
+  switch(m.id){
+    case 'chess': // a dot, like a note head
+      sctx.beginPath(); sctx.arc(x, m.y, s * .55, 0, Math.PI * 2); sctx.fill(); break;
+    case 'checkers': // a diagonal tick, the way checkers move
+      sctx.lineWidth = 1.6; sctx.beginPath(); sctx.moveTo(x - s * .7, m.y + s * .7); sctx.lineTo(x + s * .7, m.y - s * .7); sctx.stroke(); break;
+    case 'reversi': // a ring, a disc seen edge-on to its flip
+      sctx.lineWidth = 1.3; sctx.beginPath(); sctx.arc(x, m.y, s * .75, 0, Math.PI * 2); sctx.stroke(); break;
+    case 'connect4': // a short drop
+      sctx.fillRect(x - 1.2, m.y - s * 1.2, 2.4, s * 2.4); break;
+    case 'mancala': // a little scatter of seeds (drones: the store's held note)
+      if(m.voice === 'drone'){ sctx.lineWidth = 2.2; sctx.beginPath(); sctx.moveTo(x, m.y); sctx.lineTo(x + tail * 1.4, m.y); sctx.stroke(); break; }
+      for(let k = 0; k < 3; k++){
+        const ox = Math.cos(m.jitter * 9 + k * 2.1) * s * .7, oy = Math.sin(m.jitter * 7 + k * 2.1) * s * .7;
+        sctx.beginPath(); sctx.arc(x + ox, m.y + oy, 1.4, 0, Math.PI * 2); sctx.fill();
+      }
+      break;
+    case 'backgammon': // a small point-triangle (drones: the bar's held note)
+      if(m.voice === 'drone' || m.voice === 'chime'){ sctx.lineWidth = 2.2; sctx.beginPath(); sctx.moveTo(x, m.y); sctx.lineTo(x + tail * 1.4, m.y); sctx.stroke(); break; }
+      sctx.beginPath(); sctx.moveTo(x - s * .6, m.y + s * .55); sctx.lineTo(x + s * .6, m.y + s * .55); sctx.lineTo(x, m.y - s * .75); sctx.closePath(); sctx.fill(); break;
+  }
+}
+
+function drawScore(){
+  sctx.setTransform(sdpr, 0, 0, sdpr, 0, 0);
+  sctx.clearRect(0, 0, SW, SH);
+  sctx.globalAlpha = 1;
+  drawStaff();
+  const t = performance.now(), x0 = nowX();
+  let keepFrom = 0;
+  for(let i = 0; i < marks.length; i++){
+    const m = marks[i], age = (t - m.born) / 1000;
+    if(age > SCORE_LIFE){ keepFrom = i + 1; continue; }
+    const x = x0 - age * SCORE_SPEED;
+    if(x < -40) { keepFrom = i + 1; continue; }
+    const fade = Math.pow(1 - age / SCORE_LIFE, 1.4) * Math.min(1, age * 6 + .35); // a quick bloom, then a slow fade
+    drawMark(m, x, fade);
+  }
+  if(keepFrom) marks.splice(0, keepFrom);
+  sctx.globalAlpha = 1;
+}
+
 function frame(){
   const now = nowMs(), slot = slotIndexAt(now);
   ensureAll(slot);
@@ -728,7 +867,9 @@ function frame(){
     ctx.clearRect(0, 0, W, H);
     DRAW[id](e.snap, col);
     if(e !== t.shown){ t.shown = e; caption(id, t, e); }
+    if(col >= 0) scoreStrike(id, e, col);
   }
+  drawScore();
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
