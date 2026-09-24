@@ -428,6 +428,81 @@
 [data-skin="bassocontinuo"] .panel{background:rgba(42,21,18,.5);backdrop-filter:blur(8px);border-color:rgba(138,47,42,.25);box-shadow:0 0 24px -14px rgba(138,47,42,.35)}
 [data-skin="bassocontinuo"] .board{box-shadow:0 0 50px -16px rgba(201,164,90,.3)}
 [data-skin="bassocontinuo"] .sweep-bar{background:linear-gradient(180deg,rgba(138,47,42,.22),rgba(201,164,90,.08));border-color:rgba(138,47,42,.55)}
+
+/* timpano moderno: an antique frame drum -- "modern drum," a title that was already
+   the joke -- lit warm amber for a clean, punchy 808-style sub.
+   timpanomoderno.jpg -- public domain, experiments/_shared/textures/. */
+:root[data-skin="timpanomoderno"]{
+  --bg:#1a130a;--fg:#e8d9bc;--dim:#8a7355;--dim2:#2a2013;
+  --accent:#5a3f24;--accent2:#c9853f;--accent3:#e0c48a;
+  --light-sq:#2c2013;--dark-sq:#150f09;
+}
+[data-skin="timpanomoderno"] body{background-image:
+  radial-gradient(circle at 50% 20%,rgba(201,133,63,.08),transparent 45%),
+  linear-gradient(rgba(26,19,10,.78),rgba(26,19,10,.87)),
+  url(../_shared/textures/timpanomoderno.jpg);
+  background-size:auto,auto,cover;
+  background-position:center,center,center 20%;
+}
+[data-skin="timpanomoderno"] .panel{background:rgba(42,32,19,.5);backdrop-filter:blur(8px);border-color:rgba(201,133,63,.25);box-shadow:0 0 24px -14px rgba(201,133,63,.35)}
+[data-skin="timpanomoderno"] .board{box-shadow:0 0 50px -16px rgba(201,133,63,.4)}
+[data-skin="timpanomoderno"] .sweep-bar{background:linear-gradient(180deg,rgba(201,133,63,.22),rgba(90,63,36,.08));border-color:rgba(201,133,63,.55)}
+
+/* tubo cochleato: a coiled brass horn -- "coiled tube" -- lit electric teal-cyan for
+   a fast, clean, rolling jungle/DnB sub. tubocochleato.jpg -- public domain,
+   experiments/_shared/textures/. */
+:root[data-skin="tubocochleato"]{
+  --bg:#0a1418;--fg:#d4ece8;--dim:#557a78;--dim2:#122024;
+  --accent:#1e6b5c;--accent2:#3fd9c4;--accent3:#8ef0d8;
+  --light-sq:#16282a;--dark-sq:#0a1416;
+}
+[data-skin="tubocochleato"] body{background-image:
+  radial-gradient(circle at 50% 25%,rgba(63,217,196,.1),transparent 45%),
+  linear-gradient(rgba(10,20,24,.76),rgba(10,20,24,.86)),
+  url(../_shared/textures/tubocochleato.jpg);
+  background-size:auto,auto,cover;
+  background-position:center,center,center 25%;
+}
+[data-skin="tubocochleato"] .panel{background:rgba(18,32,36,.5);backdrop-filter:blur(8px);border-color:rgba(63,217,196,.25);box-shadow:0 0 24px -14px rgba(63,217,196,.35)}
+[data-skin="tubocochleato"] .board{box-shadow:0 0 50px -16px rgba(63,217,196,.4)}
+[data-skin="tubocochleato"] .sweep-bar{background:linear-gradient(180deg,rgba(63,217,196,.22),rgba(30,107,92,.08));border-color:rgba(63,217,196,.6)}
+
+/* la lumiere: a full-colour antique tarot Sun card -- teal and gold -- lit warm for
+   a round, smooth, sun-drenched dub/one-drop bass. lalumiere.jpg -- public domain,
+   experiments/_shared/textures/. */
+:root[data-skin="lalumiere"]{
+  --bg:#0d211d;--fg:#f0e6c8;--dim:#6a9084;--dim2:#163330;
+  --accent:#2a5c4a;--accent2:#e8a83a;--accent3:#f4d488;
+  --light-sq:#1a3830;--dark-sq:#0d201c;
+}
+[data-skin="lalumiere"] body{background-image:
+  linear-gradient(rgba(13,33,29,.6),rgba(13,33,29,.72)),
+  url(../_shared/textures/lalumiere.jpg);
+  background-size:auto,cover;
+  background-position:center,center 30%;
+}
+[data-skin="lalumiere"] .panel{background:rgba(22,51,48,.5);backdrop-filter:blur(8px);border-color:rgba(232,168,58,.28);box-shadow:0 0 24px -14px rgba(232,168,58,.4)}
+[data-skin="lalumiere"] .board{box-shadow:0 0 50px -16px rgba(232,168,58,.4)}
+[data-skin="lalumiere"] .sweep-bar{background:linear-gradient(180deg,rgba(232,168,58,.25),rgba(42,92,74,.08));border-color:rgba(232,168,58,.6)}
+
+/* audacia: a burning trophy of arms in a palace courtyard -- "Fortitudo"/"Audacia,"
+   boldness -- lit hot red-orange for an aggressive, bit-crushed grime sub.
+   audacia.jpg -- public domain, experiments/_shared/textures/. */
+:root[data-skin="audacia"]{
+  --bg:#0f0a08;--fg:#e8ddc8;--dim:#7a6050;--dim2:#221712;
+  --accent:#3a2a20;--accent2:#d4453a;--accent3:#f0c060;
+  --light-sq:#241813;--dark-sq:#120b08;
+}
+[data-skin="audacia"] body{background-image:
+  radial-gradient(circle at 50% 25%,rgba(212,69,58,.1),transparent 45%),
+  linear-gradient(rgba(15,10,8,.78),rgba(15,10,8,.88)),
+  url(../_shared/textures/audacia.jpg);
+  background-size:auto,auto,cover;
+  background-position:center,center,center 22%;
+}
+[data-skin="audacia"] .panel{background:rgba(34,23,18,.5);backdrop-filter:blur(8px);border-color:rgba(212,69,58,.28);box-shadow:0 0 24px -14px rgba(212,69,58,.4)}
+[data-skin="audacia"] .board{box-shadow:0 0 50px -16px rgba(212,69,58,.4)}
+[data-skin="audacia"] .sweep-bar{background:linear-gradient(180deg,rgba(212,69,58,.25),rgba(58,42,32,.08));border-color:rgba(212,69,58,.6)}
 [data-skin="clockwork"] .store{
   background:radial-gradient(ellipse at 50% 35%,rgba(193,122,63,.32),transparent 65%),var(--dark-sq);
   box-shadow:inset 0 0 18px 2px rgba(193,122,63,.25);
@@ -443,6 +518,22 @@
 [data-skin="bassocontinuo"] .store{
   background:radial-gradient(ellipse at 50% 35%,rgba(138,47,42,.32),transparent 65%),var(--dark-sq);
   box-shadow:inset 0 0 18px 2px rgba(138,47,42,.25);
+}
+[data-skin="timpanomoderno"] .store{
+  background:radial-gradient(ellipse at 50% 35%,rgba(201,133,63,.32),transparent 65%),var(--dark-sq);
+  box-shadow:inset 0 0 18px 2px rgba(201,133,63,.25);
+}
+[data-skin="tubocochleato"] .store{
+  background:radial-gradient(ellipse at 50% 35%,rgba(63,217,196,.32),transparent 65%),var(--dark-sq);
+  box-shadow:inset 0 0 18px 2px rgba(63,217,196,.25);
+}
+[data-skin="lalumiere"] .store{
+  background:radial-gradient(ellipse at 50% 35%,rgba(232,168,58,.34),transparent 65%),var(--dark-sq);
+  box-shadow:inset 0 0 18px 2px rgba(232,168,58,.28);
+}
+[data-skin="audacia"] .store{
+  background:radial-gradient(ellipse at 50% 35%,rgba(212,69,58,.34),transparent 65%),var(--dark-sq);
+  box-shadow:inset 0 0 18px 2px rgba(212,69,58,.28);
 }
 [data-skin="marbled"] .store{
   background:radial-gradient(ellipse at 50% 35%,rgba(201,162,74,.32),transparent 65%),var(--dark-sq);
@@ -718,6 +809,10 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
           <option value="luxmath">Lux Mathematica</option>
           <option value="ouroboros">Ouroboros</option>
           <option value="bassocontinuo">Basso Continuo</option>
+          <option value="timpanomoderno">Timpano Moderno</option>
+          <option value="tubocochleato">Tubo Cochleato</option>
+          <option value="lalumiere">La Lumière</option>
+          <option value="audacia">Audacia</option>
         </select>
       </div>
 
@@ -1333,6 +1428,61 @@ const PRESETS = {
     const dubEcho = new Tone.FeedbackDelay({delayTime:'8n.', feedback:0.45, wet:0.3});
     return [synth, wobble, drive, dubEcho];
   }},
+  // timpano moderno: a real 808-style sub -- MembraneSynth's own pitch-drop gives
+  // the classic thump at the front of the note (much smaller sweep than TR-808's
+  // kick, tuned for melodic notes not drum hits), held with real sustain and a long
+  // glide-out release, pushed through soft saturation. Clean and punchy -- no filter
+  // movement at all, the opposite of Basso Continuo's wobble.
+  timpanomoderno: { label:'Timpano Moderno', build: () => {
+    const synth = new Tone.PolySynth(Tone.MembraneSynth, {
+      pitchDecay:0.03, octaves:0.8,
+      envelope:{attack:0.001, decay:0.25, sustain:0.65, release:0.9}
+    });
+    const drive = new Tone.Distortion({distortion:0.32, wet:0.4});
+    const filter = new Tone.Filter({frequency:900, type:'lowpass', rolloff:-12});
+    return [synth, drive, filter];
+  }},
+  // tubo cochleato: a pristine sine sub built for speed, not weight -- a short, tight
+  // envelope keeps it out of the way of a fast breakbeat, a light chorus doubles it
+  // for width without mudding it, and a 32nd-note ping-pong keeps it rolling.
+  tubocochleato: { label:'Tubo Cochleato', build: () => {
+    const synth = new Tone.PolySynth(Tone.Synth, {
+      oscillator:{type:'sine'},
+      envelope:{attack:0.001, decay:0.1, sustain:0.2, release:0.12}
+    });
+    const chorus = new Tone.Chorus({frequency:2.5, delayTime:1.5, depth:0.3, wet:0.25}).start();
+    const delay = new Tone.PingPongDelay({delayTime:'32n', feedback:0.3, wet:0.22});
+    return [synth, chorus, delay];
+  }},
+  // la lumiere: a round, warm triangle through a gentle filter swell -- no wobble, no
+  // grit, just a soft chorus, a slow quarter-note tape echo and a genuine algorithmic
+  // reverb (Tone.Reverb, unused anywhere else here) for the big, sunny room dub lives in.
+  lalumiere: { label:'La Lumière', build: () => {
+    const synth = new Tone.PolySynth(Tone.MonoSynth, {
+      oscillator:{type:'triangle'},
+      filter:{Q:0.8, type:'lowpass', rolloff:-12},
+      envelope:{attack:0.04, decay:0.3, sustain:0.6, release:1.2},
+      filterEnvelope:{attack:0.06, decay:0.3, sustain:0.5, release:1.0, baseFrequency:200, octaves:2}
+    });
+    const chorus = new Tone.Chorus({frequency:0.8, delayTime:4, depth:0.4, wet:0.3}).start();
+    const echo = new Tone.FeedbackDelay({delayTime:'4n', feedback:0.4, wet:0.28});
+    const reverb = new Tone.Reverb({decay:2.5, wet:0.25});
+    return [synth, chorus, echo, reverb];
+  }},
+  // audacia: a detuned unison square (FatOscillator, square instead of Ouroboros's
+  // sawtooth) stabbed short and hard, then bit-crushed (Tone.BitCrusher, unused
+  // anywhere else here) for the harsh, digital "sino bass" edge grime basslines have,
+  // with heavier drive and a short, sparse echo.
+  audacia: { label:'Audacia', build: () => {
+    const synth = new Tone.PolySynth(Tone.Synth, {
+      oscillator:{type:'fatsquare', count:2, spread:12},
+      envelope:{attack:0.001, decay:0.08, sustain:0.1, release:0.08}
+    });
+    const crush = new Tone.BitCrusher({bits:6, wet:0.35});
+    const drive = new Tone.Distortion({distortion:0.4, wet:0.35});
+    const delay = new Tone.PingPongDelay({delayTime:'16n', feedback:0.2, wet:0.18});
+    return [synth, crush, drive, delay];
+  }},
   // orrery: bright, mechanical, evenly-ticking bells -- higher harmonicity than Omen
   // keeps the partials clean and metallic rather than gong-like, a fast tremolo gives
   // it a steady "gear train" pulse, and a ping-pong delay is the echo of a whole
@@ -1385,6 +1535,7 @@ const SKIN_VOICE = {
   comet:'omen', macabre:'macabre', grimoire:'grimoire',
   clockwork:'clockwork', luxmath:'luxmath', ouroboros:'ouroboros',
   bassocontinuo:'bassocontinuo',
+  timpanomoderno:'timpanomoderno', tubocochleato:'tubocochleato', lalumiere:'lalumiere', audacia:'audacia',
 };
 
 // seed count -> velocity/pitch-intensity, not a binary note-on/off: an empty pit stays
