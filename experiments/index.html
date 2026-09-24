@@ -444,7 +444,7 @@ main{
 
   <div id="staircase">
 
-    <a class="step" data-cls="grid" href="grid.html" style="--i:0.857">
+    <a class="step" data-cls="grid" href="grid.html" style="--i:0">
       <div class="riser">
         <span class="step-num"></span>
         <div class="riser-text"><span class="step-title">the grid</span><span class="step-phrase">Every piece, side by side.</span></div>
@@ -456,7 +456,7 @@ main{
       <div class="bottom"></div>
     </a>
 
-    <a class="step" data-cls="tree-rings" data-img="_shared/snapshots/tree-rings.jpg" href="tree-rings.html" target="_blank" rel="noopener" style="--i:1.714">
+    <a class="step" data-cls="tree-rings" data-img="_shared/snapshots/tree-rings.jpg" href="tree-rings.html" target="_blank" rel="noopener" style="--i:0.857">
       <div class="riser">
         <span class="step-num"></span>
         <div class="riser-text"><span class="step-title">tunnel eyes</span><span class="step-phrase">The other way in — fly down a core sample.</span></div>
@@ -684,6 +684,18 @@ main{
       <div class="bottom"></div>
     </a>
 
+    <a class="step" data-cls="gyges-sequencer" data-img="_shared/snapshots/gyges-sequencer.jpg" href="gyges-sequencer/index.html" target="_blank" rel="noopener" style="--i:1.714">
+      <div class="riser">
+        <span class="step-num">19</span>
+        <div class="riser-text"><span class="step-title">gyges sequencer</span><span class="step-phrase">No ring belongs to you until you make it sing.</span></div>
+      </div>
+      <div class="tread"></div>
+      <div class="outer-end"></div>
+      <div class="inner-end"></div>
+      <div class="back"></div>
+      <div class="bottom"></div>
+    </a>
+
   </div>
 </main>
 
@@ -789,7 +801,7 @@ const findFlushStep = (groupAngle) => {
 const scrollCue = document.getElementById('scrollCue');
 const depthCount = document.getElementById('depthCount');
 const depthFill = document.getElementById('depthFill');
-const TOTAL_STEPS = 18;
+const TOTAL_STEPS = 19;
 
 const update = () => {
   const y = cachedScrollY;

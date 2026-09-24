@@ -1,0 +1,1256 @@
+<!doctype html>
+<html lang="en" data-skin="neon">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>gyges sequencer</title>
+<meta name="description" content="Gygès, the neutral-ring board game, where every move sweeps a bar once across the board, sonifying whatever rings are sitting on each column as it passes.">
+<link rel="apple-touch-icon" sizes="180x180" href="../../logo_personalweb_favicon_io/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../../logo_personalweb_favicon_io/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../../logo_personalweb_favicon_io/favicon-16x16.png">
+<link rel="manifest" href="../../logo_personalweb_favicon_io/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Share+Tech+Mono&family=Space+Grotesk:wght@400;500;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tone@14/build/Tone.js"></script>
+<style>
+:root{
+  --bg:#050505;--fg:#ddd8d0;--dim:#5a564f;--dim2:#39362f;
+  --accent:#c8ff2e;--accent2:#ff5e5b;--accent3:#d4a843;
+  --serif:'Instrument Serif',Georgia,serif;
+  --mono:'Space Mono',monospace;
+  --light-sq:#141310;--dark-sq:#0a0908;
+}
+
+/* ---- skins: a deliberately small launch set (Dark, Light, Neon, Alien -- the site's
+   four foundational, texture-free skins), ported from checker-sequencer. The rest of
+   the site's 25-skin catalogue can follow in a later pass; a brand-new game engine was
+   already the bigger lift here. Component rules never hardcode a skin's colors. ---- */
+:root[data-skin="light"]{
+  --bg:#f6f2ea;--fg:#211f1a;--dim:#8b8577;--dim2:#d8d2c4;
+  --accent:#2f6b3d;--accent2:#b3392b;--accent3:#a67c2e;
+  --light-sq:#efe9db;--dark-sq:#c9c0aa;
+}
+[data-skin="light"] body{cursor:default}
+[data-skin="light"] .panel{background:rgba(0,0,0,.02);box-shadow:none}
+[data-skin="light"] .board{box-shadow:0 14px 30px -20px rgba(0,0,0,.25)}
+[data-skin="light"] .sweep-bar{background:linear-gradient(180deg,rgba(47,107,61,.18),rgba(47,107,61,.04));border-color:rgba(47,107,61,.4)}
+[data-skin="light"] .goal-strip{background:rgba(0,0,0,.03)}
+
+:root[data-skin="neon"]{
+  --bg:#07060f;--fg:#eef0ff;--dim:#6b6a8a;--dim2:#211f3a;
+  --accent:#4dfcff;--accent2:#ff4dd8;--accent3:#b46dff;
+  --light-sq:#161328;--dark-sq:#0a081a;
+}
+[data-skin="neon"] .panel{background:rgba(24,20,48,.45);backdrop-filter:blur(10px);border-color:rgba(180,109,255,.25);border-radius:16px;box-shadow:0 0 30px -18px rgba(77,252,255,.3)}
+[data-skin="neon"] button:hover{box-shadow:0 0 16px -4px rgba(77,252,255,.65)}
+[data-skin="neon"] .board{box-shadow:0 0 50px -16px rgba(180,109,255,.4)}
+[data-skin="neon"] .sweep-bar{background:linear-gradient(180deg,rgba(77,252,255,.22),rgba(180,109,255,.05));border-color:rgba(77,252,255,.6);box-shadow:0 0 20px rgba(77,252,255,.4)}
+
+:root[data-skin="alien"]{
+  --bg:#020604;--fg:#d8ffe9;--dim:#3d6e57;--dim2:#0c2018;
+  --accent:#7dffb3;--accent2:#c86bff;--accent3:#38e6c8;
+  --light-sq:#0c2a1c;--dark-sq:#03110a;
+}
+[data-skin="alien"] h1,[data-skin="alien"] .kicker,[data-skin="alien"] nav .logo{font-family:'Orbitron',var(--mono);letter-spacing:.05em}
+[data-skin="alien"] .panel{border-radius:22px 8px 22px 8px;border-color:rgba(125,255,179,.25);box-shadow:0 0 24px -14px rgba(125,255,179,.4)}
+[data-skin="alien"] .board{border-radius:16px;box-shadow:0 0 50px -16px rgba(125,255,179,.45)}
+[data-skin="alien"] .sweep-bar{animation:alienPulse 1.6s ease-in-out infinite}
+@keyframes alienPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.6)}}
+[data-skin="alien"] .piece{animation:alienPiecePulse 2.2s ease-in-out infinite}
+[data-skin="alien"] .piece.pulse{animation:alienPiecePulseHit .3s ease}
+@keyframes alienPiecePulse{0%,100%{filter:brightness(1) hue-rotate(0deg)}50%{filter:brightness(1.35) hue-rotate(30deg)}}
+@keyframes alienPiecePulseHit{0%{filter:brightness(2.2) hue-rotate(15deg)}100%{filter:brightness(1) hue-rotate(0deg)}}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--fg);font-family:var(--mono);
+  min-height:100vh;display:flex;flex-direction:column;
+}
+nav{display:flex;align-items:center;gap:.6rem;padding:1.2rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.05)}
+nav a{color:var(--fg);opacity:.6;text-decoration:none;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;transition:opacity .3s}
+nav a:hover{opacity:1;color:var(--accent)}
+nav .logo{font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;opacity:1}
+nav .sep{opacity:.35;font-size:.65rem}
+
+main{flex:1;display:flex;align-items:flex-start;justify-content:center;gap:2.4rem;padding:2.4rem 1.5rem 4rem;flex-wrap:wrap}
+
+.title-block{width:100%;max-width:980px;margin:0 auto 1.6rem;text-align:center}
+.kicker{font-size:.62rem;letter-spacing:.35em;text-transform:uppercase;color:var(--dim);margin-bottom:.7rem}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(1.8rem,4vw,2.6rem);margin:0 0 .6rem;letter-spacing:-.01em}
+h1 em{font-style:italic;color:var(--accent)}
+.lede{max-width:680px;margin:0 auto;font-size:.85rem;line-height:1.7;color:var(--fg);opacity:.62}
+
+.layout{display:flex;gap:2.4rem;align-items:flex-start;flex-wrap:wrap;justify-content:center;width:100%}
+
+.board-wrap{position:relative;width:min(92vw,480px);flex-shrink:0}
+/* 6 columns, 6 board rows plus a slimmer goal strip above and below -- the goal isn't
+   a real row you pass through, just a shared space adjacent to every cell of the row
+   in front of it, so it renders as one unbroken strip, not six little cells. */
+.board{
+  position:relative;width:100%;aspect-ratio:6/7.2;
+  display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:.6fr repeat(6,1fr) .6fr;
+  border:1px solid rgba(255,255,255,.08);border-radius:6px;overflow:hidden;
+  box-shadow:0 30px 60px -30px rgba(0,0,0,.8);
+}
+.goal-strip{
+  grid-column:1/-1;position:relative;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.02);cursor:default;
+  font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);
+}
+.goal-strip.clickable{cursor:pointer;color:var(--accent);background:rgba(200,255,46,.06)}
+.goal-strip.clickable::after{
+  content:'';position:absolute;inset:12% 30%;border-radius:8px;
+  border:1px dashed rgba(200,255,46,.5);pointer-events:none;
+}
+.sq{position:relative;display:flex;align-items:center;justify-content:center;background:var(--dark-sq);cursor:pointer}
+.sq:nth-child(odd){background:color-mix(in srgb,var(--dark-sq) 88%,var(--light-sq))}
+.sq.movable::after{
+  content:'';position:absolute;inset:5%;border-radius:50%;
+  border:1px dashed rgba(200,255,46,.35);pointer-events:none;
+}
+.sq.dest::before{
+  content:'';position:absolute;width:22%;height:22%;border-radius:50%;
+  background:rgba(200,255,46,.55);box-shadow:0 0 10px 2px rgba(200,255,46,.5);
+}
+.sq.dest.contested::before{background:rgba(255,94,91,.7);box-shadow:0 0 12px 3px rgba(255,94,91,.6)}
+.sq.selected{background:#181510}
+.sq.occupant{box-shadow:inset 0 0 0 3px var(--accent3);animation:occupantPulse 1.2s ease-in-out infinite}
+@keyframes occupantPulse{0%,100%{box-shadow:inset 0 0 0 3px var(--accent3)}50%{box-shadow:inset 0 0 0 3px transparent}}
+
+.piece{
+  position:relative;width:72%;height:72%;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .15s ease;
+  box-shadow:inset 0 2px 4px rgba(255,255,255,.15),inset 0 -3px 6px rgba(0,0,0,.5),0 3px 8px rgba(0,0,0,.5);
+}
+/* the whole visual identity: a piece IS a ring (Gygès' own ring of invisibility), so
+   height renders as ring count, not a color swap -- 1, 2 or 3 concentric rings, using
+   the two free pseudo-elements no other game-piece needs here (no king/crown symbol
+   in this game). Each height also gets its own accent so the register is legible at a
+   glance even before you count rings. */
+.piece.h1{background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.4),transparent 45%),
+  linear-gradient(160deg,color-mix(in srgb,var(--accent) 45%,white),var(--accent) 60%,color-mix(in srgb,var(--accent) 65%,black))}
+.piece.h2{background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.4),transparent 45%),
+  linear-gradient(160deg,color-mix(in srgb,var(--accent2) 45%,white),var(--accent2) 60%,color-mix(in srgb,var(--accent2) 65%,black))}
+.piece.h3{background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.4),transparent 45%),
+  linear-gradient(160deg,color-mix(in srgb,var(--accent3) 45%,white),var(--accent3) 60%,color-mix(in srgb,var(--accent3) 65%,black))}
+.piece::before,.piece::after{
+  content:'';position:absolute;border-radius:50%;border:2px solid rgba(255,255,255,.6);
+  pointer-events:none;display:none;
+}
+.piece.h2::before{display:block;inset:24%}
+.piece.h3::before{display:block;inset:16%}
+.piece.h3::after{display:block;inset:32%}
+.piece.selected{transform:scale(1.08);box-shadow:0 0 0 2px var(--accent),inset 0 2px 4px rgba(255,255,255,.2),0 3px 10px rgba(0,0,0,.6)}
+.piece.pulse{animation:pulse .3s ease}
+@keyframes pulse{0%{filter:brightness(2.1)}100%{filter:brightness(1)}}
+
+.sweep-bar{
+  position:absolute;top:0;bottom:0;width:calc(100%/6);left:0;
+  background:linear-gradient(180deg,rgba(200,255,46,.16),rgba(200,255,46,.03));
+  border-left:1px solid rgba(200,255,46,.45);border-right:1px solid rgba(200,255,46,.45);
+  transition:left .06s linear;pointer-events:none;opacity:0;
+}
+.sweep-bar.on{opacity:1}
+
+.sidebar{width:min(92vw,300px);display:flex;flex-direction:column;gap:1.4rem}
+.panel{border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:1.1rem 1.2rem;background:rgba(255,255,255,.015)}
+.panel h2{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin:0 0 .8rem;font-weight:400}
+
+.turn-indicator{display:flex;align-items:center;gap:.6rem;font-size:.85rem}
+.turn-dot{width:12px;height:12px;border-radius:50%}
+.turn-dot.red{background:var(--accent2)}
+.turn-dot.black{background:#3a382f;border:1px solid rgba(255,255,255,.2)}
+.game-over{margin-top:.6rem;font-size:.85rem;color:var(--accent3)}
+.pass-note{margin-top:.6rem;font-size:.68rem;color:var(--accent);opacity:.85;letter-spacing:.03em}
+
+button{
+  font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;
+  background:transparent;color:var(--fg);border:1px solid rgba(255,255,255,.18);
+  border-radius:100px;padding:.6em 1.1em;cursor:pointer;transition:border-color .3s,color .3s,background .3s;
+}
+button:hover{border-color:rgba(200,255,46,.5);color:var(--accent)}
+button:disabled{opacity:.35;cursor:default}
+button:disabled:hover{border-color:rgba(255,255,255,.18);color:var(--fg)}
+.btn-row{display:flex;gap:.6rem;flex-wrap:wrap}
+
+select{
+  width:100%;font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
+  background:var(--bg);color:var(--fg);border:1px solid rgba(255,255,255,.18);
+  border-radius:8px;padding:.6em .8em;cursor:pointer;
+}
+
+.color-btn.active{border-color:var(--accent2);color:var(--accent2);background:rgba(255,94,91,.08)}
+.color-btn.active:hover{border-color:var(--accent2);color:var(--accent2)}
+.color-btn[data-color="black"].active{border-color:var(--fg);color:var(--fg);background:rgba(255,255,255,.06)}
+.opponent-btn.active,.difficulty-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(200,255,46,.08)}
+.difficulty-btn{font-size:.6rem;padding:.5em .9em}
+.thinking-indicator{display:none;align-items:center;gap:.5em;margin-top:.7rem;font-size:.68rem;color:var(--accent)}
+.thinking-indicator.on{display:flex}
+.thinking-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:thinkingPulse 1s ease-in-out infinite}
+.thinking-dot:nth-child(2){animation-delay:.15s}
+.thinking-dot:nth-child(3){animation-delay:.3s}
+@keyframes thinkingPulse{0%,80%,100%{opacity:.25}40%{opacity:1}}
+
+.occupant-panel{display:none}
+.occupant-panel.on{display:block}
+.occupant-panel p{font-size:.7rem;line-height:1.6;color:var(--fg);opacity:.75;margin:0 0 .7rem}
+
+.slider-row{display:flex;align-items:center;gap:.7rem;font-size:.68rem;color:var(--dim)}
+input[type=range]{flex:1;accent-color:var(--accent)}
+.tempo-val{color:var(--fg);width:3.2em;text-align:right}
+
+.legend{font-size:.72rem;line-height:1.8;color:var(--fg);opacity:.7}
+.legend .sw{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:.5em}
+.legend .sw.h1{background:var(--accent)}
+.legend .sw.h2{background:var(--accent2)}
+.legend .sw.h3{background:var(--accent3)}
+
+.gate{
+  position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
+  background:rgba(5,5,5,.82);backdrop-filter:blur(2px);border-radius:6px;
+  flex-direction:column;gap:.9rem;text-align:center;padding:1rem;
+}
+.gate p{max-width:280px;font-size:.72rem;line-height:1.6;color:var(--fg);opacity:.65;margin:0}
+.gate.hidden{display:none}
+
+.win-modal{
+  position:relative;inset:auto;margin:14px auto 0;width:100%;max-width:460px;display:flex;
+  background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(6px);
+  border:1px solid color-mix(in srgb,var(--accent3) 55%,transparent);border-radius:12px;
+  box-shadow:0 18px 40px -22px rgba(0,0,0,.6);padding:1rem 1.2rem 1.1rem;gap:.55rem;
+  flex-direction:column;align-items:center;text-align:center;
+}
+.win-modal.hidden{display:none}
+.win-modal-title{
+  font-family:var(--serif);font-style:italic;font-size:clamp(1.4rem,4.5vw,1.9rem);
+  color:var(--accent3);text-shadow:0 0 24px currentColor;
+}
+.win-modal p{opacity:.88;max-width:360px;font-size:.72rem;line-height:1.6;color:var(--fg);margin:0}
+
+footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1em;color:var(--dim);text-transform:uppercase}
+
+@media(max-width:760px){
+  .layout{flex-direction:column;align-items:center}
+  .sidebar{width:min(92vw,520px)}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="../../index.html" class="logo">JUD</a>
+  <span class="sep">/</span>
+  <a href="../index.html">experiments</a>
+  <span class="sep">/</span>
+  <a href="#" style="opacity:1;color:var(--accent)">gyges sequencer</a>
+</nav>
+
+<main>
+  <div class="title-block">
+    <div class="kicker">two-player · full rules · no backend</div>
+    <h1>gygès, played as a <em>sequencer</em></h1>
+    <p class="lede">Gygès: 12 shared rings -- four each of height 1, 2 and 3 -- sit on a 6×6 board with no
+      fixed owner. Each turn you must move a ring from your own front-most occupied row, in a
+      straight line exactly as many spaces as its height. Land on an empty space and your move
+      is done; land on another ring and you choose -- <strong>bounce</strong> it onward exactly
+      its own height (which may cascade further), or <strong>replace</strong> it anywhere empty
+      on the board. Get any ring off the far edge into your opponent's goal and you win. The
+      twist here: every move sweeps a bar once across the six columns, left to right, and sings
+      whatever's sitting on each column as it passes -- row picks the pitch, a ring's own height
+      picks the register, and the skin you choose is the instrument.</p>
+  </div>
+
+  <div class="layout">
+    <div class="board-wrap">
+      <div class="board" id="board">
+        <div class="sweep-bar" id="sweepBar"></div>
+      </div>
+      <div class="gate" id="gate">
+        <p>Sound needs a tap to start (browser rule, not ours).</p>
+        <button id="startBtn">▶ enable sound</button>
+      </div>
+      <div class="win-modal hidden" id="winModal">
+        <div class="win-modal-title" id="winModalTitle"></div>
+        <p id="winModalReason"></p>
+        <button id="playAgainBtn">play again</button>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="panel">
+        <h2>skin</h2>
+        <select id="skinSelect">
+          <option value="dark">Dark</option>
+          <option value="light">Light / paper</option>
+          <option value="neon" selected>Glassy neon (default)</option>
+          <option value="alien">Alien</option>
+        </select>
+      </div>
+
+      <div class="panel">
+        <h2>you're playing</h2>
+        <div class="btn-row" id="colorPicker">
+          <button class="color-btn" data-color="red">red (south)</button>
+          <button class="color-btn" data-color="black">black (north)</button>
+        </div>
+        <div style="margin-top:.6rem;font-size:.65rem;color:var(--dim)" id="colorPickerHint">rings have no owner -- "red"/"black" just names which edge you're advancing from, and frames the turn indicator as "you" vs "opponent"</div>
+      </div>
+
+      <div class="panel">
+        <h2>opponent</h2>
+        <div class="btn-row" id="opponentPicker">
+          <button class="opponent-btn active" data-opponent="human">human</button>
+          <button class="opponent-btn" data-opponent="computer">computer</button>
+        </div>
+        <div class="btn-row" id="difficultyPicker" style="margin-top:.7rem;display:none">
+          <button class="difficulty-btn" data-difficulty="easy">easy</button>
+          <button class="difficulty-btn active" data-difficulty="medium">medium</button>
+          <button class="difficulty-btn" data-difficulty="hard">hard</button>
+        </div>
+        <div class="thinking-indicator" id="thinkingIndicator">
+          <span class="thinking-dot"></span><span class="thinking-dot"></span><span class="thinking-dot"></span>
+          thinking
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>turn</h2>
+        <div class="turn-indicator"><span class="turn-dot" id="turnDot"></span><span id="turnLabel">red to move</span></div>
+        <div class="game-over" id="gameOver" style="display:none"></div>
+        <div class="pass-note" id="passNote" style="display:none">no legal move from the front row -- passed</div>
+        <div class="btn-row" style="margin-top:1rem">
+          <button id="newGameBtn">new game</button>
+        </div>
+      </div>
+
+      <div class="panel occupant-panel" id="occupantPanel">
+        <h2>ring in the way</h2>
+        <p>Your ring landed on another. Bounce it onward its own height (click a highlighted
+          destination), or replace it -- pick it up and place it on any empty space.</p>
+        <div class="btn-row">
+          <button id="bounceBtn">bounce</button>
+          <button id="replaceBtn">replace</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>sound</h2>
+        <div class="slider-row">
+          <span>tempo</span>
+          <input type="range" id="tempoSlider" min="60" max="170" value="104" step="1">
+          <span class="tempo-val"><span id="tempoVal">104</span> bpm</span>
+        </div>
+        <p style="margin:.8rem 0 0;font-size:.68rem;line-height:1.6;color:var(--fg);opacity:.6">
+          Every move sweeps the board once, left to right.
+        </p>
+      </div>
+
+      <div class="panel legend">
+        <h2>how it sounds</h2>
+        <div>voice — <span id="voiceLabel"></span> (set by the skin above)</div>
+        <div style="margin-top:.3rem"><span class="sw h1"></span>height 1 plays highest · <span class="sw h2"></span>height 2 plays middle · <span class="sw h3"></span>height 3 plays lowest</div>
+        <div style="margin-top:.6rem;opacity:.75">row = pitch within each height's own register ·
+          everything's drawn from one pentatonic scale, so no combination of rings ever clashes.</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>joshurbandavis — gyges sequencer</footer>
+
+<!-- AI search worker source, kept in-page (type="text/plain" so the browser never executes
+     it directly) and spawned as a real Worker via a Blob URL below -- same pattern as the
+     other sequencer games. Gygès' branching factor (a "replace" can target any of ~30 empty
+     cells, and a bounce can itself cascade indefinitely) makes a full minimax impractical, so
+     this is a heuristic-greedy searcher: it looks one full move ahead (including resolving any
+     bounce/replace chain the greedy heuristic itself picks), scores the resulting position, and
+     adds a little seeded noise for variety -- not a perfect solver, matching the same "shallow
+     search, some noise" ethos every other game here uses. */ -->
+<script type="text/plain" id="gygesAIWorkerSrc">
+"use strict";
+var SIZE = 6;
+var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
+
+function inBounds(r,c){ return r>=0 && r<SIZE && c>=0 && c<SIZE; }
+function opponent(color){ return color==='red' ? 'black' : 'red'; }
+function ownGoalOf(mover){ return mover==='red' ? 'south' : 'north'; }
+
+function edgeKey(r1,c1,r2,c2){
+  var a = r1*100+c1, b = r2*100+c2;
+  return a<b ? (a+'-'+b) : (b+'-'+a);
+}
+
+function computeDestination(b, r, c, dr, dc, h, mover){
+  var edges = [];
+  var cr = r, cc = c;
+  for(var s=0; s<h; s++){
+    var nr = cr+dr, nc = cc+dc;
+    var isLastStep = s === h-1;
+    if(!inBounds(nr,nc)){
+      if(!isLastStep || dc !== 0) return null;
+      if(dr===-1 && nr===-1){
+        if(ownGoalOf(mover)==='north') return null;
+        edges.push(edgeKey(cr,cc,-1,cc));
+        return { goal:'north', edges:edges };
+      }
+      if(dr===1 && nr===SIZE){
+        if(ownGoalOf(mover)==='south') return null;
+        edges.push(edgeKey(cr,cc,SIZE,cc));
+        return { goal:'south', edges:edges };
+      }
+      return null;
+    }
+    edges.push(edgeKey(cr,cc,nr,nc));
+    if(!isLastStep && b[nr][nc]) return null;
+    cr = nr; cc = nc;
+  }
+  return { r:cr, c:cc, edges:edges };
+}
+
+function legalMovesFor(b, r, c, mover, usedEdges){
+  var piece = b[r][c]; if(!piece) return [];
+  var out = [];
+  for(var i=0;i<DIRS.length;i++){
+    var dr = DIRS[i][0], dc = DIRS[i][1];
+    var dest = computeDestination(b, r, c, dr, dc, piece.height, mover);
+    if(!dest) continue;
+    var blocked = false;
+    for(var k=0;k<dest.edges.length;k++) if(usedEdges.has(dest.edges[k])){ blocked = true; break; }
+    if(blocked) continue;
+    out.push({ dr:dr, dc:dc, dest:dest });
+  }
+  return out;
+}
+
+function frontRowFor(b, color){
+  if(color==='red'){
+    for(var r=SIZE-1; r>=0; r--){ for(var c=0;c<SIZE;c++) if(b[r][c]) return r; }
+  } else {
+    for(var r2=0; r2<SIZE; r2++){ for(var c2=0;c2<SIZE;c2++) if(b[r2][c2]) return r2; }
+  }
+  return -1;
+}
+
+function computeMovable(b, color){
+  var row = frontRowFor(b, color);
+  if(row === -1) return { row:-1, pieces:[] };
+  var pieces = [];
+  for(var c=0;c<SIZE;c++){
+    if(b[row][c] && legalMovesFor(b,row,c,color,new Set()).length) pieces.push({r:row,c:c});
+  }
+  return { row:row, pieces:pieces };
+}
+
+function cloneBoard(b){
+  return b.map(function(row){ return row.map(function(p){ return p ? {height:p.height} : null; }); });
+}
+
+// Runs one full move's bounce/replace chain to completion on board `b` (mutated in
+// place), using `decide(occupantPiece, r, c, bounceMoves)` to resolve every choice --
+// returns {win:true} if the chain ends on the opponent's goal, else {win:false}.
+function runChain(b, mover, originR, originC, firstMove, decide){
+  var usedEdges = new Set(firstMove.dest.edges);
+  var piece = b[originR][originC];
+  b[originR][originC] = null;
+  var dest = firstMove.dest;
+  var waiting = [];
+  while(true){
+    if(dest.goal) return { win:true };
+    var occ = b[dest.r][dest.c];
+    if(occ === null){
+      b[dest.r][dest.c] = piece;
+      if(waiting.length === 0) return { win:false };
+      var next = waiting.pop();
+      piece = next.piece; dest = next.dest;
+      continue;
+    }
+    var bounceMoves = legalMovesFor(b, dest.r, dest.c, mover, usedEdges);
+    var decision = decide(occ, dest.r, dest.c, bounceMoves);
+    if(decision.type === 'replace'){
+      b[dest.r][dest.c] = null;
+      b[decision.to.r][decision.to.c] = occ;
+    } else {
+      for(var k=0;k<decision.move.dest.edges.length;k++) usedEdges.add(decision.move.dest.edges[k]);
+      waiting.push({ piece:piece, dest:dest });
+      b[dest.r][dest.c] = null;
+      piece = occ;
+      dest = decision.move.dest;
+    }
+  }
+}
+
+// ---- heuristic scoring ----
+// Progress = how close the front-most rings are to reaching the far edge, summed with
+// a heavy discount per row so it mostly reflects the single most-advanced ring on each
+// side (getting one ring home matters far more than nudging several).
+function progressScore(b, color){
+  var row = frontRowFor(b, color);
+  if(row === -1) return 0;
+  var dist = color==='red' ? row : (SIZE-1-row); // rows still between this front row and the goal
+  var count = 0;
+  for(var c=0;c<SIZE;c++) if(b[row][c]) count++;
+  return (SIZE - dist) * 10 + count;
+}
+function evaluate(b, aiColor){
+  var opp = opponent(aiColor);
+  return progressScore(b, aiColor) - progressScore(b, opp);
+}
+
+// seeded PRNG so repeated searches at the same position (e.g. re-evaluating ties)
+// still vary between games without needing Math.random in a worker
+function mulberry32(a){
+  return function(){
+    a = (a + 0x6D2B79F5) | 0;
+    var t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Greedy decision function used both while simulating a candidate top-level move AND
+// while actually executing the AI's chosen move: bounce if the bounced ring has a
+// legal move that doesn't hand the opponent an immediate win, capped at a few links so
+// a long cascade can't run away; otherwise replace, picking whichever empty cell scores
+// best for the mover with a little noise, favoring the ring's own advance.
+function greedyDecide(b, mover, rng, chainDepth){
+  return function(occ, r, c, bounceMoves){
+    if(chainDepth.n < 4 && bounceMoves.length){
+      var safe = bounceMoves.filter(function(m){
+        if(m.dest.goal) return true;
+        var sim = cloneBoard(b);
+        sim[r][c] = null;
+        if(sim[m.dest.r] && sim[m.dest.r][m.dest.c] === undefined) return true;
+        return true; // shallow: goal-reaching bounces are always taken; others assumed safe enough
+      });
+      if(safe.length){
+        chainDepth.n++;
+        var m = safe[Math.floor(rng()*safe.length)];
+        return { type:'bounce', move:m };
+      }
+    }
+    // replace: gather all empty cells, score by how far they push the displaced ring
+    // from the opponent's reach, pick the best with noise
+    var empties = [];
+    for(var rr=0; rr<SIZE; rr++) for(var cc=0; cc<SIZE; cc++) if(!b[rr][cc]) empties.push({r:rr,c:cc});
+    var best = null, bestScore = -Infinity;
+    for(var i=0;i<empties.length;i++){
+      var e = empties[i];
+      var s = (mover==='red' ? e.r : (SIZE-1-e.r)) + rng()*3;
+      if(s > bestScore){ bestScore = s; best = e; }
+    }
+    return { type:'replace', to: best };
+  };
+}
+
+onmessage = function(e){
+  var board = e.data.board, color = e.data.color, noiseSeed = e.data.seed || 1;
+  var rng = mulberry32(noiseSeed);
+  var mv = computeMovable(board, color);
+  if(mv.pieces.length === 0){ postMessage({ pass:true }); return; }
+
+  var best = null, bestScore = -Infinity;
+  for(var i=0;i<mv.pieces.length;i++){
+    var piece = mv.pieces[i];
+    var moves = legalMovesFor(board, piece.r, piece.c, color, new Set());
+    for(var j=0;j<moves.length;j++){
+      var move = moves[j];
+      var sim = cloneBoard(board);
+      var chainDepth = { n:0 };
+      var decisions = []; // record every choice made so the main thread can replay it exactly
+      var decide = (function(){
+        var inner = greedyDecide(sim, color, rng, chainDepth);
+        return function(occ, r, c, bounceMoves){
+          var d = inner(occ, r, c, bounceMoves);
+          decisions.push(d);
+          return d;
+        };
+      })();
+      var result = runChain(sim, color, piece.r, piece.c, move, decide);
+      var score = result.win ? 1e6 : evaluate(sim, color);
+      score += rng() * 4;
+      if(score > bestScore){
+        bestScore = score;
+        best = { from:{r:piece.r,c:piece.c}, dr:move.dr, dc:move.dc, decisions:decisions, win:result.win };
+      }
+    }
+  }
+  postMessage({ plan: best });
+};
+</script>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- gyges rules engine ---------------- */
+const SIZE = 6;
+const DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
+let board, currentPlayer, selected, currentLegalMoves, gameOver, movable;
+let chain = null;           // { mover, piece, dest, waiting:[], usedEdges:Set } while a move/bounce is in flight
+let pendingOccupant = null; // { r, c, piece, bounceMoves } when a Bounce/Replace choice is needed
+let replaceMode = false;    // true once the player has clicked "replace" and is picking a destination
+let lastMove = null;        // {from:{r,c}, to:{r,c}|null, toGoal:string|null} of the most recent atomic hop
+let lastMoveId = 0, animatedMoveId = -1;
+let playerColor = 'red';
+let opponentMode = 'human';
+let aiDifficulty = 'medium';
+let aiColor = null;
+let passedLastTurn = false;
+
+function inBounds(r,c){ return r>=0 && r<SIZE && c>=0 && c<SIZE; }
+function opponent(color){ return color==='red' ? 'black' : 'red'; }
+function ownGoalOf(mover){ return mover==='red' ? 'south' : 'north'; }
+
+function edgeKey(r1,c1,r2,c2){
+  const a = r1*100+c1, b = r2*100+c2;
+  return a<b ? `${a}-${b}` : `${b}-${a}`;
+}
+
+// Computes where a ring at (r,c) ends up moving exactly `h` spaces in direction (dr,dc):
+// a regular cell, one of the two goals (only via a straight exit off the correct edge,
+// and never the mover's own goal), or null if illegal (blocked, or runs off a side edge
+// with no goal there). Intermediate cells must be empty; the final cell may not be.
+function computeDestination(b, r, c, dr, dc, h, mover){
+  const edges = [];
+  let cr = r, cc = c;
+  for(let s=0; s<h; s++){
+    const nr = cr+dr, nc = cc+dc;
+    const isLastStep = s === h-1;
+    if(!inBounds(nr,nc)){
+      if(!isLastStep || dc !== 0) return null;
+      if(dr===-1 && nr===-1){
+        if(ownGoalOf(mover)==='north') return null;
+        edges.push(edgeKey(cr,cc,-1,cc));
+        return { goal:'north', edges };
+      }
+      if(dr===1 && nr===SIZE){
+        if(ownGoalOf(mover)==='south') return null;
+        edges.push(edgeKey(cr,cc,SIZE,cc));
+        return { goal:'south', edges };
+      }
+      return null;
+    }
+    edges.push(edgeKey(cr,cc,nr,nc));
+    if(!isLastStep && b[nr][nc]) return null;
+    cr = nr; cc = nc;
+  }
+  return { r:cr, c:cc, edges };
+}
+
+function legalMovesFor(b, r, c, mover, usedEdges){
+  const piece = b[r][c]; if(!piece) return [];
+  const out = [];
+  for(const [dr,dc] of DIRS){
+    const dest = computeDestination(b, r, c, dr, dc, piece.height, mover);
+    if(!dest) continue;
+    if(dest.edges.some(e => usedEdges.has(e))) continue;
+    out.push({ dr, dc, dest });
+  }
+  return out;
+}
+
+function frontRowFor(b, color){
+  if(color==='red'){
+    for(let r=SIZE-1; r>=0; r--) if(b[r].some(p=>p)) return r;
+  } else {
+    for(let r=0; r<SIZE; r++) if(b[r].some(p=>p)) return r;
+  }
+  return -1;
+}
+
+function computeMovable(b, color){
+  const row = frontRowFor(b, color);
+  if(row === -1) return { row:-1, pieces:[] };
+  const pieces = [];
+  for(let c=0;c<SIZE;c++){
+    if(b[row][c] && legalMovesFor(b,row,c,color,new Set()).length) pieces.push({r:row,c});
+  }
+  return { row, pieces };
+}
+
+// heights are placed heaviest-on-the-flanks, lightest-in-the-middle on both home rows --
+// the real game lets players choose their own opening arrangement; this fixes one for
+// simplicity, the same way this site's mancala/backgammon use one fixed standard setup
+const HOME_HEIGHTS = [3,2,1,1,2,3];
+function initBoard(){
+  board = Array.from({length:SIZE},()=>Array(SIZE).fill(null));
+  for(let c=0;c<SIZE;c++){
+    board[0][c] = { height: HOME_HEIGHTS[c] };
+    board[SIZE-1][c] = { height: HOME_HEIGHTS[c] };
+  }
+}
+
+function resetGame(){
+  initBoard();
+  currentPlayer = 'red';
+  selected = null; currentLegalMoves = []; gameOver = null;
+  chain = null; pendingOccupant = null; replaceMode = false;
+  lastMove = null; animatedMoveId = -1; passedLastTurn = false;
+  movable = computeMovable(board, currentPlayer);
+  winModal.classList.add('hidden');
+  render();
+  maybeTriggerAI();
+}
+
+/* ---------------- turn/chain driver ----------------
+   A move (or a bounced ring's own move) is "in flight" as `chain.piece` travelling to
+   `chain.dest`. If dest is empty, it lands and, if some earlier ring in this turn was
+   itself waiting on THIS ring's now-vacated cell, that one resumes next (chain.waiting
+   is a stack for exactly that). If dest is occupied, play pauses on pendingOccupant
+   until the human (or AI) resolves it with Bounce or Replace. */
+function beginChain(mover, originR, originC, firstMove){
+  chain = {
+    mover,
+    piece: board[originR][originC],
+    dest: firstMove.dest,
+    waiting: [],
+    usedEdges: new Set(firstMove.dest.edges),
+  };
+  board[originR][originC] = null;
+  lastMove = { from:{r:originR,c:originC}, to: firstMove.dest.goal ? null : {r:firstMove.dest.r,c:firstMove.dest.c}, toGoal: firstMove.dest.goal||null };
+  lastMoveId++;
+  stepChain();
+}
+
+function stepChain(){
+  if(!chain) return;
+  if(chain.dest.goal){
+    const winner = chain.mover;
+    chain = null; pendingOccupant = null;
+    gameOver = winner;
+    render();
+    celebrateWin(winner);
+    return;
+  }
+  const occ = board[chain.dest.r][chain.dest.c];
+  if(occ === null){
+    board[chain.dest.r][chain.dest.c] = chain.piece;
+    sweepOnce();
+    render();
+    if(chain.waiting.length === 0){
+      chain = null; pendingOccupant = null;
+      endTurn();
+      return;
+    }
+    const next = chain.waiting.pop();
+    chain.piece = next.piece; chain.dest = next.dest;
+    stepChain();
+    return;
+  }
+  const bounceMoves = legalMovesFor(board, chain.dest.r, chain.dest.c, chain.mover, chain.usedEdges);
+  pendingOccupant = { r: chain.dest.r, c: chain.dest.c, piece: occ, bounceMoves };
+  replaceMode = false;
+  render();
+}
+
+function chooseBounce(move){
+  if(!chain || !pendingOccupant) return;
+  move.dest.edges.forEach(e => chain.usedEdges.add(e));
+  chain.waiting.push({ piece: chain.piece, dest: chain.dest });
+  const from = { r: pendingOccupant.r, c: pendingOccupant.c };
+  board[from.r][from.c] = null;
+  lastMove = { from, to: move.dest.goal ? null : {r:move.dest.r,c:move.dest.c}, toGoal: move.dest.goal||null };
+  lastMoveId++;
+  chain.piece = pendingOccupant.piece;
+  chain.dest = move.dest;
+  pendingOccupant = null; replaceMode = false;
+  stepChain();
+}
+
+function chooseReplace(to){
+  if(!chain || !pendingOccupant) return;
+  board[pendingOccupant.r][pendingOccupant.c] = null;
+  board[to.r][to.c] = pendingOccupant.piece;
+  pendingOccupant = null; replaceMode = false;
+  stepChain();
+}
+
+function endTurn(){
+  currentPlayer = opponent(currentPlayer);
+  selected = null; currentLegalMoves = [];
+  movable = computeMovable(board, currentPlayer);
+  passedLastTurn = false;
+  if(movable.pieces.length === 0 && frontRowFor(board, currentPlayer) !== -1){
+    // no legal move from the front row -- pass, matching this codebase's existing
+    // convention for a stuck side (see reversi's identical "no move -> pass")
+    passedLastTurn = true;
+    currentPlayer = opponent(currentPlayer);
+    movable = computeMovable(board, currentPlayer);
+  }
+  render();
+  maybeTriggerAI();
+}
+
+function handleSquareClick(r,c){
+  if(gameOver) return;
+  if(opponentMode==='computer' && currentPlayer===aiColor) return;
+
+  if(pendingOccupant){
+    if(replaceMode){
+      if(board[r][c] === null) chooseReplace({r,c});
+      return;
+    }
+    const mv = pendingOccupant.bounceMoves.find(m => !m.dest.goal && m.dest.r===r && m.dest.c===c);
+    if(mv) chooseBounce(mv);
+    return;
+  }
+
+  if(selected){
+    const mv = currentLegalMoves.find(m => !m.dest.goal && m.dest.r===r && m.dest.c===c);
+    if(mv){
+      const from = { ...selected };
+      selected = null; currentLegalMoves = [];
+      beginChain(currentPlayer, from.r, from.c, mv);
+      return;
+    }
+  }
+
+  const entry = movable.pieces.find(p=>p.r===r && p.c===c);
+  if(entry){
+    if(selected && selected.r===r && selected.c===c){
+      selected = null; currentLegalMoves = [];
+    } else {
+      selected = {r,c};
+      currentLegalMoves = legalMovesFor(board, r, c, currentPlayer, new Set());
+    }
+    render();
+    return;
+  }
+
+  selected = null; currentLegalMoves = [];
+  render();
+}
+
+function handleGoalClick(goalName){
+  if(gameOver) return;
+  if(opponentMode==='computer' && currentPlayer===aiColor) return;
+  if(pendingOccupant && !replaceMode){
+    const mv = pendingOccupant.bounceMoves.find(m => m.dest.goal===goalName);
+    if(mv) chooseBounce(mv);
+    return;
+  }
+  if(selected){
+    const mv = currentLegalMoves.find(m => m.dest.goal===goalName);
+    if(mv){
+      const from = { ...selected };
+      selected = null; currentLegalMoves = [];
+      beginChain(currentPlayer, from.r, from.c, mv);
+    }
+  }
+}
+
+/* ---------------- board DOM ---------------- */
+const boardEl = document.getElementById('board');
+const sweepBar = document.getElementById('sweepBar');
+const goalNorthEl = document.createElement('div');
+goalNorthEl.className = 'goal-strip';
+goalNorthEl.textContent = 'black’s goal';
+goalNorthEl.style.order = '-1';
+const goalSouthEl = document.createElement('div');
+goalSouthEl.className = 'goal-strip';
+goalSouthEl.textContent = 'red’s goal';
+
+const squareEls = [];
+boardEl.appendChild(goalNorthEl);
+for(let r=0;r<SIZE;r++){
+  squareEls.push([]);
+  for(let c=0;c<SIZE;c++){
+    const sq = document.createElement('div');
+    sq.className = 'sq';
+    sq.addEventListener('click', ()=>handleSquareClick(r,c));
+    boardEl.appendChild(sq);
+    squareEls[r].push(sq);
+  }
+}
+boardEl.appendChild(goalSouthEl);
+boardEl.appendChild(sweepBar);
+goalNorthEl.addEventListener('click', ()=>handleGoalClick('north'));
+goalSouthEl.addEventListener('click', ()=>handleGoalClick('south'));
+
+// goalNorthEl/goalSouthEl are appended after the 36 squares but need to render FIRST/LAST
+// visually -- CSS order handles the top one; the grid's own row order already puts the
+// south strip last, so it needs no override.
+goalNorthEl.style.gridRow = '1';
+goalSouthEl.style.gridRow = String(SIZE+2);
+
+const turnDot = document.getElementById('turnDot');
+const turnLabel = document.getElementById('turnLabel');
+const gameOverEl = document.getElementById('gameOver');
+const passNoteEl = document.getElementById('passNote');
+const occupantPanel = document.getElementById('occupantPanel');
+const bounceBtn = document.getElementById('bounceBtn');
+const replaceBtn = document.getElementById('replaceBtn');
+
+bounceBtn.addEventListener('click', ()=>{ replaceMode = false; render(); });
+replaceBtn.addEventListener('click', ()=>{ replaceMode = true; render(); });
+
+// FLIP-style slide, identical technique to the other sequencer games
+function flipSlide(el, fromRect, duration){
+  const toRect = el.getBoundingClientRect();
+  const dx = fromRect.left + fromRect.width/2 - (toRect.left + toRect.width/2);
+  const dy = fromRect.top + fromRect.height/2 - (toRect.top + toRect.height/2);
+  if(!dx && !dy) return;
+  el.style.transition = 'none';
+  el.style.transform = `translate(${dx}px,${dy}px)`;
+  el.style.zIndex = '4';
+  void el.offsetWidth;
+  requestAnimationFrame(()=>{
+    el.style.transition = `transform ${duration||320}ms cubic-bezier(.22,.68,.36,1)`;
+    el.style.transform = '';
+  });
+  el.addEventListener('transitionend', function handler(e){
+    if(e.propertyName && e.propertyName!=='transform') return;
+    el.style.transition = ''; el.style.zIndex = '';
+    el.removeEventListener('transitionend', handler);
+  });
+}
+
+function endReason(){
+  if(!gameOver) return '';
+  return (gameOver==='red' ? 'red' : 'black') + ' moved a ring into ' + (opponent(gameOver)==='red' ? "black's" : "red's") + " goal";
+}
+
+function render(){
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+    const sq = squareEls[r][c];
+    sq.classList.remove('movable','dest','contested','selected','occupant');
+    sq.innerHTML = '';
+
+    const isMovable = !gameOver && !pendingOccupant && movable.pieces.some(p=>p.r===r && p.c===c);
+    if(isMovable) sq.classList.add('movable');
+
+    const destMove = currentLegalMoves.find(m => !m.dest.goal && m.dest.r===r && m.dest.c===c);
+    if(destMove){
+      sq.classList.add('dest');
+      if(board[r][c]) sq.classList.add('contested');
+    }
+    if(pendingOccupant && !replaceMode){
+      const bm = pendingOccupant.bounceMoves.find(m => !m.dest.goal && m.dest.r===r && m.dest.c===c);
+      if(bm){ sq.classList.add('dest'); if(board[r][c]) sq.classList.add('contested'); }
+    }
+    if(pendingOccupant && replaceMode && board[r][c]===null) sq.classList.add('dest');
+    if(pendingOccupant && pendingOccupant.r===r && pendingOccupant.c===c) sq.classList.add('occupant');
+
+    const piece = board[r][c];
+    if(piece){
+      const pEl = document.createElement('div');
+      pEl.className = 'piece h' + piece.height;
+      if(selected && selected.r===r && selected.c===c) pEl.classList.add('selected');
+      sq.appendChild(pEl);
+      if(selected && selected.r===r && selected.c===c) sq.classList.add('selected');
+      if(lastMove && lastMoveId!==animatedMoveId && lastMove.to && lastMove.to.r===r && lastMove.to.c===c){
+        flipSlide(pEl, squareEls[lastMove.from.r][lastMove.from.c].getBoundingClientRect());
+      }
+    }
+  }
+  if(lastMove) animatedMoveId = lastMoveId;
+
+  const northLegal = !gameOver && ((selected && currentLegalMoves.some(m=>m.dest.goal==='north')) ||
+    (pendingOccupant && !replaceMode && pendingOccupant.bounceMoves.some(m=>m.dest.goal==='north')));
+  const southLegal = !gameOver && ((selected && currentLegalMoves.some(m=>m.dest.goal==='south')) ||
+    (pendingOccupant && !replaceMode && pendingOccupant.bounceMoves.some(m=>m.dest.goal==='south')));
+  goalNorthEl.classList.toggle('clickable', !!northLegal);
+  goalSouthEl.classList.toggle('clickable', !!southLegal);
+
+  occupantPanel.classList.toggle('on', !!pendingOccupant);
+  if(pendingOccupant){
+    bounceBtn.disabled = pendingOccupant.bounceMoves.length === 0;
+    bounceBtn.classList.toggle('active', !replaceMode);
+    replaceBtn.classList.toggle('active', replaceMode);
+  }
+
+  turnDot.className = 'turn-dot ' + currentPlayer;
+  passNoteEl.style.display = 'none';
+  if(gameOver){
+    turnLabel.textContent = 'game over';
+    gameOverEl.style.display = 'block';
+    gameOverEl.textContent = (gameOver==='red' ? 'red' : 'black') + ' wins';
+  } else {
+    turnLabel.textContent = currentPlayer + ' to move' + (currentPlayer===playerColor ? ' (you)' : ' (opponent)');
+    gameOverEl.style.display = 'none';
+    if(passedLastTurn) passNoteEl.style.display = 'block';
+  }
+}
+
+/* ---------------- audio / sequencer ---------------- */
+// row 0 (near black's goal) .. row 5 (near red's goal), one register per ring height --
+// height 3 (heaviest) plays lowest, height 1 (lightest) plays highest, all one shared
+// pentatonic scale so no combination of rings ever clashes
+const H1_NOTES = ["C6","A5","G5","E5","D5","C5"];
+const H2_NOTES = ["C5","A4","G4","E4","D4","C4"];
+const H3_NOTES = ["C4","A3","G3","E3","D3","C3"];
+const NOTES_BY_HEIGHT = {1:H1_NOTES, 2:H2_NOTES, 3:H3_NOTES};
+
+let voice, reverb, started = false, sweepEndTimer = null;
+let currentSkin = 'neon';
+
+const PRESETS = {
+  // ported verbatim from checker-sequencer's dark/light/neon/alien voices
+  pluck: { label:'Pluck', build: () => {
+    const synth = new Tone.PolySynth(Tone.MonoSynth, {
+      oscillator:{type:'triangle'},
+      envelope:{attack:0.002, decay:0.22, sustain:0, release:0.3},
+      filter:{Q:1.5, type:'lowpass', rolloff:-24},
+      filterEnvelope:{attack:0.001, decay:0.14, sustain:0, release:0.2, baseFrequency:180, octaves:4.5}
+    });
+    const chorus = new Tone.Chorus({frequency:2.4, delayTime:2, depth:0.3, wet:0.3}).start();
+    const slap = new Tone.FeedbackDelay({delayTime:'16n', feedback:0.12, wet:0.16});
+    return [synth, chorus, slap];
+  }},
+  blip: { label:'Blip', build: () => {
+    const synth = new Tone.PolySynth(Tone.Synth, {
+      oscillator:{type:'triangle'},
+      envelope:{attack:0.001, decay:0.09, sustain:0, release:0.12}
+    });
+    return [synth];
+  }},
+  bell: { label:'Bell', build: () => {
+    const synth = new Tone.PolySynth(Tone.FMSynth, {
+      harmonicity:3.01, modulationIndex:10,
+      envelope:{attack:0.003, decay:0.5, sustain:0.08, release:1.1},
+      modulationEnvelope:{attack:0.008, decay:0.25, sustain:0, release:0.4}
+    });
+    const chorus = new Tone.Chorus({frequency:1.4, delayTime:3.2, depth:0.4, wet:0.32}).start();
+    const echo = new Tone.FeedbackDelay({delayTime:'8n', feedback:0.22, wet:0.22});
+    return [synth, chorus, echo];
+  }},
+  pad: { label:'Pad', build: () => {
+    const synth = new Tone.PolySynth(Tone.AMSynth, {
+      harmonicity:1.99, oscillator:{type:'sine'},
+      envelope:{attack:0.5, decay:0.4, sustain:0.65, release:1.6},
+      modulation:{type:'sine'}, modulationEnvelope:{attack:0.6, decay:0.2, sustain:1, release:0.8}
+    });
+    const vibrato = new Tone.Vibrato({frequency:3.2, depth:0.06});
+    const chorus = new Tone.Chorus({frequency:0.6, delayTime:4.5, depth:0.55, wet:0.4}).start();
+    const filter = new Tone.AutoFilter({frequency:0.18, baseFrequency:300, octaves:3.5, wet:0.5}).start();
+    return [synth, vibrato, chorus, filter];
+  }},
+};
+const SKIN_VOICE = { dark:'pluck', light:'blip', neon:'bell', alien:'pad' };
+
+function playColumn(col, time){
+  for(let r=0;r<SIZE;r++){
+    const p = board[r][col];
+    if(!p) continue;
+    const note = NOTES_BY_HEIGHT[p.height][r];
+    voice.synth.triggerAttackRelease(note, "8n", time, 0.8);
+  }
+}
+
+function setActiveColumn(col){
+  sweepBar.style.left = (col * (100/SIZE)) + '%';
+  for(let r=0;r<SIZE;r++){
+    const p = board[r][col];
+    if(!p) continue;
+    const pEl = squareEls[r][col].querySelector('.piece');
+    if(pEl){
+      pEl.classList.remove('pulse');
+      void pEl.offsetWidth;
+      pEl.classList.add('pulse');
+    }
+  }
+}
+
+function stepDuration(){
+  const bpm = Number(tempoSlider.value);
+  return (60 / bpm) / 2;
+}
+function sweepDurationMs(){
+  return (SIZE * stepDuration() + 0.15) * 1000;
+}
+
+function sweepOnce(){
+  if(!started || !voice) return;
+  const stepDur = stepDuration();
+  const startTime = Tone.now() + 0.03;
+
+  sweepBar.classList.add('on');
+  for(let col=0; col<SIZE; col++){
+    const t = startTime + col * stepDur;
+    playColumn(col, t);
+    Tone.Draw.schedule(()=>setActiveColumn(col), t);
+  }
+
+  clearTimeout(sweepEndTimer);
+  sweepEndTimer = setTimeout(()=>{ sweepBar.classList.remove('on'); }, sweepDurationMs());
+}
+
+const gate = document.getElementById('gate');
+const startBtn = document.getElementById('startBtn');
+const tempoSlider = document.getElementById('tempoSlider');
+const tempoVal = document.getElementById('tempoVal');
+
+function buildVoice(presetKey){
+  const nodes = PRESETS[presetKey].build();
+  for(let i=0;i<nodes.length-1;i++) nodes[i].connect(nodes[i+1]);
+  nodes[nodes.length-1].connect(reverb);
+  return { synth: nodes[0], nodes };
+}
+
+function rebuildSynth(){
+  if(!reverb) return;
+  if(voice) voice.nodes.forEach(n=>n.dispose());
+  voice = buildVoice(SKIN_VOICE[currentSkin]);
+}
+
+function startAudio(){
+  if(started) return;
+  started = true;
+  Tone.start().then(()=>{
+    reverb = new Tone.Reverb({decay:1.8, wet:0.22}).toDestination();
+    rebuildSynth();
+    gate.classList.add('hidden');
+    sweepOnce();
+  });
+}
+
+const colorButtons = Array.from(document.querySelectorAll('.color-btn'));
+const voiceLabelEl = document.getElementById('voiceLabel');
+const winModal = document.getElementById('winModal');
+const winModalTitle = document.getElementById('winModalTitle');
+const playAgainBtn = document.getElementById('playAgainBtn');
+const REPLAY_SWEEPS = 3;
+
+function updateSkinUI(){
+  colorButtons.forEach(b => b.classList.toggle('active', b.dataset.color===playerColor));
+  voiceLabelEl.textContent = PRESETS[SKIN_VOICE[currentSkin]].label;
+}
+
+colorButtons.forEach(b => b.addEventListener('click', ()=>{
+  playerColor = b.dataset.color;
+  syncAIColor();
+  render();
+  maybeTriggerAI();
+}));
+
+/* ---------------- AI opponent ---------------- */
+const DIFFICULTY_NOISE = { easy:14, medium:6, hard:2 }; // higher = more random wobble in move choice
+const gygesAIWorker = new Worker(URL.createObjectURL(new Blob(
+  [document.getElementById('gygesAIWorkerSrc').textContent],
+  { type:'application/javascript' }
+)));
+let aiThinking = false;
+
+const opponentButtons = Array.from(document.querySelectorAll('.opponent-btn'));
+const difficultyButtons = Array.from(document.querySelectorAll('.difficulty-btn'));
+const difficultyPicker = document.getElementById('difficultyPicker');
+const colorPickerHint = document.getElementById('colorPickerHint');
+const thinkingIndicator = document.getElementById('thinkingIndicator');
+
+function syncAIColor(){
+  aiColor = opponentMode==='computer' ? opponent(playerColor) : null;
+}
+
+function updateOpponentUI(){
+  opponentButtons.forEach(b => b.classList.toggle('active', b.dataset.opponent===opponentMode));
+  difficultyButtons.forEach(b => b.classList.toggle('active', b.dataset.difficulty===aiDifficulty));
+  difficultyPicker.style.display = opponentMode==='computer' ? 'flex' : 'none';
+  colorPickerHint.textContent = opponentMode==='computer'
+    ? 'you play this color -- the computer plays the other, and its rings aren\'t clickable'
+    : 'rings have no owner -- "red"/"black" just names which edge you\'re advancing from, and frames the turn indicator as "you" vs "opponent"';
+}
+
+opponentButtons.forEach(b => b.addEventListener('click', ()=>{
+  opponentMode = b.dataset.opponent;
+  syncAIColor();
+  updateOpponentUI();
+  maybeTriggerAI();
+}));
+difficultyButtons.forEach(b => b.addEventListener('click', ()=>{
+  aiDifficulty = b.dataset.difficulty;
+  updateOpponentUI();
+}));
+
+function maybeTriggerAI(){
+  if(opponentMode!=='computer' || gameOver || currentPlayer!==aiColor || aiThinking) return;
+  aiThinking = true;
+  thinkingIndicator.classList.add('on');
+  const serialBoard = board.map(row => row.map(p => p ? {height:p.height} : null));
+  gygesAIWorker.postMessage({ board: serialBoard, color: currentPlayer, seed: Math.floor(Math.random()*1e9) + DIFFICULTY_NOISE[aiDifficulty] });
+}
+
+gygesAIWorker.onmessage = function(e){
+  aiThinking = false;
+  thinkingIndicator.classList.remove('on');
+  if(gameOver) return;
+  if(e.data.pass){ endTurn(); return; }
+  const plan = e.data.plan;
+  if(!plan){ endTurn(); return; }
+  const move = legalMovesFor(board, plan.from.r, plan.from.c, currentPlayer, new Set())
+    .find(m => m.dr===plan.dr && m.dc===plan.dc);
+  if(!move){ endTurn(); return; } // board drifted somehow -- fail safe rather than throw
+  driveAIChain(currentPlayer, plan.from.r, plan.from.c, move, plan.decisions.slice(), 0);
+};
+
+// Walks the AI's precomputed plan through the SAME live chain driver a human uses, one
+// atomic step at a time with a short pause between each so a cascade is easy to follow
+// visually instead of resolving invisibly in one tick.
+function driveAIChain(mover, r, c, firstMove, decisions, i){
+  beginChain(mover, r, c, firstMove);
+  driveAIDecisions(decisions, 0);
+}
+function driveAIDecisions(decisions, i){
+  if(!pendingOccupant){
+    if(chain) setTimeout(()=>driveAIDecisions(decisions, i), 140);
+    return;
+  }
+  const d = decisions[i];
+  setTimeout(()=>{
+    if(!d || d.type==='replace') chooseReplace(d ? d.to : pickFallbackReplace());
+    else chooseBounce(d.move.dest.goal
+      ? pendingOccupant.bounceMoves.find(m=>m.dest.goal===d.move.dest.goal)
+      : pendingOccupant.bounceMoves.find(m=>m.dest.r===d.move.dest.r && m.dest.c===d.move.dest.c));
+    if(chain) driveAIDecisions(decisions, i+1);
+  }, 220);
+}
+function pickFallbackReplace(){
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) if(board[r][c]===null) return {r,c};
+  return {r:0,c:0};
+}
+
+function celebrateWin(winner){
+  if(!started){ showWinModal(winner); return; }
+  const dur = sweepDurationMs();
+  let plays = 0;
+  (function playNext(){
+    sweepOnce();
+    plays++;
+    setTimeout(plays < REPLAY_SWEEPS ? playNext : ()=>showWinModal(winner), dur);
+  })();
+}
+
+function showWinModal(winner){
+  winModalTitle.textContent = (winner==='red' ? 'red' : 'black') + ' wins';
+  document.getElementById('winModalReason').textContent = endReason();
+  winModal.classList.remove('hidden');
+}
+
+playAgainBtn.addEventListener('click', ()=>{
+  winModal.classList.add('hidden');
+  resetGame();
+});
+
+startBtn.addEventListener('click', startAudio);
+tempoSlider.addEventListener('input', ()=>{
+  tempoVal.textContent = tempoSlider.value;
+});
+document.getElementById('newGameBtn').addEventListener('click', resetGame);
+document.getElementById('skinSelect').addEventListener('change', (e)=>{
+  currentSkin = e.target.value;
+  document.documentElement.dataset.skin = currentSkin;
+  rebuildSynth();
+  updateSkinUI();
+});
+
+updateSkinUI();
+updateOpponentUI();
+syncAIColor();
+
+resetGame();
+})();
+</script>
+</body>
+</html>
