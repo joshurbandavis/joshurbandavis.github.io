@@ -20,22 +20,24 @@
   a { color: #b9b4ab; text-decoration: none; }
   a:hover { color: #efe9df; }
   .back {
-    position: fixed; top: 18px; left: 22px; z-index: 2;
+    position: fixed; top: 14px; left: 14px; z-index: 2;
+    background: #171614; border: 2px solid #000; padding: 6px 10px;
     font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #5d5a54;
   }
 
-  /* Taylor, mid-scream, looming behind everything: fixed to the viewport,
-     sized to its height (the source is small, so it isn't stretched across
-     wide screens), edges faded into the page, dimmed so text stays legible. */
+  /* Taylor, mid-scream, as 1998 wallpaper: tiled edge to edge down the whole
+     document, full strength, contrast pushed, scrolling with the page. Text
+     never sits on it directly -- everything readable lives on a solid block. */
+  body { position: relative; }
   .scream {
-    position: fixed; top: 0; left: 50%; z-index: 0; pointer-events: none;
-    height: 100vh; aspect-ratio: 511 / 636; transform: translateX(-50%);
-    background: url(scream.jpg) center / cover no-repeat;
-    opacity: 0.3;
-    -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 45%, #000 55%, transparent 100%);
-    mask-image: radial-gradient(ellipse 50% 50% at 50% 45%, #000 55%, transparent 100%);
+    position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: url(scream.jpg) 0 0 / 200px auto repeat;
+    filter: contrast(1.5) saturate(1.4);
   }
-  h1, .lede, .examples, .status { text-shadow: 0 1px 14px #171614, 0 0 4px #171614; }
+  .masthead, .colophon {
+    background: #171614; border: 3px solid #000; box-shadow: 6px 6px 0 #000;
+  }
+  .masthead { max-width: 700px; margin: 0 auto; padding: 36px 32px 28px; }
   .stage { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; padding: 96px 24px 64px; }
 
   h1 {
@@ -94,13 +96,12 @@
     --accent: #efe9df;
     position: relative; display: flex; flex-direction: column;
     min-height: 260px; padding: 22px 22px 18px;
-    background: rgba(30, 29, 26, 0.9); border: 1px solid #2a2926; border-radius: 4px;
-    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-    border-top: 2px solid var(--accent);
+    background: #1e1d1a; border: 3px solid #000; border-radius: 0; box-shadow: 6px 6px 0 #000;
+    border-top: 6px solid var(--accent);
     opacity: 0.35; transition: opacity 0.4s ease;
   }
   .voice.ready { opacity: 1; }
-  .voice.best { background: rgba(35, 34, 30, 0.92); border-color: #3a3833; border-top-color: var(--accent); }
+  .voice.best { background: #23221e; }
   .v-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
   .v-name {
     font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent);
@@ -145,8 +146,8 @@
   .voice[data-id="solomon"]   { --accent: #c9906b; }
 
   .colophon {
-    max-width: 620px; margin: 56px auto 0; text-align: center;
-    font-size: 12px; line-height: 1.7; color: #4d4a45;
+    max-width: 700px; margin: 56px auto 0; padding: 18px 24px; text-align: center;
+    font-size: 12px; line-height: 1.7; color: #6b6862;
   }
   .colophon a { color: #6b6862; text-decoration: underline dotted #4d4a45; text-underline-offset: 3px; }
 
@@ -167,6 +168,7 @@
 <a class="back" href="../index.html">return</a>
 
 <div class="stage">
+  <div class="masthead">
   <h1>in other words</h1>
   <p class="lede">Say something plainly. Each voice below answers with the one
     line it ever wrote that comes closest in <em>meaning</em>. No keywords,
@@ -179,6 +181,7 @@
   <div class="examples" id="examples"></div>
 
   <div class="status busy" id="status" role="status">waking up…</div>
+  </div>
 
   <div class="voices" id="voices"></div>
 
