@@ -825,6 +825,49 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
   .layout{flex-direction:column;align-items:center}
   .sidebar{width:min(92vw,520px)}
 }
+
+/* ---- legibility pass: piece colours ----
+   Dark-board skins where black's fill sat within a shade of the squares get a clear
+   light edge (and a slight lift); light-board skins where white sat on near-white
+   squares get a firmer dark edge. Nothing else about any skin changes. */
+[data-skin="dark"] .piece-glyph.black,[data-skin="glitch"] .piece-glyph.black,[data-skin="comet"] .piece-glyph.black,
+[data-skin="orrery"] .piece-glyph.black,[data-skin="marbled"] .piece-glyph.black,[data-skin="clockwork"] .piece-glyph.black,
+[data-skin="luxmath"] .piece-glyph.black,[data-skin="ouroboros"] .piece-glyph.black,[data-skin="modular"] .piece-glyph.black,
+[data-skin="alien"] .piece-glyph.black{
+  color:color-mix(in srgb,var(--piece-dark) 80%,white);
+  -webkit-text-stroke:1.5px color-mix(in srgb,var(--piece-light) 72%,transparent);
+  text-stroke:1.5px color-mix(in srgb,var(--piece-light) 72%,transparent);
+}
+[data-skin="light"] .piece-glyph.white,[data-skin="op1"] .piece-glyph.white{
+  -webkit-text-stroke:1.6px rgba(0,0,0,.72);text-stroke:1.6px rgba(0,0,0,.72);
+  filter:drop-shadow(0 0 1px rgba(0,0,0,.6)) drop-shadow(0 1px 2px rgba(0,0,0,.3));
+}
+
+/* ---- endgame marks on the board ----
+   --accent3 rather than --accent: a few skins' main accent is a dark slate/olive that
+   would disappear on their own dark squares, while every skin's --accent3 is a light,
+   warm highlight. */
+.sq.win{box-shadow:inset 0 0 0 3px var(--accent3) !important;
+  background-image:linear-gradient(color-mix(in srgb,var(--accent3) 26%,transparent),color-mix(in srgb,var(--accent3) 26%,transparent)) !important}
+.sq.win > *{animation:winGlow 1.5s ease-in-out infinite !important;opacity:1 !important}
+.sq.mated{box-shadow:inset 0 0 0 3px #ff5e5b !important;
+  background-image:linear-gradient(rgba(255,94,91,.32),rgba(255,94,91,.32)) !important}
+.sq.dimmed > *{opacity:.3 !important;filter:saturate(.35) !important;animation:none !important}
+@keyframes winGlow{0%,100%{filter:drop-shadow(0 0 2px var(--accent3))}50%{filter:drop-shadow(0 0 11px var(--accent3))}}
+
+/* ---- endgame card ----
+   The finish used to be a near-opaque overlay across the whole board, so the final
+   position vanished at exactly the moment it mattered. It's a card under the board
+   now: the board stays readable, with whatever decided the game marked on it, and the
+   card says why the game ended rather than a generic line. */
+.win-modal{
+  position:relative;inset:auto;margin:14px auto 0;width:100%;max-width:460px;
+  background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(6px);
+  border:1px solid color-mix(in srgb,var(--accent3) 55%,transparent);border-radius:12px;
+  box-shadow:0 18px 40px -22px rgba(0,0,0,.6);padding:1rem 1.2rem 1.1rem;gap:.55rem;
+}
+.win-modal-title{color:var(--accent3);font-size:clamp(1.4rem,4.5vw,1.9rem)}
+.win-modal p{opacity:.88;max-width:360px}
 </style>
 </head>
 <body>
@@ -869,7 +912,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
       </div>
       <div class="win-modal hidden" id="winModal">
         <div class="win-modal-title" id="winModalTitle"></div>
-        <p>the board just played its winning move back to you</p>
+        <p id="winModalReason"></p>
         <button id="playAgainBtn">play again</button>
       </div>
     </div>
@@ -1662,12 +1705,41 @@ function flipSlide(el, fromRect, duration){
   });
 }
 
+// ---- endgame: which squares explain how the game ended ----
+function computeEndMarks(){
+  const marks = new Map();
+  const loser = currentPlayer, king = findKing(board, loser);
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) if(board[r][c]) marks.set(r+','+c, 'dimmed');
+  if(!king) return marks;
+  if(gameOver.result==='checkmate'){
+    marks.set(king.r+','+king.c, 'mated');
+    for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+      const p = board[r][c];
+      if(p && p.color===gameOver.winner && attacksFrom(board,r,c).some(s=>s.r===king.r && s.c===king.c)) marks.set(r+','+c, 'win');
+    }
+  } else {
+    marks.set(king.r+','+king.c, 'win'); // stalemate: the king with nowhere to go
+  }
+  return marks;
+}
+function endReason(){
+  const loser = currentPlayer, king = findKing(board, loser);
+  const where = king ? ' on ' + 'abcdefgh'[king.c] + (8-king.r) : '';
+  return gameOver.result==='checkmate'
+    ? loser + "'s king" + where + ' is in check with no way out (the attacking pieces are marked)'
+    : loser + ' has no legal move but is not in check, so nobody wins';
+}
+
 function render(){
+  const endMarks = gameOver ? computeEndMarks() : null;
   const kingPos = inCheck ? findKing(board, currentPlayer) : null;
 
   for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
     const sq = squareEls[r][c];
     sq.classList.remove('movable','dest','capture','selected','check-square');
+    sq.classList.remove('win','mated','dimmed');
+    const endMark = endMarks && endMarks.get(r+','+c);
+    if(endMark) sq.classList.add(endMark);
     sq.innerHTML = '';
 
     const isMovable = !gameOver && !pendingPromotion && movable.some(p=>p.r===r && p.c===c);
@@ -2154,6 +2226,7 @@ function showWinModal(result){
   winModalTitle.textContent = result.result==='checkmate'
     ? (result.winner + ' wins by checkmate')
     : 'draw by stalemate';
+  document.getElementById('winModalReason').textContent = endReason();
   winModal.classList.remove('hidden');
 }
 

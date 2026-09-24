@@ -770,6 +770,77 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
   .board{aspect-ratio:13/10}
   .stack-count{display:none}
 }
+
+/* ---- checker layering ----
+   Each point used to be cut into its triangle with clip-path on .point itself, which
+   clips the point's children too: checkers stacked toward the tip were shaved into
+   slivers, reading as if they sat under the board. The triangle is its own layer now,
+   behind an unclipped stack. The every-4th-point shading moves onto that layer as well
+   (as a filter on .point it was brightening the checkers on those points too). */
+.point.row-top,.point.row-bottom{clip-path:none}
+.point{background:transparent}
+.point::before{content:'';position:absolute;inset:0;background:var(--light-sq);pointer-events:none}
+.point.row-top::before{clip-path:polygon(8% 0,92% 0,50% 92%)}
+.point.row-bottom::before{clip-path:polygon(8% 100%,92% 100%,50% 8%)}
+.point:nth-child(4n){filter:none}
+.point:nth-child(4n)::before{filter:brightness(1.12)}
+.point.movable,.point.selected-src{box-shadow:none}
+.point.movable::before{background:color-mix(in srgb,var(--light-sq) 70%,var(--accent))}
+.point.selected-src::before{background:color-mix(in srgb,var(--light-sq) 45%,var(--accent))}
+.point.sown{animation:none}
+.point.sown::before{animation:pointSown .3s ease}
+.checker-stack{position:relative;z-index:1;gap:1px}
+/* unclipped, a full five-checker stack filled the point edge to edge and pushed its
+   count label under the board's rim; slightly smaller checkers leave it room */
+.point .checker{max-width:30px}
+
+/* ---- legibility pass: checker colours ----
+   Black's checkers get a faint edge in the skin's own text colour (light on dark
+   skins, dark on light ones), and on the light-board skins, where black came out as a
+   pale --dim2 disc on pale points, black is actually dark. Skins that restyle black's
+   checkers themselves keep their own look. */
+.checker.black{box-shadow:inset 0 2px 3px rgba(255,255,255,.2),inset 0 -3px 5px rgba(0,0,0,.5),0 2px 4px rgba(0,0,0,.5),0 0 0 1.5px color-mix(in srgb,var(--fg) 40%,transparent)}
+[data-skin="light"] .checker.black,[data-skin="op1"] .checker.black,[data-skin="tb303"] .checker.black{
+  background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.3),transparent 45%),linear-gradient(160deg,#5c574d,#322e28 55%,#16140f)}
+
+/* ---- roll control on the board ----
+   Rolling used to be a plain button in the fourth sidebar panel, styled like "new
+   game". It now sits right under the board, in the skin's highlight colour, pulsing
+   whenever a roll is what's needed; the dice land in the same spot. */
+.board-wrap{flex-wrap:wrap}
+.roll-row{flex-basis:100%;display:flex;align-items:center;justify-content:center;gap:1rem;min-height:56px;flex-wrap:wrap}
+.board-wrap #rollBig{
+  font-family:var(--mono);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;
+  padding:.8rem 1.7rem;border-radius:100px;border:none;cursor:pointer;
+  background:var(--accent3);color:var(--bg);animation:rollPulse 1.8s ease-out infinite;
+}
+.board-wrap #rollBig[hidden]{display:none}
+@keyframes rollPulse{
+  0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent3) 55%,transparent)}
+  70%{box-shadow:0 0 0 14px transparent}100%{box-shadow:0 0 0 0 transparent}
+}
+.dice-big{margin-top:0}
+.dice-big .die{width:40px;height:40px;font-size:1.15rem;border-radius:9px}
+.roll-hint{font-size:.7rem;color:var(--dim)}
+.board-wrap .win-modal{flex-basis:100%}
+
+/* ---- endgame marks ---- */
+.off-zone.win{box-shadow:inset 0 0 0 3px var(--accent3),0 0 24px -4px var(--accent3)}
+.off-zone.win .off-count{color:var(--accent3)}
+
+/* ---- endgame card ----
+   The finish used to be a near-opaque overlay across the whole board, so the final
+   position vanished at exactly the moment it mattered. It's a card under the board
+   now: the board stays readable, with whatever decided the game marked on it, and the
+   card says why the game ended rather than a generic line. */
+.win-modal{
+  position:relative;inset:auto;margin:14px auto 0;width:100%;max-width:460px;
+  background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(6px);
+  border:1px solid color-mix(in srgb,var(--accent3) 55%,transparent);border-radius:12px;
+  box-shadow:0 18px 40px -22px rgba(0,0,0,.6);padding:1rem 1.2rem 1.1rem;gap:.55rem;
+}
+.win-modal-title{color:var(--accent3);font-size:clamp(1.4rem,4.5vw,1.9rem)}
+.win-modal p{opacity:.88;max-width:360px}
 </style>
 </head>
 <body>
@@ -807,13 +878,18 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
         <div class="off-zone off-zone-black" id="offZoneBlack"></div>
         <div class="off-zone off-zone-red" id="offZoneRed"></div>
       </div>
+      <div class="roll-row">
+        <button id="rollBig" hidden>roll dice</button>
+        <div class="dice-row dice-big" id="diceRowBig"></div>
+        <span class="roll-hint" id="rollHint"></span>
+      </div>
       <div class="gate" id="gate">
         <p>Sound needs a tap to start (browser rule, not ours).</p>
         <button id="startBtn">▶ enable sound</button>
       </div>
       <div class="win-modal hidden" id="winModal">
         <div class="win-modal-title" id="winModalTitle"></div>
-        <p>the board just played its winning move back to you</p>
+        <p id="winModalReason"></p>
         <button id="playAgainBtn">play again</button>
       </div>
     </div>
@@ -1461,6 +1537,8 @@ function renderOffTray(){
     diceRemaining.some(d => legalMovesForDie(currentPlayer, d).some(m=>m.from===selectedPoint && m.to==='off'));
   offZoneRedEl.classList.toggle('movable', canOff && currentPlayer==='red');
   offZoneBlackEl.classList.toggle('movable', canOff && currentPlayer==='black');
+  offZoneRedEl.classList.toggle('win', !!gameOver && gameOver.winner==='red');
+  offZoneBlackEl.classList.toggle('win', !!gameOver && gameOver.winner==='black');
 }
 
 function renderBar(){
@@ -1484,10 +1562,28 @@ function renderDice(){
     if(idx===-1){ used = true; } else { remainingCopy.splice(idx,1); used = false; }
     return '<div class="die' + (used ? ' used' : '') + '">' + d + '</div>';
   }).join('');
+  document.getElementById('diceRowBig').innerHTML = diceRowEl.innerHTML;
+}
+
+// ---- endgame ----
+function endReason(){
+  const w = gameOver.winner, l = opponent(w);
+  if(gameOver.backgammon) return w + ' bore off all 15 while ' + l + ' had borne off none and still had a checker on the bar or in ' + w + "'s home board: a backgammon, worth triple";
+  if(gameOver.gammon) return w + ' bore off all 15 before ' + l + ' bore off a single checker: a gammon, worth double';
+  return w + ' bore off all 15 checkers first';
 }
 
 function render(){
   for(let idx=0; idx<24; idx++) renderPoint(idx);
+  const computersTurn = opponentMode==='computer' && currentPlayer===aiColor;
+  const canRoll = !gameOver && diceRemaining.length===0 && !computersTurn;
+  const rollBig = document.getElementById('rollBig');
+  rollBig.hidden = !canRoll;
+  rollBig.textContent = 'roll dice · ' + currentPlayer;
+  document.getElementById('rollHint').textContent = gameOver ? ''
+    : canRoll ? ''
+    : computersTurn ? 'the computer is playing'
+    : 'pick a checker, then where it lands';
   renderBar();
   renderOffTray();
   renderDice();
@@ -2041,6 +2137,7 @@ function celebrateWin(result){
 function showWinModal(result){
   const kind = result.backgammon ? 'backgammon' : result.gammon ? 'gammon' : 'single game';
   winModalTitle.textContent = result.winner + ' wins — ' + kind;
+  document.getElementById('winModalReason').textContent = endReason();
   winModal.classList.remove('hidden');
 }
 
@@ -2053,6 +2150,7 @@ startBtn.addEventListener('click', startAudio);
 tempoSlider.addEventListener('input', ()=>{
   tempoVal.textContent = tempoSlider.value;
 });
+document.getElementById('rollBig').addEventListener('click', ()=>document.getElementById('rollBtn').click());
 document.getElementById('rollBtn').addEventListener('click', ()=>{
   if(opponentMode==='computer' && currentPlayer===aiColor) return;
   rollDice();

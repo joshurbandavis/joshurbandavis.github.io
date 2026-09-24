@@ -581,6 +581,52 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
   .board{aspect-ratio:2/1}
   .seed-cluster{display:none} /* the count number alone carries it at this size */
 }
+
+/* ---- vertical board ----
+   The 4:1 strip left the pits small and the seed counts hard to read beside a tall
+   sidebar, so the board stands upright: black's store on top, red's at the bottom,
+   red's pits down the left and black's up the right -- the classic board turned 90
+   degrees, so sowing still runs counter-clockwise. The sweep runs top to bottom, one
+   row per step, pairing the same pits (so playing the same notes) as before. */
+.board-wrap{width:min(92vw,300px)}
+.board{aspect-ratio:auto;grid-template-columns:1fr 1fr;grid-template-rows:auto repeat(6,auto) auto;gap:8px;padding:8px}
+.pit{aspect-ratio:1/1;width:100%;max-width:120px;justify-self:center}
+.store{flex-direction:row;gap:.9rem;min-height:74px;border-radius:14px}
+.seed{width:9px;height:9px}
+.sweep-bar{
+  left:6px;right:6px;width:auto;top:6px;bottom:auto;height:0;
+  border-left:none;border-right:none;
+  border-top:1px solid rgba(200,255,46,.45);border-bottom:1px solid rgba(200,255,46,.45);
+  transition:top .06s linear,height .06s linear;
+}
+@media(max-width:760px){
+  .board{aspect-ratio:auto}
+  .seed-cluster{display:flex}
+}
+
+/* ---- legibility pass: seeds ----
+   Black's seeds were a dim grey on dark pits in nearly every skin; they now take most
+   of the skin's own text colour, which is light on dark skins and dark on light ones. */
+.seed.black{background:color-mix(in srgb,var(--fg) 78%,var(--bg));box-shadow:0 0 0 1px color-mix(in srgb,var(--bg) 55%,transparent)}
+
+/* ---- endgame marks ---- */
+.store.win{box-shadow:inset 0 0 0 3px var(--accent3),0 0 26px -4px var(--accent3) !important}
+.store.win .store-count,.store.win .store-label{color:var(--accent3)}
+.store.dimmed{opacity:.45}
+
+/* ---- endgame card ----
+   The finish used to be a near-opaque overlay across the whole board, so the final
+   position vanished at exactly the moment it mattered. It's a card under the board
+   now: the board stays readable, with whatever decided the game marked on it, and the
+   card says why the game ended rather than a generic line. */
+.win-modal{
+  position:relative;inset:auto;margin:14px auto 0;width:100%;max-width:460px;
+  background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(6px);
+  border:1px solid color-mix(in srgb,var(--accent3) 55%,transparent);border-radius:12px;
+  box-shadow:0 18px 40px -22px rgba(0,0,0,.6);padding:1rem 1.2rem 1.1rem;gap:.55rem;
+}
+.win-modal-title{color:var(--accent3);font-size:clamp(1.4rem,4.5vw,1.9rem)}
+.win-modal p{opacity:.88;max-width:360px}
 </style>
 </head>
 <body>
@@ -619,7 +665,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
       </div>
       <div class="win-modal hidden" id="winModal">
         <div class="win-modal-title" id="winModalTitle"></div>
-        <p>the board just played its winning move back to you</p>
+        <p id="winModalReason"></p>
         <button id="playAgainBtn">play again</button>
       </div>
     </div>
@@ -695,7 +741,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
           <span class="tempo-val"><span id="tempoVal">104</span> bpm</span>
         </div>
         <p style="margin:.8rem 0 0;font-size:.68rem;line-height:1.6;color:var(--fg);opacity:.6">
-          Every sow sweeps the board once, left to right.
+          Every sow sweeps the board once, top to bottom.
         </p>
       </div>
 
@@ -846,7 +892,7 @@ self.onmessage = function(e){
 "use strict";
 
 /* ---------------- mancala (kalah) rules engine ---------------- */
-// pits[0..5] = red's own pits (sown left to right), pits[6] = red's store,
+// pits[0..5] = red's own pits (sown top to bottom, down the left column), pits[6] = red's store,
 // pits[7..12] = black's own pits, pits[13] = black's store. See the worker's header
 // comment above for the sowing order and skip rule -- this is a duplicate of that
 // same pure logic, plus the live game state the worker never touches.
@@ -899,12 +945,13 @@ function resetGame(){
 }
 
 function finishGame(){
+  const emptied = isSideEmpty([0,1,2,3,4,5]) ? 'red' : 'black'; // before the sweep erases it
   let redTotal = 0, blackTotal = 0;
   for(const i of [0,1,2,3,4,5]){ redTotal += pits[i]; pits[i] = 0; }
   for(const i of [7,8,9,10,11,12]){ blackTotal += pits[i]; pits[i] = 0; }
   pits[6] += redTotal; pits[13] += blackTotal;
   const red = pits[6], black = pits[13];
-  gameOver = red===black ? {draw:true, red, black} : {winner: red>black ? 'red' : 'black', red, black};
+  gameOver = red===black ? {draw:true, red, black, emptied} : {winner: red>black ? 'red' : 'black', red, black, emptied};
   render();
   celebrateWin(gameOver);
 }
@@ -951,21 +998,24 @@ function handlePitClick(pitIndex){
 }
 
 /* ---------------- board DOM ---------------- */
-// 8 sweep columns wide, 2 rows tall: column 0 is black's store, columns 1-6 are the
-// six pit-pairs (black's row on top, red's row on the bottom), column 7 is red's
-// store. This lines up with the classic physical mancala layout -- sowing runs right
-// along the bottom row, up red's store, right-to-left along the top row, down black's
-// store, and back to red's first pit -- while still fitting the same left-to-right
-// sweep-bar convention every other sequencer on this site uses.
+// 8 sweep steps, drawn as rows of an upright board: step 0 is black's store across
+// the top, steps 1-6 are the six pit-pairs (red's pit on the left, black's on the
+// right), step 7 is red's store across the bottom. It's the classic physical layout
+// turned 90 degrees -- sowing runs down red's column, into red's store, up black's
+// column, into black's store and back to red's first pit -- and the sweep bar runs
+// top to bottom through the same steps the horizontal board swept left to right.
 const boardEl = document.getElementById('board');
 const sweepBar = document.getElementById('sweepBar');
 const pitEls = {}; // pit index (0-13) -> DOM element
 
+// Upright board: black's store across the top, red's across the bottom, red's pits
+// 0..5 running down the left column and black's 12..7 down the right -- row k+1 holds
+// the same red/black pit pair that sweep column k plays.
 function gridPosFor(pitIndex){
-  if(pitIndex===13) return { col:1, row:'1 / 3' };
-  if(pitIndex===6) return { col:8, row:'1 / 3' };
-  if(pitIndex>=0 && pitIndex<=5) return { col:pitIndex+2, row:'2' };
-  return { col:14-pitIndex, row:'1' }; // 7..12
+  if(pitIndex===13) return { col:'1 / 3', row:'1' };
+  if(pitIndex===6) return { col:'1 / 3', row:'8' };
+  if(pitIndex>=0 && pitIndex<=5) return { col:'1', row:String(pitIndex+2) };
+  return { col:'2', row:String(14-pitIndex) }; // 7..12
 }
 
 for(let i=0;i<14;i++){
@@ -1011,8 +1061,19 @@ function renderPit(i){
   }
 }
 
+// ---- endgame ----
+function endReason(){
+  const scores = 'red ' + gameOver.red + ', black ' + gameOver.black;
+  return gameOver.emptied + "'s side ran out of seeds, so every seed left on the board went to its own side's store: " +
+    scores + (gameOver.draw ? ', a tie' : '');
+}
+
 function render(){
   for(let i=0;i<14;i++) renderPit(i);
+  for(const [i, color] of [[6,'red'],[13,'black']]){
+    pitEls[i].classList.toggle('win', !!gameOver && gameOver.winner===color);
+    pitEls[i].classList.toggle('dimmed', !!gameOver && !gameOver.draw && gameOver.winner!==color);
+  }
 
   turnDot.className = 'turn-dot ' + currentPlayer;
   if(gameOver){
@@ -1336,7 +1397,10 @@ function traceSowing(trail){
 }
 
 function setActiveColumn(col){
-  sweepBar.style.left = 'calc(' + (col * 12.5) + '% + 6px)';
+  // rows differ in height (stores vs pits), so the bar takes its row's real box
+  const rowEl = col===0 ? pitEls[13] : col===7 ? pitEls[6] : pitEls[col-1];
+  sweepBar.style.top = rowEl.offsetTop + 'px';
+  sweepBar.style.height = rowEl.offsetHeight + 'px';
   if(col===0){ if(pits[13]>0) pulseCell(pitEls[13]); return; }
   if(col===7){ if(pits[6]>0) pulseCell(pitEls[6]); return; }
   const blackIdx = 13-col, redIdx = col-1;
@@ -1490,6 +1554,7 @@ function showWinModal(result){
   winModalTitle.textContent = result.draw
     ? ('draw — ' + result.red + '–' + result.black)
     : (result.winner + ' wins, ' + Math.max(result.red,result.black) + '–' + Math.min(result.red,result.black));
+  document.getElementById('winModalReason').textContent = endReason();
   winModal.classList.remove('hidden');
 }
 

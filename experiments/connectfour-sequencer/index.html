@@ -889,6 +889,53 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
   .layout{flex-direction:column;align-items:center}
   .sidebar{width:min(92vw,520px)}
 }
+
+/* ---- legibility pass: piece colours ----
+   Only skins where one side's pieces nearly vanished into the board (or into the
+   other side) are touched, and only by lifting value or adding an edge -- each skin
+   keeps its own hue and piece shape. Last in the sheet so it wins over the per-skin
+   rules above at equal specificity. */
+/* light, op1: "black" came from --dim2, which is a pale beige/grey on these palettes,
+   so it read as a second light colour on a light board */
+[data-skin="light"] .piece.black{background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.28),transparent 45%),linear-gradient(160deg,#5c574d,#322e28 55%,#16140f)}
+[data-skin="op1"] .piece.black{background:#2d2d2b}
+/* dark, alien, glitch: the dark side sat within a shade of the dark squares */
+[data-skin="dark"] .piece.black,[data-skin="alien"] .piece.black,[data-skin="glitch"] .piece.black{background:
+  radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.35),transparent 45%),
+  linear-gradient(160deg,color-mix(in srgb,var(--dim2) 35%,white),color-mix(in srgb,var(--dim2) 62%,white) 55%,color-mix(in srgb,var(--dim2) 85%,white))}
+/* modular: both sides were near-black discs behind the same brass ring */
+[data-skin="modular"] .piece.red{background:radial-gradient(circle at 40% 35%,color-mix(in srgb,var(--accent2) 75%,white),var(--accent2) 60%,color-mix(in srgb,var(--accent2) 55%,black))}
+[data-skin="modular"] .piece.black{background:radial-gradient(circle at 40% 35%,#6b5840,#2c2116 75%)}
+/* marbled: the ink-blue side on an indigo board */
+[data-skin="marbled"] .piece.black{outline:2px solid rgba(201,162,74,.75);outline-offset:-2px}
+/* anatomy: bone against bone -- the second side becomes sepia ink */
+[data-skin="anatomy"] .piece.black{background:radial-gradient(ellipse at 35% 25%,#9a8264,#5a4630 58%,#2a1e12)}
+
+/* ---- endgame marks on the board ----
+   --accent3 rather than --accent: a few skins' main accent is a dark slate/olive that
+   would disappear on their own dark squares, while every skin's --accent3 is a light,
+   warm highlight. */
+.sq.win{box-shadow:inset 0 0 0 3px var(--accent3) !important;
+  background-image:linear-gradient(color-mix(in srgb,var(--accent3) 26%,transparent),color-mix(in srgb,var(--accent3) 26%,transparent)) !important}
+.sq.win > *{animation:winGlow 1.5s ease-in-out infinite !important;opacity:1 !important}
+.sq.mated{box-shadow:inset 0 0 0 3px #ff5e5b !important;
+  background-image:linear-gradient(rgba(255,94,91,.32),rgba(255,94,91,.32)) !important}
+.sq.dimmed > *{opacity:.3 !important;filter:saturate(.35) !important;animation:none !important}
+@keyframes winGlow{0%,100%{filter:drop-shadow(0 0 2px var(--accent3))}50%{filter:drop-shadow(0 0 11px var(--accent3))}}
+
+/* ---- endgame card ----
+   The finish used to be a near-opaque overlay across the whole board, so the final
+   position vanished at exactly the moment it mattered. It's a card under the board
+   now: the board stays readable, with whatever decided the game marked on it, and the
+   card says why the game ended rather than a generic line. */
+.win-modal{
+  position:relative;inset:auto;margin:14px auto 0;width:100%;max-width:460px;
+  background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(6px);
+  border:1px solid color-mix(in srgb,var(--accent3) 55%,transparent);border-radius:12px;
+  box-shadow:0 18px 40px -22px rgba(0,0,0,.6);padding:1rem 1.2rem 1.1rem;gap:.55rem;
+}
+.win-modal-title{color:var(--accent3);font-size:clamp(1.4rem,4.5vw,1.9rem)}
+.win-modal p{opacity:.88;max-width:360px}
 </style>
 </head>
 <body>
@@ -925,7 +972,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
       </div>
       <div class="win-modal hidden" id="winModal">
         <div class="win-modal-title" id="winModalTitle"></div>
-        <p>the board just played its winning move back to you</p>
+        <p id="winModalReason"></p>
         <button id="playAgainBtn">play again</button>
       </div>
     </div>
@@ -1317,10 +1364,29 @@ function flipSlide(el, fromRect, duration){
   });
 }
 
+// ---- endgame: the winning line lit, everything else dimmed ----
+function computeEndMarks(){
+  const marks = new Map();
+  if(!winningLine) return marks; // a draw has nothing to point at
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) if(board[r][c]) marks.set(r+','+c, 'dimmed');
+  for(const w of winningLine) marks.set(w.r+','+w.c, 'win');
+  return marks;
+}
+function endReason(){
+  if(!winningLine) return 'the board filled up without anyone making four in a row';
+  const rows = new Set(winningLine.map(w=>w.r)), cols = new Set(winningLine.map(w=>w.c));
+  const dir = rows.size===1 ? 'across a row' : cols.size===1 ? 'straight up a column' : 'along a diagonal';
+  return winningLine.length + ' in a row, ' + dir;
+}
+
 function render(){
+  const endMarks = gameOver ? computeEndMarks() : null;
   for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
     const sq = squareEls[r][c];
     sq.classList.remove('movable','selected');
+    sq.classList.remove('win','mated','dimmed');
+    const endMark = endMarks && endMarks.get(r+','+c);
+    if(endMark) sq.classList.add(endMark);
     sq.innerHTML = '';
 
     // the whole column is "movable" if it has room, not just its topmost empty cell --
@@ -1815,6 +1881,7 @@ function celebrateWin(result){
 
 function showWinModal(result){
   winModalTitle.textContent = result.draw ? 'draw' : ((result.winner==='red' ? 'red' : 'black') + ' wins');
+  document.getElementById('winModalReason').textContent = endReason();
   winModal.classList.remove('hidden');
 }
 
