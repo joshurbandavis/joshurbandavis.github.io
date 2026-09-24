@@ -24,7 +24,19 @@
     font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #5d5a54;
   }
 
-  .stage { max-width: 1080px; margin: 0 auto; padding: 96px 24px 64px; }
+  /* Taylor, mid-scream, looming behind everything: fixed to the viewport,
+     sized to its height (the source is small, so it isn't stretched across
+     wide screens), edges faded into the page, dimmed so text stays legible. */
+  .scream {
+    position: fixed; top: 0; left: 50%; z-index: 0; pointer-events: none;
+    height: 100vh; aspect-ratio: 511 / 636; transform: translateX(-50%);
+    background: url(scream.jpg) center / cover no-repeat;
+    opacity: 0.3;
+    -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 45%, #000 55%, transparent 100%);
+    mask-image: radial-gradient(ellipse 50% 50% at 50% 45%, #000 55%, transparent 100%);
+  }
+  h1, .lede, .examples, .status { text-shadow: 0 1px 14px #171614, 0 0 4px #171614; }
+  .stage { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; padding: 96px 24px 64px; }
 
   h1 {
     margin: 0; text-align: center;
@@ -82,12 +94,13 @@
     --accent: #efe9df;
     position: relative; display: flex; flex-direction: column;
     min-height: 260px; padding: 22px 22px 18px;
-    background: #1e1d1a; border: 1px solid #2a2926; border-radius: 4px;
+    background: rgba(30, 29, 26, 0.9); border: 1px solid #2a2926; border-radius: 4px;
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
     border-top: 2px solid var(--accent);
     opacity: 0.35; transition: opacity 0.4s ease;
   }
   .voice.ready { opacity: 1; }
-  .voice.best { background: #23221e; border-color: #3a3833; border-top-color: var(--accent); }
+  .voice.best { background: rgba(35, 34, 30, 0.92); border-color: #3a3833; border-top-color: var(--accent); }
   .v-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
   .v-name {
     font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent);
@@ -150,6 +163,7 @@
 </head>
 <body>
 
+<div class="scream" aria-hidden="true"></div>
 <a class="back" href="../index.html">return</a>
 
 <div class="stage">
