@@ -96,12 +96,20 @@
     --accent: #efe9df;
     position: relative; display: flex; flex-direction: column;
     min-height: 260px; padding: 22px 22px 18px;
-    background: #1e1d1a; border: 3px solid #000; border-radius: 0; box-shadow: 6px 6px 0 #000;
+    /* Each voice's portrait, pushed right and faded under the card colour on
+       the left, where the text starts. --pos keeps a face in frame. */
+    --shade: 30, 29, 26;
+    background:
+      linear-gradient(0deg, rgba(var(--shade), 0.96) 0, rgba(var(--shade), 0.96) 64px, rgba(var(--shade), 0) 120px),
+      linear-gradient(90deg, rgba(var(--shade), 0.95) 0%, rgba(var(--shade), 0.86) 50%, rgba(var(--shade), 0.62) 100%),
+      var(--portrait, none) var(--pos, center 20%) / cover no-repeat,
+      rgb(var(--shade));
+    border: 3px solid #000; border-radius: 0; box-shadow: 6px 6px 0 #000;
     border-top: 6px solid var(--accent);
     opacity: 0.35; transition: opacity 0.4s ease;
   }
   .voice.ready { opacity: 1; }
-  .voice.best { background: #23221e; }
+  .voice.best { --shade: 35, 34, 30; }
   .v-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
   .v-name {
     font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent);
@@ -120,6 +128,7 @@
   .v-quote span { display: block; }
   .v-quote span + span { color: #b0aa9f; }
   .v-quote.empty { font-style: italic; color: #4d4a45; font-size: 18px; }
+  .v-quote, .v-src { text-shadow: 0 1px 3px rgb(var(--shade)), 0 0 10px rgb(var(--shade)); }
   .v-src { margin-top: 16px; font-size: 12px; line-height: 1.5; color: #77736c; }
   .v-foot {
     margin-top: 14px; padding-top: 12px; border-top: 1px solid #2a2926;
@@ -135,15 +144,15 @@
   .v-next:hover:not(:disabled) { color: var(--accent); }
   .v-next:disabled { visibility: hidden; }
 
-  .voice[data-id="swift"]     { --accent: #d9a7c7; }
-  .voice[data-id="bridgers"]  { --accent: #8fb4e8; }
-  .voice[data-id="abba"]      { --accent: #b69cf0; }
-  .voice[data-id="cohen"]     { --accent: #cfc6b4; }
-  .voice[data-id="kendrick"]  { --accent: #e0685c; }
-  .voice[data-id="sonnets"]   { --accent: #d6b36a; }
-  .voice[data-id="dickinson"] { --accent: #9fc3b0; }
-  .voice[data-id="poe"]       { --accent: #6fbcc4; }
-  .voice[data-id="solomon"]   { --accent: #c9906b; }
+  .voice[data-id="swift"]     { --accent: #d9a7c7; --portrait: url(portraits/swift.jpg); --pos: center 15%; }
+  .voice[data-id="bridgers"]  { --accent: #8fb4e8; --portrait: url(portraits/bridgers.jpg); --pos: center 10%; }
+  .voice[data-id="abba"]      { --accent: #b69cf0; --portrait: url(portraits/abba.jpg); --pos: center 30%; }
+  .voice[data-id="cohen"]     { --accent: #cfc6b4; --portrait: url(portraits/cohen.jpg); --pos: center 15%; }
+  .voice[data-id="kendrick"]  { --accent: #e0685c; --portrait: url(portraits/kendrick.jpg); --pos: center 25%; }
+  .voice[data-id="sonnets"]   { --accent: #d6b36a; --portrait: url(portraits/sonnets.jpg); --pos: center 20%; }
+  .voice[data-id="dickinson"] { --accent: #9fc3b0; --portrait: url(portraits/dickinson.jpg); --pos: center 15%; }
+  .voice[data-id="poe"]       { --accent: #6fbcc4; --portrait: url(portraits/poe.jpg); --pos: center 20%; }
+  .voice[data-id="solomon"]   { --accent: #c9906b; --portrait: url(portraits/solomon.jpg); --pos: center 10%; }
 
   .colophon {
     max-width: 700px; margin: 56px auto 0; padding: 18px 24px; text-align: center;
@@ -191,6 +200,7 @@
     Your sentence becomes a point too, right here in your browser, and each
     voice answers with its nearest neighbour. Nothing you type leaves this page.
     <br><span id="credits"></span>
+    <br>Portraits via Wikimedia Commons: <a href="https://commons.wikimedia.org/wiki/File:Taylor_Swift_at_the_2024_Golden_Globes_(2).png" target="_blank" rel="noopener">Taylor Swift</a> (iHeartRadioCA, CC BY 3.0); <a href="https://commons.wikimedia.org/wiki/File:Phoebe_Bridgers_at_Marymoor_Park_in_Redmond,_WA_01.jpg" target="_blank" rel="noopener">Phoebe Bridgers</a> (David Lee, CC BY 2.0); <a href="https://commons.wikimedia.org/wiki/File:ABBA_-_TopPop_1974_5.png" target="_blank" rel="noopener">ABBA</a> (AVRO, CC BY-SA 3.0 nl); <a href="https://commons.wikimedia.org/wiki/File:Leonard_Cohen_2155.jpg" target="_blank" rel="noopener">Leonard Cohen</a> (Rama, CC BY-SA 2.0 fr); <a href="https://commons.wikimedia.org/wiki/File:Pulitzer2018-portraits-kendrick-lamar_(cropped).jpg" target="_blank" rel="noopener">Kendrick Lamar</a> (Fuzheado, CC BY-SA 4.0); <a href="https://commons.wikimedia.org/wiki/File:Shakespeare.jpg" target="_blank" rel="noopener">Shakespeare</a> (Attributed to John Taylor, Public domain); <a href="https://commons.wikimedia.org/wiki/File:Emily_Dickinson_daguerreotype_(Restored).jpg" target="_blank" rel="noopener">Emily Dickinson</a> (unknown photographer, Public domain); <a href="https://commons.wikimedia.org/wiki/File:Edgar_Allan_Poe,_circa_1849,_restored,_squared_off.jpg" target="_blank" rel="noopener">Edgar Allan Poe</a> (unknown photographer, Public domain); <a href="https://commons.wikimedia.org/wiki/File:Berruguete,_Pedro_-_Salomon_-_c._1500.jpg" target="_blank" rel="noopener">Solomon</a> (Pedro Berruguete, Public domain).
   </p>
 </div>
 

@@ -662,6 +662,12 @@ behavioral art. Each lives in its own folder as a self-contained page.
     public domain.
   - Weight: ~16 MB of data (13 MB of it vectors) on top of the ~23 MB
     model, all cached after the first visit.
+  - Looks: `scream.jpg` (supplied, not from Commons) tiles the whole page as
+    web-1.0 wallpaper; each card carries its voice's portrait from
+    `portraits/<voice>.jpg` (Wikimedia Commons, public domain or CC BY /
+    BY-SA, credited with links in the page footer), faded under the card
+    colour so the text stays readable. A new voice needs a portrait there
+    and a `--portrait` / `--pos` line next to its accent colour.
 
 Not linked from the main site nav — open directly, e.g. locally:
 
