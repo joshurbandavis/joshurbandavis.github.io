@@ -1899,17 +1899,25 @@ const PRESETS = {
   // la lumiere: a round, warm triangle through a gentle filter swell -- no wobble, no
   // grit, just a soft chorus, a slow quarter-note tape echo and a genuine algorithmic
   // reverb (Tone.Reverb, unused anywhere else here) for the big, sunny room dub lives in.
+  // la lumiere: rebuilt off an envelope-follower instead of an LFO -- Tone.AutoWah
+  // (unused anywhere else here) opens its filter with the *strength of each note*,
+  // not a clock, which is the actual mechanism behind a "talking," vocal reggae bass
+  // rather than the rhythmic sweep every other filter-modulated skin uses. The old
+  // Chorus+FeedbackDelay pairing was almost exactly Omen's (same feedback, same wet,
+  // one dotted note apart), so it's gone in favor of a stereo ping-pong bounce, and
+  // the oscillator moved from triangle to a bare sine for a rounder, purer tone --
+  // a MonoSynth+sine pairing nothing else in this set uses.
   lalumiere: { label:'La Lumière', build: () => {
     const synth = new Tone.PolySynth(Tone.MonoSynth, {
-      oscillator:{type:'triangle'},
-      filter:{Q:0.8, type:'lowpass', rolloff:-12},
-      envelope:{attack:0.04, decay:0.3, sustain:0.6, release:1.2},
-      filterEnvelope:{attack:0.06, decay:0.3, sustain:0.5, release:1.0, baseFrequency:200, octaves:2}
+      oscillator:{type:'sine'},
+      filter:{Q:0.6, type:'lowpass', rolloff:-12},
+      envelope:{attack:0.05, decay:0.35, sustain:0.65, release:1.4},
+      filterEnvelope:{attack:0.08, decay:0.35, sustain:0.55, release:1.2, baseFrequency:180, octaves:2.2}
     });
-    const chorus = new Tone.Chorus({frequency:0.8, delayTime:4, depth:0.4, wet:0.3}).start();
-    const echo = new Tone.FeedbackDelay({delayTime:'4n', feedback:0.4, wet:0.28});
-    const reverb = new Tone.Reverb({decay:2.5, wet:0.25});
-    return [synth, chorus, echo, reverb];
+    const wah = new Tone.AutoWah({baseFrequency:120, octaves:4, sensitivity:-8, Q:2, wet:0.6});
+    const delay = new Tone.PingPongDelay({delayTime:'2n.', feedback:0.32, wet:0.24});
+    const reverb = new Tone.Reverb({decay:3.0, wet:0.3});
+    return [synth, wah, delay, reverb];
   }},
   // audacia: a detuned unison square (FatOscillator, square instead of Ouroboros's
   // sawtooth) stabbed short and hard, then bit-crushed (Tone.BitCrusher, unused

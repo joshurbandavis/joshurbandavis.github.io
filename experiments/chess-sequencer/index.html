@@ -2295,19 +2295,22 @@ const PALETTES = {
   // la lumiere: a round, warm triangle through a gentle filter swell, escalating
   // into a long, sunny hold for the king, under chorus, tape echo and a genuine
   // algorithmic reverb.
+  // la lumiere: rebuilt off Tone.AutoWah, an envelope-follower rather than an LFO --
+  // see the single-voice games for the full rationale (the old Chorus+FeedbackDelay
+  // chain was almost exactly Omen's). Oscillator moved from triangle to sine.
   lalumiere: { label:'La Lumière', make: () => ({
     voices: {
-      pawn:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'triangle'}, filter:{Q:0.8,type:'lowpass',rolloff:-12}, envelope:{attack:0.02,decay:0.15,sustain:0.4,release:0.5}, filterEnvelope:{attack:0.03,decay:0.15,sustain:0.3,release:0.4,baseFrequency:250,octaves:1.6}}),
-      knight: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'triangle'}, filter:{Q:0.8,type:'lowpass',rolloff:-12}, envelope:{attack:0.01,decay:0.1,sustain:0.3,release:0.35}, filterEnvelope:{attack:0.02,decay:0.1,sustain:0.2,release:0.3,baseFrequency:300,octaves:1.8}}),
-      bishop: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'triangle'}, filter:{Q:0.8,type:'lowpass',rolloff:-12}, envelope:{attack:0.06,decay:0.4,sustain:0.6,release:1.1}, filterEnvelope:{attack:0.08,decay:0.4,sustain:0.5,release:0.9,baseFrequency:180,octaves:2}}),
-      rook:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'triangle'}, filter:{Q:0.8,type:'lowpass',rolloff:-12}, envelope:{attack:0.03,decay:0.3,sustain:0.55,release:0.9}, filterEnvelope:{attack:0.05,decay:0.3,sustain:0.45,release:0.7,baseFrequency:150,octaves:1.8}}),
-      queen:  new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'triangle'}, filter:{Q:0.8,type:'lowpass',rolloff:-12}, envelope:{attack:0.08,decay:0.5,sustain:0.65,release:1.4}, filterEnvelope:{attack:0.1,decay:0.5,sustain:0.55,release:1.1,baseFrequency:130,octaves:2.2}}),
-      king:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'triangle'}, filter:{Q:0.7,type:'lowpass',rolloff:-12}, envelope:{attack:0.15,decay:0.7,sustain:0.7,release:2.0}, filterEnvelope:{attack:0.2,decay:0.7,sustain:0.6,release:1.6,baseFrequency:100,octaves:2.4}}),
+      pawn:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:0.6,type:'lowpass',rolloff:-12}, envelope:{attack:0.03,decay:0.15,sustain:0.4,release:0.5}, filterEnvelope:{attack:0.04,decay:0.15,sustain:0.3,release:0.4,baseFrequency:220,octaves:1.8}}),
+      knight: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:0.6,type:'lowpass',rolloff:-12}, envelope:{attack:0.015,decay:0.1,sustain:0.3,release:0.35}, filterEnvelope:{attack:0.025,decay:0.1,sustain:0.2,release:0.3,baseFrequency:270,octaves:2}}),
+      bishop: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:0.6,type:'lowpass',rolloff:-12}, envelope:{attack:0.07,decay:0.4,sustain:0.6,release:1.1}, filterEnvelope:{attack:0.1,decay:0.4,sustain:0.5,release:0.9,baseFrequency:160,octaves:2.2}}),
+      rook:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:0.6,type:'lowpass',rolloff:-12}, envelope:{attack:0.04,decay:0.3,sustain:0.55,release:0.9}, filterEnvelope:{attack:0.06,decay:0.3,sustain:0.45,release:0.7,baseFrequency:135,octaves:2}}),
+      queen:  new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:0.6,type:'lowpass',rolloff:-12}, envelope:{attack:0.09,decay:0.5,sustain:0.65,release:1.4}, filterEnvelope:{attack:0.12,decay:0.5,sustain:0.55,release:1.1,baseFrequency:115,octaves:2.4}}),
+      king:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:0.5,type:'lowpass',rolloff:-12}, envelope:{attack:0.18,decay:0.7,sustain:0.7,release:2.0}, filterEnvelope:{attack:0.24,decay:0.7,sustain:0.6,release:1.6,baseFrequency:90,octaves:2.6}}),
     },
     effects: () => [
-      new Tone.Chorus({frequency:0.8, delayTime:4, depth:0.4, wet:0.3}).start(),
-      new Tone.FeedbackDelay({delayTime:'4n', feedback:0.4, wet:0.28}),
-      new Tone.Reverb({decay:2.5, wet:0.25}),
+      new Tone.AutoWah({baseFrequency:120, octaves:4, sensitivity:-8, Q:2, wet:0.6}),
+      new Tone.PingPongDelay({delayTime:'2n.', feedback:0.32, wet:0.24}),
+      new Tone.Reverb({decay:3.0, wet:0.3}),
     ],
   }) },
   // audacia: a detuned unison square, stabbed short and hard, escalating unison
