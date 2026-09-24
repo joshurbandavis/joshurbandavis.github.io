@@ -10,6 +10,30 @@
       "count": 10319
     },
     {
+      "id": "bridgers",
+      "name": "Phoebe Bridgers",
+      "credit": "lyrics via the Genius dump at huggingface.co/datasets/theelderemo/genius-lyrics-cleaned",
+      "count": 740
+    },
+    {
+      "id": "abba",
+      "name": "ABBA",
+      "credit": "lyrics via the Genius dump at huggingface.co/datasets/theelderemo/genius-lyrics-cleaned",
+      "count": 2336
+    },
+    {
+      "id": "cohen",
+      "name": "Leonard Cohen",
+      "credit": "lyrics via the Genius dump at huggingface.co/datasets/theelderemo/genius-lyrics-cleaned",
+      "count": 4314
+    },
+    {
+      "id": "kendrick",
+      "name": "Kendrick Lamar",
+      "credit": "lyrics via the Genius dump at huggingface.co/datasets/theelderemo/genius-lyrics-cleaned",
+      "count": 7396
+    },
+    {
       "id": "sonnets",
       "name": "Shakespeare",
       "credit": "Shakespeare's Sonnets, Project Gutenberg #1041",
@@ -20,6 +44,12 @@
       "name": "Emily Dickinson",
       "credit": "Poems, Three Series, Project Gutenberg #12242",
       "count": 4336
+    },
+    {
+      "id": "poe",
+      "name": "Edgar Allan Poe",
+      "credit": "The Complete Poetical Works, Project Gutenberg #10031",
+      "count": 2115
     },
     {
       "id": "solomon",

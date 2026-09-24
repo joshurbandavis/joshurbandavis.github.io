@@ -12,6 +12,7 @@
 //
 // Usage:  npm install && npm run build            (all voices)
 //         npm run build -- swift sonnets          (just these)
+//         npm run build -- --dry poe              (parse only: counts + samples)
 
 import { pipeline } from '@huggingface/transformers';
 import fs from 'node:fs/promises';
@@ -39,6 +40,76 @@ async function fetchCached(name, url) {
   await fs.mkdir(CACHE, { recursive: true });
   await fs.writeFile(file, text);
   return text;
+}
+
+// Every song Genius has for one artist, via the Hugging Face datasets server's
+// filter endpoint over a ~3M-song Genius dump -- no 5 GB download. The server
+// is often still (re)building its index and says so; those replies get retried.
+const GENIUS = 'https://datasets-server.huggingface.co/filter?dataset=theelderemo/genius-lyrics-cleaned&config=default&split=train';
+
+async function fetchGenius(artist) {
+  const name = `genius-${artist.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`;
+  const file = path.join(CACHE, name);
+  try { return JSON.parse(await fs.readFile(file, 'utf8')); } catch {}
+  console.log(`  fetching ${artist} from Genius dump`);
+  const where = encodeURIComponent(`"artist"='${artist.replace(/'/g, "''")}'`);
+  const songs = [];
+  for (let offset = 0, total = Infinity; offset < total; offset += 100) {
+    for (let attempt = 1; ; attempt++) {
+      const j = await fetch(`${GENIUS}&where=${where}&offset=${offset}&length=100`).then((r) => r.json()).catch((e) => ({ error: String(e) }));
+      if (j.rows) {
+        total = j.num_rows_total;
+        songs.push(...j.rows.map(({ row }) => ({ title: row.title, year: row.year, lyrics: row.lyrics })));
+        break;
+      }
+      if (attempt === 30) throw new Error(`${artist}: ${j.error}`);
+      process.stdout.write(`\r  waiting on the datasets server (${attempt})… `);
+      await new Promise((r) => setTimeout(r, 15000));
+    }
+  }
+  if (!songs.length) throw new Error(`no songs found for "${artist}"`);
+  await fs.mkdir(CACHE, { recursive: true });
+  await fs.writeFile(file, JSON.stringify(songs));
+  return songs;
+}
+
+// Alternate takes of a song already in the list; their lines dedupe away
+// anyway, but they'd also add stray variant lines and misleading credits.
+const VARIANT = /\b(demo|remix|mix|live|voice memo|version|session|spotify|deezer|recorded at|acoustic|instrumental|a ?cappella|edit|reprise|translation|tracklist|liner notes|interview|skit|annotated|script|commentary|tour of \d+|snippet|music video|performance|speech|dialogue|tribute letter)\b/i;
+
+// Unit list for a Genius artist: consecutive line pairs within each section
+// ([Verse], [Chorus], ...), minus alternate takes, any covers named in skip,
+// and sections Genius credits to someone else ("[Verse 2: Jay Rock]") --
+// a guest verse isn't this voice talking. `singers` are the names that count
+// as the artist in those credits; `since` drops songs before that year and
+// `exclude` drops titles matching a pattern.
+async function geniusUnits(artist, { skip = [], singers = [artist], since = 0, exclude = null } = {}) {
+  const skipSet = new Set(skip.map((t) => t.toLowerCase()));
+  const isArtist = (credit) => singers.some((s) => credit.toLowerCase().includes(s.toLowerCase()));
+  const out = [];
+  for (const song of await fetchGenius(artist)) {
+    const title = song.title.replace(/​/g, '').trim();
+    if (VARIANT.test(title) || skipSet.has(title.toLowerCase())) continue;
+    if ((song.year || 0) < since || exclude?.test(title)) continue;
+    const src = song.year ? `${title} · ${song.year}` : title;
+    let mine = true, lines = [];
+    const flush = () => { if (mine) out.push(...pairs(lines, src)); lines = []; };
+    for (const raw of song.lyrics.split('\n')) {
+      const tag = raw.trim().match(/^\[([^\]]*)\]$/);
+      if (tag) {
+        flush();
+        const credit = tag[1].split(':')[1];
+        mine = !credit || isArtist(credit);
+      } else if (!raw.trim()) {
+        flush();
+      } else {
+        const l = clean(raw);
+        if (!/^\(.*\)$/.test(l)) lines.push(l);
+      }
+    }
+    flush();
+  }
+  return out;
 }
 
 // Gutenberg texts: keep only what's between the START and END markers.
@@ -77,6 +148,46 @@ const VOICES = {
       }
       return out;
     },
+  },
+
+  bridgers: {
+    name: 'Phoebe Bridgers',
+    credit: 'lyrics via the Genius dump at huggingface.co/datasets/theelderemo/genius-lyrics-cleaned',
+    units: () => geniusUnits('Phoebe Bridgers', {
+      singers: ['Phoebe'],
+      skip: ['That Funny Feeling', 'If We Make It Through December', '7 OClock News / Silent Night',
+        'Georgia Lee', 'Nothing Else Matters', 'Have Yourself a Merry Little Christmas', 'Christmas Song',
+        'Fake Plastic Trees', 'Teenage Dirtbag', 'Im On Fire', 'The House That Heaven Built'],
+    }),
+  },
+
+  abba: {
+    name: 'ABBA',
+    credit: 'lyrics via the Genius dump at huggingface.co/datasets/theelderemo/genius-lyrics-cleaned',
+    units: () => geniusUnits('ABBA', {
+      singers: ['ABBA', 'Agnetha', 'Frida', 'Anni-Frid', 'Björn', 'Benny'],
+      skip: ['Pick a Bale of Cotton / On Top of Old Smoky / Midnight Special Medley'],
+    }),
+  },
+
+  cohen: {
+    name: 'Leonard Cohen',
+    credit: 'lyrics via the Genius dump at huggingface.co/datasets/theelderemo/genius-lyrics-cleaned',
+    units: () => geniusUnits('Leonard Cohen', {
+      singers: ['Leonard', 'Cohen'],
+      skip: ['Tennessee Waltz', 'Save The Last Dance For Me', 'Passing Through', 'Be for Real',
+        'Go No More A-Roving', 'The Partisan', 'Choices'],
+    }),
+  },
+
+  kendrick: {
+    name: 'Kendrick Lamar',
+    credit: 'lyrics via the Genius dump at huggingface.co/datasets/theelderemo/genius-lyrics-cleaned',
+    // Section.80 (2011) onward, without radio freestyles: the early mixtapes
+    // alone would nearly double this voice's download for the least-known work.
+    units: () => geniusUnits('Kendrick Lamar', {
+      singers: ['Kendrick', 'K.Dot', 'K-Dot'], since: 2011, exclude: /freestyle/i,
+    }),
   },
 
   sonnets: {
@@ -119,6 +230,38 @@ const VOICES = {
         const lines = raw.map(clean);
         if (!firstLine) firstLine = lines[0].replace(/[\s,;:.!?-]+$/, '');
         out.push(...pairs(lines, `“${firstLine}”`));
+      }
+      return out;
+    },
+  },
+
+  poe: {
+    name: 'Edgar Allan Poe',
+    credit: 'The Complete Poetical Works, Project Gutenberg #10031',
+    async units() {
+      let body = gutenbergBody(await fetchCached('poe.txt', 'https://www.gutenberg.org/cache/epub/10031/pg10031.txt'));
+      // From the first section of poems up to the "doubtful" attributions,
+      // minus the verse drama Politian (dialogue, not Poe's own voice).
+      body = body.slice(body.search(/^ +POEMS OF LATER LIFE$/m), body.search(/^ +DOUBTFUL POEMS\.$/m));
+      body = body.slice(0, body.indexOf('SCENES FROM "POLITIAN."')) + body.slice(body.search(/^ +POEMS OF YOUTH$/m));
+      const out = [];
+      let title = null;
+      // A title is an unindented all-caps line; verse is indented; prose
+      // (prefaces, notes, the letter to Mr. B) is neither and gets skipped.
+      for (const block of body.split(/\n\s*\n/)) {
+        const raw = block.split('\n').filter((l) => l.trim());
+        if (!raw.length) continue;
+        if (raw.length === 1 && /^\s*[A-Z][A-Z0-9 ,.'"()!?\[\]-]+$/.test(raw[0])) {
+          const heading = raw[0].trim().replace(/\s*\[\d+\]$/, '').replace(/[.,\s]+$/, '');
+          // "III" or "PART II" is a section of the poem above, not a new poem.
+          if (/^(PART )?[IVXL]+$/.test(heading)) continue;
+          title = heading.replace(/--/g, ' — ').toLowerCase()
+            .replace(/(^|[\s"(—-])([a-z])/g, (_, p, c) => p + c.toUpperCase())
+            .replace(/(?!^)\b(Of|The|In|A|An|To|And|From|On|Within)\b/g, (w) => w.toLowerCase());
+          continue;
+        }
+        if (!title || /^Notes?\b/.test(title) || !raw.every((l) => /^\s/.test(l) && l.length <= 80)) continue;
+        out.push(...pairs(raw.map(clean), title));
       }
       return out;
     },
@@ -197,9 +340,23 @@ async function buildVoice(id, embed) {
     Buffer.concat([Buffer.from(scales.buffer), Buffer.from(ints.buffer)]));
 }
 
-const wanted = process.argv.slice(2);
+const dry = process.argv.includes('--dry');
+const wanted = process.argv.slice(2).filter((a) => a !== '--dry');
 const ids = wanted.length ? wanted : Object.keys(VOICES);
 for (const id of ids) if (!VOICES[id]) throw new Error(`unknown voice "${id}" (have: ${Object.keys(VOICES).join(', ')})`);
+
+if (dry) {
+  for (const id of ids) {
+    const units = dedupe(await VOICES[id].units());
+    const sources = new Set(units.map((u) => u.src));
+    console.log(`\n${VOICES[id].name}: ${units.length} units from ${sources.size} sources`);
+    for (let k = 0; k < 8; k++) {
+      const u = units[Math.floor((k + 0.5) * units.length / 8)];
+      console.log(`  ${u.b ? `${u.a} / ${u.b}` : u.a}  — ${u.src}`);
+    }
+  }
+  process.exit(0);
+}
 
 await fs.mkdir(OUT, { recursive: true });
 const embed = await pipeline('feature-extraction', MODEL, { dtype: DTYPE });

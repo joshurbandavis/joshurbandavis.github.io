@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>In Other Words</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Say something plainly and hear it back from Taylor Swift, Shakespeare, Emily Dickinson and the Book of Proverbs: the nearest line each of them ever wrote, found by meaning, not by keywords.">
+<meta name="description" content="Say something plainly and hear it back from nine voices, from Taylor Swift and Kendrick Lamar to Shakespeare, Poe and the Book of Proverbs: the nearest line each of them ever wrote, found by meaning, not by keywords.">
 <link rel="apple-touch-icon" sizes="180x180" href="../../logo_personalweb_favicon_io/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../../logo_personalweb_favicon_io/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="../../logo_personalweb_favicon_io/favicon-16x16.png">
@@ -76,7 +76,7 @@
 
   .voices {
     margin-top: 28px;
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
   }
   .voice {
     --accent: #efe9df;
@@ -122,8 +122,13 @@
   .v-next:disabled { visibility: hidden; }
 
   .voice[data-id="swift"]     { --accent: #d9a7c7; }
+  .voice[data-id="bridgers"]  { --accent: #8fb4e8; }
+  .voice[data-id="abba"]      { --accent: #b69cf0; }
+  .voice[data-id="cohen"]     { --accent: #cfc6b4; }
+  .voice[data-id="kendrick"]  { --accent: #e0685c; }
   .voice[data-id="sonnets"]   { --accent: #d6b36a; }
   .voice[data-id="dickinson"] { --accent: #9fc3b0; }
+  .voice[data-id="poe"]       { --accent: #6fbcc4; }
   .voice[data-id="solomon"]   { --accent: #c9906b; }
 
   .colophon {
@@ -132,7 +137,11 @@
   }
   .colophon a { color: #6b6862; text-decoration: underline dotted #4d4a45; text-underline-offset: 3px; }
 
+  @media (max-width: 900px) {
+    .voices { grid-template-columns: repeat(2, 1fr); }
+  }
   @media (max-width: 560px) {
+    .voices { grid-template-columns: 1fr; }
     .stage { padding: 72px 16px 48px; }
     #say { font-size: 21px; }
     .voice { min-height: 0; }
@@ -232,7 +241,10 @@
   const manifest = await fetch('data/voices.json').then((r) => r.json());
   const voices = manifest.voices.map((m) => ({ ...m, el: card(m), hits: [], shown: 0 }));
   $('voices').append(...voices.map((v) => v.el));
-  $('credits').textContent = 'Texts: ' + voices.map((v) => v.credit).join('; ') + '.';
+  // Several voices share a source (the Genius dump), so credit each source once.
+  const bySource = new Map();
+  for (const v of voices) bySource.set(v.credit, [...(bySource.get(v.credit) || []), v.name]);
+  $('credits').textContent = 'Texts: ' + [...bySource].map(([credit, names]) => `${names.join(', ')}: ${credit}`).join('; ') + '.';
 
   setStatus('fetching a small language model (about 23 MB, only the first time)…', true);
   const [extractor] = await Promise.all([

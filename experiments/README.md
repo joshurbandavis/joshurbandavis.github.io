@@ -603,10 +603,11 @@ behavioral art. Each lives in its own folder as a self-contained page.
   - `?drought=<hours>&?scars=<n>` — pure rendering preview, no network;
     wiping still animates but nothing is read or written anywhere.
 
-- `in-other-words/` — say something plainly and four voices answer with
+- `in-other-words/` — say something plainly and nine voices answer with
   the one line each of them ever wrote that sits closest in *meaning*:
-  Taylor Swift, Shakespeare's Sonnets, Emily Dickinson, and Proverbs &
-  Ecclesiastes (KJV). Built so more voices are cheap to add later.
+  Taylor Swift, Phoebe Bridgers, ABBA, Leonard Cohen, Kendrick Lamar,
+  Shakespeare's Sonnets, Emily Dickinson, Edgar Allan Poe, and Proverbs &
+  Ecclesiastes (KJV). Built so more voices are cheap to add.
   - **Offline:** `build/build.mjs` downloads each corpus (cached in
     `build/.cache/`, gitignored), cuts it into units (a line plus the line
     after it; a verse for Proverbs), embeds every unit with
@@ -614,20 +615,39 @@ behavioral art. Each lives in its own folder as a self-contained page.
     (text + source) and `data/<voice>.bin` (int8 vectors with one float32
     scale each, a quarter the size of float32) plus `data/voices.json`.
     `cd in-other-words/build && npm install && npm run build` rebuilds
-    everything in about 90s, or `npm run build -- swift` rebuilds one voice.
+    everything in a few minutes, `npm run build -- swift` rebuilds one
+    voice, and `npm run build -- --dry poe` only parses (unit counts and
+    sample lines, no embedding) for checking a new voice's parser.
   - **In the browser:** the same model (~23 MB, fetched once from Hugging
     Face via jsDelivr, then cached) embeds the visitor's sentence, and an
-    exact scan over all ~18k vectors finds each voice's top 5 ("another ↻"
+    exact scan over all ~35k vectors finds each voice's top 5 ("another ↻"
     steps through them). The voice with the highest best score gets marked
     "closest." No backend; nothing typed leaves the page. `?q=<text>`
     pre-fills and runs a query, so results are shareable as links.
   - **Adding a voice:** add an entry to `VOICES` in `build.mjs` (a name, a
     credit, and a `units()` that returns `{ a, b, src }`), rebuild, and give
-    it an accent colour in `index.html` (`.voice[data-id="…"]`).
+    it an accent colour in `index.html` (`.voice[data-id="…"]`). The page
+    lays voices out three across, so multiples of three fill the grid.
+  - **Lyrics from Genius:** `geniusUnits('<Artist>')` pulls every song
+    for an exact Genius artist name from a ~3M-song Genius dump on Hugging
+    Face (`theelderemo/genius-lyrics-cleaned`) through the datasets
+    server's filter endpoint, so nothing huge is downloaded. The server is
+    often mid-rebuild of its index, so the fetch retries every 15s. Covers
+    are other people's words and have to be listed by hand in `skip`
+    (check the titles with `--dry`); alternate takes (demo, live, remix,
+    voice memo…) are dropped by title, and sections credited to a guest
+    (`[Verse 2: Jay Rock]`) are dropped unless the credit names one of
+    `singers`. `since` / `exclude` trim a very large catalogue (Kendrick
+    is 2011 onward without radio freestyles, or he'd be ~40% of the
+    download on his own). The dump stops around 2022, so later albums are
+    missing.
   - Model and dtype must match between `build.mjs` and `index.html`, or
     query and corpus vectors end up in different spaces.
-  - The Swift lyrics are copyrighted; `data/swift.json` holds all ~10k
-    lines in plain text. The other three corpora are public domain.
+  - The five lyric voices are copyrighted and their `data/*.json` hold
+    every line in plain text; Shakespeare, Dickinson, Poe and the KJV are
+    public domain.
+  - Weight: ~16 MB of data (13 MB of it vectors) on top of the ~23 MB
+    model, all cached after the first visit.
 
 Not linked from the main site nav — open directly, e.g. locally:
 
