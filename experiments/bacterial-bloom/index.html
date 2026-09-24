@@ -557,6 +557,7 @@
 </style>
 
 <link rel="stylesheet" href="design.css">
+<script src="optics.js" charset="utf-8"></script>
 </head><body>
 <div class="page">
 
@@ -1448,8 +1449,10 @@
     };
   }
 
+  window.addEventListener('bloom:optics',function(){ if(state.field)renderFieldCanvas(); });
   function renderFieldCanvas(){
     if (!state.ctx) return;
+    if (window.BloomOptics) { window.BloomOptics.draw(state.ctx,state.field,FW,FH,state.displayField); return; }
     var d = state.displayField, data = state.imageData.data;
     var cR = state.chanColor.R, cG = state.chanColor.G, cB = state.chanColor.B;
     for (var i=0; i<FW*FH; i++){
@@ -1583,7 +1586,7 @@
 
   // ---------- painting ----------
   function fieldCoordsFromEvent(clientX, clientY){
-    var rect = state.fieldWrap.getBoundingClientRect();
+    var rect = state.canvasEl.getBoundingClientRect();
     var fx = (clientX - rect.left) / rect.width;
     var fy = (clientY - rect.top) / rect.height;
     if (fx<0) fx=0; else if (fx>1) fx=1;

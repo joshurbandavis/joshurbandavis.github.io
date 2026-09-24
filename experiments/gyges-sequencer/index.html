@@ -1273,6 +1273,7 @@ playAgainBtn.addEventListener('click', ()=>{
 });
 
 startBtn.addEventListener('click', startAudio);
+document.addEventListener('gyges:audition',()=>{if(!started)startAudio();else sweepOnce();});
 tempoSlider.addEventListener('input', ()=>{
   tempoVal.textContent = tempoSlider.value;
 });
