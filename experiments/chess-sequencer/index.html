@@ -1043,6 +1043,8 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
 .win-modal p{opacity:.88;max-width:360px}
 </style>
 <link rel="stylesheet" href="relations.css">
+<link rel="stylesheet" href="listening.css">
+<script src="listening.js"></script>
 </head>
 <body>
 
@@ -1091,7 +1093,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
     <div class="sidebar">
       <div class="panel">
         <h2>skin</h2>
-        <select id="skinSelect">
+        <select id="skinSelect"><option value="resonant">Resonant Table</option>
           <option value="dark">Dark</option>
           <option value="light">Light / paper</option>
           <option value="neon" selected>Glassy neon (default)</option>
@@ -1161,13 +1163,13 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
           <span class="tempo-val"><span id="tempoVal">104</span> bpm</span>
         </div>
         <p style="margin:.8rem 0 0;font-size:.68rem;line-height:1.6;color:var(--fg);opacity:.6">
-          Every move sweeps the board once, left to right.
+          Choose how the position plays in Listening.
         </p>
       </div>
 
       <div class="panel legend">
         <h2>how it sounds</h2>
-        <div>palette — <span id="paletteLabel"></span> (set by the skin above)</div>
+        <div>instrument — <span id="paletteLabel"></span> (chosen in Listening)</div>
         <div style="margin-top:.3rem">rank picks pitch · color picks register (white lower, black higher octave) ·
           piece type picks the instrument, defined by the current palette.</div>
         <div class="legend-grid">
@@ -1178,7 +1180,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
           <span>♛ queen</span><span>rich, elaborate</span>
           <span>♚ king</span><span>deep, resonant</span>
         </div>
-        <div style="margin-top:.6rem;opacity:.75">base pitches use a pentatonic scale; attacks add semitone tension, protection adds a fifth, and crowded sliding pieces shorten their notes. a king in check adds a short alert flourish.</div>
+        <div style="margin-top:.6rem;opacity:.75">Existing synths use pentatonic base pitches; Resonant Table uses tuned material resonances. Listening switches control protection and threat responses. Crowded sliding pieces are damped.</div>
       </div>
     </div>
   </div>
@@ -1755,6 +1757,7 @@ function initBoard(){
 }
 
 function resetGame(){
+  listening.reset();
   initBoard();
   currentPlayer = 'white';
   selected = null; legalMoves = []; enPassantTarget = null; gameOver = null; pendingPromotion = null;
@@ -1780,6 +1783,7 @@ function finishTurn(){
 }
 
 function completeMove(from, move, promoType){
+  listening.capture(board,from);
   const wasDoubleStep = !!move.doubleStep;
   makeMove(board, from, move, promoType);
   lastMove = { from:{r:from.r,c:from.c}, to:{r:move.to.r,c:move.to.c} }; lastMoveId++;
@@ -1805,6 +1809,7 @@ function resolvePromotion(pieceType){
 }
 
 function handleSquareClick(r,c){
+  if(listening.listen){if(board[r][c]){if(!started)startAudio();else listening.play(board,{r,c},true);}return;}
   if(gameOver || pendingPromotion) return;
   if(opponentMode==='computer' && currentPlayer===aiColor) return; // not the human's turn
 
@@ -2422,22 +2427,8 @@ function sweepDurationMs(){
 }
 
 function sweepOnce(){
-  if(!started || !paletteSynths) return;
-  const stepDur = stepDuration();
-  const startTime = Tone.now() + 0.03;
-
-  sweepBar.classList.add('on');
-  if(inCheck && alertSynth){
-    alertSynth.triggerAttackRelease(["C6","D6"], "16n", startTime, 0.5);
-  }
-  for(let col=0; col<SIZE; col++){
-    const t = startTime + col * stepDur;
-    playColumn(col, t);
-    Tone.Draw.schedule(()=>setActiveColumn(col), t);
-  }
-
-  clearTimeout(sweepEndTimer);
-  sweepEndTimer = setTimeout(()=>{ sweepBar.classList.remove('on'); }, sweepDurationMs());
+ if(!started||!paletteSynths)return;
+ listening.play(board,lastMove?.to);
 }
 
 const gate = document.getElementById('gate');
@@ -2454,7 +2445,7 @@ const REPLAY_SWEEPS = 3; // how many times the winning board "plays itself back"
 function rebuildSynths(){
   if(!reverb) return; // audio not started yet -- startAudio() will build with the current skin's palette
   if(paletteSynths) paletteSynths.nodes.forEach(n=>n.dispose());
-  const built = PALETTES[SKIN_PALETTE[currentSkin]].make();
+  const built = PALETTES[listening.instrument==='resonant'?'orchestral':listening.instrument].make();
   const effects = built.effects();
   const voices = Object.values(built.voices);
   const busHead = effects.length ? effects[0] : reverb;
@@ -2465,12 +2456,14 @@ function rebuildSynths(){
 }
 
 function updateSkinUI(){
-  paletteLabelEl.textContent = PALETTES[SKIN_PALETTE[currentSkin]].label;
+  paletteLabelEl.textContent = listening.instrument==='resonant'?'Resonant Table':PALETTES[listening.instrument].label;
 }
 
 function startAudio(){
   if(started) return;
+  listening.unlock();
   started = true;
+  Tone.Transport.bpm.value=Number(tempoSlider.value);
   Tone.start().then(()=>{
     reverb = new Tone.Reverb({decay:1.8, wet:0.22}).toDestination();
     alertSynth = new Tone.PolySynth(Tone.Synth, {
@@ -2509,6 +2502,7 @@ playAgainBtn.addEventListener('click', ()=>{
 startBtn.addEventListener('click', startAudio);
 tempoSlider.addEventListener('input', ()=>{
   tempoVal.textContent = tempoSlider.value;
+  Tone.Transport.bpm.value=Number(tempoSlider.value);
 });
 document.getElementById('newGameBtn').addEventListener('click', resetGame);
 promoChoiceButtons.forEach(b => b.addEventListener('click', ()=>{
@@ -2517,6 +2511,7 @@ promoChoiceButtons.forEach(b => b.addEventListener('click', ()=>{
 document.getElementById('skinSelect').addEventListener('change', (e)=>{
   currentSkin = e.target.value;
   document.documentElement.dataset.skin = currentSkin;
+  listening.setSkin(currentSkin);
   rebuildSynths();
   updateSkinUI();
 });
@@ -2596,10 +2591,24 @@ function relationshipPaint(){
  const status=document.getElementById('relationReadout');if(status)status.textContent=pressure+' under pressure · '+support+' supported · '+blocked+' crowded voices';
 }
 const nativeRender=render;render=function(){nativeRender();relationshipPaint();};
-const relationPanel=document.createElement('div');relationPanel.className='panel relation-panel';relationPanel.innerHTML='<h2>The position is the score</h2><p id="relationReadout" aria-live="polite"></p><p><span class="pressure-key">●</span> Attacked pieces answer a semitone apart.<br><span class="support-key">●</span> Protected pieces sustain a fifth.<br>Crowded bishops, rooks and queens fall quiet.</p><button id="hearPosition">Hear this position</button><button id="examplePosition">Try a tense position</button>';
+const relationPanel=document.createElement('div');relationPanel.className='panel relation-panel';relationPanel.innerHTML='<h2>The position is the score</h2><p id="relationReadout" aria-live="polite"></p><p><span class="pressure-key">●</span> Threat response adds tension to attacked pieces.<br><span class="support-key">●</span> Sympathetic resonance lets protected pieces answer.<br>Crowded bishops, rooks and queens fall quiet.</p><button id="hearPosition">Hear this position</button><button id="examplePosition">Try a tense position</button>';
 document.querySelector('.sidebar').prepend(relationPanel);
 document.getElementById('hearPosition').onclick=()=>{if(!started)startAudio();else sweepOnce();};
 document.getElementById('examplePosition').onclick=()=>{if(aiThinking)return;opponentMode='human';updateOpponentUI();resetGame();board=Array.from({length:8},()=>Array(8).fill(null));const pieces=[[7,7,'king','white'],[0,7,'king','black'],[7,0,'rook','white'],[0,0,'rook','black'],[4,2,'bishop','white'],[3,2,'bishop','black'],[4,4,'pawn','white'],[3,4,'pawn','black'],[5,5,'knight','white'],[2,5,'knight','black'],[7,3,'queen','white'],[0,3,'queen','black']];for(const[r,c,type,color]of pieces)board[r][c]={type,color,hasMoved:true};movable=computeAllLegal(board,currentPlayer,null);inCheck=isInCheck(board,currentPlayer);render();if(started)sweepOnce();};
+const listening=window.createChessListening({
+ instruments:Object.entries(PALETTES).map(([key,p])=>[key,p.label]),palette:k=>SKIN_PALETTE[k]||'orchestral',
+ boardElement:boardEl,attacks:attacksFrom,step:stepDuration,
+ instrumentChanged(){rebuildSynths();updateSkinUI();},
+ listenState(on){boardEl.classList.toggle('audition-mode',on);},
+ clearAnimation(){sweepBar.classList.remove('on');squareEls.flat().forEach(s=>s.classList.remove('resonating'));},
+ release(){if(paletteSynths)Object.values(paletteSynths.voices).forEach(s=>s.releaseAll());},
+ column(col){sweepBar.classList.add('on');setActiveColumn(col);},
+ flash(r,c){const sq=squareEls[r][c];sq.classList.remove('resonating');void sq.offsetWidth;sq.classList.add('resonating');},
+ note(p,r,rel,strength,settings){const synth=paletteSynths.voices[p.type],note=(p.color==='white'?WHITE_NOTES:BLACK_NOTES)[r],t=Tone.now()+.005;
+ synth.triggerAttackRelease(note,rel.blocked?'32n':settings.sympathy&&rel.defenders?'4n':'8n',t,Math.min(.7,strength*(rel.blocked?.2:.5)));
+ if(settings.sympathy&&rel.defenders)synth.triggerAttackRelease(Tone.Frequency(note).transpose(7).toNote(),'8n',t+stepDuration()*.3,Math.min(.2,strength*.12));},
+ tension(p,r,strength){const note=(p.color==='white'?WHITE_NOTES:BLACK_NOTES)[r];paletteSynths.voices[p.type].triggerAttackRelease(Tone.Frequency(note).transpose(1).toNote(),'32n',Tone.now()+.005,Math.min(.25,strength));}
+});
 updateOpponentUI();
 updateSkinUI();
 resetGame();
