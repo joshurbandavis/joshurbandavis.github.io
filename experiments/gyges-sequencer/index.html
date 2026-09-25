@@ -585,6 +585,7 @@ let opponentMode = 'human';
 let aiDifficulty = 'medium';
 let aiColor = null;
 let passedLastTurn = false;
+let winningRing=null,winTimer=null;
 
 function inBounds(r,c){ return r>=0 && r<SIZE && c>=0 && c<SIZE; }
 function opponent(color){ return color==='red' ? 'black' : 'red'; }
@@ -653,6 +654,7 @@ function initBoard(){
 }
 
 function resetGame(){
+  clearTimeout(winTimer);winningRing=null;
   document.getElementById("routeChoice")?.remove();
   initBoard();
   currentPlayer = 'red';
@@ -683,6 +685,7 @@ function stepChain(){
   if(!chain) return;
   if(chain.dest.goal){
     const winner = chain.mover;
+    winningRing={piece:{...chain.piece},goal:chain.dest.goal,from:lastMove.from};
     chain = null; pendingOccupant = null;
     gameOver = winner;
     render();
@@ -732,16 +735,34 @@ function endTurn(){
   maybeTriggerAI();
 }
 
+function meaningfulRoutes(routes){
+ if(!routes.length)return [];
+ const dest=routes[0].dest;
+ // No continuation means the route cannot affect a later decision this turn.
+ if(dest.goal||!board[dest.r][dest.c])return [routes[0]];
+ const distinct=[...new Map(routes.map(m=>[[...m.dest.edges].sort().join('/'),m])).values()];
+ if(distinct.every(m=>!legalMovesFor(board,dest.r,dest.c,currentPlayer,new Set([...(chain?.usedEdges||[]),...m.dest.edges])).length))return [distinct[0]];
+ return distinct;
+}
 function chooseRoute(routes,commit){
  document.getElementById('routeChoice')?.remove();
+ routes=meaningfulRoutes(routes);
  if(!routes.length)return;
  if(routes.length===1){commit(routes[0]);return;}
- const panel=document.createElement('div');panel.id='routeChoice';panel.className='panel';
- const title=document.createElement('h2');title.textContent='Choose your route';panel.append(title);
- const note=document.createElement('p');note.textContent='Choose one route to continue the move. Its connections cannot be reused later in this turn.';panel.append(note);
- routes.forEach(m=>{const button=document.createElement('button');button.style.margin='4px';button.textContent=m.dest.path.map(p=>String.fromCharCode(97+p.c)+(SIZE-p.r)).join(' → ');button.onclick=()=>{panel.remove();commit(m);};panel.append(button);});
- boardEl.parentElement.append(panel);
- panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+ const origin=pendingOccupant?{r:pendingOccupant.r,c:pendingOccupant.c}:selected;
+ const overlay=document.createElement('div');overlay.id='routeChoice';overlay.className='route-overlay';overlay.setAttribute('role','group');overlay.setAttribute('aria-label','Choose a bounce route');
+ const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 600 810');svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('aria-hidden','true');overlay.append(svg);
+ const controls=document.createElement('div');controls.className='route-controls';const label=document.createElement('span');label.textContent='Pick a path to bounce';controls.append(label);
+ const paths=[];const colors=['#b44b24','#2878a1','#8d459a','#387444','#ae771c','#b53d6c'];
+ function highlight(i){paths.forEach((p,n)=>{p.style.opacity=n===i?'1':'.22';p.style.strokeWidth=n===i?'8':'4';});}
+ routes.forEach((m,i)=>{
+  const points=[origin,...m.dest.path].map(p=>(p.c*100+50)+','+(p.r*100+155)).join(' ');
+  const line=document.createElementNS(svg.namespaceURI,'polyline');line.setAttribute('points',points);line.setAttribute('fill','none');line.setAttribute('stroke',colors[i%colors.length]);line.setAttribute('stroke-width','6');line.setAttribute('stroke-linecap','round');line.setAttribute('stroke-linejoin','round');line.style.pointerEvents='stroke';line.style.cursor='pointer';line.onclick=()=>{overlay.remove();commit(m);};line.onmouseenter=()=>highlight(i);svg.append(line);paths.push(line);
+  const button=document.createElement('button');button.type='button';button.textContent=String(i+1);button.style.setProperty('--route-color',colors[i%colors.length]);button.setAttribute('aria-label','Route '+(i+1)+': '+m.dest.path.map(p=>String.fromCharCode(97+p.c)+(SIZE-p.r)).join(' to '));button.onmouseenter=button.onfocus=()=>highlight(i);button.onclick=()=>{overlay.remove();commit(m);};controls.append(button);
+ });
+ const cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancel';cancel.onclick=()=>overlay.remove();controls.append(cancel);overlay.append(controls);
+ overlay.onkeydown=e=>{if(e.key==='Escape'){overlay.remove();e.stopPropagation();}};
+ boardEl.append(overlay);highlight(0);controls.querySelector('button').focus({preventScroll:true});
 }
 
 function handleSquareClick(r,c){
@@ -866,14 +887,14 @@ function flipSlide(el, fromRect, duration){
 
 function endReason(){
   if(!gameOver) return '';
-  return (gameOver==='red' ? 'red' : 'black') + ' moved a ring into ' + (opponent(gameOver)==='red' ? "black's" : "red's") + " goal";
+  return (gameOver==='red'?'Red':'Black')+' reached the '+(winningRing?.goal==='north'?'north':'south')+' goal. The winning ring stays on the board.';
 }
 
 function render(){
   document.getElementById("routeChoice")?.remove();
   for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
     const sq = squareEls[r][c];
-    sq.classList.remove('movable','dest','contested','selected','occupant');
+    sq.classList.remove('movable','dest','contested','selected','occupant','bounce-target');
     sq.innerHTML = '';
     const coordinate=document.createElement('span');coordinate.className='square-coordinate';coordinate.textContent=String.fromCharCode(97+c)+(SIZE-r);sq.append(coordinate);
 
@@ -887,7 +908,7 @@ function render(){
     }
     if(pendingOccupant && !replaceMode){
       const bm = pendingOccupant.bounceMoves.find(m => !m.dest.goal && m.dest.r===r && m.dest.c===c);
-      if(bm){ sq.classList.add('dest'); if(board[r][c]) sq.classList.add('contested'); }
+      if(bm){ sq.classList.add('dest','bounce-target'); if(board[r][c]) sq.classList.add('contested');const badge=document.createElement('span');badge.className='bounce-label';badge.textContent=board[r][c]?'BOUNCE':'LAND';sq.append(badge); }
     }
     if(pendingOccupant && replaceMode && replacementSquares(board,currentPlayer).some(p=>p.r===r&&p.c===c)) sq.classList.add('dest');
     if(pendingOccupant && pendingOccupant.r===r && pendingOccupant.c===c) sq.classList.add('occupant');
@@ -923,6 +944,13 @@ function render(){
   goalSouthEl.classList.toggle('clickable', !!southLegal);
   goalNorthEl.querySelector('button').disabled=!northLegal;
   goalSouthEl.querySelector('button').disabled=!southLegal;
+  for(const [goal,el] of [['north',goalNorthEl],['south',goalSouthEl]]){
+   const button=el.querySelector('button');
+   if(winningRing?.goal===goal){
+    if(!button.querySelector('.goal-winner')){const ring=document.createElement('div');ring.className='piece h'+winningRing.piece.height+' goal-winner';ring.setAttribute('aria-label','Winning ring, height '+winningRing.piece.height);button.append(ring);button.classList.add('won');flipSlide(ring,squareEls[winningRing.from.r][winningRing.from.c].getBoundingClientRect(),550);}
+   }else{button.querySelector('.goal-winner')?.remove();button.classList.remove('won');}
+  }
+
 
   const occupantWasOn = occupantPanel.classList.contains('on');
   occupantPanel.classList.toggle('on', !!pendingOccupant);
@@ -1189,20 +1217,17 @@ function pickFallbackReplace(){
 }
 
 function celebrateWin(winner){
-  if(!started){ showWinModal(winner); return; }
-  const dur = sweepDurationMs();
-  let plays = 0;
-  (function playNext(){
-    sweepOnce();
-    plays++;
-    setTimeout(plays < REPLAY_SWEEPS ? playNext : ()=>showWinModal(winner), dur);
-  })();
+ clearTimeout(winTimer);
+ if(started)sweepOnce();
+ winTimer=setTimeout(()=>{if(gameOver===winner)showWinModal(winner);},700);
 }
 
 function showWinModal(winner){
   winModalTitle.textContent = (winner==='red' ? 'red' : 'black') + ' wins';
   document.getElementById('winModalReason').textContent = endReason();
   winModal.classList.remove('hidden');
+  winModal.setAttribute('role','region');winModal.setAttribute('aria-label','Game complete');
+  winModal.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 playAgainBtn.addEventListener('click', ()=>{

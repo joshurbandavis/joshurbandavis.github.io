@@ -15,6 +15,9 @@ for(const [label,src] of [['computer',worker],['human',human]]){
  assert.deepEqual(run(`(()=>{const b=empty();b[5][2]={height:1};b[4][2]={height:2};const m=legalMovesFor(b,5,2,'red',new Set()).find(m=>m.dest.r===4&&m.dest.c===2);runChain(b,'red',5,2,m,(p,r,c,moves)=>({type:'bounce',move:moves.find(m=>m.dest.r===2&&m.dest.c===2)}));return [b[4][2].height,b[2][2].height];})()`),[2,1]);
  }else{
  vm.runInContext('render=()=>{};sweepOnce=()=>{};endTurn=()=>{};',c);
+ assert.equal(run(`(()=>{board=empty();board[5][2]={height:2};currentPlayer='red';const routes=legalMovesFor(board,5,2,'red',new Set()).filter(m=>m.dest.r===4&&m.dest.c===3);return meaningfulRoutes(routes).length;})()`),1,'empty landing needs no choice');
+ assert.equal(run(`(()=>{board[4][3]={height:2};const routes=legalMovesFor(board,5,2,'red',new Set()).filter(m=>m.dest.r===4&&m.dest.c===3);return meaningfulRoutes(routes).length;})()`),2,'occupied landing preserves distinct paths');
+
  assert.deepEqual(run(`(()=>{board=empty();board[5][2]={height:1};board[4][2]={height:2};const m=legalMovesFor(board,5,2,'red',new Set()).find(m=>m.dest.r===4&&m.dest.c===2);beginChain('red',5,2,m);chooseBounce(pendingOccupant.bounceMoves.find(m=>m.dest.r===2&&m.dest.c===2));return [board[4][2].height,board[2][2].height];})()`),[2,1]);
  }
 
