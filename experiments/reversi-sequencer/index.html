@@ -1157,13 +1157,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
   <div class="title-block">
     <div class="kicker">two-player · full rules · no backend</div>
     <h1>reversi, played as a <em>sequencer</em></h1>
-    <p class="lede">Standard Reversi/Othello (outflank a line of your opponent's discs to flip them,
-      a turn is skipped automatically if you have no legal move) with a twist: every move sweeps
-      a bar once across the eight columns, left to right, and sings whatever's sitting on each
-      column as it passes. Any disc just placed or just flipped rings out with a bright shimmer
-      on top of its note, so a big flip becomes a little cascade of sound, not just a silent color
-      change. Row picks the pitch, color picks the register, and the skin you choose is the
-      instrument.</p>
+    <p class="lede">Standard Reversi/Othello, heard as a phrase being rewritten. Outflank a line of discs to flip them. Every move plays the previous board, then its new arrangement: flipped discs keep their place in time while changing register and reversing their melodic contour. The skin you choose sets the instrument. If you have no legal move, your turn is skipped.</p>
   </div>
 
   <div class="device-frame">
@@ -1260,7 +1254,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
           <span class="tempo-val"><span id="tempoVal">104</span> bpm</span>
         </div>
         <p style="margin:.8rem 0 0;font-size:.68rem;line-height:1.6;color:var(--fg);opacity:.6">
-          Every move sweeps the board once, left to right.
+          Every move plays the old board, then the new one, left to right.
         </p>
       </div>
 
@@ -1268,10 +1262,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
         <h2>how it sounds</h2>
         <div>voice — <span id="voiceLabel"></span> (set by the skin above)</div>
         <div style="margin-top:.3rem"><span class="sw white"></span>white plays lower · <span class="sw black"></span>black plays higher, same instrument</div>
-        <div style="margin-top:.6rem;opacity:.75">row = pitch within each side's own register · a disc
-          that was just placed or just flipped adds a soft octave shimmer on top of its note, so a big
-          flip cascades · everything's drawn from one pentatonic scale, so no combination of pieces
-          ever clashes.</div>
+        <div style="margin-top:.6rem;opacity:.75">row = pitch within each side's register · flips reverse the melodic contour · each move compares the remembered board with its new arrangement.</div>
       </div>
     </div>
   </div>
@@ -1513,6 +1504,7 @@ function finishGame(){
 function applyMove(r,c){
   const entry = movable.find(m=>m.r===r && m.c===c);
   if(!entry) return; // not a legal square -- silently ignored, same as clicking empty board elsewhere
+  phraseBefore=board.map(row=>row.map(p=>p?{...p}:null));
   applyPlacementToBoard(board, r, c, currentPlayer, entry.flips);
   lastMove = { r, c, flips: entry.flips }; lastMoveId++;
   sweepOnce();
@@ -2033,20 +2025,31 @@ function sweepDurationMs(){
   return (SIZE * stepDuration() + 0.15) * 1000;
 }
 
-function sweepOnce(){
-  if(!started || !voice) return; // audio still warming up (rare click-then-instant-move race)
-  const stepDur = stepDuration();
-  const startTime = Tone.now() + 0.03;
-
-  sweepBar.classList.add('on');
-  for(let col=0; col<SIZE; col++){
-    const t = startTime + col * stepDur;
-    playColumn(col, t);
-    Tone.Draw.schedule(()=>setActiveColumn(col), t);
+function playRemembered(snapshot,label,startTime){
+ const step=stepDuration();
+ Tone.Draw.schedule(()=>{document.getElementById('phraseLabel').textContent=label;sweepBar.classList.add('on');},startTime);
+ for(let col=0;col<SIZE;col++){
+  const t=startTime+col*step;
+  for(let r=0;r<SIZE;r++){
+   const p=snapshot[r][col];if(!p)continue;
+   const notes=p.color==='white'?WHITE_NOTES:BLACK_NOTES;
+   // Each cell retains its rhythmic place, but flips reverse its melodic contour.
+   const note=notes[p.color==='white'?r:7-r];
+   voice.synth.triggerAttackRelease(note,p.color==='white'?'8n':'16n',t,.42);
   }
-
-  clearTimeout(sweepEndTimer);
-  sweepEndTimer = setTimeout(()=>{ sweepBar.classList.remove('on'); }, sweepDurationMs());
+  Tone.Draw.schedule(()=>setActiveColumn(col),t);
+ }
+ Tone.Draw.schedule(()=>sweepBar.classList.remove('on'),startTime+SIZE*step);
+ return startTime+SIZE*step+.28;
+}
+function sweepOnce(){
+ if(!started||!voice)return;
+ const after=board.map(row=>row.map(p=>p?{...p}:null));
+ const start=Math.max(Tone.now()+.04,phraseNextTime);
+ let next=start;
+ if(phraseBefore)next=playRemembered(phraseBefore,'BEFORE · the phrase you knew',next);
+ next=playRemembered(after,'AFTER · '+(lastMove?lastMove.flips.length:0)+' voice'+(lastMove&&lastMove.flips.length===1?'':'s')+' rewritten',next);
+ phraseNextTime=next;
 }
 
 const gate = document.getElementById('gate');
@@ -2194,6 +2197,11 @@ document.getElementById('skinSelect').addEventListener('change', (e)=>{
   rebuildSynth();
   updateSkinUI();
 });
+
+let phraseBefore=null,phraseNextTime=0;
+const phrasePanel=document.createElement('div');phrasePanel.className='panel phrase-panel';phrasePanel.innerHTML='<h2>A phrase, rewritten</h2><p id="phraseLabel" aria-live="polite">Place a disc to hear a before / after pair.</p><p>The first pass remembers the old board. The second plays your change. Flipped discs keep their place in time, but reverse their melodic contour and change register.</p><button id="replayPair">Hear the pair again</button>';
+document.querySelector('.sidebar').prepend(phrasePanel);document.getElementById('replayPair').onclick=()=>{if(!started)startAudio();else sweepOnce();};
+const resetNative=resetGame;resetGame=function(){phraseBefore=null;phraseNextTime=0;resetNative();};
 
 updateSkinUI();
 updateOpponentUI();

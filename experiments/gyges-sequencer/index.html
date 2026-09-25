@@ -269,14 +269,12 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
 
 <main>
   <div class="title-block">
-    <div class="kicker">two-player · full rules · no backend</div>
+    <div class="kicker">two-player · advanced rules · fixed opening</div>
     <h1>gygès, played as a <em>sequencer</em></h1>
     <p class="lede">Gygès: 12 shared rings -- four each of height 1, 2 and 3 -- sit on a 6×6 board with no
       fixed owner. Each turn you must move a ring from your own front-most occupied row, in a
-      straight line exactly as many spaces as its height. Land on an empty space and your move
-      is done; land on another ring and you choose -- <strong>bounce</strong> it onward exactly
-      its own height (which may cascade further), or <strong>replace</strong> it anywhere empty
-      on the board. Get any ring off the far edge into your opponent's goal and you win. The
+      path of orthogonal steps exactly as long as its height, turning when needed. Land on an empty space and your move
+      is done; land on another ring and you choose -- <strong>bounce</strong> the moving ring onward using the encountered ring’s height (leaving that ring in place), or <strong>replace</strong> it on an empty square, never beyond the opponent’s nearest occupied row. If the nearest row is blocked, play from the next row with a legal move. Each connection may be used only once per turn. This version uses a fixed opening arrangement. Get any ring off the far edge into your opponent's goal and you win. The
       twist here: every move sweeps a bar once across the six columns, left to right, and sings
       whatever's sitting on each column as it passes -- row picks the pitch, a ring's own height
       picks the register, and the skin you choose is the instrument.</p>
@@ -348,8 +346,8 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
 
       <div class="panel occupant-panel" id="occupantPanel">
         <h2>ring in the way</h2>
-        <p>Your ring landed on another. Bounce it onward its own height (click a highlighted
-          destination), or replace it -- pick it up and place it on any empty space.</p>
+        <p>Your ring landed on another. Continue with the same ring using the other ring’s height (click a highlighted
+          destination), or replace it: leave your moving ring here and relocate the other to a highlighted empty square, never beyond the opponent’s nearest occupied row.</p>
         <div class="btn-row">
           <button id="bounceBtn">bounce</button>
           <button id="replaceBtn">replace</button>
@@ -403,46 +401,24 @@ function edgeKey(r1,c1,r2,c2){
   return a<b ? (a+'-'+b) : (b+'-'+a);
 }
 
-function computeDestination(b, r, c, dr, dc, h, mover){
-  var edges = [];
-  var cr = r, cc = c;
-  for(var s=0; s<h; s++){
-    var nr = cr+dr, nc = cc+dc;
-    var isLastStep = s === h-1;
-    if(!inBounds(nr,nc)){
-      if(!isLastStep || dc !== 0) return null;
-      if(dr===-1 && nr===-1){
-        if(ownGoalOf(mover)==='north') return null;
-        edges.push(edgeKey(cr,cc,-1,cc));
-        return { goal:'north', edges:edges };
-      }
-      if(dr===1 && nr===SIZE){
-        if(ownGoalOf(mover)==='south') return null;
-        edges.push(edgeKey(cr,cc,SIZE,cc));
-        return { goal:'south', edges:edges };
-      }
-      return null;
-    }
-    edges.push(edgeKey(cr,cc,nr,nc));
-    if(!isLastStep && b[nr][nc]) return null;
-    cr = nr; cc = nc;
-  }
-  return { r:cr, c:cc, edges:edges };
-}
-
 function legalMovesFor(b, r, c, mover, usedEdges){
-  var piece = b[r][c]; if(!piece) return [];
-  var out = [];
-  for(var i=0;i<DIRS.length;i++){
-    var dr = DIRS[i][0], dc = DIRS[i][1];
-    var dest = computeDestination(b, r, c, dr, dc, piece.height, mover);
-    if(!dest) continue;
-    var blocked = false;
-    for(var k=0;k<dest.edges.length;k++) if(usedEdges.has(dest.edges[k])){ blocked = true; break; }
-    if(blocked) continue;
-    out.push({ dr:dr, dc:dc, dest:dest });
+  const piece=b[r][c]; if(!piece)return [];
+  const out=[];
+  function walk(cr,cc,left,edges,path){
+    for(const [dr,dc] of DIRS){
+      const nr=cr+dr,nc=cc+dc,key=edgeKey(cr,cc,nr,nc);
+      if(usedEdges.has(key)||edges.includes(key))continue;
+      const nextEdges=edges.concat(key),nextPath=path.concat({r:nr,c:nc});
+      if(!inBounds(nr,nc)){
+        const goal=nr===-1?'north':nr===SIZE?'south':null;
+        if(left===1&&dc===0&&goal&&goal!==ownGoalOf(mover))out.push({id:nextEdges.join('/'),dest:{goal,edges:nextEdges,path:nextPath}});
+        continue;
+      }
+      if(left===1)out.push({id:nextEdges.join('/'),dest:{r:nr,c:nc,edges:nextEdges,path:nextPath}});
+      else if(!b[nr][nc])walk(nr,nc,left-1,nextEdges,nextPath);
+    }
   }
-  return out;
+  walk(r,c,piece.height,[],[]);return out;
 }
 
 function frontRowFor(b, color){
@@ -454,14 +430,19 @@ function frontRowFor(b, color){
   return -1;
 }
 
-function computeMovable(b, color){
-  var row = frontRowFor(b, color);
-  if(row === -1) return { row:-1, pieces:[] };
-  var pieces = [];
-  for(var c=0;c<SIZE;c++){
-    if(b[row][c] && legalMovesFor(b,row,c,color,new Set()).length) pieces.push({r:row,c:c});
+function computeMovable(b,color){
+  for(let r=color==='red'?SIZE-1:0;r>=0&&r<SIZE;r+=color==='red'?-1:1){
+    const pieces=[];
+    for(let c=0;c<SIZE;c++)if(b[r][c]&&legalMovesFor(b,r,c,color,new Set()).length)pieces.push({r,c});
+    if(pieces.length)return {row:r,pieces};
   }
-  return { row:row, pieces:pieces };
+  return {row:-1,pieces:[]};
+}
+function replacementSquares(b,mover){
+  const boundary=frontRowFor(b,opponent(mover));const out=[];
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++)
+    if(!b[r][c]&&(boundary<0||(mover==='red'?r>=boundary:r<=boundary)))out.push({r,c});
+  return out;
 }
 
 function cloneBoard(b){
@@ -471,35 +452,20 @@ function cloneBoard(b){
 // Runs one full move's bounce/replace chain to completion on board `b` (mutated in
 // place), using `decide(occupantPiece, r, c, bounceMoves)` to resolve every choice --
 // returns {win:true} if the chain ends on the opponent's goal, else {win:false}.
-function runChain(b, mover, originR, originC, firstMove, decide){
-  var usedEdges = new Set(firstMove.dest.edges);
-  var piece = b[originR][originC];
-  b[originR][originC] = null;
-  var dest = firstMove.dest;
-  var waiting = [];
-  while(true){
-    if(dest.goal) return { win:true };
-    var occ = b[dest.r][dest.c];
-    if(occ === null){
-      b[dest.r][dest.c] = piece;
-      if(waiting.length === 0) return { win:false };
-      var next = waiting.pop();
-      piece = next.piece; dest = next.dest;
-      continue;
-    }
-    var bounceMoves = legalMovesFor(b, dest.r, dest.c, mover, usedEdges);
-    var decision = decide(occ, dest.r, dest.c, bounceMoves);
-    if(decision.type === 'replace'){
-      b[dest.r][dest.c] = null;
-      b[decision.to.r][decision.to.c] = occ;
-    } else {
-      for(var k=0;k<decision.move.dest.edges.length;k++) usedEdges.add(decision.move.dest.edges[k]);
-      waiting.push({ piece:piece, dest:dest });
-      b[dest.r][dest.c] = null;
-      piece = occ;
-      dest = decision.move.dest;
-    }
+function runChain(b,mover,originR,originC,firstMove,decide){
+ const usedEdges=new Set(firstMove.dest.edges),piece=b[originR][originC];
+ b[originR][originC]=null;let dest=firstMove.dest;
+ while(true){
+  if(dest.goal)return {win:true};
+  const occ=b[dest.r][dest.c];
+  if(!occ){b[dest.r][dest.c]=piece;return {win:false};}
+  const moves=legalMovesFor(b,dest.r,dest.c,mover,usedEdges);
+  const decision=decide(occ,dest.r,dest.c,moves);
+  if(decision.type==='replace'){
+   b[decision.to.r][decision.to.c]=occ;b[dest.r][dest.c]=piece;return {win:false};
   }
+  decision.move.dest.edges.forEach(e=>usedEdges.add(e));dest=decision.move.dest;
+ }
 }
 
 // ---- heuristic scoring ----
@@ -554,7 +520,7 @@ function greedyDecide(b, mover, rng, chainDepth){
     // replace: gather all empty cells, score by how far they push the displaced ring
     // from the opponent's reach, pick the best with noise
     var empties = [];
-    for(var rr=0; rr<SIZE; rr++) for(var cc=0; cc<SIZE; cc++) if(!b[rr][cc]) empties.push({r:rr,c:cc});
+    empties = replacementSquares(b,mover);
     var best = null, bestScore = -Infinity;
     for(var i=0;i<empties.length;i++){
       var e = empties[i];
@@ -593,7 +559,7 @@ onmessage = function(e){
       score += rng() * 4;
       if(score > bestScore){
         bestScore = score;
-        best = { from:{r:piece.r,c:piece.c}, dr:move.dr, dc:move.dc, decisions:decisions, win:result.win };
+        best = { from:{r:piece.r,c:piece.c}, moveId:move.id, decisions:decisions, win:result.win };
       }
     }
   }
@@ -609,7 +575,7 @@ onmessage = function(e){
 const SIZE = 6;
 const DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
 let board, currentPlayer, selected, currentLegalMoves, gameOver, movable;
-let chain = null;           // { mover, piece, dest, waiting:[], usedEdges:Set } while a move/bounce is in flight
+let chain = null;           // { mover, piece, dest, usedEdges:Set } while a move/bounce is in flight
 let pendingOccupant = null; // { r, c, piece, bounceMoves } when a Bounce/Replace choice is needed
 let replaceMode = false;    // true once the player has clicked "replace" and is picking a destination
 let lastMove = null;        // {from:{r,c}, to:{r,c}|null, toGoal:string|null} of the most recent atomic hop
@@ -629,47 +595,25 @@ function edgeKey(r1,c1,r2,c2){
   return a<b ? `${a}-${b}` : `${b}-${a}`;
 }
 
-// Computes where a ring at (r,c) ends up moving exactly `h` spaces in direction (dr,dc):
-// a regular cell, one of the two goals (only via a straight exit off the correct edge,
-// and never the mover's own goal), or null if illegal (blocked, or runs off a side edge
-// with no goal there). Intermediate cells must be empty; the final cell may not be.
-function computeDestination(b, r, c, dr, dc, h, mover){
-  const edges = [];
-  let cr = r, cc = c;
-  for(let s=0; s<h; s++){
-    const nr = cr+dr, nc = cc+dc;
-    const isLastStep = s === h-1;
-    if(!inBounds(nr,nc)){
-      if(!isLastStep || dc !== 0) return null;
-      if(dr===-1 && nr===-1){
-        if(ownGoalOf(mover)==='north') return null;
-        edges.push(edgeKey(cr,cc,-1,cc));
-        return { goal:'north', edges };
-      }
-      if(dr===1 && nr===SIZE){
-        if(ownGoalOf(mover)==='south') return null;
-        edges.push(edgeKey(cr,cc,SIZE,cc));
-        return { goal:'south', edges };
-      }
-      return null;
-    }
-    edges.push(edgeKey(cr,cc,nr,nc));
-    if(!isLastStep && b[nr][nc]) return null;
-    cr = nr; cc = nc;
-  }
-  return { r:cr, c:cc, edges };
-}
-
+// Enumerate orthogonal paths, retaining their exact connections for later bounces.
 function legalMovesFor(b, r, c, mover, usedEdges){
-  const piece = b[r][c]; if(!piece) return [];
-  const out = [];
-  for(const [dr,dc] of DIRS){
-    const dest = computeDestination(b, r, c, dr, dc, piece.height, mover);
-    if(!dest) continue;
-    if(dest.edges.some(e => usedEdges.has(e))) continue;
-    out.push({ dr, dc, dest });
+  const piece=b[r][c]; if(!piece)return [];
+  const out=[];
+  function walk(cr,cc,left,edges,path){
+    for(const [dr,dc] of DIRS){
+      const nr=cr+dr,nc=cc+dc,key=edgeKey(cr,cc,nr,nc);
+      if(usedEdges.has(key)||edges.includes(key))continue;
+      const nextEdges=edges.concat(key),nextPath=path.concat({r:nr,c:nc});
+      if(!inBounds(nr,nc)){
+        const goal=nr===-1?'north':nr===SIZE?'south':null;
+        if(left===1&&dc===0&&goal&&goal!==ownGoalOf(mover))out.push({id:nextEdges.join('/'),dest:{goal,edges:nextEdges,path:nextPath}});
+        continue;
+      }
+      if(left===1)out.push({id:nextEdges.join('/'),dest:{r:nr,c:nc,edges:nextEdges,path:nextPath}});
+      else if(!b[nr][nc])walk(nr,nc,left-1,nextEdges,nextPath);
+    }
   }
-  return out;
+  walk(r,c,piece.height,[],[]);return out;
 }
 
 function frontRowFor(b, color){
@@ -681,14 +625,19 @@ function frontRowFor(b, color){
   return -1;
 }
 
-function computeMovable(b, color){
-  const row = frontRowFor(b, color);
-  if(row === -1) return { row:-1, pieces:[] };
-  const pieces = [];
-  for(let c=0;c<SIZE;c++){
-    if(b[row][c] && legalMovesFor(b,row,c,color,new Set()).length) pieces.push({r:row,c});
+function computeMovable(b,color){
+  for(let r=color==='red'?SIZE-1:0;r>=0&&r<SIZE;r+=color==='red'?-1:1){
+    const pieces=[];
+    for(let c=0;c<SIZE;c++)if(b[r][c]&&legalMovesFor(b,r,c,color,new Set()).length)pieces.push({r,c});
+    if(pieces.length)return {row:r,pieces};
   }
-  return { row, pieces };
+  return {row:-1,pieces:[]};
+}
+function replacementSquares(b,mover){
+  const boundary=frontRowFor(b,opponent(mover));const out=[];
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++)
+    if(!b[r][c]&&(boundary<0||(mover==='red'?r>=boundary:r<=boundary)))out.push({r,c});
+  return out;
 }
 
 // heights are placed heaviest-on-the-flanks, lightest-in-the-middle on both home rows --
@@ -704,6 +653,7 @@ function initBoard(){
 }
 
 function resetGame(){
+  document.getElementById("routeChoice")?.remove();
   initBoard();
   currentPlayer = 'red';
   selected = null; currentLegalMoves = []; gameOver = null;
@@ -715,18 +665,12 @@ function resetGame(){
   maybeTriggerAI();
 }
 
-/* ---------------- turn/chain driver ----------------
-   A move (or a bounced ring's own move) is "in flight" as `chain.piece` travelling to
-   `chain.dest`. If dest is empty, it lands and, if some earlier ring in this turn was
-   itself waiting on THIS ring's now-vacated cell, that one resumes next (chain.waiting
-   is a stack for exactly that). If dest is occupied, play pauses on pendingOccupant
-   until the human (or AI) resolves it with Bounce or Replace. */
+/* The moving ring stays in flight; rings it bounces on remain on the board. */
 function beginChain(mover, originR, originC, firstMove){
   chain = {
     mover,
     piece: board[originR][originC],
     dest: firstMove.dest,
-    waiting: [],
     usedEdges: new Set(firstMove.dest.edges),
   };
   board[originR][originC] = null;
@@ -749,17 +693,10 @@ function stepChain(){
   if(occ === null){
     board[chain.dest.r][chain.dest.c] = chain.piece;
     sweepOnce();
-    render();
-    if(chain.waiting.length === 0){
-      chain = null; pendingOccupant = null;
-      endTurn();
-      return;
-    }
-    const next = chain.waiting.pop();
-    chain.piece = next.piece; chain.dest = next.dest;
-    stepChain();
-    return;
+    chain = null; pendingOccupant = null;
+    endTurn();return;
   }
+
   const bounceMoves = legalMovesFor(board, chain.dest.r, chain.dest.c, chain.mover, chain.usedEdges);
   pendingOccupant = { r: chain.dest.r, c: chain.dest.c, piece: occ, bounceMoves };
   replaceMode = false;
@@ -767,14 +704,11 @@ function stepChain(){
 }
 
 function chooseBounce(move){
-  if(!chain || !pendingOccupant) return;
+  if(!chain || !pendingOccupant || !move) return;
   move.dest.edges.forEach(e => chain.usedEdges.add(e));
-  chain.waiting.push({ piece: chain.piece, dest: chain.dest });
   const from = { r: pendingOccupant.r, c: pendingOccupant.c };
-  board[from.r][from.c] = null;
   lastMove = { from, to: move.dest.goal ? null : {r:move.dest.r,c:move.dest.c}, toGoal: move.dest.goal||null };
   lastMoveId++;
-  chain.piece = pendingOccupant.piece;
   chain.dest = move.dest;
   pendingOccupant = null; replaceMode = false;
   stepChain();
@@ -782,10 +716,11 @@ function chooseBounce(move){
 
 function chooseReplace(to){
   if(!chain || !pendingOccupant) return;
-  board[pendingOccupant.r][pendingOccupant.c] = null;
-  board[to.r][to.c] = pendingOccupant.piece;
-  pendingOccupant = null; replaceMode = false;
-  stepChain();
+  if(!to||!replacementSquares(board,chain.mover).some(p=>p.r===to.r&&p.c===to.c))return;
+  board[to.r][to.c]=pendingOccupant.piece;
+  board[pendingOccupant.r][pendingOccupant.c]=chain.piece;
+  chain=null;pendingOccupant=null;replaceMode=false;
+  sweepOnce();endTurn();return;
 }
 
 function endTurn(){
@@ -793,15 +728,19 @@ function endTurn(){
   selected = null; currentLegalMoves = [];
   movable = computeMovable(board, currentPlayer);
   passedLastTurn = false;
-  if(movable.pieces.length === 0 && frontRowFor(board, currentPlayer) !== -1){
-    // no legal move from the front row -- pass, matching this codebase's existing
-    // convention for a stuck side (see reversi's identical "no move -> pass")
-    passedLastTurn = true;
-    currentPlayer = opponent(currentPlayer);
-    movable = computeMovable(board, currentPlayer);
-  }
   render();
   maybeTriggerAI();
+}
+
+function chooseRoute(routes,commit){
+ document.getElementById('routeChoice')?.remove();
+ if(!routes.length)return;
+ if(routes.length===1){commit(routes[0]);return;}
+ const panel=document.createElement('div');panel.id='routeChoice';panel.className='panel';
+ const title=document.createElement('h2');title.textContent='Choose your route';panel.append(title);
+ const note=document.createElement('p');note.textContent='Each route uses different connections. Those connections cannot be reused this turn.';panel.append(note);
+ routes.forEach(m=>{const button=document.createElement('button');button.style.margin='4px';button.textContent=m.dest.path.map(p=>String.fromCharCode(97+p.c)+(SIZE-p.r)).join(' → ');button.onclick=()=>{panel.remove();commit(m);};panel.append(button);});
+ document.querySelector('.sidebar').prepend(panel);
 }
 
 function handleSquareClick(r,c){
@@ -810,22 +749,17 @@ function handleSquareClick(r,c){
 
   if(pendingOccupant){
     if(replaceMode){
-      if(board[r][c] === null) chooseReplace({r,c});
+      if(replacementSquares(board,currentPlayer).some(p=>p.r===r&&p.c===c)) chooseReplace({r,c});
       return;
     }
-    const mv = pendingOccupant.bounceMoves.find(m => !m.dest.goal && m.dest.r===r && m.dest.c===c);
-    if(mv) chooseBounce(mv);
+    const routes = pendingOccupant.bounceMoves.filter(m => !m.dest.goal && m.dest.r===r && m.dest.c===c);
+    chooseRoute(routes,chooseBounce);
     return;
   }
 
   if(selected){
-    const mv = currentLegalMoves.find(m => !m.dest.goal && m.dest.r===r && m.dest.c===c);
-    if(mv){
-      const from = { ...selected };
-      selected = null; currentLegalMoves = [];
-      beginChain(currentPlayer, from.r, from.c, mv);
-      return;
-    }
+    const routes=currentLegalMoves.filter(m=>!m.dest.goal&&m.dest.r===r&&m.dest.c===c);
+    if(routes.length){const from={...selected};chooseRoute(routes,mv=>{selected=null;currentLegalMoves=[];beginChain(currentPlayer,from.r,from.c,mv);});return;}
   }
 
   const entry = movable.pieces.find(p=>p.r===r && p.c===c);
@@ -934,6 +868,7 @@ function endReason(){
 }
 
 function render(){
+  document.getElementById("routeChoice")?.remove();
   for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
     const sq = squareEls[r][c];
     sq.classList.remove('movable','dest','contested','selected','occupant');
@@ -951,7 +886,7 @@ function render(){
       const bm = pendingOccupant.bounceMoves.find(m => !m.dest.goal && m.dest.r===r && m.dest.c===c);
       if(bm){ sq.classList.add('dest'); if(board[r][c]) sq.classList.add('contested'); }
     }
-    if(pendingOccupant && replaceMode && board[r][c]===null) sq.classList.add('dest');
+    if(pendingOccupant && replaceMode && replacementSquares(board,currentPlayer).some(p=>p.r===r&&p.c===c)) sq.classList.add('dest');
     if(pendingOccupant && pendingOccupant.r===r && pendingOccupant.c===c) sq.classList.add('occupant');
 
     const piece = board[r][c];
@@ -1219,7 +1154,7 @@ gygesAIWorker.onmessage = function(e){
   const plan = e.data.plan;
   if(!plan){ endTurn(); return; }
   const move = legalMovesFor(board, plan.from.r, plan.from.c, currentPlayer, new Set())
-    .find(m => m.dr===plan.dr && m.dc===plan.dc);
+    .find(m => m.id===plan.moveId);
   if(!move){ endTurn(); return; } // board drifted somehow -- fail safe rather than throw
   driveAIChain(currentPlayer, plan.from.r, plan.from.c, move, plan.decisions.slice(), 0);
 };
@@ -1239,15 +1174,12 @@ function driveAIDecisions(decisions, i){
   const d = decisions[i];
   setTimeout(()=>{
     if(!d || d.type==='replace') chooseReplace(d ? d.to : pickFallbackReplace());
-    else chooseBounce(d.move.dest.goal
-      ? pendingOccupant.bounceMoves.find(m=>m.dest.goal===d.move.dest.goal)
-      : pendingOccupant.bounceMoves.find(m=>m.dest.r===d.move.dest.r && m.dest.c===d.move.dest.c));
+    else chooseBounce(pendingOccupant.bounceMoves.find(m=>m.id===d.move.id));
     if(chain) driveAIDecisions(decisions, i+1);
   }, 220);
 }
 function pickFallbackReplace(){
-  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) if(board[r][c]===null) return {r,c};
-  return {r:0,c:0};
+  return replacementSquares(board,currentPlayer)[0];
 }
 
 function celebrateWin(winner){
