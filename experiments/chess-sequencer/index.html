@@ -1057,11 +1057,8 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
 <main>
   <div class="title-block">
     <div class="kicker">two-player · full rules · no backend</div>
-    <h1>chess, played as a <em>sequencer</em></h1>
-    <p class="lede">Full standard chess (check, checkmate, stalemate, castling, en passant, promotion)
-      with every move sweeping a bar once across the eight files, left to right. Piece type picks the
-      instrument, color picks the register, rank picks the pitch, and the skin you choose sets the
-      whole palette -- the same game becomes a different piece of music entirely.</p>
+    <h1>chess, <em>in relation</em></h1>
+    <p class="lede">Every position has pressure, protection and silence. Move a piece and hear the relationships change. Colored outlines reveal what the music responds to: attacked pieces add tension, protected pieces sustain, and crowded pieces become quieter. Full chess rules apply; piece type sets the instrument, color sets its register, and the sound palette is yours to choose.</p>
   </div>
 
   <div class="device-frame">
@@ -1844,6 +1841,7 @@ for(let r=0;r<SIZE;r++){
   for(let c=0;c<SIZE;c++){
     const sq = document.createElement('div');
     sq.className = 'sq ' + (isDarkSquare(r,c) ? 'dark' : 'light');
+    sq.setAttribute('role','button');sq.tabIndex=0;sq.setAttribute('aria-label','Square '+String.fromCharCode(97+c)+(SIZE-r));sq.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleSquareClick(r,c);}});
     sq.addEventListener('click', ()=>handleSquareClick(r,c));
     boardEl.appendChild(sq);
     squareEls[r].push(sq);
