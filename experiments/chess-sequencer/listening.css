@@ -26,3 +26,5 @@
 
 
 [data-skin="resonant"] .sq.resonating{animation:resonanceSquare 1.2s ease-out}[data-skin="resonant"] .resonating .piece-glyph{animation:resonancePulse .65s ease-out}
+
+.appearance-help{font:12px/1.6 var(--mono);opacity:.75}#skinSelect{width:100%}

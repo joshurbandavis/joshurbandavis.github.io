@@ -1093,7 +1093,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
     <div class="sidebar">
       <div class="panel">
         <h2>skin</h2>
-        <select id="skinSelect"><option value="resonant">Resonant Table</option>
+        <select id="skinSelect" aria-label="Visual skin"><option value="resonant">Resonant Table</option>
           <option value="dark">Dark</option>
           <option value="light">Light / paper</option>
           <option value="neon" selected>Glassy neon (default)</option>
@@ -2104,20 +2104,7 @@ const PALETTES = {
       new Tone.FeedbackDelay({delayTime:'8n.', feedback:0.35, wet:0.3}), // vast, washy tail
     ],
   }) },
-  glitch: { label:'Glitch', make: () => ({
-    voices: {
-      pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.03,sustain:0,release:0.02}}),
-      knight: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'pulse', width:0.1}, envelope:{attack:0.001,decay:0.04,sustain:0,release:0.03}}),
-      bishop: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'sawtooth'}, envelope:{attack:0.002,decay:0.1,sustain:0.05,release:0.08}}),
-      rook:   new Tone.PolySynth(Tone.FMSynth, {harmonicity:6, modulationIndex:10, envelope:{attack:0.001,decay:0.08,sustain:0,release:0.05}, modulationEnvelope:{attack:0.001,decay:0.05,sustain:0,release:0.03}}),
-      queen:  new Tone.PolySynth(Tone.FMSynth, {harmonicity:9, modulationIndex:14, envelope:{attack:0.001,decay:0.12,sustain:0.05,release:0.1}, modulationEnvelope:{attack:0.001,decay:0.08,sustain:0,release:0.05}}),
-      king:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.2,sustain:0.1,release:0.15}}),
-    },
-    effects: () => [
-      new Tone.Distortion({distortion:0.55, wet:0.45}),
-      new Tone.PingPongDelay({delayTime:'32n', feedback:0.5, wet:0.32}), // corrupted-signal repeats
-    ],
-  }) },
+  glitch:{label:'Glitch',make:()=>({voices:Object.fromEntries(['pawn','knight','bishop','rook','queen','king'].map((type,i)=>[type,new Tone.PolySynth(Tone.FMSynth,{harmonicity:[7.13,11.7,3.31,1.41,8.17,.51][i],modulationIndex:18+i*3,oscillator:{type:'square'},envelope:{attack:.001,decay:.025+i*.007,sustain:0,release:.015},modulationEnvelope:{attack:.001,decay:.016,sustain:0,release:.008}})])),effects:()=>[new Tone.BitCrusher({bits:4,wet:.85}),new Tone.Filter({frequency:2400,type:'highpass',rolloff:-12}),new Tone.PingPongDelay({delayTime:.047,feedback:.18,wet:.16})]})},
   // was Tone.PluckSynth per piece (Karplus-Strong): it extends Instrument, not Monophonic,
   // and Tone.PolySynth's constructor asserts "voice instanceof Monophonic" synchronously --
   // wrapping it threw immediately on build, and since rebuildSynths() disposes the old
@@ -2158,20 +2145,14 @@ const PALETTES = {
   // macabre: a music box playing just slightly wrong across the board -- deep chorus
   // detunes every voice against itself for that toy-piano waver, and a touch of
   // vibrato keeps nothing ever quite landing in tune, like the mechanism is worn.
-  macabre: { label:'Danse Macabre', make: () => ({
-    voices: {
-      pawn:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'triangle'}, envelope:{attack:0.001,decay:0.2,sustain:0.02,release:0.25}}),
-      knight: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'square'}, envelope:{attack:0.001,decay:0.12,sustain:0,release:0.15}}),
-      bishop: new Tone.PolySynth(Tone.Synth, {oscillator:{type:'triangle'}, envelope:{attack:0.02,decay:0.3,sustain:0.2,release:0.5}}),
-      rook:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'sawtooth'}, envelope:{attack:0.005,decay:0.3,sustain:0.15,release:0.4}}),
-      queen:  new Tone.PolySynth(Tone.Synth, {oscillator:{type:'triangle'}, envelope:{attack:0.02,decay:0.4,sustain:0.25,release:0.7}}),
-      king:   new Tone.PolySynth(Tone.Synth, {oscillator:{type:'triangle'}, envelope:{attack:0.05,decay:0.6,sustain:0.3,release:1.1}}),
-    },
-    effects: () => [
-      new Tone.Vibrato({frequency:4.5, depth:0.22}),
-      new Tone.Chorus({frequency:1.1, delayTime:3.5, depth:0.6, wet:0.45}).start(),
-    ],
-  }) },
+  macabre:{label:'Danse Macabre',make:()=>({voices:{
+ pawn:new Tone.PolySynth(Tone.FMSynth,{harmonicity:3.5,modulationIndex:5,envelope:{attack:.001,decay:.12,sustain:0,release:.08},modulationEnvelope:{attack:.001,decay:.04,sustain:0,release:.04}}),
+ knight:new Tone.PolySynth(Tone.MetalSynth,{harmonicity:3.1,modulationIndex:11,resonance:1800,octaves:1.1,envelope:{attack:.001,decay:.08,release:.04}}),
+ bishop:new Tone.PolySynth(Tone.MonoSynth,{oscillator:{type:'fatsawtooth',count:2,spread:9},filter:{Q:.8,type:'lowpass'},envelope:{attack:.14,decay:.2,sustain:.35,release:.5},filterEnvelope:{attack:.12,decay:.3,sustain:.4,release:.4,baseFrequency:700,octaves:1.6}}),
+ rook:new Tone.PolySynth(Tone.MonoSynth,{oscillator:{type:'triangle'},filter:{Q:3,type:'lowpass'},envelope:{attack:.008,decay:.18,sustain:.1,release:.2},filterEnvelope:{attack:.01,decay:.12,sustain:.1,release:.1,baseFrequency:160,octaves:2.4}}),
+ queen:new Tone.PolySynth(Tone.AMSynth,{harmonicity:1.007,oscillator:{type:'sawtooth'},envelope:{attack:.09,decay:.25,sustain:.3,release:.65},modulation:{type:'sine'},modulationEnvelope:{attack:.1,decay:.2,sustain:.5,release:.4}}),
+ king:new Tone.PolySynth(Tone.FMSynth,{harmonicity:1.414,modulationIndex:4,envelope:{attack:.005,decay:.7,sustain:0,release:1.3},modulationEnvelope:{attack:.001,decay:.25,sustain:0,release:.2}})
+ },effects:()=>[new Tone.Vibrato({frequency:5.4,depth:.08}),new Tone.Filter({frequency:4800,type:'lowpass'}),new Tone.Chorus({frequency:.4,delayTime:2.5,depth:.18,wet:.12}).start()]})},
   // grimoire: a struck bowl over a held chant across the board -- low harmonicity AM
   // keeps every voice close to a single dark fundamental instead of a bright bell, a
   // slow tremolo gives the whole palette a chant-like pulse, and a slow phaser is the
@@ -2375,6 +2356,54 @@ const PALETTES = {
     ],
   }) },
 };
+const GYGES_PRESETS = {
+  // ported verbatim from checker-sequencer's dark/light/neon/alien voices
+  pluck: { label:'Pluck', build: () => {
+    const synth = new Tone.PolySynth(Tone.MonoSynth, {
+      oscillator:{type:'triangle'},
+      envelope:{attack:0.002, decay:0.22, sustain:0, release:0.3},
+      filter:{Q:1.5, type:'lowpass', rolloff:-24},
+      filterEnvelope:{attack:0.001, decay:0.14, sustain:0, release:0.2, baseFrequency:180, octaves:4.5}
+    });
+    const chorus = new Tone.Chorus({frequency:2.4, delayTime:2, depth:0.3, wet:0.3}).start();
+    const slap = new Tone.FeedbackDelay({delayTime:'16n', feedback:0.12, wet:0.16});
+    return [synth, chorus, slap];
+  }},
+  blip: { label:'Blip', build: () => {
+    const synth = new Tone.PolySynth(Tone.Synth, {
+      oscillator:{type:'triangle'},
+      envelope:{attack:0.001, decay:0.09, sustain:0, release:0.12}
+    });
+    return [synth];
+  }},
+  bell: { label:'Bell', build: () => {
+    const synth = new Tone.PolySynth(Tone.FMSynth, {
+      harmonicity:3.01, modulationIndex:10,
+      envelope:{attack:0.003, decay:0.5, sustain:0.08, release:1.1},
+      modulationEnvelope:{attack:0.008, decay:0.25, sustain:0, release:0.4}
+    });
+    const chorus = new Tone.Chorus({frequency:1.4, delayTime:3.2, depth:0.4, wet:0.32}).start();
+    const echo = new Tone.FeedbackDelay({delayTime:'8n', feedback:0.22, wet:0.22});
+    return [synth, chorus, echo];
+  }},
+  pad: { label:'Pad', build: () => {
+    const synth = new Tone.PolySynth(Tone.AMSynth, {
+      harmonicity:1.99, oscillator:{type:'sine'},
+      envelope:{attack:0.5, decay:0.4, sustain:0.65, release:1.6},
+      modulation:{type:'sine'}, modulationEnvelope:{attack:0.6, decay:0.2, sustain:1, release:0.8}
+    });
+    const vibrato = new Tone.Vibrato({frequency:3.2, depth:0.06});
+    const chorus = new Tone.Chorus({frequency:0.6, delayTime:4.5, depth:0.55, wet:0.4}).start();
+    const filter = new Tone.AutoFilter({frequency:0.18, baseFrequency:300, octaves:3.5, wet:0.5}).start();
+    return [synth, vibrato, chorus, filter];
+  }},
+};
+for(const key of ['pluck','blip','bell','pad'])PALETTES['gyges_'+key]={label:'Gygès · '+GYGES_PRESETS[key].label,make:()=>{
+ const voices={},nodes=[];for(const type of ['pawn','knight','bishop','rook','queen','king']){const chain=GYGES_PRESETS[key].build();voices[type]=chain[0];for(let i=0;i<chain.length-1;i++)chain[i].connect(chain[i+1]);nodes.push(...chain.slice(1));}
+ // The shared palette bus supplies the space; use the preset voice settings without parallel dry/effect routing.
+ nodes.forEach(n=>n.dispose());Object.values(voices).forEach(v=>v.disconnect());
+ return {voices,effects:()=>key==='bell'?[new Tone.FeedbackDelay({delayTime:'8n',feedback:.22,wet:.22})]:key==='pluck'?[new Tone.Chorus({frequency:2.4,delayTime:2,depth:.3,wet:.3}).start()]:key==='pad'?[new Tone.Chorus({frequency:.6,delayTime:4.5,depth:.55,wet:.4}).start()]:[]};
+}};
 // every skin IS a sound palette now -- picking a skin rebuilds all six piece-type voices
 const SKIN_PALETTE = {
   dark:'percussive', light:'orchestral', neon:'electronic', alien:'percussive',
@@ -2449,7 +2478,8 @@ function rebuildSynths(){
   const effects = built.effects();
   const voices = Object.values(built.voices);
   const busHead = effects.length ? effects[0] : reverb;
-  voices.forEach(v => v.connect(busHead));
+  voices.forEach(v => {v.volume.value=-7;v.connect(busHead);});
+  reverb.wet.value=listening.instrument==='glitch'?.04:listening.instrument==='macabre'?.16:.22;
   for(let i=0;i<effects.length-1;i++) effects[i].connect(effects[i+1]);
   if(effects.length) effects[effects.length-1].connect(reverb);
   paletteSynths = { voices: built.voices, nodes: voices.concat(effects) };
@@ -2595,6 +2625,9 @@ const relationPanel=document.createElement('div');relationPanel.className='panel
 document.querySelector('.sidebar').prepend(relationPanel);
 document.getElementById('hearPosition').onclick=()=>{if(!started)startAudio();else sweepOnce();};
 document.getElementById('examplePosition').onclick=()=>{if(aiThinking)return;opponentMode='human';updateOpponentUI();resetGame();board=Array.from({length:8},()=>Array(8).fill(null));const pieces=[[7,7,'king','white'],[0,7,'king','black'],[7,0,'rook','white'],[0,0,'rook','black'],[4,2,'bishop','white'],[3,2,'bishop','black'],[4,4,'pawn','white'],[3,4,'pawn','black'],[5,5,'knight','white'],[2,5,'knight','black'],[7,3,'queen','white'],[0,3,'queen','black']];for(const[r,c,type,color]of pieces)board[r][c]={type,color,hasMoved:true};movable=computeAllLegal(board,currentPlayer,null);inCheck=isInCheck(board,currentPlayer);render();if(started)sweepOnce();};
+const appearancePanel=document.getElementById('skinSelect').closest('.panel');
+appearancePanel.querySelector('h2').textContent='Appearance · visual skin';
+const appearanceHelp=document.createElement('p');appearanceHelp.className='appearance-help';appearanceHelp.textContent='Changes the artwork, board and colors, and restores this skin’s listening settings.';appearancePanel.append(appearanceHelp);
 const listening=window.createChessListening({
  instruments:Object.entries(PALETTES).map(([key,p])=>[key,p.label]),palette:k=>SKIN_PALETTE[k]||'orchestral',
  boardElement:boardEl,attacks:attacksFrom,step:stepDuration,
@@ -2604,11 +2637,17 @@ const listening=window.createChessListening({
  release(){if(paletteSynths)Object.values(paletteSynths.voices).forEach(s=>s.releaseAll());},
  column(col){sweepBar.classList.add('on');setActiveColumn(col);},
  flash(r,c){const sq=squareEls[r][c];sq.classList.remove('resonating');void sq.offsetWidth;sq.classList.add('resonating');},
- note(p,r,rel,strength,settings){const synth=paletteSynths.voices[p.type],note=(p.color==='white'?WHITE_NOTES:BLACK_NOTES)[r],t=Tone.now()+.005;
- synth.triggerAttackRelease(note,rel.blocked?'32n':settings.sympathy&&rel.defenders?'4n':'8n',t,Math.min(.7,strength*(rel.blocked?.2:.5)));
- if(settings.sympathy&&rel.defenders)synth.triggerAttackRelease(Tone.Frequency(note).transpose(7).toNote(),'8n',t+stepDuration()*.3,Math.min(.2,strength*.12));},
+ note(p,r,rel,strength,settings,c){
+ const synth=paletteSynths.voices[p.type],t=Tone.now()+.005;
+ let note=(p.color==='white'?WHITE_NOTES:BLACK_NOTES)[r];
+ if(settings.instrument==='macabre'){const degrees=[12,11,8,7,5,3,2,0];note=Tone.Frequency((p.color==='white'?45:57)+degrees[r],'midi').toNote();if(p.type==='king')note=Tone.Frequency(note).transpose(-12).toNote();}
+ const dur=settings.instrument==='glitch'?.025:settings.instrument==='macabre'?(['bishop','queen'].includes(p.type)?'4n':'16n'):rel.blocked?'32n':settings.sympathy&&rel.defenders?'4n':'8n';
+ const velocity=Math.min(.65,strength*(rel.blocked?.2:.5));synth.triggerAttackRelease(note,dur,t,velocity);
+ if(settings.sympathy&&rel.defenders&&settings.instrument!=='glitch'&&settings.instrument!=='macabre')synth.triggerAttackRelease(Tone.Frequency(note).transpose(7).toNote(),'8n',t+stepDuration()*.3,Math.min(.2,strength*.12));
+ },
  tension(p,r,strength){const note=(p.color==='white'?WHITE_NOTES:BLACK_NOTES)[r];paletteSynths.voices[p.type].triggerAttackRelease(Tone.Frequency(note).transpose(1).toNote(),'32n',Tone.now()+.005,Math.min(.25,strength));}
 });
+document.querySelector('.sidebar').prepend(appearancePanel);
 updateOpponentUI();
 updateSkinUI();
 resetGame();

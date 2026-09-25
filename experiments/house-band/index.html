@@ -168,6 +168,7 @@ nav{background:linear-gradient(var(--bg),color-mix(in srgb,var(--bg) 70%,transpa
     </div>
 
     <div class="sidebar">
+      <div class="panel sound-program"><div class="field-label">Sound program</div><p id="programName"></p><p id="programClock" class="clock-note"></p><div class="controls"><button class="pill" id="autoSound" aria-pressed="true">Auto rotation: on</button><button class="pill" id="nextSound">Next sound</button></div><p class="clock-note">A new engine and arrangement every four minutes. The games and your band selection keep playing.</p></div>
       <div class="panel">
         <div class="field-label"><span>the band</span><span class="on-air">on air</span></div>
         <div class="members" id="members"></div>
@@ -194,6 +195,7 @@ nav{background:linear-gradient(var(--bg),color-mix(in srgb,var(--bg) 70%,transpa
 
 <script src="engines.js"></script>
 <script src="station.js"></script>
+<script src="sound-programs.js"></script>
 <script>
 "use strict";
 const { SLOT_MS, GAMES, ORDER, moveMs, slotIndexAt } = STATION;
@@ -598,7 +600,23 @@ const VOICES = {
   }),
 };
 
-let audioOn = false, bus = null, master = null;
+let audioOn = false, bus = null, master = null, space = null;
+let soundAuto=true,soundOffset=0,programIndex=bandProgramAt(nowMs());
+function currentProgram(){return BAND_PROGRAMS[programIndex];}
+function rotateSound(force=false){
+ const next=soundAuto?bandProgramAt(nowMs(),soundOffset):programIndex;
+ if(next!==programIndex||force){programIndex=next;renderMembers();if(audioOn){
+  for(const id of ORDER){const old=voiceCache[id],fader=faders[id];if(!old)continue;fader.gain.rampTo(0,4);setTimeout(()=>{Object.values(old).forEach(v=>v.dispose());fader.dispose();},12000);delete voiceCache[id];delete faders[id];}
+  space.wet.rampTo(currentProgram().space,4);bus.wet.rampTo(currentProgram().echo,4);applyLevels();
+ }}
+ document.getElementById('programName').textContent=currentProgram().name;
+ const remaining=BAND_PROGRAM_MS-(nowMs()%BAND_PROGRAM_MS);
+ document.getElementById('programClock').textContent=soundAuto?'Next change in '+Math.ceil(remaining/1000)+' seconds':'Holding this sound program';
+}
+document.getElementById('autoSound').onclick=e=>{soundAuto=!soundAuto;e.target.setAttribute('aria-pressed',String(soundAuto));e.target.textContent='Auto rotation: '+(soundAuto?'on':'off');rotateSound();};
+document.getElementById('nextSound').onclick=()=>{soundOffset++;if(!soundAuto)programIndex=(programIndex+1)%BAND_PROGRAMS.length;rotateSound(true);};
+setInterval(rotateSound,1000);
+
 const scheduledThrough = {}; // per game: wall-clock ms of the last event handed to the audio clock
 
 // Each game sits in its own register so six at once spread out instead of piling up
@@ -609,7 +627,7 @@ const MEMBER_COLOR = {
   chess:'#efe9dc', checkers:'#ff5e5b', reversi:'#d4a843',
   connect4:'#c8ff2e', mancala:'#e8894a', backgammon:'#9fb4ff',
 };
-const shift = (id, note) => OCTAVE[id] ? Tone.Frequency(note).transpose(OCTAVE[id]).toNote() : note;
+const shift = (id,note) => Tone.Frequency(note).transpose(OCTAVE[id]+currentProgram().transpose).toNote();
 
 // Every game gets its own fader. Members switched off fade to silence rather than
 // being cut, and each member's level drops as more join so the whole stays even.
@@ -618,7 +636,9 @@ const voiceCache = {};
 function voicesForGame(id){
   if(!voiceCache[id]){
     faders[id] = new Tone.Gain(0).connect(bus);
-    const set = VOICES[id]();
+    let set;
+    if(currentProgram().engine==='original')set=VOICES[id]();
+    else {const keys=id==='chess'?['pawn','knight','bishop','rook','queen','king','alert']:id==='mancala'?['main','drone']:id==='backgammon'?['main','drone','chime']:['main'];set=Object.fromEntries(keys.map(k=>[k,bandVoice(currentProgram().engine,k==='king'||k==='drone')]));}
     for(const v of Object.values(set)){ v.maxPolyphony = 32; v.volume.value = -10; v.connect(faders[id]); }
     voiceCache[id] = set;
   }
@@ -637,8 +657,8 @@ async function tuneIn(){
   await Tone.start();
   master = new Tone.Volume(Number(document.getElementById('volume').value)).toDestination();
   const limiter = new Tone.Limiter(-2).connect(master);
-  const reverb = new Tone.Reverb({ decay:3.4, wet:.3 }).connect(limiter);
-  bus = new Tone.FeedbackDelay({ delayTime:'8n.', feedback:.15, wet:.12 }).connect(reverb);
+  const reverb = new Tone.Reverb({ decay:3.4, wet:currentProgram().space }).connect(limiter);space=reverb;
+  bus = new Tone.FeedbackDelay({ delayTime:'8n.', feedback:.15, wet:currentProgram().echo }).connect(reverb);
   audioOn = true;
   const now = nowMs(); // start from the next event, never replay the past
   for(const id of ORDER) scheduledThrough[id] = now;
@@ -660,6 +680,7 @@ document.getElementById('muteBtn').addEventListener('click', e => {
 const LOOKAHEAD_MS = 2500;
 function scheduleAudio(){
   if(!audioOn) return;
+  rotateSound();
   const now = nowMs(), horizon = now + LOOKAHEAD_MS;
   const slot = slotIndexAt(now);
   for(const id of activeIds()){
@@ -680,7 +701,7 @@ function playEvent(id, e, at, now){
   const base = Tone.now() + (at - now) / 1000;
   for(let col = 0; col < g.cols; col++){
     const t = base + col * g.stepMs / 1000;
-    for(const [voice, note, dur, vel] of SONIFY[id](e.snap, col)) v[voice].triggerAttackRelease(shift(id, note), dur, t, vel);
+    for(const [voice,note,dur,vel] of bandNotes(currentProgram(),SONIFY[id](e.snap,col),col)){v[voice].triggerAttackRelease(shift(id,note),dur,t,vel);if(currentProgram().pattern==='double'&&col%2===0)v[voice].triggerAttackRelease(shift(id,note),'32n',t+.075,vel*.35);}
   }
   if(id === 'chess' && e.snap.check && e.kind === 'move') v.alert.triggerAttackRelease(['C6','D6'], '16n', base, .3);
   if(id === 'backgammon' && e.kind === 'move' && e.snap.bearOffs > 0){
@@ -704,7 +725,7 @@ function renderMembers(){
     b.className = 'member' + (active.has(id) ? ' on' : '');
     b.style.setProperty('--c', MEMBER_COLOR[id]);
     b.setAttribute('aria-pressed', active.has(id));
-    b.innerHTML = `<span class="dot"></span><span class="name">${g.label}</span><span class="meta">${MEMBER_META[id]} · ${bpm} bpm</span>`;
+    b.innerHTML = `<span class="dot"></span><span class="name">${g.label}</span><span class="meta">${currentProgram().engine==='original'?MEMBER_META[id]:currentProgram().engine} · ${bpm} bpm</span>`;
     b.addEventListener('click', () => {
       if(active.has(id)) active.delete(id);
       else { active.add(id); scheduledThrough[id] = nowMs(); }
@@ -768,7 +789,7 @@ function scoreStrike(id, e, col){
   struck.set(id, tag);
   const born = performance.now();
   for(const [voice, note, dur, vel] of SONIFY[id](e.snap, col)){
-    const midi = Tone.Frequency(note).toMidi() + OCTAVE[id];
+    const midi = Tone.Frequency(note).toMidi() + OCTAVE[id]+currentProgram().transpose;
     marks.push({ id, voice, born, y: pitchY(midi) + (Math.random() - .5) * 3, vel, dur: DUR_SEC[dur] || .25, jitter: Math.random() });
   }
   if(marks.length > 4000) marks.splice(0, marks.length - 4000);
