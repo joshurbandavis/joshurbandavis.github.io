@@ -738,9 +738,10 @@ function chooseRoute(routes,commit){
  if(routes.length===1){commit(routes[0]);return;}
  const panel=document.createElement('div');panel.id='routeChoice';panel.className='panel';
  const title=document.createElement('h2');title.textContent='Choose your route';panel.append(title);
- const note=document.createElement('p');note.textContent='Each route uses different connections. Those connections cannot be reused this turn.';panel.append(note);
+ const note=document.createElement('p');note.textContent='Choose one route to continue the move. Its connections cannot be reused later in this turn.';panel.append(note);
  routes.forEach(m=>{const button=document.createElement('button');button.style.margin='4px';button.textContent=m.dest.path.map(p=>String.fromCharCode(97+p.c)+(SIZE-p.r)).join(' → ');button.onclick=()=>{panel.remove();commit(m);};panel.append(button);});
- document.querySelector('.sidebar').prepend(panel);
+ boardEl.parentElement.append(panel);
+ panel.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 function handleSquareClick(r,c){
@@ -801,11 +802,11 @@ const boardEl = document.getElementById('board');
 const sweepBar = document.getElementById('sweepBar');
 const goalNorthEl = document.createElement('div');
 goalNorthEl.className = 'goal-strip goal-north';
-goalNorthEl.innerHTML = '<span class="goal-arrow">&#8593;</span> black&rsquo;s goal';
+goalNorthEl.innerHTML = '<button type="button" class="goal-circle" aria-label="North goal — Red wins here"><span>GOAL</span><small>RED WINS</small></button>';
 goalNorthEl.style.order = '-1';
 const goalSouthEl = document.createElement('div');
 goalSouthEl.className = 'goal-strip goal-south';
-goalSouthEl.innerHTML = 'red&rsquo;s goal <span class="goal-arrow">&#8595;</span>';
+goalSouthEl.innerHTML = '<button type="button" class="goal-circle" aria-label="South goal — Black wins here"><span>GOAL</span><small>BLACK WINS</small></button>';
 
 const squareEls = [];
 boardEl.appendChild(goalNorthEl);
@@ -814,6 +815,7 @@ for(let r=0;r<SIZE;r++){
   for(let c=0;c<SIZE;c++){
     const sq = document.createElement('div');
     sq.className = 'sq ' + ((r+c)%2===0 ? 'light' : 'dark');
+    sq.setAttribute('role','button');sq.tabIndex=0;sq.setAttribute('aria-label','Square '+String.fromCharCode(97+c)+(SIZE-r));sq.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleSquareClick(r,c);}});
     sq.addEventListener('click', ()=>handleSquareClick(r,c));
     boardEl.appendChild(sq);
     squareEls[r].push(sq);
@@ -821,8 +823,8 @@ for(let r=0;r<SIZE;r++){
 }
 boardEl.appendChild(goalSouthEl);
 boardEl.appendChild(sweepBar);
-goalNorthEl.addEventListener('click', ()=>handleGoalClick('north'));
-goalSouthEl.addEventListener('click', ()=>handleGoalClick('south'));
+goalNorthEl.querySelector('button').addEventListener('click', ()=>handleGoalClick('north'));
+goalSouthEl.querySelector('button').addEventListener('click', ()=>handleGoalClick('south'));
 
 // goalNorthEl/goalSouthEl are appended after the 36 squares but need to render FIRST/LAST
 // visually -- CSS order handles the top one; the grid's own row order already puts the
@@ -873,6 +875,7 @@ function render(){
     const sq = squareEls[r][c];
     sq.classList.remove('movable','dest','contested','selected','occupant');
     sq.innerHTML = '';
+    const coordinate=document.createElement('span');coordinate.className='square-coordinate';coordinate.textContent=String.fromCharCode(97+c)+(SIZE-r);sq.append(coordinate);
 
     const isMovable = !gameOver && !pendingOccupant && movable.pieces.some(p=>p.r===r && p.c===c);
     if(isMovable) sq.classList.add('movable');
@@ -918,11 +921,14 @@ function render(){
     (pendingOccupant && !replaceMode && pendingOccupant.bounceMoves.some(m=>m.dest.goal==='south')));
   goalNorthEl.classList.toggle('clickable', !!northLegal);
   goalSouthEl.classList.toggle('clickable', !!southLegal);
+  goalNorthEl.querySelector('button').disabled=!northLegal;
+  goalSouthEl.querySelector('button').disabled=!southLegal;
 
   const occupantWasOn = occupantPanel.classList.contains('on');
   occupantPanel.classList.toggle('on', !!pendingOccupant);
   if(pendingOccupant){
     bounceBtn.disabled = pendingOccupant.bounceMoves.length === 0;
+    occupantPanel.querySelector('p').textContent=pendingOccupant.bounceMoves.length ? 'Continue with the same ring: move exactly '+pendingOccupant.piece.height+' steps. Land on another ring to bounce again. Intermediate squares must be empty; used connections cannot be crossed again. Or replace the ring beneath you.' : 'No bounce route remains without crossing an occupied square or reusing a connection. Replace the ring beneath you to finish this move.';
     bounceBtn.classList.toggle('active', !replaceMode);
     replaceBtn.classList.toggle('active', replaceMode);
     const isAIsTurn = opponentMode==='computer' && currentPlayer===aiColor;
