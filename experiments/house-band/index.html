@@ -168,7 +168,7 @@ nav{background:linear-gradient(var(--bg),color-mix(in srgb,var(--bg) 70%,transpa
     </div>
 
     <div class="sidebar">
-      <div class="panel sound-program"><div class="field-label">Sound program</div><p id="programName"></p><p id="programClock" class="clock-note"></p><div class="controls"><button class="pill" id="autoSound" aria-pressed="true">Auto rotation: on</button><button class="pill" id="nextSound">Next sound</button></div><p class="clock-note">A new engine and arrangement every four minutes. The games and your band selection keep playing.</p></div>
+      <div class="panel sound-program"><div class="field-label">Sound program</div><p id="programName"></p><p id="programClock" class="clock-note"></p><p class="clock-note">The station chooses the instruments and arrangement every four minutes. Everyone tuned in hears the same sound program.</p></div>
       <div class="panel">
         <div class="field-label"><span>the band</span><span class="on-air">on air</span></div>
         <div class="members" id="members"></div>
@@ -601,20 +601,18 @@ const VOICES = {
 };
 
 let audioOn = false, bus = null, master = null, space = null;
-let soundAuto=true,soundOffset=0,programIndex=bandProgramAt(nowMs());
+let programIndex=bandProgramAt(nowMs());
 function currentProgram(){return BAND_PROGRAMS[programIndex];}
 function rotateSound(force=false){
- const next=soundAuto?bandProgramAt(nowMs(),soundOffset):programIndex;
+ const next=bandProgramAt(nowMs());
  if(next!==programIndex||force){programIndex=next;renderMembers();if(audioOn){
   for(const id of ORDER){const old=voiceCache[id],fader=faders[id];if(!old)continue;fader.gain.rampTo(0,4);setTimeout(()=>{Object.values(old).forEach(v=>v.dispose());fader.dispose();},12000);delete voiceCache[id];delete faders[id];}
   space.wet.rampTo(currentProgram().space,4);bus.wet.rampTo(currentProgram().echo,4);applyLevels();
  }}
  document.getElementById('programName').textContent=currentProgram().name;
  const remaining=BAND_PROGRAM_MS-(nowMs()%BAND_PROGRAM_MS);
- document.getElementById('programClock').textContent=soundAuto?'Next change in '+Math.ceil(remaining/1000)+' seconds':'Holding this sound program';
+ document.getElementById('programClock').textContent='Next change in '+Math.ceil(remaining/1000)+' seconds';
 }
-document.getElementById('autoSound').onclick=e=>{soundAuto=!soundAuto;e.target.setAttribute('aria-pressed',String(soundAuto));e.target.textContent='Auto rotation: '+(soundAuto?'on':'off');rotateSound();};
-document.getElementById('nextSound').onclick=()=>{soundOffset++;if(!soundAuto)programIndex=(programIndex+1)%BAND_PROGRAMS.length;rotateSound(true);};
 setInterval(rotateSound,1000);
 
 const scheduledThrough = {}; // per game: wall-clock ms of the last event handed to the audio clock
