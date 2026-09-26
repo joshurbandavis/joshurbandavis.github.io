@@ -196,10 +196,10 @@ nav{background:linear-gradient(var(--bg),color-mix(in srgb,var(--bg) 70%,transpa
 
 <script src="engines.js"></script>
 <script src="station.js"></script>
-<script src="../_shared/chess-instruments.js"></script>
+<script src="../_shared/chess-instruments.js?v=worlds-4"></script>
 <script src="sound-programs.js?v=ensemble-1"></script>
-<script src="instrument-skins.js"></script>
-<script src="ensemble.js"></script>
+<script src="../_shared/resonant-instrument.js?v=worlds-4"></script><script src="../_shared/instrument-worlds.js?v=worlds-4"></script>
+<script src="ensemble.js?v=worlds-4"></script>
 <script>
 "use strict";
 const { SLOT_MS, GAMES, ORDER, moveMs, slotIndexAt } = STATION;
@@ -608,10 +608,10 @@ const voiceCache = {};
 function voicesForGame(id){
   if(!voiceCache[id]){
     faders[id] = new Tone.Gain(0).connect(bus);
-    const built=bandBuildInstrument(ensemble[id].instrument,id),effects=built.effects;
+    const built=bandBuildInstrument(ensemble[id].instrument,id),effects=[...built.effects,new Tone.Volume(INSTRUMENT_LEVEL_DB[ensemble[id].instrument])];
     const unique=[...new Set(Object.values(built.voices))];
     const head=effects[0]||faders[id];
-    for(const v of unique){v.maxPolyphony=24;v.volume.value=-12;v.connect(head);}
+    for(const v of unique){v.maxPolyphony=24;v.volume.value=0;v.connect(head);}
     for(let i=0;i<effects.length-1;i++)effects[i].connect(effects[i+1]);
     if(effects.length)effects[effects.length-1].connect(faders[id]);
     voiceCache[id]={voices:built.voices,nodes:[...unique,...effects]};
@@ -711,13 +711,13 @@ layoutStage();
 
 
 function boardColors(id){
- const theme=BAND_SKINS[ensemble[id].skin];
+ const theme=INSTRUMENT_SKINS[ensemble[id].skin];
  return {...theme,band:theme.accent+'28',grid:theme.inkEdge};
 }
 function renderLinerNotes(){
  const notes=document.getElementById('linerNotes');notes.replaceChildren();
  for(const id of ORDER){
-  const part=ensemble[id],theme=BAND_SKINS[part.skin],tile=tiles[id];
+  const part=ensemble[id],theme=INSTRUMENT_SKINS[part.skin],tile=tiles[id];
   tile.el.dataset.instrument=part.instrument;tile.el.dataset.skin=part.skin;
   tile.el.style.setProperty('--instrument-accent',theme.accent);
   tile.el.style.setProperty('--instrument-bg',theme.bg);

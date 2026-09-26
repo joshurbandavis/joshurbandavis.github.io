@@ -32,3 +32,10 @@ for(const [label,src] of [['computer',worker],['human',human]]){
  console.log('PASS',label,'turning, distinct routes, edges, blocked rows, replacement limits, goals, bounce identity, three-bounce winning chain');
 }
 const rv=fs.readFileSync(require('path').join(__dirname,'../reversi-sequencer/index.html'),'utf8');for(const match of rv.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g))if(match[1].trim())new vm.Script(match[1]);console.log('PASS Reversi syntax');
+{
+ const c=vm.createContext({document:{getElementById:()=>null},setTimeout:()=>{}});vm.runInContext(human,c);
+ vm.runInContext('render=()=>{};sweepOnce=()=>{};maybeTriggerAI=()=>{};',c);
+ assert(vm.runInContext(`(()=>{board=Array.from({length:6},()=>Array(6).fill(null));board[1][4]={height:1};board[0][4]={height:2};board[0][3]={height:1};board[0][5]={height:3};currentPlayer='red';selected=null;currentLegalMoves=[];gameOver=null;const before=JSON.stringify(board);const move=legalMovesFor(board,1,4,'red',new Set()).find(m=>m.dest.r===0&&m.dest.c===4);beginChain('red',1,4,move);if(pendingOccupant.bounceMoves.length!==0)return false;cancelMove();if(JSON.stringify(board)!==before||currentPlayer!=='red'||chain!==null)return false;beginChain('red',1,4,move);chooseReplace({r:2,c:0});return board[0][4].height===1&&board[2][0].height===2&&currentPlayer==='black';})()`,c));
+ assert(vm.runInContext(`(()=>{board=Array.from({length:6},()=>Array(6).fill(null));setup={red:{1:2,2:2,3:2},black:{1:2,2:2,3:2}};currentPlayer='red';for(let c=0;c<6;c++){setupHeight=[1,2,3,1,2,3][c];placeOpening(5,c);setupHeight=[3,2,1,3,2,1][c];placeOpening(0,c);}return setup===null&&currentPlayer==='red'&&board.flat().filter(Boolean).length===12&&[1,2,3].every(h=>board.flat().filter(p=>p?.height===h).length===4);})()`,c));
+ console.log('PASS: blocked e6 collision, exact cancellation, legal replacement and alternating opening placement');
+}

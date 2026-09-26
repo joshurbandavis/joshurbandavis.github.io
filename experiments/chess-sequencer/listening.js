@@ -6,17 +6,15 @@ window.createChessListening = function(api) {
   const materials={pawn:[[1,2.76,5.4],.22,330],knight:[[1,1.47,2.09,3.8],.42,260],bishop:[[1,2,3,4,5],1.6,196],rook:[[1,2.32,4.25],.7,130],queen:[[1,1.51,2.03,2.71,3.9],2.1,220],king:[[1,2,2.98],1.1,82]};
   const defaults=k=>({instrument:k==='resonant'?'resonant':api.palette(k),mode:k==='resonant'?'connections':'columns',sympathy:true,threat:k!=='resonant',trails:k==='resonant',compare:false,listen:false});
   const panel=document.createElement('section');panel.className='panel listening-panel';
-  panel.innerHTML='<h2>Listening</h2><label>Sound engine <select id="instrumentSelect"></select></label><p class="listening-help">Sound only. Change Appearance above to switch the visual skin.</p><fieldset><legend>Play the position</legend><div class="listening-modes"><button data-mode="columns">Column sweep</button><button data-mode="whole">Whole board</button><button data-mode="connections">Connections</button></div></fieldset><div class="listening-toggles"></div><p class="listening-help">In Connections, sound follows pieces protected by the source. In the other modes, resonance adds a quiet response.</p><p id="listeningStatus" aria-live="polite">Move a piece or hear this position.</p><button id="listeningReset">Reset to skin defaults</button>';
+  panel.innerHTML='<h2>Listening</h2><fieldset><legend>Play the position</legend><div class="listening-modes"><button data-mode="columns">Column sweep</button><button data-mode="whole">Whole board</button><button data-mode="connections">Connections</button></div></fieldset><div class="listening-toggles"></div><p class="listening-help">In Connections, sound follows pieces protected by the source. In the other modes, resonance adds a quiet response.</p><p id="listeningStatus" aria-live="polite">Move a piece or hear this position.</p><button id="listeningReset">Reset to skin defaults</button>';
   document.querySelector('.sidebar').prepend(panel);
-  const select=panel.querySelector('select');
-  for(const [key,label] of [['resonant','Resonant Table'],...api.instruments]){const o=document.createElement('option');o.value=key;o.textContent=label;select.append(o);}
   const toggles=[['sympathy','Sympathetic resonance'],['threat','Threat response'],['trails','Connection trails'],['compare','Before / after'],['listen','Listen to pieces']];
   for(const [key,label] of toggles){const b=document.createElement('button');b.type='button';b.dataset.setting=key;b.textContent=label;b.onclick=()=>{stop();settings[key]=!settings[key];persist();sync();};panel.querySelector('.listening-toggles').append(b);}
   const status=panel.querySelector('#listeningStatus');
   function persist(){saved[skin]={...settings};try{localStorage.setItem(KEY,JSON.stringify(saved));}catch(e){}}
-  function sync(){select.value=settings.instrument;panel.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(settings.mode===b.dataset.mode)));panel.querySelectorAll('[data-setting]').forEach(b=>b.setAttribute('aria-pressed',String(settings[b.dataset.setting])));api.listenState(settings.listen);}
-  function setSkin(k){stop();skin=k;const d=defaults(k),s=saved[k]||{};settings={...d};if([...select.options].some(o=>o.value===s.instrument))settings.instrument=s.instrument;if(MODES.includes(s.mode))settings.mode=s.mode;for(const [key] of toggles)if(typeof s[key]==='boolean')settings[key]=s[key];sync();}
-  select.onchange=()=>{stop();settings.instrument=select.value;persist();api.instrumentChanged();};
+  function sync(){panel.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(settings.mode===b.dataset.mode)));panel.querySelectorAll('[data-setting]').forEach(b=>b.setAttribute('aria-pressed',String(settings[b.dataset.setting])));api.listenState(settings.listen);}
+  function setSkin(k){stop();skin=k;const d=defaults(k),s=saved[k]||{};settings={...d};if(MODES.includes(s.mode))settings.mode=s.mode;for(const [key] of toggles)if(typeof s[key]==='boolean')settings[key]=s[key];sync();}
+
   panel.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{stop();settings.mode=b.dataset.mode;persist();sync();});
   panel.querySelector('#listeningReset').onclick=()=>{delete saved[skin];setSkin(skin);persist();api.instrumentChanged();};
   function later(fn,ms){timers.push(setTimeout(fn,ms));}
@@ -46,7 +44,7 @@ window.createChessListening = function(api) {
     }return duration*1.4;
   }
   function findOrigin(b,preferred){if(preferred&&b[preferred.r]?.[preferred.c])return preferred;for(let r=7;r>=0;r--)for(let c=0;c<8;c++)if(b[r][c]?.type==='king'&&b[r][c].color==='white')return {r,c};for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(b[r][c])return {r,c};}
-  function play(b,origin,solo=false){b=JSON.parse(JSON.stringify(b));stop();const o=findOrigin(b,origin);if(!o)return;let offset=0;if(settings.compare&&before&&!solo)offset=perform(before,findOrigin(before,originBefore),'Before',0)+250;perform(b,o,offset?'After':solo?'Piece network':'Position',offset);}
+  function play(b,origin,solo=false){api.resume?.();b=JSON.parse(JSON.stringify(b));stop();const o=findOrigin(b,origin);if(!o)return;let offset=0;if(settings.compare&&before&&!solo)offset=perform(before,findOrigin(before,originBefore),'Before',0)+250;perform(b,o,offset?'After':solo?'Piece network':'Position',offset);}
   setSkin('neon');
   return {setSkin,unlock,stop,play,graph,get instrument(){return settings.instrument;},get listen(){return settings.listen;},capture(b,origin){before=JSON.parse(JSON.stringify(b));originBefore={...origin};},reset(){stop();before=null;status.textContent='Move a piece or hear this position.';}};
 };

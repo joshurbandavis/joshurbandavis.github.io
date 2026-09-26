@@ -174,20 +174,14 @@ const PALETTES = {
   // grimoire: rebuilt around a filter-envelope swell instead of AM synthesis -- see
   // the single-voice games for the full rationale (it no longer shares Alien's or
   // Deep Sea's AMSynth-and-sine DNA).
-  grimoire: { label:'Grimoire', make: () => ({
-    voices: {
-      pawn:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:2,type:'lowpass',rolloff:-12}, envelope:{attack:0.01,decay:0.18,sustain:0.15,release:0.35}, filterEnvelope:{attack:0.15,decay:0.2,sustain:0.2,release:0.4,baseFrequency:250,octaves:2}}),
-      knight: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:2.5,type:'lowpass',rolloff:-12}, envelope:{attack:0.005,decay:0.14,sustain:0.1,release:0.3}, filterEnvelope:{attack:0.1,decay:0.15,sustain:0.15,release:0.3,baseFrequency:320,octaves:2.2}}),
-      bishop: new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:2,type:'lowpass',rolloff:-12}, envelope:{attack:0.05,decay:0.5,sustain:0.4,release:1.3}, filterEnvelope:{attack:0.4,decay:0.5,sustain:0.4,release:1.1,baseFrequency:180,octaves:2.8}}),
-      rook:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:2.2,type:'lowpass',rolloff:-12}, envelope:{attack:0.02,decay:0.45,sustain:0.3,release:1.1}, filterEnvelope:{attack:0.3,decay:0.4,sustain:0.3,release:0.9,baseFrequency:150,octaves:3}}),
-      queen:  new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:2,type:'lowpass',rolloff:-12}, envelope:{attack:0.1,decay:0.6,sustain:0.45,release:1.7}, filterEnvelope:{attack:0.5,decay:0.55,sustain:0.45,release:1.4,baseFrequency:130,octaves:3.2}}),
-      king:   new Tone.PolySynth(Tone.MonoSynth, {oscillator:{type:'sine'}, filter:{Q:1.8,type:'lowpass',rolloff:-12}, envelope:{attack:0.2,decay:0.9,sustain:0.5,release:2.5}, filterEnvelope:{attack:0.8,decay:0.8,sustain:0.5,release:2.2,baseFrequency:100,octaves:3.5}}),
-    },
-    effects: () => [
-      new Tone.Tremolo({frequency:1.8, depth:0.4, wet:0.5}).start(),
-      new Tone.Phaser({frequency:0.2, octaves:2.5, baseFrequency:200, wet:0.3}),
-    ],
-  }) },
+  grimoire: {label:'Grimoire',make:()=>({
+    voices:Object.fromEntries(['pawn','knight','bishop','rook','queen','king'].map((type,i)=>[type,new Tone.PolySynth(Tone.AMSynth,{
+      harmonicity:[1,1.5,.5,1,.501,.5][i],oscillator:{type:'custom',partials:[1,0,.32,0,.12,0,.04]},
+      envelope:{attack:[.025,.015,.16,.07,.22,.35][i],decay:.35,sustain:.34,release:[.3,.22,.9,.65,1.2,1.6][i]},
+      modulation:{type:'sine'},modulationEnvelope:{attack:.18,decay:.4,sustain:.25,release:.8}
+    })])),
+    effects:()=>[new Tone.Filter({frequency:2400,type:'lowpass',Q:.5}),new Tone.EQ3({low:-2,mid:2,high:-8,lowFrequency:300,highFrequency:1400}),new Tone.Tremolo({frequency:.37,depth:.24,wet:.45}).start()]
+  })},
   // clockwork: Tone.MetalSynth -- real inharmonic FM-cluster "metal" modeling, tuned
   // tight and short for a small brass gear-tick, escalating resonance/octaves/decay
   // per piece for weight, exactly like the other voice families in this set.
@@ -372,49 +366,50 @@ const PALETTES = {
 };
 const GYGES_PRESETS = {
   // ported verbatim from checker-sequencer's dark/light/neon/alien voices
-  pluck: { label:'Pluck', build: () => {
+  pluck: { label:'Pluck', build: (withEffects=true) => {
     const synth = new Tone.PolySynth(Tone.MonoSynth, {
       oscillator:{type:'triangle'},
       envelope:{attack:0.002, decay:0.22, sustain:0, release:0.3},
       filter:{Q:1.5, type:'lowpass', rolloff:-24},
       filterEnvelope:{attack:0.001, decay:0.14, sustain:0, release:0.2, baseFrequency:180, octaves:4.5}
     });
+    if(!withEffects)return [synth];
     const chorus = new Tone.Chorus({frequency:2.4, delayTime:2, depth:0.3, wet:0.3}).start();
     const slap = new Tone.FeedbackDelay({delayTime:'16n', feedback:0.12, wet:0.16});
     return [synth, chorus, slap];
   }},
-  blip: { label:'Blip', build: () => {
+  blip: { label:'Blip', build: (withEffects=true) => {
     const synth = new Tone.PolySynth(Tone.Synth, {
       oscillator:{type:'triangle'},
       envelope:{attack:0.001, decay:0.09, sustain:0, release:0.12}
     });
     return [synth];
   }},
-  bell: { label:'Bell', build: () => {
+  bell: { label:'Bell', build: (withEffects=true) => {
     const synth = new Tone.PolySynth(Tone.FMSynth, {
       harmonicity:3.01, modulationIndex:10,
       envelope:{attack:0.003, decay:0.5, sustain:0.08, release:1.1},
       modulationEnvelope:{attack:0.008, decay:0.25, sustain:0, release:0.4}
     });
+    if(!withEffects)return [synth];
     const chorus = new Tone.Chorus({frequency:1.4, delayTime:3.2, depth:0.4, wet:0.32}).start();
     const echo = new Tone.FeedbackDelay({delayTime:'8n', feedback:0.22, wet:0.22});
     return [synth, chorus, echo];
   }},
-  pad: { label:'Pad', build: () => {
+  pad: { label:'Pad', build: (withEffects=true) => {
     const synth = new Tone.PolySynth(Tone.AMSynth, {
       harmonicity:1.99, oscillator:{type:'sine'},
       envelope:{attack:0.5, decay:0.4, sustain:0.65, release:1.6},
       modulation:{type:'sine'}, modulationEnvelope:{attack:0.6, decay:0.2, sustain:1, release:0.8}
     });
+    if(!withEffects)return [synth];
     const vibrato = new Tone.Vibrato({frequency:3.2, depth:0.06});
     const chorus = new Tone.Chorus({frequency:0.6, delayTime:4.5, depth:0.55, wet:0.4}).start();
     const filter = new Tone.AutoFilter({frequency:0.18, baseFrequency:300, octaves:3.5, wet:0.5}).start();
     return [synth, vibrato, chorus, filter];
   }},
 };
-for(const key of ['pluck','blip','bell','pad'])PALETTES['gyges_'+key]={label:'Gygès · '+GYGES_PRESETS[key].label,make:()=>{
- const voices={},nodes=[];for(const type of ['pawn','knight','bishop','rook','queen','king']){const chain=GYGES_PRESETS[key].build();voices[type]=chain[0];for(let i=0;i<chain.length-1;i++)chain[i].connect(chain[i+1]);nodes.push(...chain.slice(1));}
- // The shared palette bus supplies the space; use the preset voice settings without parallel dry/effect routing.
- nodes.forEach(n=>n.dispose());Object.values(voices).forEach(v=>v.disconnect());
- return {voices,effects:()=>key==='bell'?[new Tone.FeedbackDelay({delayTime:'8n',feedback:.22,wet:.22})]:key==='pluck'?[new Tone.Chorus({frequency:2.4,delayTime:2,depth:.3,wet:.3}).start()]:key==='pad'?[new Tone.Chorus({frequency:.6,delayTime:4.5,depth:.55,wet:.4}).start()]:[]};
-}};
+for(const key of ['pluck','blip','bell','pad'])PALETTES['gyges_'+key]={label:'Gygès · '+GYGES_PRESETS[key].label,make:()=>({
+ voices:Object.fromEntries(['pawn','knight','bishop','rook','queen','king'].map(type=>[type,GYGES_PRESETS[key].build(false)[0]])),
+ effects:()=>{const [unused,...effects]=GYGES_PRESETS[key].build();unused.dispose();return effects;}
+})};

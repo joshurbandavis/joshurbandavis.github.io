@@ -13,6 +13,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Share+Tech+Mono&family=Space+Grotesk:wght@400;500;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/tone@14/build/Tone.js"></script>
+<script src="../_shared/chess-instruments.js?v=worlds-4"></script>
+<script src="../_shared/resonant-instrument.js?v=worlds-4"></script>
+<script src="../_shared/instrument-worlds.js?v=worlds-4"></script>
 <style>
 :root{
   --bg:#050505;--fg:#ddd8d0;--dim:#5a564f;--dim2:#39362f;
@@ -255,7 +258,8 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
   .sidebar{width:min(92vw,520px)}
 }
 </style>
-<link rel="stylesheet" href="design.css">
+<link rel="stylesheet" href="design.css?v=worlds-4">
+<link rel="stylesheet" href="../_shared/instrument-worlds.css?v=worlds-4">
 </head>
 <body>
 
@@ -269,12 +273,12 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
 
 <main>
   <div class="title-block">
-    <div class="kicker">two-player · advanced rules · fixed opening</div>
+    <div class="kicker">two-player · advanced rules · arrange your opening</div>
     <h1>gygès, played as a <em>sequencer</em></h1>
     <p class="lede">Gygès: 12 shared rings -- four each of height 1, 2 and 3 -- sit on a 6×6 board with no
       fixed owner. Each turn you must move a ring from your own front-most occupied row, in a
       path of orthogonal steps exactly as long as its height, turning when needed. Land on an empty space and your move
-      is done; land on another ring and you choose -- <strong>bounce</strong> the moving ring onward using the encountered ring’s height (leaving that ring in place), or <strong>replace</strong> it on an empty square, never beyond the opponent’s nearest occupied row. If the nearest row is blocked, play from the next row with a legal move. Each connection may be used only once per turn. This version uses a fixed opening arrangement. Get any ring off the far edge into your opponent's goal and you win. The
+      is done; land on another ring and you choose -- <strong>bounce</strong> the moving ring onward using the encountered ring’s height (leaving that ring in place), or <strong>replace</strong> it on an empty square, never beyond the opponent’s playable row. If the nearest row is blocked, play from the next row with a legal move. Each connection may be used only once per turn. Start with the balanced arrangement or choose Arrange opening to place your rings. Get any ring off the far edge into your opponent's goal and you win. The
       twist here: every move sweeps a bar once across the six columns, left to right, and sings
       whatever's sitting on each column as it passes -- row picks the pitch, a ring's own height
       picks the register, and the skin you choose is the instrument.</p>
@@ -340,14 +344,14 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
         <div class="game-over" id="gameOver" style="display:none"></div>
         <div class="pass-note" id="passNote" style="display:none">no legal move from the front row -- passed</div>
         <div class="btn-row" style="margin-top:1rem">
-          <button id="newGameBtn">new game</button>
+          <button id="newGameBtn">new game</button><button id="arrangeOpening">arrange opening</button>
         </div>
       </div>
 
       <div class="panel occupant-panel" id="occupantPanel">
         <h2>ring in the way</h2>
         <p>Your ring landed on another. Continue with the same ring using the other ring’s height (click a highlighted
-          destination), or replace it: leave your moving ring here and relocate the other to a highlighted empty square, never beyond the opponent’s nearest occupied row.</p>
+          destination), or replace it: leave your moving ring here and relocate the other to a highlighted empty square, never beyond the opponent’s playable row.</p>
         <div class="btn-row">
           <button id="bounceBtn">bounce</button>
           <button id="replaceBtn">replace</button>
@@ -439,7 +443,7 @@ function computeMovable(b,color){
   return {row:-1,pieces:[]};
 }
 function replacementSquares(b,mover){
-  const boundary=frontRowFor(b,opponent(mover));const out=[];
+  const boundary=computeMovable(b,opponent(mover)).row;const out=[];
   for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++)
     if(!b[r][c]&&(boundary<0||(mover==='red'?r>=boundary:r<=boundary)))out.push({r,c});
   return out;
@@ -535,7 +539,7 @@ onmessage = function(e){
   var board = e.data.board, color = e.data.color, noiseSeed = e.data.seed || 1;
   var rng = mulberry32(noiseSeed);
   var mv = computeMovable(board, color);
-  if(mv.pieces.length === 0){ postMessage({ pass:true }); return; }
+  if(mv.pieces.length === 0){ postMessage({ pass:true, revision:e.data.revision }); return; }
 
   var best = null, bestScore = -Infinity;
   for(var i=0;i<mv.pieces.length;i++){
@@ -563,7 +567,7 @@ onmessage = function(e){
       }
     }
   }
-  postMessage({ plan: best });
+  postMessage({ plan: best, revision:e.data.revision });
 };
 </script>
 
@@ -586,6 +590,7 @@ let aiDifficulty = 'medium';
 let aiColor = null;
 let passedLastTurn = false;
 let winningRing=null,winTimer=null;
+let moveSnapshot=null,boardHint="",setup=null,setupHeight=1,gameRevision=0,actionCollapsed=false;
 
 function inBounds(r,c){ return r>=0 && r<SIZE && c>=0 && c<SIZE; }
 function opponent(color){ return color==='red' ? 'black' : 'red'; }
@@ -635,15 +640,13 @@ function computeMovable(b,color){
   return {row:-1,pieces:[]};
 }
 function replacementSquares(b,mover){
-  const boundary=frontRowFor(b,opponent(mover));const out=[];
+  const boundary=computeMovable(b,opponent(mover)).row;const out=[];
   for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++)
     if(!b[r][c]&&(boundary<0||(mover==='red'?r>=boundary:r<=boundary)))out.push({r,c});
   return out;
 }
 
-// heights are placed heaviest-on-the-flanks, lightest-in-the-middle on both home rows --
-// the real game lets players choose their own opening arrangement; this fixes one for
-// simplicity, the same way this site's mancala/backgammon use one fixed standard setup
+// Balanced quick start; Arrange opening lets players alternate their own placements.
 const HOME_HEIGHTS = [3,2,1,1,2,3];
 function initBoard(){
   board = Array.from({length:SIZE},()=>Array(SIZE).fill(null));
@@ -654,6 +657,7 @@ function initBoard(){
 }
 
 function resetGame(){
+  gameRevision++;setup=null;moveSnapshot=null;boardHint="";
   clearTimeout(winTimer);winningRing=null;
   document.getElementById("routeChoice")?.remove();
   initBoard();
@@ -669,6 +673,8 @@ function resetGame(){
 
 /* The moving ring stays in flight; rings it bounces on remain on the board. */
 function beginChain(mover, originR, originC, firstMove){
+  moveSnapshot={origin:{r:originR,c:originC},board:board.map(row=>row.map(p=>p?{...p}:null)),lastMove,lastMoveId};
+  boardHint="";
   chain = {
     mover,
     piece: board[originR][originC],
@@ -687,6 +693,7 @@ function stepChain(){
     const winner = chain.mover;
     winningRing={piece:{...chain.piece},goal:chain.dest.goal,from:lastMove.from};
     chain = null; pendingOccupant = null;
+    moveSnapshot=null;
     gameOver = winner;
     render();
     celebrateWin(winner);
@@ -702,6 +709,7 @@ function stepChain(){
 
   const bounceMoves = legalMovesFor(board, chain.dest.r, chain.dest.c, chain.mover, chain.usedEdges);
   pendingOccupant = { r: chain.dest.r, c: chain.dest.c, piece: occ, bounceMoves };
+  actionCollapsed=false;
   replaceMode = false;
   render();
 }
@@ -727,6 +735,7 @@ function chooseReplace(to){
 }
 
 function endTurn(){
+  moveSnapshot=null;boardHint="";
   currentPlayer = opponent(currentPlayer);
   selected = null; currentLegalMoves = [];
   movable = computeMovable(board, currentPlayer);
@@ -766,6 +775,7 @@ function chooseRoute(routes,commit){
 }
 
 function handleSquareClick(r,c){
+  if(setup){placeOpening(r,c);return;}
   if(gameOver) return;
   if(opponentMode==='computer' && currentPlayer===aiColor) return;
 
@@ -797,10 +807,12 @@ function handleSquareClick(r,c){
   }
 
   selected = null; currentLegalMoves = [];
+  boardHint=board[r][c]?'This ring is outside '+currentPlayer+'’s playable row. Play a highlighted ring in row '+(SIZE-movable.row)+'.':'';
   render();
 }
 
 function handleGoalClick(goalName){
+  if(setup)return;
   if(gameOver) return;
   if(opponentMode==='computer' && currentPlayer===aiColor) return;
   if(pendingOccupant && !replaceMode){
@@ -816,6 +828,60 @@ function handleGoalClick(goalName){
       beginChain(currentPlayer, from.r, from.c, mv);
     }
   }
+}
+
+function cancelMove(){
+ if(gameOver||setup||(opponentMode==='computer'&&currentPlayer===aiColor))return;
+ if(moveSnapshot){board=moveSnapshot.board.map(row=>row.map(p=>p?{...p}:null));lastMove=moveSnapshot.lastMove;lastMoveId=moveSnapshot.lastMoveId;}
+ moveSnapshot=null;chain=null;pendingOccupant=null;replaceMode=false;selected=null;currentLegalMoves=[];
+ boardHint='';movable=computeMovable(board,currentPlayer);render();
+}
+function beginSetup(){
+ resetGame();gameRevision++;board=Array.from({length:SIZE},()=>Array(SIZE).fill(null));
+ setup={red:{1:2,2:2,3:2},black:{1:2,2:2,3:2}};currentPlayer='red';setupHeight=1;movable={row:-1,pieces:[]};
+ render();scheduleSetupAI();
+}
+function placeOpening(r,c){
+ if(!setup||r!==(currentPlayer==='red'?5:0)||board[r][c]||!setup[currentPlayer][setupHeight])return;
+ board[r][c]={height:setupHeight};setup[currentPlayer][setupHeight]--;
+ currentPlayer=opponent(currentPlayer);
+ if(Object.values(setup.red).every(n=>n===0)&&Object.values(setup.black).every(n=>n===0)){
+  setup=null;currentPlayer='red';movable=computeMovable(board,currentPlayer);boardHint='Opening ready. Red moves first.';render();maybeTriggerAI();return;
+ }
+ setupHeight=Number(Object.keys(setup[currentPlayer]).find(h=>setup[currentPlayer][h]>0));render();scheduleSetupAI();
+}
+function scheduleSetupAI(){
+ if(!setup||opponentMode!=='computer'||currentPlayer!==aiColor)return;
+ const revision=gameRevision;
+ setTimeout(()=>{if(!setup||revision!==gameRevision||currentPlayer!==aiColor)return;
+ const available=Object.keys(setup[currentPlayer]).filter(h=>setup[currentPlayer][h]);setupHeight=Number(available[Math.floor(Math.random()*available.length)]);
+ const row=currentPlayer==='red'?5:0,spaces=board[row].flatMap((p,c)=>p?[]:[c]);placeOpening(row,spaces[Math.floor(Math.random()*spaces.length)]);
+ },250);
+}
+function renderBoardActions(){
+ document.getElementById('boardActions')?.remove();
+ const aiTurn=opponentMode==='computer'&&currentPlayer===aiColor;
+ if(!setup&&!pendingOccupant&&!selected&&!boardHint)return;
+ const panel=document.createElement('div');panel.id='boardActions';panel.className='board-actions';panel.setAttribute('role','group');panel.setAttribute('aria-label','Current move');
+ const label=document.createElement('p');panel.append(label);
+ function button(text,fn,disabled=false,pressed){const b=document.createElement('button');b.type='button';b.textContent=text;b.disabled=disabled;if(pressed!==undefined)b.setAttribute('aria-pressed',String(pressed));b.onclick=fn;panel.append(b);return b;}
+ if(setup){
+  panel.style.top='38%';panel.style.bottom='auto';
+  label.textContent=currentPlayer+' opening · choose a ring, then an empty home square';
+  for(const h of [1,2,3])button(h+' ring · '+setup[currentPlayer][h]+' left',()=>{setupHeight=h;render();},aiTurn||!setup[currentPlayer][h],setupHeight===h);
+  button('Use balanced opening',resetGame);
+ }else if(pendingOccupant){
+  const square=String.fromCharCode(97+pendingOccupant.c)+(SIZE-pendingOccupant.r);
+  label.textContent=replaceMode?'Replace at '+square+' · put the displaced ring on a highlighted empty square.':pendingOccupant.bounceMoves.length?'At '+square+' · bounce exactly '+pendingOccupant.piece.height+' steps, or replace the ring below.':'At '+square+' · no legal bounce. Replace the ring below, or cancel this move.';
+  button('↗ Bounce · '+pendingOccupant.piece.height+' steps',()=>{replaceMode=false;actionCollapsed=true;render();},aiTurn||!pendingOccupant.bounceMoves.length,!replaceMode);
+  button('⇄ Replace',()=>{replaceMode=true;actionCollapsed=true;render();},aiTurn,replaceMode);
+  button('Cancel move',cancelMove,aiTurn);
+  if(actionCollapsed){panel.replaceChildren();panel.classList.add('compact');button(replaceMode?'⇄ Replacing · change':'↗ Bouncing · change',()=>{actionCollapsed=false;render();});button('Cancel move',cancelMove,aiTurn);}
+  panel.style.setProperty('--action-row',actionCollapsed?(currentPlayer==='red'?'auto':'3px'):(pendingOccupant.r<3?'auto':'8px'));
+  panel.style.setProperty('--action-bottom',actionCollapsed?(currentPlayer==='red'?'3px':'auto'):(pendingOccupant.r<3?'8px':'auto'));
+ }else if(selected){panel.classList.add('compact');label.remove();button('Put ring down',cancelMove,aiTurn);panel.style.top=currentPlayer==='black'?'3px':'auto';panel.style.bottom=currentPlayer==='red'?'3px':'auto';}
+ else{label.textContent=boardHint;button('Dismiss',()=>{boardHint='';render();});}
+ boardEl.append(panel);
 }
 
 /* ---------------- board DOM ---------------- */
@@ -894,11 +960,12 @@ function render(){
   document.getElementById("routeChoice")?.remove();
   for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
     const sq = squareEls[r][c];
-    sq.classList.remove('movable','dest','contested','selected','occupant','bounce-target');
+    sq.classList.remove('movable','dest','contested','selected','occupant','bounce-target','setup-target');
+    if(setup&&r===(currentPlayer==='red'?5:0)&&!board[r][c])sq.classList.add('setup-target');
     sq.innerHTML = '';
     const coordinate=document.createElement('span');coordinate.className='square-coordinate';coordinate.textContent=String.fromCharCode(97+c)+(SIZE-r);sq.append(coordinate);
 
-    const isMovable = !gameOver && !pendingOccupant && movable.pieces.some(p=>p.r===r && p.c===c);
+    const isMovable = !setup && !gameOver && !pendingOccupant && movable.pieces.some(p=>p.r===r && p.c===c);
     if(isMovable) sq.classList.add('movable');
 
     const destMove = currentLegalMoves.find(m => !m.dest.goal && m.dest.r===r && m.dest.c===c);
@@ -963,24 +1030,28 @@ function render(){
     if(!occupantWasOn && !isAIsTurn){
       // only auto-scroll for a human decision -- the AI resolves its own collisions
       // instantly, and yanking the page around during its turn would be disorienting
-      occupantPanel.scrollIntoView({ behavior:'smooth', block:'nearest' });
+      // The decision stays on the board beside the occupied square.
     }
   }
 
   turnDot.className = 'turn-dot ' + currentPlayer;
   passNoteEl.style.display = 'none';
-  if(gameOver){
+  if(setup){
+    turnLabel.textContent=currentPlayer+' · place a '+setupHeight+'-ring on the home row';
+    gameOverEl.style.display='none';
+  } else if(gameOver){
     turnLabel.textContent = 'game over';
     gameOverEl.style.display = 'block';
     gameOverEl.textContent = (gameOver==='red' ? 'red' : 'black') + ' wins';
   } else if(pendingOccupant){
-    turnLabel.textContent = (currentPlayer===playerColor ? 'you' : 'opponent') + ' must bounce or replace ↓';
+    turnLabel.textContent = currentPlayer+' · choose bounce or replace on the board';
     gameOverEl.style.display = 'none';
   } else {
     turnLabel.textContent = currentPlayer + ' to move' + (currentPlayer===playerColor ? ' (you)' : ' (opponent)');
     gameOverEl.style.display = 'none';
     if(passedLastTurn) passNoteEl.style.display = 'block';
   }
+  renderBoardActions();
 }
 
 /* ---------------- audio / sequencer ---------------- */
@@ -995,49 +1066,8 @@ const NOTES_BY_HEIGHT = {1:H1_NOTES, 2:H2_NOTES, 3:H3_NOTES};
 let voice, reverb, started = false, sweepEndTimer = null;
 let currentSkin = 'sculpture';
 
-const PRESETS = {
-  // ported verbatim from checker-sequencer's dark/light/neon/alien voices
-  pluck: { label:'Pluck', build: () => {
-    const synth = new Tone.PolySynth(Tone.MonoSynth, {
-      oscillator:{type:'triangle'},
-      envelope:{attack:0.002, decay:0.22, sustain:0, release:0.3},
-      filter:{Q:1.5, type:'lowpass', rolloff:-24},
-      filterEnvelope:{attack:0.001, decay:0.14, sustain:0, release:0.2, baseFrequency:180, octaves:4.5}
-    });
-    const chorus = new Tone.Chorus({frequency:2.4, delayTime:2, depth:0.3, wet:0.3}).start();
-    const slap = new Tone.FeedbackDelay({delayTime:'16n', feedback:0.12, wet:0.16});
-    return [synth, chorus, slap];
-  }},
-  blip: { label:'Blip', build: () => {
-    const synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator:{type:'triangle'},
-      envelope:{attack:0.001, decay:0.09, sustain:0, release:0.12}
-    });
-    return [synth];
-  }},
-  bell: { label:'Bell', build: () => {
-    const synth = new Tone.PolySynth(Tone.FMSynth, {
-      harmonicity:3.01, modulationIndex:10,
-      envelope:{attack:0.003, decay:0.5, sustain:0.08, release:1.1},
-      modulationEnvelope:{attack:0.008, decay:0.25, sustain:0, release:0.4}
-    });
-    const chorus = new Tone.Chorus({frequency:1.4, delayTime:3.2, depth:0.4, wet:0.32}).start();
-    const echo = new Tone.FeedbackDelay({delayTime:'8n', feedback:0.22, wet:0.22});
-    return [synth, chorus, echo];
-  }},
-  pad: { label:'Pad', build: () => {
-    const synth = new Tone.PolySynth(Tone.AMSynth, {
-      harmonicity:1.99, oscillator:{type:'sine'},
-      envelope:{attack:0.5, decay:0.4, sustain:0.65, release:1.6},
-      modulation:{type:'sine'}, modulationEnvelope:{attack:0.6, decay:0.2, sustain:1, release:0.8}
-    });
-    const vibrato = new Tone.Vibrato({frequency:3.2, depth:0.06});
-    const chorus = new Tone.Chorus({frequency:0.6, delayTime:4.5, depth:0.55, wet:0.4}).start();
-    const filter = new Tone.AutoFilter({frequency:0.18, baseFrequency:300, octaves:3.5, wet:0.5}).start();
-    return [synth, vibrato, chorus, filter];
-  }},
-};
-const SKIN_VOICE = { sculpture:'bell', dark:'pluck', light:'blip', neon:'bell', alien:'pad' };
+const SKIN_VOICE = WORLD_INSTRUMENT;
+
 
 function playColumn(col, time){
   for(let r=0;r<SIZE;r++){
@@ -1091,17 +1121,13 @@ const startBtn = document.getElementById('startBtn');
 const tempoSlider = document.getElementById('tempoSlider');
 const tempoVal = document.getElementById('tempoVal');
 
-function buildVoice(presetKey){
-  const nodes = PRESETS[presetKey].build();
-  for(let i=0;i<nodes.length-1;i++) nodes[i].connect(nodes[i+1]);
-  nodes[nodes.length-1].connect(reverb);
-  return { synth: nodes[0], nodes };
-}
+function buildVoice(presetKey){return buildWorldVoice(presetKey,'pawn',reverb);}
 
 function rebuildSynth(){
   if(!reverb) return;
+  const nextVoice=buildVoice(SKIN_VOICE[currentSkin]);
   if(voice) voice.nodes.forEach(n=>n.dispose());
-  voice = buildVoice(SKIN_VOICE[currentSkin]);
+  voice = nextVoice;
 }
 
 function startAudio(){
@@ -1124,7 +1150,7 @@ const REPLAY_SWEEPS = 3;
 
 function updateSkinUI(){
   colorButtons.forEach(b => b.classList.toggle('active', b.dataset.color===playerColor));
-  voiceLabelEl.textContent = PRESETS[SKIN_VOICE[currentSkin]].label;
+  voiceLabelEl.textContent = instrumentLabel(SKIN_VOICE[currentSkin]);
 }
 
 colorButtons.forEach(b => b.addEventListener('click', ()=>{
@@ -1173,17 +1199,19 @@ difficultyButtons.forEach(b => b.addEventListener('click', ()=>{
 }));
 
 function maybeTriggerAI(){
-  if(opponentMode!=='computer' || gameOver || currentPlayer!==aiColor || aiThinking) return;
+  if(setup){scheduleSetupAI();return;}
+  if(chain||opponentMode!=='computer' || gameOver || currentPlayer!==aiColor || aiThinking) return;
   aiThinking = true;
   thinkingIndicator.classList.add('on');
   const serialBoard = board.map(row => row.map(p => p ? {height:p.height} : null));
-  gygesAIWorker.postMessage({ board: serialBoard, color: currentPlayer, seed: Math.floor(Math.random()*1e9) + DIFFICULTY_NOISE[aiDifficulty] });
+  gygesAIWorker.postMessage({ revision:gameRevision, board: serialBoard, color: currentPlayer, seed: Math.floor(Math.random()*1e9) + DIFFICULTY_NOISE[aiDifficulty] });
 }
 
 gygesAIWorker.onmessage = function(e){
+  if(e.data.revision!==gameRevision){aiThinking=false;thinkingIndicator.classList.remove("on");maybeTriggerAI();return;}
   aiThinking = false;
   thinkingIndicator.classList.remove('on');
-  if(gameOver) return;
+  if(setup||gameOver||opponentMode!=='computer'||currentPlayer!==aiColor) return;
   if(e.data.pass){ endTurn(); return; }
   const plan = e.data.plan;
   if(!plan){ endTurn(); return; }
@@ -1205,8 +1233,9 @@ function driveAIDecisions(decisions, i){
     if(chain) setTimeout(()=>driveAIDecisions(decisions, i), 140);
     return;
   }
-  const d = decisions[i];
+  const d = decisions[i],revision=gameRevision;
   setTimeout(()=>{
+    if(revision!==gameRevision||!pendingOccupant||opponentMode!=="computer"||currentPlayer!==aiColor)return;
     if(!d || d.type==='replace') chooseReplace(d ? d.to : pickFallbackReplace());
     else chooseBounce(pendingOccupant.bounceMoves.find(m=>m.id===d.move.id));
     if(chain) driveAIDecisions(decisions, i+1);
@@ -1241,6 +1270,9 @@ tempoSlider.addEventListener('input', ()=>{
   tempoVal.textContent = tempoSlider.value;
 });
 document.getElementById('newGameBtn').addEventListener('click', resetGame);
+document.getElementById('arrangeOpening').addEventListener('click',beginSetup);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('routeChoice'))cancelMove();});
+populateInstrumentWorlds(document.getElementById('skinSelect'),currentSkin);
 document.getElementById('skinSelect').addEventListener('change', (e)=>{
   currentSkin = e.target.value;
   document.documentElement.dataset.skin = currentSkin;
@@ -1253,10 +1285,9 @@ updateOpponentUI();
 syncAIColor();
 
 resetGame();
-
 })();
 </script>
 <a class="experiment-return" href="../index.html">← experiments</a>
-<script src="design.js" charset="utf-8"></script>
+<script src="design.js?v=worlds-4" charset="utf-8"></script>
 </body>
 </html>

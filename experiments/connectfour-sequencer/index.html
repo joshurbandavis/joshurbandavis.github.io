@@ -13,6 +13,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Share+Tech+Mono&family=Space+Grotesk:wght@400;500;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/tone@14/build/Tone.js"></script>
+<script src="../_shared/chess-instruments.js?v=worlds-4"></script>
+<script src="../_shared/resonant-instrument.js?v=worlds-4"></script>
+<script src="../_shared/instrument-worlds.js?v=worlds-4"></script>
 <style>
 :root{
   --bg:#050505;--fg:#ddd8d0;--dim:#5a564f;--dim2:#39362f;
@@ -1118,6 +1121,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
 .win-modal-title{color:var(--accent3);font-size:clamp(1.4rem,4.5vw,1.9rem)}
 .win-modal p{opacity:.88;max-width:360px}
 </style>
+<link rel="stylesheet" href="../_shared/instrument-worlds.css?v=worlds-4">
 </head>
 <body>
 
@@ -1626,347 +1630,8 @@ let currentSkin = 'neon'; // matches the <select>'s default; skin IS the instrum
 // together and appends the shared reverb; rebuildVoice() disposes the whole array on skin
 // change). Every synth engine below extends Monophonic, which Tone.PolySynth requires --
 // see the Fungal/PluckSynth note further down for why that matters.
-const PRESETS = {
-  // dark: a damped wooden pluck. MonoSynth's filter envelope gives it a real pluck contour
-  // (a bright transient that closes down fast) rather than just an amplitude envelope;
-  // chorus adds a two-string shimmer and a short slapback delay gives it room to knock in.
-  pluck: { label:'Pluck', build: () => {
-    const synth = new Tone.PolySynth(Tone.MonoSynth, {
-      oscillator:{type:'triangle'},
-      envelope:{attack:0.002, decay:0.22, sustain:0, release:0.3},
-      filter:{Q:1.5, type:'lowpass', rolloff:-24},
-      filterEnvelope:{attack:0.001, decay:0.14, sustain:0, release:0.2, baseFrequency:180, octaves:4.5}
-    });
-    const chorus = new Tone.Chorus({frequency:2.4, delayTime:2, depth:0.3, wet:0.3}).start();
-    const slap = new Tone.FeedbackDelay({delayTime:'16n', feedback:0.12, wet:0.16});
-    return [synth, chorus, slap];
-  }},
-  // light: deliberately the cleanest voice in the set -- no effects at all, just a fast,
-  // bright, paper-dry blip, so it reads as the plainest instrument against the richer ones.
-  blip: { label:'Blip', build: () => {
-    const synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator:{type:'triangle'},
-      envelope:{attack:0.001, decay:0.09, sustain:0, release:0.12}
-    });
-    return [synth];
-  }},
-  // neon: an FM bell with real inharmonic shimmer (modulationIndex pushed up for metallic
-  // partials), chorus for width, and a soft slow echo so notes keep ringing after the sweep
-  // bar has already moved past them -- glassy and lingering, like the skin it's paired with.
-  bell: { label:'Bell', build: () => {
-    const synth = new Tone.PolySynth(Tone.FMSynth, {
-      harmonicity:3.01, modulationIndex:10,
-      envelope:{attack:0.003, decay:0.5, sustain:0.08, release:1.1},
-      modulationEnvelope:{attack:0.008, decay:0.25, sustain:0, release:0.4}
-    });
-    const chorus = new Tone.Chorus({frequency:1.4, delayTime:3.2, depth:0.4, wet:0.32}).start();
-    const echo = new Tone.FeedbackDelay({delayTime:'8n', feedback:0.22, wet:0.22});
-    return [synth, chorus, echo];
-  }},
-  // alien: a slow AM pad breathing under a lazy filter sweep, with a whisper of pitch
-  // wobble on top -- the most "evolving" voice in the set, meant to feel alive, not struck.
-  pad: { label:'Pad', build: () => {
-    const synth = new Tone.PolySynth(Tone.AMSynth, {
-      harmonicity:1.99, oscillator:{type:'sine'},
-      envelope:{attack:0.5, decay:0.4, sustain:0.65, release:1.6},
-      modulation:{type:'sine'}, modulationEnvelope:{attack:0.6, decay:0.2, sustain:1, release:0.8}
-    });
-    const vibrato = new Tone.Vibrato({frequency:3.2, depth:0.06});
-    const chorus = new Tone.Chorus({frequency:0.6, delayTime:4.5, depth:0.55, wet:0.4}).start();
-    const filter = new Tone.AutoFilter({frequency:0.18, baseFrequency:300, octaves:3.5, wet:0.5}).start();
-    return [synth, vibrato, chorus, filter];
-  }},
-  // hardware-homage voices, keyed to match the skin ids so picking a skin can auto-select one
-  tr808: { label:'TR-808', build: () => {
-    const synth = new Tone.PolySynth(Tone.MembraneSynth, {
-      pitchDecay:0.05, octaves:4,
-      envelope:{attack:0.001, decay:0.35, sustain:0, release:0.4}
-    });
-    const drive = new Tone.Distortion({distortion:0.18, wet:0.4}); // classic drum-machine grit
-    return [synth, drive];
-  }},
-  tb303: { label:'TB-303', build: () => {
-    const synth = new Tone.PolySynth(Tone.MonoSynth, {
-      oscillator:{type:'sawtooth'},
-      filter:{Q:12, type:'lowpass', rolloff:-24},
-      envelope:{attack:0.005, decay:0.2, sustain:0.1, release:0.25},
-      filterEnvelope:{attack:0.003, decay:0.28, sustain:0.05, release:0.3, baseFrequency:150, octaves:4.5}
-    });
-    const drive = new Tone.Distortion({distortion:0.32, wet:0.35}); // driven into acid squelch
-    const phaser = new Tone.Phaser({frequency:0.6, octaves:3, baseFrequency:400, wet:0.18});
-    return [synth, drive, phaser];
-  }},
-  modular: { label:'Modular', build: () => {
-    const synth = new Tone.PolySynth(Tone.MonoSynth, {
-      oscillator:{type:'sawtooth'},
-      filter:{Q:2, type:'lowpass', rolloff:-24},
-      envelope:{attack:0.02, decay:0.3, sustain:0.4, release:0.8},
-      filterEnvelope:{attack:0.05, decay:0.4, sustain:0.3, release:0.6, baseFrequency:200, octaves:3}
-    });
-    const drive = new Tone.Distortion({distortion:0.08, wet:0.25}); // faint analog warmth
-    const chorus = new Tone.Chorus({frequency:0.8, delayTime:3.5, depth:0.45, wet:0.35}).start(); // multi-osc thickness
-    return [synth, drive, chorus];
-  }},
-  op1: { label:'OP-1', build: () => {
-    const synth = new Tone.PolySynth(Tone.FMSynth, {
-      harmonicity:2.5, modulationIndex:3,
-      oscillator:{type:'square'},
-      envelope:{attack:0.002, decay:0.15, sustain:0.15, release:0.2},
-      modulationEnvelope:{attack:0.002, decay:0.1, sustain:0, release:0.1}
-    });
-    const vibrato = new Tone.Vibrato({frequency:5.5, depth:0.12}); // lo-fi tape-ish wobble
-    const pingpong = new Tone.PingPongDelay({delayTime:'16n', feedback:0.25, wet:0.25}); // playful bounce
-    return [synth, vibrato, pingpong];
-  }},
-  // imaginative, non-hardware voices -- same skin-id-keyed auto-link mechanism
-  deepsea: { label:'Deep Sea', build: () => {
-    const synth = new Tone.PolySynth(Tone.AMSynth, {
-      harmonicity:1.01, oscillator:{type:'sine'},
-      envelope:{attack:0.3, decay:0.4, sustain:0.5, release:1.8},
-      modulation:{type:'sine'}, modulationEnvelope:{attack:0.6, decay:0.3, sustain:0.7, release:1.2}
-    });
-    const chorus = new Tone.Chorus({frequency:0.5, delayTime:5, depth:0.5, wet:0.35}).start();
-    const echo = new Tone.FeedbackDelay({delayTime:'8n.', feedback:0.35, wet:0.3}); // vast, washy tail
-    return [synth, chorus, echo];
-  }},
-  glitch: { label:'Glitch', build: () => {
-    const synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator:{type:'square'},
-      envelope:{attack:0.001, decay:0.04, sustain:0, release:0.03}
-    });
-    const drive = new Tone.Distortion({distortion:0.55, wet:0.45});
-    const stutter = new Tone.PingPongDelay({delayTime:'32n', feedback:0.5, wet:0.32}); // corrupted-signal repeats
-    return [synth, drive, stutter];
-  }},
-  // was Tone.PluckSynth (Karplus-Strong): it extends Instrument, not Monophonic, and
-  // Tone.PolySynth's constructor asserts "voice instanceof Monophonic" synchronously --
-  // wrapping it threw immediately on build, and since rebuildVoice() disposes the old
-  // voice *before* that throw, the whole instrument was left disposed and broken. MonoSynth
-  // with a fast-closing filter gives a comparable soft, damp "wood knock" and is PolySynth-safe.
-  fungal: { label:'Fungal', build: () => {
-    const synth = new Tone.PolySynth(Tone.MonoSynth, {
-      oscillator:{type:'triangle'},
-      filter:{Q:1, type:'lowpass', rolloff:-24},
-      envelope:{attack:0.005, decay:0.3, sustain:0, release:0.4},
-      filterEnvelope:{attack:0.01, decay:0.25, sustain:0, release:0.3, baseFrequency:300, octaves:1.5}
-    });
-    const tremolo = new Tone.Tremolo({frequency:2.6, depth:0.55, wet:0.7}).start(); // spore-like pulsing
-    const chorus = new Tone.Chorus({frequency:0.7, delayTime:3, depth:0.3, wet:0.2}).start(); // murky thickness
-    return [synth, tremolo, chorus];
-  }},
-  // omen: a dark, distant bell -- low harmonicity keeps the FM partials inharmonic
-  // and gong-like rather than bright, and a long release plus a slow chorus and a wide,
-  // spaced-out echo let each toll swell and hang in the air like it's rolling across a
-  // valley before the next one lands, matching the "something is coming" mood.
-  omen: { label:'Omen', build: () => {
-    const synth = new Tone.PolySynth(Tone.FMSynth, {
-      harmonicity:1.5, modulationIndex:6,
-      envelope:{attack:0.02, decay:1.2, sustain:0.15, release:2.8},
-      modulationEnvelope:{attack:0.4, decay:0.8, sustain:0.1, release:1.5}
-    });
-    const chorus = new Tone.Chorus({frequency:0.3, delayTime:6, depth:0.5, wet:0.35}).start();
-    const echo = new Tone.FeedbackDelay({delayTime:'4n.', feedback:0.4, wet:0.28});
-    return [synth, chorus, echo];
-  }},
-  // macabre: a music box playing just slightly wrong -- fast, deep chorus detunes the
-  // triangle wave against itself for that toy-piano waver, and a touch of vibrato keeps
-  // it from ever quite landing in tune, like the mechanism is a little worn.
-  macabre: { label:'Danse Macabre', build: () => {
-    const synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator:{type:'triangle'},
-      envelope:{attack:0.001, decay:0.35, sustain:0.05, release:0.4}
-    });
-    const vibrato = new Tone.Vibrato({frequency:4.5, depth:0.22});
-    const chorus = new Tone.Chorus({frequency:1.1, delayTime:3.5, depth:0.6, wet:0.45}).start();
-    return [synth, vibrato, chorus];
-  }},
-  // grimoire: a struck bowl over a held chant -- low harmonicity AM keeps the tone
-  // close to a single dark fundamental instead of a bright bell, a slow tremolo gives
-  // it a chant-like pulse, and a slow phaser is the only "movement" in the room.
-  // grimoire: rebuilt around a filter-envelope swell instead of AM synthesis -- a bare
-  // sine fed through a slow-opening lowpass reads as a struck bowl ringing open, rather
-  // than the beating "two-oscillator" texture AM gives, so it no longer shares Alien's
-  // or Deep Sea's AMSynth-and-sine DNA even though all three are slow and dark.
-  grimoire: { label:'Grimoire', build: () => {
-    const synth = new Tone.PolySynth(Tone.MonoSynth, {
-      oscillator:{type:'sine'},
-      filter:{Q:2.5, type:'lowpass', rolloff:-12},
-      envelope:{attack:0.02, decay:0.3, sustain:0.35, release:2.4},
-      filterEnvelope:{attack:0.5, decay:0.6, sustain:0.5, release:2.0, baseFrequency:150, octaves:3}
-    });
-    const tremolo = new Tone.Tremolo({frequency:1.8, depth:0.4, wet:0.5}).start();
-    const phaser = new Tone.Phaser({frequency:0.2, octaves:2.5, baseFrequency:200, wet:0.3});
-    return [synth, tremolo, phaser];
-  }},
-  // clockwork: Tone.MetalSynth -- real inharmonic FM-cluster "metal" modeling, not used
-  // anywhere else in this set. Tuned tight and short for a small brass gear-tick rather
-  // than a cymbal wash, with a ping-pong delay for a whole mechanism ticking at once.
-  clockwork: { label:'Clockwork', build: () => {
-    const synth = new Tone.PolySynth(Tone.MetalSynth, {
-      harmonicity:4.2, modulationIndex:14, resonance:2800, octaves:1.0,
-      envelope:{attack:0.001, decay:0.22, release:0.15}
-    });
-    const pingpong = new Tone.PingPongDelay({delayTime:'32n', feedback:0.22, wet:0.22});
-    return [synth, pingpong];
-  }},
-  // lux mathematica: a PWM (pulse-width-modulation) oscillator instead of AM/FM --
-  // the duty cycle itself sweeps, which reads as a precise, reedy, faintly nasal tone
-  // that's still quietly alive, a different mechanism than any AM or FM voice here.
-  luxmath: { label:'Lux Mathematica', build: () => {
-    const synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator:{type:'pwm', modulationFrequency:0.35},
-      envelope:{attack:0.08, decay:0.3, sustain:0.4, release:0.9}
-    });
-    const filter = new Tone.AutoFilter({frequency:0.4, baseFrequency:400, octaves:2.5, wet:0.35}).start();
-    const delay = new Tone.FeedbackDelay({delayTime:'8n', feedback:0.2, wet:0.18});
-    return [synth, filter, delay];
-  }},
-  // ouroboros: a FatOscillator -- a small detuned unison stack baked into the oscillator
-  // itself (not a Chorus effect bolted on after), for a thick, wide drone that breathes
-  // on its own. A dotted echo keeps every note circling back, biting its own tail.
-  ouroboros: { label:'Ouroboros', build: () => {
-    const synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator:{type:'fatsawtooth', count:3, spread:25},
-      envelope:{attack:0.15, decay:0.5, sustain:0.55, release:1.8}
-    });
-    const filter = new Tone.Filter({frequency:1400, type:'lowpass', rolloff:-12});
-    const echo = new Tone.FeedbackDelay({delayTime:'4n.', feedback:0.35, wet:0.25});
-    return [synth, filter, echo];
-  }},
-  // basso continuo: a reese-style wobble bass -- a raw sawtooth through a fast,
-  // deep-wet AutoFilter LFO (5.5Hz, much faster than any other skin's slow filter
-  // movement) does the "wub," soft distortion adds growl, and a dotted-eighth dub
-  // echo is the tape-delay throw dub mixing is built on. A touch of portamento
-  // slides into every note instead of striking it clean.
-  bassocontinuo: { label:'Basso Continuo', build: () => {
-    const synth = new Tone.PolySynth(Tone.MonoSynth, {
-      oscillator:{type:'sawtooth'}, portamento:0.05,
-      filter:{Q:6, type:'lowpass', rolloff:-24},
-      envelope:{attack:0.01, decay:0.3, sustain:0.6, release:0.5},
-      filterEnvelope:{attack:0.02, decay:0.4, sustain:0.4, release:0.6, baseFrequency:80, octaves:2}
-    });
-    const wobble = new Tone.AutoFilter({frequency:5.5, baseFrequency:100, octaves:3, wet:0.85}).start();
-    const drive = new Tone.Distortion({distortion:0.25, wet:0.3});
-    const dubEcho = new Tone.FeedbackDelay({delayTime:'8n.', feedback:0.45, wet:0.3});
-    return [synth, wobble, drive, dubEcho];
-  }},
-  // timpano moderno: a real 808-style sub -- MembraneSynth's own pitch-drop gives
-  // the classic thump at the front of the note (much smaller sweep than TR-808's
-  // kick, tuned for melodic notes not drum hits), held with real sustain and a long
-  // glide-out release, pushed through soft saturation. Clean and punchy -- no filter
-  // movement at all, the opposite of Basso Continuo's wobble.
-  timpanomoderno: { label:'Timpano Moderno', build: () => {
-    const synth = new Tone.PolySynth(Tone.MembraneSynth, {
-      pitchDecay:0.03, octaves:0.8,
-      envelope:{attack:0.001, decay:0.25, sustain:0.65, release:0.9}
-    });
-    const drive = new Tone.Distortion({distortion:0.32, wet:0.4});
-    const filter = new Tone.Filter({frequency:900, type:'lowpass', rolloff:-12});
-    return [synth, drive, filter];
-  }},
-  // tubo cochleato: a pristine sine sub built for speed, not weight -- a short, tight
-  // envelope keeps it out of the way of a fast breakbeat, a light chorus doubles it
-  // for width without mudding it, and a 32nd-note ping-pong keeps it rolling.
-  tubocochleato: { label:'Tubo Cochleato', build: () => {
-    const synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator:{type:'sine'},
-      envelope:{attack:0.001, decay:0.1, sustain:0.2, release:0.12}
-    });
-    const chorus = new Tone.Chorus({frequency:2.5, delayTime:1.5, depth:0.3, wet:0.25}).start();
-    const delay = new Tone.PingPongDelay({delayTime:'32n', feedback:0.3, wet:0.22});
-    return [synth, chorus, delay];
-  }},
-  // la lumiere: a round, warm triangle through a gentle filter swell -- no wobble, no
-  // grit, just a soft chorus, a slow quarter-note tape echo and a genuine algorithmic
-  // reverb (Tone.Reverb, unused anywhere else here) for the big, sunny room dub lives in.
-  // la lumiere: rebuilt off an envelope-follower instead of an LFO -- Tone.AutoWah
-  // (unused anywhere else here) opens its filter with the *strength of each note*,
-  // not a clock, which is the actual mechanism behind a "talking," vocal reggae bass
-  // rather than the rhythmic sweep every other filter-modulated skin uses. The old
-  // Chorus+FeedbackDelay pairing was almost exactly Omen's (same feedback, same wet,
-  // one dotted note apart), so it's gone in favor of a stereo ping-pong bounce, and
-  // the oscillator moved from triangle to a bare sine for a rounder, purer tone --
-  // a MonoSynth+sine pairing nothing else in this set uses.
-  lalumiere: { label:'La Lumière', build: () => {
-    const synth = new Tone.PolySynth(Tone.MonoSynth, {
-      oscillator:{type:'sine'},
-      filter:{Q:0.6, type:'lowpass', rolloff:-12},
-      envelope:{attack:0.05, decay:0.35, sustain:0.65, release:1.4},
-      filterEnvelope:{attack:0.08, decay:0.35, sustain:0.55, release:1.2, baseFrequency:180, octaves:2.2}
-    });
-    const wah = new Tone.AutoWah({baseFrequency:120, octaves:4, sensitivity:-8, Q:2, wet:0.6});
-    const delay = new Tone.PingPongDelay({delayTime:'2n.', feedback:0.32, wet:0.24});
-    const reverb = new Tone.Reverb({decay:3.0, wet:0.3});
-    return [synth, wah, delay, reverb];
-  }},
-  // audacia: a detuned unison square (FatOscillator, square instead of Ouroboros's
-  // sawtooth) stabbed short and hard, then bit-crushed (Tone.BitCrusher, unused
-  // anywhere else here) for the harsh, digital "sino bass" edge grime basslines have,
-  // with heavier drive and a short, sparse echo.
-  audacia: { label:'Audacia', build: () => {
-    const synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator:{type:'fatsquare', count:2, spread:12},
-      envelope:{attack:0.001, decay:0.08, sustain:0.1, release:0.08}
-    });
-    const crush = new Tone.BitCrusher({bits:6, wet:0.35});
-    const drive = new Tone.Distortion({distortion:0.4, wet:0.35});
-    const delay = new Tone.PingPongDelay({delayTime:'16n', feedback:0.2, wet:0.18});
-    return [synth, crush, drive, delay];
-  }},
-  // orrery: bright, mechanical, evenly-ticking bells -- higher harmonicity than Omen
-  // keeps the partials clean and metallic rather than gong-like, a fast tremolo gives
-  // it a steady "gear train" pulse, and a ping-pong delay is the echo of a whole
-  // room full of turning brass rather than one slow, spacious toll.
-  orrery: { label:'Orrery', build: () => {
-    const synth = new Tone.PolySynth(Tone.FMSynth, {
-      harmonicity:3.5, modulationIndex:8,
-      envelope:{attack:0.001, decay:0.25, sustain:0.05, release:0.4},
-      modulationEnvelope:{attack:0.001, decay:0.15, sustain:0, release:0.2}
-    });
-    const tremolo = new Tone.Tremolo({frequency:6, depth:0.3, wet:0.4}).start();
-    const pingpong = new Tone.PingPongDelay({delayTime:'16n', feedback:0.3, wet:0.28});
-    return [synth, tremolo, pingpong];
-  }},
-  // anatomy theatre: dry, clicking, precise -- a fast-closing filter on a bare square
-  // wave gives a hard little knock with almost no tail, and a faint touch of drive is
-  // the only coloring, for a clinical, bone-on-bone precision with nothing washing it out.
-  anatomy: { label:'Anatomy Theatre', build: () => {
-    const synth = new Tone.PolySynth(Tone.MonoSynth, {
-      oscillator:{type:'square'},
-      filter:{Q:3, type:'lowpass', rolloff:-24},
-      envelope:{attack:0.001, decay:0.1, sustain:0, release:0.08},
-      filterEnvelope:{attack:0.001, decay:0.06, sustain:0, release:0.05, baseFrequency:600, octaves:3.5}
-    });
-    const drive = new Tone.Distortion({distortion:0.08, wet:0.15});
-    return [synth, drive];
-  }},
-  // marbled: a warm plucked harpsichord/lute -- a filtered sawtooth with a plucky
-  // filter envelope for that combed-string attack, a touch of chorus for ensemble
-  // richness, and a short slapback for a small, refined room, not a cavern.
-  marbled: { label:'Marbled', build: () => {
-    const synth = new Tone.PolySynth(Tone.MonoSynth, {
-      oscillator:{type:'sawtooth'},
-      filter:{Q:1.2, type:'lowpass', rolloff:-24},
-      envelope:{attack:0.002, decay:0.4, sustain:0, release:0.5},
-      filterEnvelope:{attack:0.001, decay:0.25, sustain:0, release:0.3, baseFrequency:250, octaves:3.5}
-    });
-    const chorus = new Tone.Chorus({frequency:1.8, delayTime:2.5, depth:0.35, wet:0.25}).start();
-    const slap = new Tone.FeedbackDelay({delayTime:'8n', feedback:0.15, wet:0.15});
-    return [synth, chorus, slap];
-  }},
-};
-// every skin IS an instrument now -- picking a skin rebuilds the one shared synth
-// both colors play through (red/black just differ by register, see RED/BLACK_NOTES)
-const SKIN_VOICE = {
-  dark:'pluck', light:'blip', neon:'bell', alien:'pad',
-  orrery:'orrery', anatomy:'anatomy', marbled:'marbled',
-  tr808:'tr808', tb303:'tb303', modular:'modular', op1:'op1',
-  deepsea:'deepsea', glitch:'glitch', fungal:'fungal',
-  comet:'omen', macabre:'macabre', grimoire:'grimoire',
-  clockwork:'clockwork', luxmath:'luxmath', ouroboros:'ouroboros',
-  bassocontinuo:'bassocontinuo',
-  timpanomoderno:'timpanomoderno', tubocochleato:'tubocochleato', lalumiere:'lalumiere', audacia:'audacia',
-};
+const SKIN_VOICE = WORLD_INSTRUMENT;
+
 
 function playColumn(col, time){
   for(let r=0;r<ROWS;r++){
@@ -2031,20 +1696,13 @@ const startBtn = document.getElementById('startBtn');
 const tempoSlider = document.getElementById('tempoSlider');
 const tempoVal = document.getElementById('tempoVal');
 
-function buildVoice(presetKey){
-  // PRESETS[key].build() returns [synth, ...effects] in signal-chain order; wire each node
-  // to the next and land the tail on the shared reverb, then remember every node so a later
-  // skin change can dispose the whole chain (not just the synth) instead of leaking effects.
-  const nodes = PRESETS[presetKey].build();
-  for(let i=0;i<nodes.length-1;i++) nodes[i].connect(nodes[i+1]);
-  nodes[nodes.length-1].connect(reverb);
-  return { synth: nodes[0], nodes };
-}
+function buildVoice(presetKey){return buildWorldVoice(presetKey,'rook',reverb);}
 
 function rebuildSynth(){
   if(!reverb) return; // audio not started yet -- startAudio() will build with the current skin's voice
+  const nextVoice=buildVoice(SKIN_VOICE[currentSkin]);
   if(voice) voice.nodes.forEach(n=>n.dispose());
-  voice = buildVoice(SKIN_VOICE[currentSkin]);
+  voice = nextVoice;
 }
 
 function startAudio(){
@@ -2067,7 +1725,7 @@ const REPLAY_SWEEPS = 3; // how many times the winning board "plays itself back"
 
 function updateSkinUI(){
   colorButtons.forEach(b => b.classList.toggle('active', b.dataset.color===playerColor));
-  voiceLabelEl.textContent = PRESETS[SKIN_VOICE[currentSkin]].label;
+  voiceLabelEl.textContent = instrumentLabel(SKIN_VOICE[currentSkin]);
 }
 
 colorButtons.forEach(b => b.addEventListener('click', ()=>{
@@ -2163,6 +1821,7 @@ tempoSlider.addEventListener('input', ()=>{
   tempoVal.textContent = tempoSlider.value;
 });
 document.getElementById('newGameBtn').addEventListener('click', resetGame);
+populateInstrumentWorlds(document.getElementById('skinSelect'),currentSkin);
 document.getElementById('skinSelect').addEventListener('change', (e)=>{
   currentSkin = e.target.value;
   document.documentElement.dataset.skin = currentSkin;

@@ -13,7 +13,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Share+Tech+Mono&family=Space+Grotesk:wght@400;500;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/tone@14/build/Tone.js"></script>
-<script src="../_shared/chess-instruments.js"></script>
+<script src="../_shared/chess-instruments.js?v=worlds-4"></script>
+<script src="../_shared/resonant-instrument.js?v=worlds-4"></script>
+<script src="../_shared/instrument-worlds.js?v=worlds-4"></script>
 <style>
 :root{
   --bg:#050505;--fg:#ddd8d0;--dim:#5a564f;--dim2:#39362f;
@@ -1045,7 +1047,8 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
 </style>
 <link rel="stylesheet" href="relations.css">
 <link rel="stylesheet" href="listening.css">
-<script src="listening.js"></script>
+<script src="listening.js?v=paired-3"></script>
+<link rel="stylesheet" href="../_shared/instrument-worlds.css?v=worlds-4">
 </head>
 <body>
 
@@ -1094,8 +1097,8 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
     <div class="sidebar">
       <div class="panel">
         <h2>skin</h2>
-        <select id="skinSelect" aria-label="Visual skin"><option value="resonant">Resonant Table</option>
-          <option value="dark">Dark</option>
+        <select id="skinSelect" aria-label="Instrument and visual world"><option value="resonant">Resonant Table</option><option value="gyges_pluck">Gygès · Pluck</option><option value="gyges_blip">Gygès · Blip</option><option value="gyges_bell">Gygès · Bell</option><option value="gyges_pad">Gygès · Pad</option>
+
           <option value="light">Light / paper</option>
           <option value="neon" selected>Glassy neon (default)</option>
           <option value="alien">Alien</option>
@@ -1170,7 +1173,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
 
       <div class="panel legend">
         <h2>how it sounds</h2>
-        <div>instrument — <span id="paletteLabel"></span> (chosen in Listening)</div>
+        <div>instrument — <span id="paletteLabel"></span> (paired with its visual world)</div>
         <div style="margin-top:.3rem">rank picks pitch · color picks register (white lower, black higher octave) ·
           piece type picks the instrument, defined by the current palette.</div>
         <div class="legend-grid">
@@ -1987,18 +1990,14 @@ const WHITE_NOTES  = ["C4","A3","G3","E3","D3","C3","A2","G2"]; // same pentaton
 // whole thing, not just the six synths. Every engine below extends Monophonic, which
 // Tone.PolySynth requires -- see the Fungal note further down for why that matters.
 // every skin IS a sound palette now -- picking a skin rebuilds all six piece-type voices
-const SKIN_PALETTE = {
-  dark:'percussive', light:'orchestral', neon:'electronic', alien:'percussive',
-  tr808:'tr808', tb303:'tb303', modular:'modular', op1:'op1',
-  deepsea:'deepsea', glitch:'glitch', fungal:'fungal',
-  comet:'omen', macabre:'macabre', grimoire:'grimoire',
-  orrery:'orrery', anatomy:'anatomy', marbled:'marbled',
-  clockwork:'clockwork', luxmath:'luxmath', ouroboros:'ouroboros',
-  bassocontinuo:'bassocontinuo',
-  timpanomoderno:'timpanomoderno', tubocochleato:'tubocochleato', lalumiere:'lalumiere', audacia:'audacia',
-};
+const SKIN_PALETTE = WORLD_INSTRUMENT;
 
-let paletteSynths = null, alertSynth = null, reverb = null;
+let paletteSynths = null, alertSynth = null, reverb = null,outputLimiter=null;
+const noteTimes=new WeakMap();
+function triggerVoice(synth,note,duration,time,velocity){
+ const at=Math.max(time,(noteTimes.get(synth)||0)+.002);noteTimes.set(synth,at);
+ synth.triggerAttackRelease(note,duration,at,Math.max(.001,Math.min(.65,velocity)));
+}
 let currentSkin = 'neon'; // matches the <select>'s default
 let started = false, sweepEndTimer = null;
 
@@ -2054,13 +2053,17 @@ const playAgainBtn = document.getElementById('playAgainBtn');
 const REPLAY_SWEEPS = 3; // how many times the winning board "plays itself back" as a little song
 
 function rebuildSynths(){
-  if(!reverb) return; // audio not started yet -- startAudio() will build with the current skin's palette
+  if(!started) return;
   if(paletteSynths) paletteSynths.nodes.forEach(n=>n.dispose());
+  if(reverb)reverb.dispose();if(outputLimiter)outputLimiter.dispose();
+  outputLimiter=new Tone.Limiter(-3).toDestination();
+  reverb=new Tone.Reverb({decay:1.8,wet:.18}).connect(outputLimiter);
+  if(alertSynth){alertSynth.disconnect();alertSynth.connect(outputLimiter);}
   const built = PALETTES[listening.instrument==='resonant'?'orchestral':listening.instrument].make();
-  const effects = built.effects();
+  const effects = [...built.effects(),new Tone.Volume(INSTRUMENT_LEVEL_DB[listening.instrument]||0)];
   const voices = Object.values(built.voices);
   const busHead = effects.length ? effects[0] : reverb;
-  voices.forEach(v => {v.volume.value=-7;v.connect(busHead);});
+  voices.forEach(v => {v.maxPolyphony=24;v.volume.value=0;v.connect(busHead);});
   reverb.wet.value=listening.instrument==='glitch'?.04:listening.instrument==='macabre'?.16:.22;
   for(let i=0;i<effects.length-1;i++) effects[i].connect(effects[i+1]);
   if(effects.length) effects[effects.length-1].connect(reverb);
@@ -2077,10 +2080,10 @@ function startAudio(){
   started = true;
   Tone.Transport.bpm.value=Number(tempoSlider.value);
   Tone.start().then(()=>{
-    reverb = new Tone.Reverb({decay:1.8, wet:0.22}).toDestination();
     alertSynth = new Tone.PolySynth(Tone.Synth, {
       oscillator:{type:'sawtooth'}, envelope:{attack:0.001,decay:0.15,sustain:0,release:0.1}
-    }).connect(reverb);
+    });
+    alertSynth.volume.value=-18;
     rebuildSynths();
     gate.classList.add('hidden');
     sweepOnce();
@@ -2120,6 +2123,7 @@ document.getElementById('newGameBtn').addEventListener('click', resetGame);
 promoChoiceButtons.forEach(b => b.addEventListener('click', ()=>{
   resolvePromotion(b.dataset.type);
 }));
+populateInstrumentWorlds(document.getElementById('skinSelect'),currentSkin);
 document.getElementById('skinSelect').addEventListener('change', (e)=>{
   currentSkin = e.target.value;
   document.documentElement.dataset.skin = currentSkin;
@@ -2208,11 +2212,12 @@ document.querySelector('.sidebar').prepend(relationPanel);
 document.getElementById('hearPosition').onclick=()=>{if(!started)startAudio();else sweepOnce();};
 document.getElementById('examplePosition').onclick=()=>{if(aiThinking)return;opponentMode='human';updateOpponentUI();resetGame();board=Array.from({length:8},()=>Array(8).fill(null));const pieces=[[7,7,'king','white'],[0,7,'king','black'],[7,0,'rook','white'],[0,0,'rook','black'],[4,2,'bishop','white'],[3,2,'bishop','black'],[4,4,'pawn','white'],[3,4,'pawn','black'],[5,5,'knight','white'],[2,5,'knight','black'],[7,3,'queen','white'],[0,3,'queen','black']];for(const[r,c,type,color]of pieces)board[r][c]={type,color,hasMoved:true};movable=computeAllLegal(board,currentPlayer,null);inCheck=isInCheck(board,currentPlayer);render();if(started)sweepOnce();};
 const appearancePanel=document.getElementById('skinSelect').closest('.panel');
-appearancePanel.querySelector('h2').textContent='Appearance · visual skin';
-const appearanceHelp=document.createElement('p');appearanceHelp.className='appearance-help';appearanceHelp.textContent='Changes the artwork, board and colors, and restores this skin’s listening settings.';appearancePanel.append(appearanceHelp);
+appearancePanel.querySelector('h2').textContent='Instrument / world';
+const appearanceHelp=document.createElement('p');appearanceHelp.className='appearance-help';appearanceHelp.textContent='One choice sets the sound, board, pieces and artwork together. Listening settings are remembered for each world.';appearancePanel.append(appearanceHelp);
 const listening=window.createChessListening({
  instruments:Object.entries(PALETTES).map(([key,p])=>[key,p.label]),palette:k=>SKIN_PALETTE[k]||'orchestral',
  boardElement:boardEl,attacks:attacksFrom,step:stepDuration,
+ resume(){Tone.start();},
  instrumentChanged(){rebuildSynths();updateSkinUI();},
  listenState(on){boardEl.classList.toggle('audition-mode',on);},
  clearAnimation(){sweepBar.classList.remove('on');squareEls.flat().forEach(s=>s.classList.remove('resonating'));},
@@ -2224,10 +2229,10 @@ const listening=window.createChessListening({
  let note=(p.color==='white'?WHITE_NOTES:BLACK_NOTES)[r];
  if(settings.instrument==='macabre'){const degrees=[12,11,8,7,5,3,2,0];note=Tone.Frequency((p.color==='white'?45:57)+degrees[r],'midi').toNote();if(p.type==='king')note=Tone.Frequency(note).transpose(-12).toNote();}
  const dur=settings.instrument==='glitch'?.025:settings.instrument==='macabre'?(['bishop','queen'].includes(p.type)?'4n':'16n'):rel.blocked?'32n':settings.sympathy&&rel.defenders?'4n':'8n';
- const velocity=Math.min(.65,strength*(rel.blocked?.2:.5));synth.triggerAttackRelease(note,dur,t,velocity);
- if(settings.sympathy&&rel.defenders&&settings.instrument!=='glitch'&&settings.instrument!=='macabre')synth.triggerAttackRelease(Tone.Frequency(note).transpose(7).toNote(),'8n',t+stepDuration()*.3,Math.min(.2,strength*.12));
+ const velocity=Math.min(.65,strength*(rel.blocked?.2:.5));triggerVoice(synth,note,dur,t,velocity);
+ if(settings.sympathy&&rel.defenders&&settings.instrument!=='glitch'&&settings.instrument!=='macabre')triggerVoice(synth,Tone.Frequency(note).transpose(7).toNote(),'8n',t+stepDuration()*.3,Math.min(.2,strength*.12));
  },
- tension(p,r,strength){const note=(p.color==='white'?WHITE_NOTES:BLACK_NOTES)[r];paletteSynths.voices[p.type].triggerAttackRelease(Tone.Frequency(note).transpose(1).toNote(),'32n',Tone.now()+.005,Math.min(.25,strength));}
+ tension(p,r,strength){const note=(p.color==='white'?WHITE_NOTES:BLACK_NOTES)[r];triggerVoice(paletteSynths.voices[p.type],Tone.Frequency(note).transpose(1).toNote(),'32n',Tone.now()+.005,Math.min(.25,strength));}
 });
 document.querySelector('.sidebar').prepend(appearancePanel);
 updateOpponentUI();

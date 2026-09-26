@@ -1,5 +1,5 @@
-/* Chess skin colors and artwork, scoped to each House Band canvas. */
-const BAND_SKINS={
+/* Canonical sound-to-world pairing used by every sequencer and the radio. */
+const INSTRUMENT_SKINS={
   "light": {
     "light": "#efe9db",
     "dark": "#c9c0aa",
@@ -392,20 +392,6 @@ const BAND_SKINS={
     "fg": "#1a1a1a",
     "image": null
   },
-  "gyges_bell": {
-    "light": "#1a2846",
-    "dark": "#0c1526",
-    "cream": "#e8dfc0",
-    "ink": "#16223a",
-    "inkEdge": "#e8dfc0",
-    "chessDark": "#16223a",
-    "red": "#3a5a8a",
-    "accent": "#ac8ae8",
-    "gold": "#d8cfa8",
-    "bg": "#0d1830",
-    "fg": "#e8dfc0",
-    "image": "../_shared/textures/marbled.jpg"
-  },
   "gyges_pad": {
     "light": "#0c2a1c",
     "dark": "#03110a",
@@ -419,5 +405,40 @@ const BAND_SKINS={
     "bg": "#020604",
     "fg": "#d8ffe9",
     "image": null
+  },
+  "sculpture": {
+    "light": "#d6d0c2",
+    "dark": "#c9c2b0",
+    "cream": "#f7f0dc",
+    "ink": "#323e34",
+    "inkEdge": "#211f1a",
+    "chessDark": "#323e34",
+    "red": "#986c3d",
+    "accent": "#465b45",
+    "gold": "#496148",
+    "bg": "#ded8ca",
+    "fg": "#292b27",
+    "image": null
   }
 };
+const INSTRUMENT_WORLD={orchestral:'light',electronic:'neon',percussive:'alien',omen:'comet',gyges_bell:'sculpture'};
+const INSTRUMENT_NOTES={orchestral:'Plucked attacks, bowed tones and a low string bed.',electronic:'Bright square waves, glassy FM and bouncing echoes.',percussive:'Dry mallets, clipped pulses and low drum strikes.',tr808:'Pitch-falling drums with warm, heavy tails.',tb303:'Acid bass: resonant filters and sliding sawtooth tones.',modular:'Analog voices with slowly moving filters.',op1:'Small, bright digital tones and playful modulation.',deepsea:'Submerged tones with a drifting, luminous surface.',glitch:'Broken FM grains, crushed edges and short echoes.',fungal:'Soft, organic tones that swell and decay.',omen:'A warm, wavering voice with an uneasy shimmer.',macabre:'Bone-like percussion, bowed saws and tolling bells.',grimoire:'Odd-harmonic organ reeds and a slow, breathing chant.',clockwork:'Precise mechanical attacks and metallic motion.',luxmath:'Clear harmonic tones with geometric repetition.',ouroboros:'Circling tones with a winding, sustained tail.',bassocontinuo:'Gliding bass, filter wobble and dub echoes.',timpanomoderno:'Deep membrane thumps with a sustained body.',tubocochleato:'Fast sine tones and tightly rolling echoes.',lalumiere:'Warm sine voices through an expressive wah filter.',audacia:'Detuned square stabs, grit and sparse echoes.',orrery:'Metallic FM chimes, tremolo and orbital echoes.',anatomy:'Short filtered square waves with a dry, tactile edge.',marbled:'Flowing filtered saws with chorus and light echo.',gyges_pluck:'Gygès plucked voice with a soft chorus.',gyges_blip:'Gygès miniature pulses and quick decays.',gyges_bell:'Gygès glass bells with repeating echoes.',gyges_pad:'Gygès slowly opening, chorused tones.',resonant:'Wood, ceramic, string and bronze resonances.'};
+const INSTRUMENTS=Object.keys(PALETTES).concat('resonant');
+const WORLD_INSTRUMENT=Object.fromEntries(INSTRUMENTS.map(id=>[INSTRUMENT_WORLD[id]||id,id]));
+function instrumentLabel(id){return id==='resonant'?'Resonant Table':PALETTES[id].label;}
+function populateInstrumentWorlds(select,skin){
+ select.replaceChildren();
+ for(const id of INSTRUMENTS){const o=document.createElement('option');o.value=INSTRUMENT_WORLD[id]||id;o.textContent=instrumentLabel(id);select.append(o);}
+ select.value=skin;select.setAttribute('aria-label','Instrument and visual world');
+}
+function buildWorldVoice(id,type,destination){
+ const bank=id==='resonant'?createResonantPalette():PALETTES[id].make(),synth=bank.voices[type];
+ Object.entries(bank.voices).forEach(([key,v])=>{if(key!==type)v.dispose();});
+ const effects=bank.effects(),trim=new Tone.Volume(INSTRUMENT_LEVEL_DB[id]),limiter=new Tone.Limiter(-4),nodes=[synth,...effects,trim,limiter];
+ synth.volume.value=0;synth.maxPolyphony=24;
+ nodes.forEach((n,i)=>n.connect(nodes[i+1]||destination));
+ return {synth,nodes};
+}
+
+// Measured with the same 24-note phrase; trims sit after effects to preserve timbre.
+const INSTRUMENT_LEVEL_DB={"orchestral": -9.1, "electronic": -14.2, "percussive": -16.7, "tr808": -17.7, "tb303": -26.2, "modular": -16.8, "op1": -9.6, "deepsea": -8.8, "glitch": 8.9, "fungal": -13.6, "omen": -9.9, "macabre": -11.6, "grimoire": -4.3, "clockwork": -22.6, "luxmath": -24.5, "ouroboros": -13.3, "bassocontinuo": -22.5, "timpanomoderno": -25.8, "tubocochleato": -11.7, "lalumiere": -23.7, "audacia": -18.9, "orrery": -5.3, "anatomy": -13.9, "marbled": -13.9, "gyges_pluck": -10.0, "gyges_blip": -7.0, "gyges_bell": -5.6, "gyges_pad": 4.4, "resonant": 16.9};
