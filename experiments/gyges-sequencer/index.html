@@ -853,7 +853,7 @@ function placeOpening(r,c){
 function scheduleSetupAI(){
  if(!setup||opponentMode!=='computer'||currentPlayer!==aiColor)return;
  const revision=gameRevision;
- setTimeout(()=>{if(!setup||revision!==gameRevision||currentPlayer!==aiColor)return;
+ setTimeout(()=>{if(!setup||revision!==gameRevision||opponentMode!=='computer'||currentPlayer!==aiColor)return;
  const available=Object.keys(setup[currentPlayer]).filter(h=>setup[currentPlayer][h]);setupHeight=Number(available[Math.floor(Math.random()*available.length)]);
  const row=currentPlayer==='red'?5:0,spaces=board[row].flatMap((p,c)=>p?[]:[c]);placeOpening(row,spaces[Math.floor(Math.random()*spaces.length)]);
  },250);
@@ -1229,13 +1229,14 @@ function driveAIChain(mover, r, c, firstMove, decisions, i){
   driveAIDecisions(decisions, 0);
 }
 function driveAIDecisions(decisions, i){
+  const expectedChain=chain,revision=gameRevision;
   if(!pendingOccupant){
-    if(chain) setTimeout(()=>driveAIDecisions(decisions, i), 140);
+    if(chain) setTimeout(()=>{if(chain===expectedChain&&revision===gameRevision&&opponentMode==="computer"&&currentPlayer===aiColor)driveAIDecisions(decisions, i);}, 140);
     return;
   }
-  const d = decisions[i],revision=gameRevision;
+  const d = decisions[i];
   setTimeout(()=>{
-    if(revision!==gameRevision||!pendingOccupant||opponentMode!=="computer"||currentPlayer!==aiColor)return;
+    if(chain!==expectedChain||revision!==gameRevision||!pendingOccupant||opponentMode!=="computer"||currentPlayer!==aiColor)return;
     if(!d || d.type==='replace') chooseReplace(d ? d.to : pickFallbackReplace());
     else chooseBounce(pendingOccupant.bounceMoves.find(m=>m.id===d.move.id));
     if(chain) driveAIDecisions(decisions, i+1);

@@ -8,3 +8,9 @@ const ctx=vm.createContext({});vm.runInContext('const ROOK_DIRS=[[-1,0],[1,0],[0
 const result=vm.runInContext(`const b=Array.from({length:8},()=>Array(8).fill(null));b[7][0]={type:'rook',color:'white'};b[1][0]={type:'rook',color:'white'};b[4][0]={type:'pawn',color:'black'};const blocked=graph(b,{r:7,c:0});b[4][0]=null;const before=JSON.stringify(b),open=graph(b,{r:7,c:0});({blocked:blocked.nodes.length,open:open.nodes.length,links:open.links.length,unchanged:before===JSON.stringify(b)})`,ctx);
 assert.equal(result.blocked,1);assert.equal(result.open,2);assert.equal(result.links,1);assert(result.unchanged);
 console.log('PASS: syntax, blocked protection paths, connected paths, cycle termination, unchanged chess state');
+
+// Returning to a suspended tab must resume both the Tone and material audio contexts.
+const play=code.slice(code.indexOf('function play('),code.indexOf("  setSkin('neon');"));
+const resumeCtx=vm.createContext({});vm.runInContext("let toneResumed=0,materialResumed=0;const api={resume(){toneResumed++;}},ctx={resume(){materialResumed++;}},settings={compare:false};function stop(){}function findOrigin(){return {r:0,c:0}}function perform(){}"+play+";play([[{type:'king'}]]);",resumeCtx);
+assert.equal(vm.runInContext('toneResumed',resumeCtx),1);assert.equal(vm.runInContext('materialResumed',resumeCtx),1,'resume Resonant Table after suspension');
+console.log('PASS: playback resumes both audio contexts');

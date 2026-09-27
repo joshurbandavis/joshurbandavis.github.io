@@ -39,3 +39,21 @@ const rv=fs.readFileSync(require('path').join(__dirname,'../reversi-sequencer/in
  assert(vm.runInContext(`(()=>{board=Array.from({length:6},()=>Array(6).fill(null));setup={red:{1:2,2:2,3:2},black:{1:2,2:2,3:2}};currentPlayer='red';for(let c=0;c<6;c++){setupHeight=[1,2,3,1,2,3][c];placeOpening(5,c);setupHeight=[3,2,1,3,2,1][c];placeOpening(0,c);}return setup===null&&currentPlayer==='red'&&board.flat().filter(Boolean).length===12&&[1,2,3].every(h=>board.flat().filter(p=>p?.height===h).length===4);})()`,c));
  console.log('PASS: blocked e6 collision, exact cancellation, legal replacement and alternating opening placement');
 }
+
+// A delayed setup placement must not survive switching to two-player mode.
+{
+ const timers=[];const c=vm.createContext({document:{getElementById:()=>null},setTimeout:fn=>timers.push(fn)});vm.runInContext(human,c);
+ vm.runInContext("render=()=>{};board=Array.from({length:6},()=>Array(6).fill(null));setup={red:{1:2,2:2,3:2},black:{1:2,2:2,3:2}};opponentMode='computer';aiColor='black';currentPlayer='black';scheduleSetupAI();opponentMode='human';",c);
+ timers.shift()();assert.equal(vm.runInContext('board.flat().filter(Boolean).length',c),0,'computer must not place after switching to human mode');
+ console.log('PASS: queued opening placement respects opponent mode');
+}
+
+// A callback from an old bounce chain must never act on a newer chain.
+{
+ const timers=[];let choices=0;
+ const src=html.slice(html.indexOf('function driveAIDecisions('),html.indexOf('function pickFallbackReplace('));
+ const c=vm.createContext({setTimeout:fn=>timers.push(fn),chooseReplace:()=>choices++,chooseBounce:()=>choices++,pickFallbackReplace:()=>({r:0,c:0})});
+ vm.runInContext('let chain={},gameRevision=1,pendingOccupant={},opponentMode="computer",currentPlayer="black",aiColor="black";'+src+';driveAIDecisions([{type:"replace",to:{r:0,c:0}}],0);chain={};',c);
+ timers.shift()();assert.equal(choices,0,'old chain cannot replace a piece in a new chain');
+ console.log('PASS: delayed bounce decisions stay with their original chain');
+}

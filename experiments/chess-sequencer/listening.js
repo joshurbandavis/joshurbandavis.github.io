@@ -44,7 +44,7 @@ window.createChessListening = function(api) {
     }return duration*1.4;
   }
   function findOrigin(b,preferred){if(preferred&&b[preferred.r]?.[preferred.c])return preferred;for(let r=7;r>=0;r--)for(let c=0;c<8;c++)if(b[r][c]?.type==='king'&&b[r][c].color==='white')return {r,c};for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(b[r][c])return {r,c};}
-  function play(b,origin,solo=false){api.resume?.();b=JSON.parse(JSON.stringify(b));stop();const o=findOrigin(b,origin);if(!o)return;let offset=0;if(settings.compare&&before&&!solo)offset=perform(before,findOrigin(before,originBefore),'Before',0)+250;perform(b,o,offset?'After':solo?'Piece network':'Position',offset);}
+  function play(b,origin,solo=false){api.resume?.();ctx?.resume();b=JSON.parse(JSON.stringify(b));stop();const o=findOrigin(b,origin);if(!o)return;let offset=0;if(settings.compare&&before&&!solo)offset=perform(before,findOrigin(before,originBefore),'Before',0)+250;perform(b,o,offset?'After':solo?'Piece network':'Position',offset);}
   setSkin('neon');
   return {setSkin,unlock,stop,play,graph,get instrument(){return settings.instrument;},get listen(){return settings.listen;},capture(b,origin){before=JSON.parse(JSON.stringify(b));originBefore={...origin};},reset(){stop();before=null;status.textContent='Move a piece or hear this position.';}};
 };
