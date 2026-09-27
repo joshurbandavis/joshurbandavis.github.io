@@ -165,3 +165,6 @@ html,body{
 @media (max-width:520px){
   .ut-stage{padding:2.2rem 1rem;gap:1.1rem}
 }
+
+/* Keep the decorative glow inside the phone width. */
+@media(max-width:600px){.ut-bloom{left:0;right:0}}

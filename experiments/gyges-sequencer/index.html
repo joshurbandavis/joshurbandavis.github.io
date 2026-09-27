@@ -258,7 +258,7 @@ footer{padding:1.6rem 1.5rem;text-align:center;font-size:.6rem;letter-spacing:.1
   .sidebar{width:min(92vw,520px)}
 }
 </style>
-<link rel="stylesheet" href="design.css?v=worlds-4">
+<link rel="stylesheet" href="design.css?v=mobile-2">
 <link rel="stylesheet" href="../_shared/instrument-worlds.css?v=worlds-4">
 </head>
 <body>
@@ -866,6 +866,7 @@ function renderBoardActions(){
  const label=document.createElement('p');panel.append(label);
  function button(text,fn,disabled=false,pressed){const b=document.createElement('button');b.type='button';b.textContent=text;b.disabled=disabled;if(pressed!==undefined)b.setAttribute('aria-pressed',String(pressed));b.onclick=fn;panel.append(b);return b;}
  if(setup){
+  panel.classList.add('opening-actions');
   panel.style.top='38%';panel.style.bottom='auto';
   label.textContent=currentPlayer+' opening · choose a ring, then an empty home square';
   for(const h of [1,2,3])button(h+' ring · '+setup[currentPlayer][h]+' left',()=>{setupHeight=h;render();},aiTurn||!setup[currentPlayer][h],setupHeight===h);
