@@ -40,10 +40,16 @@ async function fetchWithTimeout(url, opts, timeoutMs) {
   const controller = new AbortController();
   const t = setTimeout(() => controller.abort(), timeoutMs || 9000);
   try {
-    const response = await fetch(url, Object.assign({}, opts, {
-      signal: controller.signal,
-      cf: { cacheTtl: 0, cacheEverything: false },
-    }));
+    let response;
+    for (let hop=0;hop<5;hop++) {
+      const destination=new URL(url);
+      if(destination.protocol!=='https:' || !['archive.org','web.archive.org'].includes(destination.hostname)) throw new Error('unsafe_archive_redirect');
+      response=await fetch(destination.href,Object.assign({},opts,{redirect:'manual',signal:controller.signal,cf:{cacheTtl:0,cacheEverything:false}}));
+      if(![301,302,303,307,308].includes(response.status))break;
+      const location=response.headers.get('Location');response.body?.cancel().catch(()=>{});
+      if(!location||hop===4)throw new Error('archive_redirect_loop');
+      url=new URL(location,destination).href;
+    }
     // Keep the deadline active through body consumption, not just headers.
     if (!response.ok) throw new Error('upstream_' + response.status);
     const reader = response.body?.getReader(), chunks = [];
@@ -353,10 +359,11 @@ function normalizeUrl(value) {
 }
 function unpack(row) { return {id:row.id,savedAt:row.saved_at,memorial:JSON.parse(row.snapshot)}; }
 async function offerSave(data, env) {
-  if (!env.RELIQUARY || !data.archived) return data;
+  if (!data.archived) return data;
+  if (!env.RELIQUARY) return {...data,saveUnavailable:true};
   try {
     const existing=await env.RELIQUARY.prepare('SELECT * FROM relics WHERE url = ?').bind(data.url).first();
-    if (existing) return {...data,relicId:existing.id};
+    if (existing) return {...JSON.parse(existing.snapshot),relicId:existing.id};
     const token=crypto.randomUUID(),expires=Date.now()+86400000;
     await env.RELIQUARY.batch([
       env.RELIQUARY.prepare('DELETE FROM discoveries WHERE expires < ?').bind(Date.now()),
@@ -364,6 +371,16 @@ async function offerSave(data, env) {
     ]);
     return {...data,saveToken:token};
   } catch { return {...data,saveUnavailable:true}; }
+}
+async function readSaveBody(request) {
+  if(Number(request.headers.get('Content-Length'))>1024)throw new Error('body_too_large');
+  const reader=request.body?.getReader();if(!reader)return '';
+  let timer,size=0;const chunks=[];
+  const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('body_timeout')),5000);});
+  try {
+    while(true){const {done,value}=await Promise.race([reader.read(),deadline]);if(done)break;size+=value.length;if(size>1024)throw new Error('body_too_large');chunks.push(value);}
+    return await new Blob(chunks).text();
+  }finally{clearTimeout(timer);reader.cancel().catch(()=>{});}
 }
 async function route(request,env,ctx) {
   const url=new URL(request.url),path=url.pathname;
@@ -375,8 +392,7 @@ async function route(request,env,ctx) {
     if (request.method==='POST' && path==='/api/reliquary') {
       if (!corsHeaders(request)['Access-Control-Allow-Origin']) return json(request,{ok:false,error:'origin_not_allowed'},403);
       if (!request.headers.get('Content-Type')?.startsWith('application/json')) return json(request,{ok:false,error:'invalid_request'},415);
-      const body=await request.text();
-      if (body.length>1024) return json(request,{ok:false,error:'invalid_request'},413);
+      let body;try{body=await readSaveBody(request);}catch(error){return json(request,{ok:false,error:'invalid_request'},error.message==='body_too_large'?413:408);}
       let token;try{token=JSON.parse(body).token;}catch{return json(request,{ok:false,error:'invalid_request'},400);}
       if (typeof token!=='string'||token.length>64) return json(request,{ok:false,error:'invalid_token'},400);
       const discovery=await db.prepare('SELECT * FROM discoveries WHERE token=? AND expires>?').bind(token,Date.now()).first();
@@ -403,6 +419,11 @@ async function route(request,env,ctx) {
   if(path!=='/api/memorial')return json(request,{ok:false,error:'not_found'},404);
   if(request.method!=='GET')return json(request,{ok:false,error:'method_not_allowed'},405);
   let target;try{target=normalizeUrl(url.searchParams.get('url'));}catch{return json(request,{ok:false,error:'invalid_url'},400);}
+  // A saved URL remains useful even if Wayback or the edge cache is down.
+  if(env.RELIQUARY)try{
+    const saved=await env.RELIQUARY.prepare('SELECT * FROM relics WHERE url=?').bind(target).first();
+    if(saved)return json(request,{...JSON.parse(saved.snapshot),relicId:saved.id},200,{'Cache-Control':'no-store'});
+  }catch{/* Storage trouble must not prevent a fresh archive lookup. */}
   const cache=caches.default,cacheKey=new Request(url.origin+'/api/memorial?v=2&url='+encodeURIComponent(target));
   let data;try{const cached=await cache.match(cacheKey);if(cached)data=await cached.json();}catch{}
   if(!data){
