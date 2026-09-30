@@ -97,6 +97,7 @@
   .back { position: fixed; top: 20px; right: 24px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #55524b; }
   .back:hover { color: #c98a3d; }
 </style>
+<link rel="stylesheet" href="reliquary.css?v=1">
 </head>
 <body>
 
@@ -118,15 +119,17 @@
     </div>
 
     <div class="input-row">
-      <input class="url-input" id="url-input" type="text" placeholder="paste a dead url…" autocomplete="off" spellcheck="false">
+      <input class="url-input" id="url-input" aria-label="Website address" type="text" placeholder="paste a dead url…" autocomplete="off" spellcheck="false">
       <button class="go-btn" id="go-btn" aria-label="visit" disabled>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
       </button>
     </div>
     <div class="demo-note" id="idle-note">real dates and salvage, pulled live from web.archive.org.</div>
 
-    <div class="state" id="state-loading">
-      <div class="loading" id="loading-text">listening for an echo…</div>
+    <div class="archive-entrance" id="archive-entrance"><a href="#reliquary">enter the reliquary</a><p>fragments left by previous visitors</p></div>
+    <section class="state" id="state-reliquary" aria-label="Reliquary"><h1>The reliquary</h1><p class="archive-intro">Someone found each of these worth leaving behind.</p><p id="archive-status" role="status"></p><ol id="relic-list"></ol><div class="m-footer"><button id="more-relics" hidden>more fragments</button><button id="archive-retry" hidden>try again</button><button id="archive-return">find a link</button></div></section>
+    <div class="state" id="state-loading" role="status">
+      <div class="loading" id="loading-text">listening for an echo…</div><div class="m-footer" style="justify-content:center"><button id="cancel-lookup">stop listening</button></div>
     </div>
 
     <div class="state" id="state-empty">
@@ -162,7 +165,9 @@
           <div class="m-salvage-label" id="m-salvage-label">In its own words</div>
           <div class="m-salvage-text" id="m-fragment"></div>
         </div>
+        <p id="accession" class="accession"></p><div class="preserve"><button id="preserve-link" hidden>leave this in the reliquary</button><p id="preserve-note" role="status"></p></div>
         <div class="m-footer">
+          <a href="#reliquary" id="back-reliquary" hidden>back to reliquary</a><button id="random-relic" hidden>another fragment</button>
           <button id="reset-memorial">try another url</button>
           <a id="m-last-capture" href="#" target="_blank" rel="noopener">the last capture ↗</a>
         </div>
@@ -177,18 +182,28 @@
   // file) — it looks like https://internet-is-haunted.YOUR-SUBDOMAIN.workers.dev
   var WORKER_URL = 'https://internet-is-haunted.joshurbandavis.workers.dev';
 
-  if (!WORKER_URL || WORKER_URL.indexOf('YOUR-SUBDOMAIN') !== -1) {
+  if (WORKER_URL.indexOf('YOUR-SUBDOMAIN') !== -1) {
     document.getElementById('setup-note').style.display = 'block';
   }
 
   var input = document.getElementById('url-input');
   var goBtn = document.getElementById('go-btn');
   var idleNote = document.getElementById('idle-note');
-  var states = ['state-loading', 'state-empty', 'state-down', 'state-memorial'];
+  var states = ['state-loading', 'state-empty', 'state-down', 'state-memorial', 'state-reliquary'];
+  var activeRequest=null;
+  function cancelRequest(){if(activeRequest)activeRequest.abort();activeRequest=null;stopLoadingNarration();}
+  async function requestJSON(path,options){
+    cancelRequest();var controller=new AbortController();activeRequest=controller;
+    var timeout=setTimeout(()=>controller.abort('timeout'),55000);
+    try{var response=await fetch(WORKER_URL+path,Object.assign({},options,{signal:controller.signal}));var data=await response.json();if(controller.signal.aborted)throw new DOMException('Cancelled','AbortError');if(!response.ok||data.ok===false){var error=new Error(data.error||'request_failed');error.code=data.error;error.status=response.status;throw error;}return data;}
+    catch(error){if(controller.signal.aborted&&controller.signal.reason!=='timeout')throw new DOMException('Cancelled','AbortError');throw error;}
+    finally{clearTimeout(timeout);if(activeRequest===controller)activeRequest=null;}
+  }
 
   function showState(id) {
     states.forEach(function (s) { document.getElementById(s).classList.remove('active'); });
     if (id) document.getElementById(id).classList.add('active');
+    document.getElementById('archive-entrance').hidden = id==='state-reliquary'||id==='state-memorial';
     var idleVisible = !id;
     document.querySelector('.input-row').style.display = idleVisible ? 'flex' : 'none';
     idleNote.style.display = idleVisible ? 'block' : 'none';
@@ -206,6 +221,7 @@
   });
 
   function reset() {
+    cancelRequest();history.replaceState(null,'',location.pathname+location.search);
     input.value = '';
     goBtn.disabled = true;
     showState(null);
@@ -238,30 +254,15 @@
     loadingEl.textContent = LOADING_STAGES[0].text;
   }
 
-  function submit() {
-    var v = input.value.trim();
-    if (!v) return;
-    if (!WORKER_URL || WORKER_URL.indexOf('YOUR-SUBDOMAIN') !== -1) {
-      showState('state-down');
-      return;
-    }
+  async function submit() {
+    var v=input.value.trim();if(!v)return;
+    history.replaceState(null,'',location.pathname+location.search);
     showState('state-loading');
-    startLoadingNarration();
-
-    // A client-side ceiling so a truly stuck request still resolves to a
-    // clear state instead of spinning forever.
-    var controller = new AbortController();
-    var hardTimeout = setTimeout(function () { controller.abort(); }, 55000);
-
-    fetch(WORKER_URL + '/api/memorial?url=' + encodeURIComponent(v), { signal: controller.signal })
-      .then(function (r) { return r.json(); })
-      .then(render)
-      .catch(function () { showState('state-down'); })
-      .finally(function () {
-        clearTimeout(hardTimeout);
-        stopLoadingNarration();
-      });
+    var promise=requestJSON('/api/memorial?url='+encodeURIComponent(v));startLoadingNarration();
+    try{render(await promise);}catch(error){if(error.name!=='AbortError'){showState('state-down');document.querySelector('.down').textContent=error.code==='invalid_url'?'Enter a public website address, such as example.com.':'The archive is not answering reliably right now. Try again in a moment.';}}
+    finally{if(!activeRequest)stopLoadingNarration();}
   }
+  document.getElementById('cancel-lookup').onclick=reset;
 
   // The crawler's last-recorded status, phrased as circumstance rather than
   // a raw code — this is what archive.org saw at that one past visit, not a
@@ -288,7 +289,7 @@
     document.getElementById('m-url').textContent = data.url;
 
     var sameYear = data.firstYear === data.lastYear;
-    var fmt = { year: 'numeric', month: 'short', day: 'numeric' };
+    var fmt = { year: 'numeric', month: 'short', day: 'numeric', timeZone:'UTC' };
     var firstD = data.firstDate ? new Date(data.firstDate) : null;
     var lastD = data.lastDate ? new Date(data.lastDate) : null;
     var datesText;
@@ -301,21 +302,14 @@
     } else {
       datesText = sameYear ? 'seen only in ' + data.firstYear : data.firstYear + '–' + data.lastYear;
     }
-    document.getElementById('m-dates').textContent = datesText;
+    document.getElementById('m-dates').textContent = 'Known captures · ' + datesText;
 
     var statusEl = document.getElementById('m-status');
     var statusText = statusPhrase(data.lastStatus);
     statusEl.textContent = statusText || '';
     statusEl.style.display = statusText ? '' : 'none';
 
-    var years = data.lastYear - data.firstYear;
-    var lede = sameYear
-      ? 'It surfaces in the record only once, in ' + data.firstYear + '.'
-      : 'It was reachable for about ' + (years === 1 ? 'a year' : years + ' years') + ' before going quiet.';
-    var sinceYears = new Date().getFullYear() - data.lastYear;
-    if (sinceYears >= 1) {
-      lede += ' It has been undisturbed for ' + (sinceYears === 1 ? 'a year' : sinceYears + ' years') + ' since.';
-    }
+    var lede = 'These are traces left by the archive, not a record of when this site began or ended.';
     document.getElementById('m-lede').textContent = lede;
 
     // The page's own self-summary, when the crawl caught one — often a
@@ -351,10 +345,14 @@
     }
 
     var link = document.getElementById('m-last-capture');
-    link.href = data.lastSnapshotUrl || '#';
+    var capture;try{capture=new URL(data.lastSnapshotUrl);}catch{}
+    link.hidden=!(capture&&capture.protocol==='https:'&&capture.hostname==='web.archive.org');
+    link.href=link.hidden?'#':capture.href;
 
     showState('state-memorial');
+    if(window.onMemorial)window.onMemorial(data);
   }
 </script>
+<script src="reliquary.js?v=1"></script>
 </body>
 </html>

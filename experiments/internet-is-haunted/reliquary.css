@@ -1,0 +1,13 @@
+[hidden]{display:none!important}
+.url-input{min-width:0;width:100%}.go-btn{min-width:44px;min-height:44px;justify-content:center}
+.stage{padding-top:70px;padding-bottom:60px}.back{z-index:2;background:#1c1b19;padding:10px;top:10px;right:14px}
+.archive-entrance{text-align:center;margin-top:38px;font-size:13px}.archive-entrance p,.archive-intro{font:italic 15px/1.7 'Source Serif 4',Georgia,serif;color:#9c988f;margin:8px 0 0}
+.archive-entrance a{display:inline-block;padding:10px}h1{font:normal 30px 'Source Serif 4',Georgia,serif;color:#d8d5cf;margin:0 0 12px}
+#state-reliquary{padding-top:10px}#archive-status{font-size:13px;line-height:1.7;color:#a5a29b}
+#relic-list{list-style:none;padding:0;margin:32px 0}#relic-list li{border-top:1px solid #3a3833}#relic-list a{display:block;padding:24px 0;color:inherit}
+.relic-number,.accession{font-size:11px;letter-spacing:.12em;color:#c98a3d}.relic-title{display:block;font:23px/1.35 'Source Serif 4',Georgia,serif;color:#d8d5cf;margin:9px 0;overflow-wrap:anywhere}
+.relic-dates{display:block;font-size:11px;line-height:1.6;color:#aaa59c}.relic-fragment{display:block;font:italic 15px/1.7 'Source Serif 4',Georgia,serif;margin-top:12px;color:#aaa59c}
+.preserve{margin-top:28px}.preserve button{background:none;border:1px solid #65523a;color:#d3a367;padding:12px 16px;cursor:pointer;font:13px inherit}.preserve p{font-size:12px;line-height:1.6;color:#aaa59c}.preserve button:disabled{opacity:.65;cursor:default}
+.m-footer{gap:12px;flex-wrap:wrap;justify-content:center;line-height:1.7}.m-footer button,.m-footer a{min-height:44px;display:inline-flex;align-items:center}.m-row{flex-wrap:wrap;justify-content:center}.m-v,.m-name{overflow-wrap:anywhere}
+a:focus-visible,button:focus-visible{outline:2px solid #c98a3d;outline-offset:4px}.demo-note,.eyebrow,.m-k,.m-salvage-label,.m-status{color:#969086}
+@media(prefers-reduced-motion:reduce){.loading,.memorial{animation:none}}

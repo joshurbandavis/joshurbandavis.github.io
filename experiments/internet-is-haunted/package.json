@@ -5,9 +5,10 @@
   "description": "Paste in a dead URL and get a small memorial instead of a 404, pulled live from the Wayback Machine.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node worker.test.cjs"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.13.0"
   }
 }

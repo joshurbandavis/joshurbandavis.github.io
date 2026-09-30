@@ -1,0 +1,14 @@
+{
+  "name": "internet-is-haunted",
+  "main": "worker.js",
+  "compatibility_date": "2026-09-29",
+  "workers_dev": true,
+  "preview_urls": false,
+  "d1_databases": [
+    {
+      "binding": "RELIQUARY",
+      "database_name": "internet-is-haunted-reliquary",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

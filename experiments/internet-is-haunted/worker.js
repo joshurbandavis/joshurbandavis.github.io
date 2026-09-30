@@ -1,76 +1,8 @@
 /**
- * The Internet Is Haunted — Cloudflare Worker
- *
- * A port of server.js to the Workers runtime, so the live, static page at
- * experiments/internet-is-haunted/index.html has somewhere to send its one
- * request: archive.org's APIs send no CORS header, so a plain static page
- * can never call them directly — something has to sit in between.
- *
- * Tries the Availability API (archive.org/wayback/available) first, then
- * falls back to the CDX Search API if that comes up empty. Neither service
- * is reliably always-up on its own — one night CDX was the unreliable one
- * (429s, 521s, 503s, multi-minute outages) while Availability stayed solid;
- * a week later Availability came back empty for nearly everything (even
- * Wikipedia) while CDX worked fine, then CDX itself briefly served the same
- * "Temporarily Offline" page minutes after that. They fail independently
- * and unpredictably, so this only concludes "never archived" when BOTH
- * agree there's nothing — see getCapture() below.
- *
- * Diagnosed live (2026-09-22) that CDX specifically is degraded *because
- * this runs on Cloudflare's network*: archive.org's own response headers
- * include `x-nid: Cloudflare` (their network-identity fingerprint) on CDX
- * requests from this Worker, versus `x-nid: ATT-INTERNET4` for the exact
- * same request from a residential IP — and the Cloudflare-tagged requests
- * came back as three different failures in three consecutive tries (a 400
- * from archive.org's own nginx, a 521 from Cloudflare's edge saying their
- * origin refused the connection, and a full 15s hang), while Availability
- * succeeded every time from the same Worker. CDX is kept as a fallback
- * because it isn't *always* broken, but its timeout is kept short (see
- * getSnapshotCdx) since it's unlikely to pay off, and getSnapshotAvailability
- * retries once before giving up, since it's the one path actually reliable
- * from this network.
- *
- * Availability answers a differently-shaped question ("closest snapshot to
- * a timestamp") but that covers first/last capture too: a timestamp from
- * the web's infancy returns the closest snapshot to it, which for any real
- * site is its earliest capture; a timestamp safely in the future returns
- * the closest to now, i.e. the latest — never omit the timestamp or pass
- * today's actual date for this, a live-tested archive.org quirk. (That
- * quirk itself later got worse: for a few days *any* non-far-past timestamp
- * came back empty, which is exactly why this no longer trusts Availability
- * alone.) CDX's limit=1 (ascending) gets the earliest capture; limit=-1
- * asks the server for the last line — slow or prone to timing out on
- * enormous, constantly-crawled domains (Wikipedia-scale), fine for the
- * obscure pages this piece actually expects.
- *
- * Same overall logic as server.js (first/last capture lookup, a best-effort
- * scrape of the last capture for an author/title/fragment), adapted for a
- * stateless edge runtime:
- *   - no fs — the file-backed cache becomes the Workers Cache API (edge
- *     cache, ~24h TTL, no extra binding or setup required)
- *   - no cross-request in-memory queue — server.js serialized every
- *     outbound archive.org call, worker-wide, with a minimum gap between
- *     them; a Worker isolate can't rely on that state surviving between
- *     invocations, so this just runs the two lookups for one request in
- *     sequence (not parallel) rather than trying to pace requests
- *     across everyone hitting the Worker at once
- *   - CORS is restricted to an origin allowlist (your own site + localhost
- *     for local testing) rather than left wide open, so a random other site
- *     can't quietly ride your free-tier request quota
- *
- * ---- Deploy (no CLI needed) ----
- * 1. dash.cloudflare.com → sign up free (no credit card) → Workers & Pages
- * 2. Create application → Create Worker → give it a name (e.g.
- *    internet-is-haunted) → Deploy (this publishes a placeholder — that's fine)
- * 3. Edit code → delete the placeholder → paste this entire file → Save and deploy
- * 4. Copy the worker's URL (looks like
- *    https://internet-is-haunted.YOUR-SUBDOMAIN.workers.dev)
- * 5. Paste that URL into WORKER_URL near the top of ../index.html
- *
- * Free tier: 100,000 requests/day, no card required.
+ * The Internet Is Haunted: bounded Wayback lookups and an opt-in D1 reliquary.
+ * Saved snapshots are immutable and readable without contacting the archive.
+ * See README.md for local development, storage migration and deployment.
  */
-
-// Edit this if you change your GitHub Pages domain or custom domain.
 const ALLOWED_ORIGINS = [
   'https://joshurbandavis.github.io',
   'https://joshurbandavis.com',
@@ -108,10 +40,23 @@ async function fetchWithTimeout(url, opts, timeoutMs) {
   const controller = new AbortController();
   const t = setTimeout(() => controller.abort(), timeoutMs || 9000);
   try {
-    return await fetch(url, Object.assign({}, opts, {
+    const response = await fetch(url, Object.assign({}, opts, {
       signal: controller.signal,
       cf: { cacheTtl: 0, cacheEverything: false },
     }));
+    // Keep the deadline active through body consumption, not just headers.
+    if (!response.ok) throw new Error('upstream_' + response.status);
+    const reader = response.body?.getReader(), chunks = [];
+    let size = 0;
+    if (reader) try {
+      while (size < 300 * 1024) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        const part = value.subarray(0, 300 * 1024 - size);
+        chunks.push(part); size += part.length;
+      }
+    } finally { await reader.cancel().catch(()=>{}); }
+    return new Response(new Blob(chunks), {status: response.status, headers: response.headers});
   } finally {
     clearTimeout(t);
   }
@@ -123,10 +68,12 @@ function sleep(ms) {
 
 async function getSnapshotAvailabilityOnce(targetUrl, timestamp) {
   const api = `https://archive.org/wayback/available?url=${encodeURIComponent(targetUrl)}&timestamp=${timestamp}`;
-  const res = await fetchWithTimeout(api, {}, 12000);
+  const res = await fetchWithTimeout(api, {}, 5000);
   const data = await res.json();
   const closest = data && data.archived_snapshots && data.archived_snapshots.closest;
+  if (!data || typeof data.archived_snapshots !== 'object') throw new Error('invalid_availability');
   if (!closest || !closest.available) return null;
+  if (!/^\d{14}$/.test(closest.timestamp || '')) throw new Error('invalid_capture');
   const match = /^https?:\/\/web\.archive\.org\/web\/\d+\/(.+)$/.exec(closest.url || '');
   return { timestamp: closest.timestamp, originalUrl: match ? match[1] : targetUrl, status: closest.status || null };
 }
@@ -165,13 +112,11 @@ function randomJitterDays() {
 // network (see the file header) — worth retrying an empty result before
 // falling through to CDX, since an empty result here has previously turned
 // out to be this API's own known flakiness rather than a genuine absence.
-// Two retries (three attempts total), each with an independently random
-// offset, since the stuck dates cluster and a single retry can still land
-// on another one.
+// One jittered retry keeps both capture lookups and salvage inside the client deadline.
 async function getSnapshotAvailability(targetUrl, timestamp) {
   const first = await getSnapshotAvailabilityOnce(targetUrl, timestamp);
   if (first) return first;
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < 1; i++) {
     await sleep(300);
     const retry = await getSnapshotAvailabilityOnce(targetUrl, jitterTimestamp(timestamp, randomJitterDays()));
     if (retry) return retry;
@@ -187,12 +132,16 @@ async function getSnapshotCdx(targetUrl, limit) {
   const res = await fetchWithTimeout(api, {}, 6000);
   const text = await res.text();
   const rows = JSON.parse(text);
-  if (!rows || rows.length < 2) return null;
+  if (!Array.isArray(rows)) throw new Error('invalid_cdx');
+  if (rows.length === 0) return null;
+  if (!Array.isArray(rows[0]) || !rows[0].includes('timestamp')) throw new Error('invalid_cdx');
+  if (rows.length < 2) return null;
   const cols = rows[0];
   const tIdx = cols.indexOf('timestamp');
   const oIdx = cols.indexOf('original');
   const sIdx = cols.indexOf('statuscode');
   const row = rows[rows.length - 1];
+  if (!/^\d{14}$/.test(row[tIdx] || '')) throw new Error('invalid_capture');
   return { timestamp: row[tIdx], originalUrl: row[oIdx] || targetUrl, status: sIdx !== -1 ? row[sIdx] : null };
 }
 
@@ -203,23 +152,25 @@ async function getSnapshotCdx(targetUrl, limit) {
 // Never throws: always resolves { ok, capture }. ok:true means one of the
 // two services gave a definitive answer, and capture is either the real
 // snapshot or null (both services agree there's genuinely nothing here).
-// ok:false means BOTH services failed to answer at all for this specific
-// direction (first or last) — a real "don't know," not "nothing found."
+// ok:false also covers one failed service plus one empty response: that is
+// uncertainty, not evidence that the page was never archived.
 // This distinction matters: a fast 429 or refused connection on Availability
 // used to abort buildMemorial immediately (via an uncaught throw from
 // getSnapshotCdx) before the OTHER direction's lookup was ever attempted —
 // which is why a single quick rejection could kill the whole request
 // almost instantly. Now both directions always run to completion.
 async function getCapture(targetUrl, timestamp, cdxLimit) {
+  let availabilityAnswered = false;
   try {
     const viaAvailability = await getSnapshotAvailability(targetUrl, timestamp);
     if (viaAvailability) return { ok: true, capture: viaAvailability };
+    availabilityAnswered = true;
   } catch (err) {
     // fall through to CDX
   }
   try {
     const viaCdx = await getSnapshotCdx(targetUrl, cdxLimit);
-    return { ok: true, capture: viaCdx };
+    return { ok: Boolean(viaCdx) || availabilityAnswered, capture: viaCdx };
   } catch (err) {
     return { ok: false, capture: null };
   }
@@ -282,7 +233,7 @@ function extractMeta(html) {
   if (titleMatch) title = stripTags(titleMatch[1]).trim() || null;
 
   let fragment = null;
-  const text = stripTags(html);
+  const text = stripTags(html.replace(/<head[\s\S]*?<\/head>/gi, ' ').replace(/<title[\s\S]*?<\/title>/gi, ' '));
   const chunks = text.split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter(Boolean);
   for (const c of chunks) {
     if (c.length < 40 || c.length > 260 || !/[a-zA-Z]{3,}/.test(c)) continue;
@@ -313,11 +264,11 @@ async function buildMemorial(targetUrl) {
     return { ok: false, error: 'archive_unreachable' };
   }
 
-  const first = firstRes.capture;
-  const last = lastRes.capture;
-  if (!first || !last) {
-    return { ok: true, url: targetUrl, archived: false };
-  }
+  let first = firstRes.capture;
+  let last = lastRes.capture;
+  if (!first && !last) return { ok: true, url: targetUrl, archived: false };
+  if (!first || !last) return { ok: false, error: 'archive_inconsistent' };
+  if (first.timestamp > last.timestamp) [first,last] = [last,first];
 
   const firstYear = parseInt(first.timestamp.slice(0, 4), 10);
   const lastYear = parseInt(last.timestamp.slice(0, 4), 10);
@@ -336,7 +287,7 @@ async function buildMemorial(targetUrl) {
   try {
     // the "id_" modifier returns the raw captured bytes, no Wayback toolbar
     const rawUrl = `https://web.archive.org/web/${lastTimestamp}id_/${originalUrl}`;
-    const res = await fetchWithTimeout(rawUrl, {}, 15000);
+    const res = await fetchWithTimeout(rawUrl, {}, 8000);
     const ct = res.headers.get('content-type') || '';
     // A non-2xx here (429 from archive.org rate-limiting this specific
     // fetch, a stray 5xx, etc.) still often comes back as text/html — but
@@ -392,42 +343,74 @@ async function buildMemorial(targetUrl) {
   };
 }
 
+function normalizeUrl(value) {
+  if (typeof value !== 'string' || value.length > 2048) throw new Error('invalid_url');
+  let text=value.trim();
+  if (!/^[a-z][a-z0-9+.-]*:/i.test(text)) text='https://'+text;
+  const u=new URL(text);
+  if (!['http:','https:'].includes(u.protocol) || u.username || u.password || !u.hostname.includes('.') || u.hostname.endsWith('.local')) throw new Error('invalid_url');
+  u.hash=''; return u.href;
+}
+function unpack(row) { return {id:row.id,savedAt:row.saved_at,memorial:JSON.parse(row.snapshot)}; }
+async function offerSave(data, env) {
+  if (!env.RELIQUARY || !data.archived) return data;
+  try {
+    const existing=await env.RELIQUARY.prepare('SELECT * FROM relics WHERE url = ?').bind(data.url).first();
+    if (existing) return {...data,relicId:existing.id};
+    const token=crypto.randomUUID(),expires=Date.now()+86400000;
+    await env.RELIQUARY.batch([
+      env.RELIQUARY.prepare('DELETE FROM discoveries WHERE expires < ?').bind(Date.now()),
+      env.RELIQUARY.prepare('INSERT INTO discoveries(token,url,snapshot,expires) VALUES(?,?,?,?)').bind(token,data.url,JSON.stringify(data),expires)
+    ]);
+    return {...data,saveToken:token};
+  } catch { return {...data,saveUnavailable:true}; }
+}
+async function route(request,env,ctx) {
+  const url=new URL(request.url),path=url.pathname;
+  if (request.method==='OPTIONS') return new Response(null,{status:204,headers:{...corsHeaders(request),'Access-Control-Allow-Methods':'GET, POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type'}});
+  if (!['GET','POST'].includes(request.method)) return json(request,{ok:false,error:'method_not_allowed'},405);
+  if (path.startsWith('/api/reliquary')) {
+    if (!env.RELIQUARY) return json(request,{ok:false,error:'storage_unavailable'},503);
+    const db=env.RELIQUARY;
+    if (request.method==='POST' && path==='/api/reliquary') {
+      if (!corsHeaders(request)['Access-Control-Allow-Origin']) return json(request,{ok:false,error:'origin_not_allowed'},403);
+      if (!request.headers.get('Content-Type')?.startsWith('application/json')) return json(request,{ok:false,error:'invalid_request'},415);
+      const body=await request.text();
+      if (body.length>1024) return json(request,{ok:false,error:'invalid_request'},413);
+      let token;try{token=JSON.parse(body).token;}catch{return json(request,{ok:false,error:'invalid_request'},400);}
+      if (typeof token!=='string'||token.length>64) return json(request,{ok:false,error:'invalid_token'},400);
+      const discovery=await db.prepare('SELECT * FROM discoveries WHERE token=? AND expires>?').bind(token,Date.now()).first();
+      if (!discovery) return json(request,{ok:false,error:'discovery_expired'},410);
+      // Unique URL + INSERT OR IGNORE makes retries and concurrent saves idempotent.
+      await db.prepare('INSERT OR IGNORE INTO relics(url,snapshot) VALUES(?,?)').bind(discovery.url,discovery.snapshot).run();
+      const entry=await db.prepare('SELECT * FROM relics WHERE url=?').bind(discovery.url).first();
+      return json(request,{ok:true,entry:unpack(entry)},200,{'Cache-Control':'no-store'});
+    }
+    if (request.method!=='GET') return json(request,{ok:false,error:'method_not_allowed'},405);
+    if (path==='/api/reliquary') {
+      const before=Number(url.searchParams.get('before')||Number.MAX_SAFE_INTEGER);
+      if(!Number.isSafeInteger(before)||before<1)return json(request,{ok:false,error:'invalid_cursor'},400);
+      const {results}=await db.prepare('SELECT * FROM relics WHERE id<? ORDER BY id DESC LIMIT 21').bind(before).all();
+      const more=results.length>20,rows=results.slice(0,20);
+      return json(request,{ok:true,entries:rows.map(unpack),next:more?rows.at(-1).id:null},200,{'Cache-Control':'no-store'});
+    }
+    let row;
+    if(path==='/api/reliquary/random')row=await db.prepare('SELECT * FROM relics WHERE id!=? ORDER BY RANDOM() LIMIT 1').bind(Number(url.searchParams.get('exclude'))||0).first();
+    else if(/^\/api\/reliquary\/\d+$/.test(path))row=await db.prepare('SELECT * FROM relics WHERE id=?').bind(Number(path.split('/').pop())).first();
+    else return json(request,{ok:false,error:'not_found'},404);
+    return json(request,{ok:true,entry:row?unpack(row):null},row?200:404,{'Cache-Control':'no-store'});
+  }
+  if(path!=='/api/memorial')return json(request,{ok:false,error:'not_found'},404);
+  if(request.method!=='GET')return json(request,{ok:false,error:'method_not_allowed'},405);
+  let target;try{target=normalizeUrl(url.searchParams.get('url'));}catch{return json(request,{ok:false,error:'invalid_url'},400);}
+  const cache=caches.default,cacheKey=new Request(url.origin+'/api/memorial?v=2&url='+encodeURIComponent(target));
+  let data;try{const cached=await cache.match(cacheKey);if(cached)data=await cached.json();}catch{}
+  if(!data){
+    data=await buildMemorial(target);
+    if(data.ok)ctx.waitUntil(cache.put(cacheKey,new Response(JSON.stringify(data),{headers:{'Cache-Control':'public, max-age='+(data.archived?86400:300)}})).catch(()=>{}));
+  }
+  return json(request,await offerSave(data,env),data.ok?200:503,{'Cache-Control':'no-store'});
+}
 export default {
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-
-    if (url.pathname !== '/api/memorial') {
-      return new Response('not found', { status: 404, headers: corsHeaders(request) });
-    }
-
-    const target = (url.searchParams.get('url') || '').trim();
-    if (!target) return json(request, { ok: false, error: 'missing_url' }, 400);
-
-    const cache = caches.default;
-    const cacheKey = new Request(url.toString(), { method: 'GET' });
-    const cached = await cache.match(cacheKey);
-    if (cached) {
-      // cached response was stored without this request's CORS header —
-      // reattach it fresh rather than trusting a stale/absent one
-      const body = await cached.text();
-      return json(request, JSON.parse(body), 200);
-    }
-
-    let data;
-    try {
-      data = await buildMemorial(target);
-    } catch (err) {
-      data = { ok: false, error: 'server_error' };
-    }
-
-    // Only cache a real answer (archived or genuinely not-archived) — never
-    // a transient failure. archive.org being briefly unreachable shouldn't
-    // get baked in as this URL's answer for the next 24 hours.
-    if (data.ok) {
-      const response = json(request, data, 200, { 'Cache-Control': 'public, max-age=86400' });
-      ctx.waitUntil(cache.put(cacheKey, response.clone()));
-      return response;
-    }
-    return json(request, data, 200, { 'Cache-Control': 'no-store' });
-  },
+ async fetch(request,env,ctx){try{return await route(request,env,ctx);}catch{return json(request,{ok:false,error:'temporarily_unavailable'},503,{'Cache-Control':'no-store'});}}
 };
