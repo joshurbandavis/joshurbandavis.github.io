@@ -475,14 +475,25 @@ function runChain(b,mover,originR,originC,firstMove,decide){
 // ---- heuristic scoring ----
 // Progress = how close the front-most rings are to reaching the far edge, summed with
 // a heavy discount per row so it mostly reflects the single most-advanced ring on each
-// side (getting one ring home matters far more than nudging several).
+// side (getting one ring home matters far more than nudging several). A small whole-
+// board term is folded in too (every piece's distance-to-goal, lightly weighted) so the
+// AI has some sense of long-term position, not just the single row it can act on today.
 function progressScore(b, color){
   var row = frontRowFor(b, color);
-  if(row === -1) return 0;
-  var dist = color==='red' ? row : (SIZE-1-row); // rows still between this front row and the goal
-  var count = 0;
-  for(var c=0;c<SIZE;c++) if(b[row][c]) count++;
-  return (SIZE - dist) * 10 + count;
+  var front = 0;
+  if(row !== -1){
+    var dist = color==='red' ? row : (SIZE-1-row);
+    var count = 0;
+    for(var c=0;c<SIZE;c++) if(b[row][c]) count++;
+    front = (SIZE - dist) * 10 + count;
+  }
+  var reserve = 0;
+  for(var r=0;r<SIZE;r++) for(var c2=0;c2<SIZE;c2++){
+    if(!b[r][c2]) continue;
+    var d2 = color==='red' ? r : (SIZE-1-r);
+    reserve += (SIZE - d2);
+  }
+  return front + reserve * 0.3;
 }
 function evaluate(b, aiColor){
   var opp = opponent(aiColor);
@@ -500,74 +511,139 @@ function mulberry32(a){
   };
 }
 
-// Greedy decision function used both while simulating a candidate top-level move AND
-// while actually executing the AI's chosen move: bounce if the bounced ring has a
-// legal move that doesn't hand the opponent an immediate win, capped at a few links so
-// a long cascade can't run away; otherwise replace, picking whichever empty cell scores
-// best for the mover with a little noise, favoring the ring's own advance.
-function greedyDecide(b, mover, rng, chainDepth){
+// Decision function for resolving a single Bounce-or-Replace choice mid-chain. Unlike
+// the old version (which always preferred bouncing, picked uniformly at random among
+// "safe" options that a dead-code filter never actually excluded anything from), this
+// scores every real option and takes the best plus a little noise.
+//   Bounce: the encountered ring never moves (see runChain -- only the original
+//   mover keeps traveling), so there's nothing on the board to re-evaluate; the score
+//   is just how far toward the goal that destination row sits.
+//   Replace: this genuinely does relocate the encountered ring and settle the mover
+//   in its place, so it's scored by fully simulating that and running evaluate().
+// No deeper lookahead happens inside a single decide() call -- the negamax search in
+// searchBestMove below is what looks past the whole move.
+function greedyDecide(b, mover, rng, noise){
   return function(occ, r, c, bounceMoves){
-    if(chainDepth.n < 4 && bounceMoves.length){
-      var safe = bounceMoves.filter(function(m){
-        if(m.dest.goal) return true;
-        var sim = cloneBoard(b);
-        sim[r][c] = null;
-        if(sim[m.dest.r] && sim[m.dest.r][m.dest.c] === undefined) return true;
-        return true; // shallow: goal-reaching bounces are always taken; others assumed safe enough
-      });
-      if(safe.length){
-        chainDepth.n++;
-        var m = safe[Math.floor(rng()*safe.length)];
-        return { type:'bounce', move:m };
+    var options = [];
+    for(var i=0;i<bounceMoves.length;i++){
+      var m = bounceMoves[i];
+      var score;
+      if(m.dest.goal){
+        score = 1e6;
+      } else {
+        var d = mover==='red' ? m.dest.r : (SIZE-1-m.dest.r);
+        score = (SIZE - d) * 10;
       }
+      options.push({ type:'bounce', move:m, score:score });
     }
-    // replace: gather all empty cells, score by how far they push the displaced ring
-    // from the opponent's reach, pick the best with noise
-    var empties = [];
-    empties = replacementSquares(b,mover);
-    var best = null, bestScore = -Infinity;
-    for(var i=0;i<empties.length;i++){
-      var e = empties[i];
-      var s = (mover==='red' ? e.r : (SIZE-1-e.r)) + rng()*3;
-      if(s > bestScore){ bestScore = s; best = e; }
+    var empties = replacementSquares(b, mover);
+    for(var j=0;j<empties.length;j++){
+      var e = empties[j];
+      var sim = cloneBoard(b);
+      sim[r][c] = null; sim[e.r][e.c] = occ;
+      options.push({ type:'replace', to:e, score:evaluate(sim, mover) });
     }
-    return { type:'replace', to: best };
+    for(var k=0;k<options.length;k++) options[k].score += rng() * noise;
+    options.sort(function(a,bb){ return bb.score - a.score; });
+    var top = options[0];
+    return top.type==='bounce' ? { type:'bounce', move:top.move } : { type:'replace', to:top.to };
   };
 }
 
-onmessage = function(e){
-  var board = e.data.board, color = e.data.color, noiseSeed = e.data.seed || 1;
-  var rng = mulberry32(noiseSeed);
+function candidateMoves(board, color){
   var mv = computeMovable(board, color);
-  if(mv.pieces.length === 0){ postMessage({ pass:true, revision:e.data.revision }); return; }
-
-  var best = null, bestScore = -Infinity;
+  var out = [];
   for(var i=0;i<mv.pieces.length;i++){
     var piece = mv.pieces[i];
     var moves = legalMovesFor(board, piece.r, piece.c, color, new Set());
-    for(var j=0;j<moves.length;j++){
-      var move = moves[j];
-      var sim = cloneBoard(board);
-      var chainDepth = { n:0 };
-      var decisions = []; // record every choice made so the main thread can replay it exactly
-      var decide = (function(){
-        var inner = greedyDecide(sim, color, rng, chainDepth);
-        return function(occ, r, c, bounceMoves){
-          var d = inner(occ, r, c, bounceMoves);
-          decisions.push(d);
-          return d;
-        };
-      })();
-      var result = runChain(sim, color, piece.r, piece.c, move, decide);
-      var score = result.win ? 1e6 : evaluate(sim, color);
-      score += rng() * 4;
-      if(score > bestScore){
-        bestScore = score;
-        best = { from:{r:piece.r,c:piece.c}, moveId:move.id, decisions:decisions, win:result.win };
-      }
+    for(var j=0;j<moves.length;j++) out.push({ piece:piece, move:moves[j] });
+  }
+  return out;
+}
+
+// Simulates one full candidate move -- running its whole bounce/replace chain via
+// greedyDecide -- and returns the resulting board, whether it won outright, and every
+// decision made along the way (so the exact chain can be replayed on the live board).
+function simulateCandidate(board, color, cand, rng, noise){
+  var sim = cloneBoard(board);
+  var decisions = [];
+  var decide = (function(){
+    var inner = greedyDecide(sim, color, rng, noise);
+    return function(occ, r, c, bounceMoves){
+      var d = inner(occ, r, c, bounceMoves);
+      decisions.push(d);
+      return d;
+    };
+  })();
+  var result = runChain(sim, color, cand.piece.r, cand.piece.c, cand.move, decide);
+  return { board:sim, win:result.win, decisions:decisions };
+}
+
+// Negamax-style search: `depth` counts additional whole-move plies to look ahead
+// beyond the mover's own move (0 = old behavior, purely greedy; 1 = also considers the
+// opponent's best reply before committing, which is what actually catches "this move
+// hangs a win" -- the single biggest gap in the old AI). Returns a score from the
+// CURRENT mover's own perspective; callers negate it to fold an opponent reply into
+// their own candidate's score.
+//   Every legal candidate first gets a cheap depth-0 score (no opponent lookahead).
+// Only the top `maxDeep` of those, ranked by that quick score, get the expensive full
+// opponent-reply search -- a move that already looks mediocre before any lookahead
+// essentially never turns out to be the true best choice afterward, so this keeps
+// "hard" mode's real tactical strength while cutting typical think time roughly by the
+// fraction of candidates skipped. maxDeep is ignored once depth reaches 0 (the
+// recursive opponent-reply call), since there's nothing deeper left to search there.
+function searchBestMove(board, color, rng, depth, noise, maxDeep){
+  var candidates = candidateMoves(board, color);
+  if(candidates.length === 0) return { move:null, score: evaluate(board, color) };
+
+  var scored = [];
+  for(var i=0;i<candidates.length;i++){
+    var cand = candidates[i];
+    var sim = simulateCandidate(board, color, cand, rng, noise);
+    scored.push({ cand:cand, sim:sim, quick: sim.win ? 1e6 : evaluate(sim.board, color) });
+  }
+  scored.sort(function(a,b){ return b.quick - a.quick; });
+
+  var best = null, bestScore = -Infinity;
+  for(var k=0;k<scored.length;k++){
+    var entry = scored[k];
+    var score;
+    if(entry.sim.win){
+      score = 1e6;
+    } else if(depth > 0 && k < (maxDeep || scored.length)){
+      var oppSearch = searchBestMove(entry.sim.board, opponent(color), rng, depth - 1, noise, maxDeep);
+      score = -oppSearch.score;
+    } else {
+      score = entry.quick;
+    }
+    score += rng() * noise;
+    if(score > bestScore){
+      bestScore = score;
+      best = { from:{r:entry.cand.piece.r,c:entry.cand.piece.c}, moveId:entry.cand.move.id, decisions:entry.sim.decisions, win:entry.sim.win };
     }
   }
-  postMessage({ plan: best, revision:e.data.revision });
+  return { move:best, score:bestScore };
+}
+
+// easy stays purely greedy (no reply lookahead) with a lot of noise, so it still plays
+// somewhat sensibly but won't notice or avoid most traps; medium/hard both look one
+// whole move ahead (see searchBestMove) and differ in how many of their own candidates
+// get that expensive lookahead (maxDeep) and how much randomness is mixed into
+// otherwise-real scores.
+var DIFFICULTY_SETTINGS = {
+  easy:   { depth:0, noise:9,   maxDeep:0 },
+  medium: { depth:1, noise:3.5, maxDeep:6 },
+  hard:   { depth:1, noise:0.8, maxDeep:12 },
+};
+
+onmessage = function(e){
+  var board = e.data.board, color = e.data.color, noiseSeed = e.data.seed || 1;
+  var settings = DIFFICULTY_SETTINGS[e.data.difficulty] || DIFFICULTY_SETTINGS.medium;
+  var rng = mulberry32(noiseSeed);
+  var mv = computeMovable(board, color);
+  if(mv.pieces.length === 0){ postMessage({ pass:true, revision:e.data.revision }); return; }
+  var result = searchBestMove(board, color, rng, settings.depth, settings.noise, settings.maxDeep);
+  postMessage({ plan: result.move, revision:e.data.revision });
 };
 </script>
 
@@ -1205,7 +1281,7 @@ function maybeTriggerAI(){
   aiThinking = true;
   thinkingIndicator.classList.add('on');
   const serialBoard = board.map(row => row.map(p => p ? {height:p.height} : null));
-  gygesAIWorker.postMessage({ revision:gameRevision, board: serialBoard, color: currentPlayer, seed: Math.floor(Math.random()*1e9) + DIFFICULTY_NOISE[aiDifficulty] });
+  gygesAIWorker.postMessage({ revision:gameRevision, board: serialBoard, color: currentPlayer, difficulty: aiDifficulty, seed: Math.floor(Math.random()*1e9) + DIFFICULTY_NOISE[aiDifficulty] });
 }
 
 gygesAIWorker.onmessage = function(e){
