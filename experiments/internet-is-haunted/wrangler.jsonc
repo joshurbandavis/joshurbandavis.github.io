@@ -8,7 +8,8 @@
     {
       "binding": "RELIQUARY",
       "database_name": "internet-is-haunted-reliquary",
-      "migrations_dir": "migrations"
+      "migrations_dir": "migrations",
+      "database_id": "6c890853-4119-4744-8570-bfa3709cb245"
     }
   ]
 }
