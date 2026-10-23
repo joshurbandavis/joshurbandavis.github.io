@@ -557,12 +557,39 @@ main{
       </div>
     </a>
 
-    <a class="ring" data-cls="worn" data-img="_shared/snapshots/worn.jpg" href="worn/index.html" target="_blank" rel="noopener" style="--i:19">
+    <a class="ring" data-cls="gyges-sequencer" data-img="_shared/snapshots/gyges-sequencer.jpg" href="gyges-sequencer/index.html" target="_blank" rel="noopener" style="--i:19">
+      <div class="ring-shape" style="--jr:1; --jb:1.2; --wobble:50% 51% 49% 50% / 49% 50% 51% 48%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 19</span>
+        <div class="ring-text"><span class="ring-title">gyges sequencer</span><span class="ring-phrase">No ring belongs to you until you make it sing.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="worn" data-img="_shared/snapshots/worn.jpg" href="worn/index.html" target="_blank" rel="noopener" style="--i:20">
       <div class="ring-shape" style="--jr:1; --jb:1.5; --wobble:50% 51% 49% 50% / 49% 50% 51% 48%"></div>
       <div class="ring-label">
         <div class="ring-plate"></div>
-        <span class="ring-num">ring 19 &middot; bark</span>
+        <span class="ring-num">ring 20</span>
         <div class="ring-text"><span class="ring-title">worn</span><span class="ring-phrase">Your movements, a stranger's face.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="night-air" data-img="_shared/snapshots/night-air.jpg" href="../night-air/index.html" target="_blank" rel="noopener" style="--i:21">
+      <div class="ring-shape" style="--jr:1; --jb:1.2; --wobble:50% 51% 49% 50% / 49% 50% 51% 48%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 21</span>
+        <div class="ring-text"><span class="ring-title">the night air</span><span class="ring-phrase">Your words join a poem that never stops being written.</span></div>
+      </div>
+    </a>
+
+    <a class="ring" data-cls="other-side" data-img="_shared/snapshots/other-side.svg" href="other-side/index.html" target="_blank" rel="noopener" style="--i:22">
+      <div class="ring-shape" style="--jr:1; --jb:1.2; --wobble:50% 51% 49% 50% / 49% 50% 51% 48%"></div>
+      <div class="ring-label">
+        <div class="ring-plate"></div>
+        <span class="ring-num">ring 22 &middot; bark</span>
+        <div class="ring-text"><span class="ring-title">the other side</span><span class="ring-phrase">Your body enters. Something else looks back.</span></div>
       </div>
     </a>
 
@@ -583,7 +610,7 @@ main{
 </div>
 
 <div class="depth-rail" aria-hidden="true">
-  <span class="depth-count" id="depthCount">01 / 19</span>
+  <span class="depth-count" id="depthCount">01 / 22</span>
   <div class="depth-track"><div class="depth-fill" id="depthFill"></div></div>
 </div>
 
@@ -657,7 +684,7 @@ const SWEET_SPOT = 0.14; // fraction of ringGap "past" the lens, where a ring re
 const scrollCue = document.getElementById('scrollCue');
 const depthCount = document.getElementById('depthCount');
 const depthFill = document.getElementById('depthFill');
-const TOTAL_RINGS = 19;
+const TOTAL_RINGS = rings.length - 1;
 
 const update = () => {
   const y = cachedScrollY;
@@ -736,6 +763,7 @@ const recomputeGap = () => {
   const perspectivePx = ringGap * 4.5;
   document.documentElement.style.setProperty('--tunnel-perspective', perspectivePx + 'px');
 
+  document.body.style.height = ((rings.length - 1) * SCROLL_PER_RING + window.innerHeight + SCROLL_PER_RING) + 'px';
   update();
 };
 

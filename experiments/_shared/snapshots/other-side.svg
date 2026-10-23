@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+<defs>
+ <radialGradient id="room"><stop stop-color="#2d3828"/><stop offset="1" stop-color="#090d0b"/></radialGradient>
+ <radialGradient id="glass"><stop stop-color="#374c3b"/><stop offset="1" stop-color="#101b16"/></radialGradient>
+ <linearGradient id="brass"><stop stop-color="#4b4028"/><stop offset=".35" stop-color="#ae9255"/><stop offset=".6" stop-color="#3f3928"/><stop offset="1" stop-color="#99814d"/></linearGradient>
+ <clipPath id="arch"><path d="M380 750V340a220 220 0 0 1 440 0v410z"/></clipPath>
+ <g id="figure"><ellipse cx="0" cy="-154" rx="33" ry="45"/><path d="M-20-110Q-65-111-64-27L-50 96H50L64-27Q65-111 20-110Z"/><path d="M-47-86-91-8-110 85M47-86 91-32 115-104" fill="none" stroke="currentColor" stroke-width="29" stroke-linecap="round"/><path d="M-28 90-41 248M28 90 48 248" stroke="currentColor" stroke-width="40" stroke-linecap="round"/></g>
+</defs>
+<rect width="1200" height="900" fill="url(#room)"/>
+<g opacity=".18" fill="#b6b590"><circle cx="176" cy="140" r="1.5"/><circle cx="990" cy="214" r="2"/><circle cx="310" cy="620" r="1"/><circle cx="901" cy="741" r="1.5"/></g>
+<path d="M360 770V340a240 240 0 0 1 480 0v430z" fill="#10130e" stroke="url(#brass)" stroke-width="15"/>
+<path d="M370 760V340a230 230 0 0 1 460 0v420z" fill="none" stroke="#a78a4c" stroke-width="2" stroke-dasharray="2 7"/>
+<path d="M380 750V340a220 220 0 0 1 440 0v410z" fill="url(#glass)" stroke="#a78b51" stroke-width="2"/>
+<g clip-path="url(#arch)">
+ <g fill="#a9b894" color="#a9b894" opacity=".24" transform="translate(583 493) rotate(-12)"><use href="#figure"/></g>
+ <g fill="#a9b894" color="#a9b894" opacity=".4" transform="translate(602 480)"><use href="#figure"/></g>
+ <g stroke="#e3c78b" fill="none" opacity=".6"><rect x="425" y="270" width="350" height="410"/><circle cx="600" cy="366" r="86"/><path d="m600 298 15 46 49-2-39 29 17 46-42-28-42 28 17-46-39-29 49 2z"/><path d="M600 267v-28m-94 58-20-20m-6 89h-27m53 67-20 20m208-156 20-20m6 89h27m-53 67 20 20"/></g>
+ <g fill="#c6ba8c" opacity=".75"><path d="m744 431 14-10-3 15 9 14-19-8-14 9 5-16-5-8z"/><path d="m708 316 9-6-2 10 6 9-12-5-9 6 3-11-3-5z"/><path d="m475 507 11-8-2 13 7 10-15-6-11 7 4-13-4-7z"/></g>
+</g>
+<g fill="none" stroke="#a88f57"><ellipse cx="600" cy="66" rx="25" ry="12"/><circle cx="600" cy="66" r="6"/><path d="m560 66-30 16m110-16 30 16"/></g>
+<g text-anchor="middle" fill="#c9b580" font-family="Georgia,serif"><text x="600" y="216" font-size="10" letter-spacing="5">SPECULUM · ALTERUM</text><text x="600" y="299" font-size="15">XVII</text><text x="600" y="662" font-size="16" letter-spacing="3">THE STAR</text><text x="600" y="815" font-size="32">The other side.</text><text x="600" y="845" font-size="10" letter-spacing="3">THREE APPARITIONS · A LIVE DIVINING MIRROR</text></g>
+</svg>

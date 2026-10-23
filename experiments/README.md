@@ -3,6 +3,15 @@
 Prototypes for small net art pieces — fictional infrastructure, digital archaeology,
 behavioral art. Each lives in its own folder as a self-contained page.
 
+Browse the full collection through the [staircase](index.html),
+[grid](grid.html), or [Tunnel Eyes](tree-rings.html).
+
+- [The Other Side](other-side/index.html) — a webcam divining mirror in three
+  switchable apparitions: a delayed shadow dissolving into moths, a body-shaped
+  tarot reading, and silhouettes fusing into a branching creature. Each unfolds
+  automatically. Includes animated stand-ins, reduced motion, and local camera
+  processing with no recording or uploads. See [its notes](other-side/README.md).
+
 - `please-wait/` — a fake Windows 95 "System" dialog that never finishes
   loading: the progress bar approaches 100% but is asymptotic and never
   arrives, and "Time remaining: calculating…" never resolves. The only
