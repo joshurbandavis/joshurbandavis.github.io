@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b0c0b">
+<meta name="description" content="An experimental divining mirror. Your body enters; something else looks back. Three live webcam apparitions by Josh Urban Davis.">
+<title>The Other Side · Josh Urban Davis</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><a href="../index.html" class="back">JUD <span>/ EXPERIMENTS</span></a><span class="edition">STUDY IN THREE APPARITIONS <i>001</i></span></header>
+<main>
+<section class="introduction">
+<p class="eyebrow">AN EXPERIMENT IN DIVINATION</p>
+<h1>The<br>other<br><em>side.</em></h1>
+<div class="hairline"></div>
+<p class="premise">A mirror that remembers<br>something you haven’t become.</p>
+<p class="instructions" id="instructions">Stand before it. Wait a little.<br>Your reflection has other intentions.</p>
+<p class="ornament">☽ &nbsp; ✧ &nbsp; ☾</p>
+</section>
+<section class="mirror-area" aria-label="Interactive divining mirror">
+<div class="crest" aria-hidden="true"><span>✧</span><span class="crest-eye">◉</span><span>✧</span></div>
+<div class="mirror" id="mirror">
+<div class="beading" aria-hidden="true"></div>
+<div class="glass"><canvas id="scene" width="720" height="960" aria-label="An animated silhouette transforming inside an occult mirror"></canvas><div class="glass-vignette"></div><span class="glass-top" id="glassTop">SPECULUM · ALTERUM</span><div class="threshold" id="threshold"><span class="threshold-symbol">☉</span><p>Something is waiting<br>on the other side.</p><button id="start" class="primary">Enter the mirror <span>↗</span></button><button class="text-button" id="preview">Or summon a preview</button><small>Camera stays on your device.<br>Nothing is recorded or uploaded.</small></div><div class="live-label" id="liveLabel" hidden><span></span><b id="sourceLabel">LIVE APPARITION</b></div></div>
+<span class="corner left" aria-hidden="true">❧</span><span class="corner right" aria-hidden="true">❧</span>
+<div class="frame-bottom" aria-hidden="true">✦ &nbsp; AS ABOVE, SO BELOW &nbsp; ✦</div>
+</div>
+<div class="mirror-caption"><span id="phase">THE GLASS IS SLEEPING</span><span class="phase-line"><i id="progress"></i></span><span id="cycleLabel">∞</span></div>
+<p class="status" id="status" role="status" aria-live="polite">A webcam ritual. Best in a dim room, with space to move.</p>
+</section>
+<aside class="controls">
+<p class="eyebrow">CHOOSE AN APPARITION</p>
+<div class="modes" role="group" aria-label="Mirror apparition">
+<button class="mode active" data-mode="double" aria-pressed="true"><span class="numeral">I</span><span><b>The Double</b><small>Your shadow forgets its place.</small></span><span class="mode-mark">↗</span></button>
+<button class="mode" data-mode="oracle" aria-pressed="false"><span class="numeral">II</span><span><b>The Oracle</b><small>The body becomes a reading.</small></span><span class="mode-mark">↗</span></button>
+<button class="mode" data-mode="union" aria-pressed="false"><span class="numeral">III</span><span><b>The Union</b><small>Two presences. One other thing.</small></span><span class="mode-mark">↗</span></button>
+</div>
+<div class="mode-note"><span id="modeGlyph">☽</span><p id="modeNote">At first, it follows. Then it hesitates. Then it remembers how to fly.</p></div>
+<div class="session-tools" id="sessionTools" hidden><button id="restart">↺ Begin again</button><button id="cameraToggle">Use camera</button><button id="fullscreen">⛶ Full screen</button></div>
+<details><summary>A note on the glass <span>+</span></summary><p>This is a virtual study for a sculptural mirror: blackened metal, aged brass, and a reflection with a will of its own.</p><p>The transformations happen automatically. Try moving slowly, lifting a hand, or inviting someone to join you.</p><p>Camera silhouettes are estimated locally using MediaPipe. The Union warps the combined silhouette; it does not identify or count individual visitors. Preview mode uses animated stand-ins.</p><p>The vision library and model load from jsDelivr and Google. No camera images leave this page.</p></details>
+</aside>
+</main>
+<footer><span>JOSH URBAN DAVIS</span><span>NOT A REFLECTION. A POSSIBILITY.</span><button id="reduceMotion" aria-pressed="false">Soften motion</button></footer>
+<video id="camera" autoplay muted playsinline hidden></video>
+<script type="module" src="mirror.js"></script>
+</body></html>
