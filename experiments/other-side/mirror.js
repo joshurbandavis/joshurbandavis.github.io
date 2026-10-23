@@ -169,8 +169,8 @@ function person(g, x, y, s, t, offset) {
 }
 function previewMask(t) {
   mask.ctx.clearRect(0, 0, 180, 240);
-  if (mode === 'union') { person(mask.ctx, 57, 135, .86, t, 0); person(mask.ctx, 124, 135, .82, t, 2.7); }
-  else person(mask.ctx, 90 + Math.sin(t * .2) * 9, 133, 1.12, t, 0);
+  if (mode === 'union') { person(mask.ctx, 67, 139, .7, t, 0); person(mask.ctx, 113, 139, .7, t, 2.7); }
+  else person(mask.ctx, 90 + Math.sin(t * .2) * 5, 133, .98, t, 0);
   analyzeMask(); remember();
 }
 function silhouette(image, color, opacity = 1, x = 0, y = 0, scale = 1, angle = 0) {

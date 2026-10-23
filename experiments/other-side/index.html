@@ -6,9 +6,10 @@
 <meta name="description" content="An experimental divining mirror. Your body enters; something else looks back. Three live webcam apparitions by Josh Urban Davis.">
 <title>The Other Side · Josh Urban Davis</title>
 <link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="playa.css">
+<link rel="stylesheet" href="playa.css?v=3">
 </head>
 <body>
+<svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs><clipPath id="gilt-aperture" clipPathUnits="objectBoundingBox"><path d="M0 .21C0 .088 .215 0 .5 0S1 .088 1 .21V.94C1 .995 .84 1.015 .72 .995L.585 .978Q.5 .962 .415 .978L.28 .995C.16 1.015 0 .995 0 .94Z"/></clipPath></defs></svg>
 <div class="desert-scenery" aria-hidden="true"><div class="mountains"></div><div class="playa-ground"></div><div class="scale-visitor"></div></div>
 <header><a href="../index.html" class="back">JUD <span>/ EXPERIMENTS</span></a><span class="edition">SPELLBOUND · A PLAYA MIRROR <i>2027</i></span><button id="playaView" aria-pressed="false">On the playa ↗</button></header>
 <main>
@@ -24,7 +25,7 @@
 <div class="crest" aria-hidden="true"><span>✧</span><span class="crest-eye">◉</span><span>✧</span></div>
 <div class="mirror" id="mirror">
 <div class="beading" aria-hidden="true"></div>
-<img class="sculpted-frame" src="frame.svg" alt="" aria-hidden="true">
+<img class="sculpted-frame" src="frame.svg?v=3" alt="" aria-hidden="true">
 <div class="glass"><canvas id="scene" width="720" height="960" aria-label="An animated silhouette transforming inside an occult mirror"></canvas><div class="glass-vignette"></div><span class="glass-top" id="glassTop">SPECULUM · ALTERUM</span><div class="threshold" id="threshold"><span class="threshold-symbol">☉</span><p>Something is waiting<br>on the other side.</p><button id="start" class="primary">Enter the mirror <span>↗</span></button><button class="text-button" id="preview">Or summon a preview</button><small>Camera stays on your device.<br>Nothing is recorded or uploaded.</small></div><div class="live-label" id="liveLabel" hidden><span></span><b id="sourceLabel">LIVE APPARITION</b></div></div>
 <span class="corner left" aria-hidden="true">❧</span><span class="corner right" aria-hidden="true">❧</span>
 <div class="frame-bottom" aria-hidden="true">✦ &nbsp; AS ABOVE, SO BELOW &nbsp; ✦</div>
@@ -42,10 +43,10 @@
 <div class="mode-note"><span id="modeGlyph">☽</span><p id="modeNote">At first, it follows. Then it hesitates. Then it remembers how to fly.</p></div>
 <p class="ritual-note">The spell begins with recognition.<br>Then the familiar becomes impossible.</p>
 <div class="session-tools" id="sessionTools" hidden><button id="restart">↺ Begin again</button><button id="cameraToggle">Use camera</button><button id="fullscreen">⛶ Full screen</button></div>
-<details><summary>A note on the glass <span>+</span></summary><p>A study for a monumental mirror on the open playa: blackened metal, weathered brass, crescent crown, cast moths, and a reflection with a will of its own. The desert view is a visual scale study, not a construction plan.</p><p>The transformations happen automatically. Try moving slowly, holding still, lifting a hand, or inviting someone to join you. Stillness makes the celestial reading brighter.</p><p>For the physical sculpture, the central illusion is a recognizable human presence that quietly becomes impossible. The broad silhouettes, luminous moths, and shared heart are meant to read across a dark open space; the fine linework rewards coming closer.</p><p>Camera silhouettes are estimated locally using MediaPipe. The Union warps the combined silhouette; it does not identify or count individual visitors. Preview mode uses animated stand-ins. This browser study does not simulate projection brightness, daylight optics, wind, or dust protection.</p><p>The vision library and model load from jsDelivr and Google. No camera images leave this page.</p><p><a href="https://journal.burningman.org/2026/09/news/official-announcements/burning-man-2027-spellbound/" target="_blank" rel="noopener">Spellbound · the official 2027 theme ↗</a></p></details>
+<details><summary>A note on the glass <span>+</span></summary><p>A study for a monumental mirror on the open playa: a tall antique gilt frame, shell crest, carved acanthus, scalloped lower edge, and a reflection with a will of its own. The desert view is a visual scale study, not a construction plan.</p><p>The transformations happen automatically. Try moving slowly, holding still, lifting a hand, or inviting someone to join you. Stillness makes the celestial reading brighter.</p><p>For the physical sculpture, the central illusion is a recognizable human presence that quietly becomes impossible. The broad silhouettes, luminous moths, and shared heart are meant to read across a dark open space; the fine linework rewards coming closer.</p><p>Camera silhouettes are estimated locally using MediaPipe. The Union warps the combined silhouette; it does not identify or count individual visitors. Preview mode uses animated stand-ins. This browser study does not simulate projection brightness, daylight optics, wind, or dust protection.</p><p>The vision library and model load from jsDelivr and Google. No camera images leave this page.</p><p><a href="https://journal.burningman.org/2026/09/news/official-announcements/burning-man-2027-spellbound/" target="_blank" rel="noopener">Spellbound · the official 2027 theme ↗</a></p></details>
 </aside>
 </main>
 <footer><span>JOSH URBAN DAVIS</span><span>NOT A REFLECTION. A POSSIBILITY.</span><button id="reduceMotion" aria-pressed="false">Soften motion</button></footer>
 <video id="camera" autoplay muted playsinline hidden></video>
-<script type="module" src="mirror.js?v=2"></script>
+<script type="module" src="mirror.js?v=3"></script>
 </body></html>

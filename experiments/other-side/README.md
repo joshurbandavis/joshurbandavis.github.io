@@ -8,8 +8,16 @@ enchantment: https://journal.burningman.org/2026/09/news/official-announcements/
 
 ## Playa revision
 
-- A separate vector surround adds layered brass moldings, acanthus scrolls,
-  cast moths, rosettes, a crescent-and-eye crown, and curled sculptural feet.
+The current frame follows the user's tall antique gilt mirror reference:
+an arched opening, rounded gold moldings, shell crest, carved acanthus at
+the shoulders and lower corners, and a scalloped lower rail. It replaces
+the earlier crescent/eye/moth surround with an original SVG drawing; the
+reference photograph, watermark, and checkerboard are not used as assets.
+The glass uses a matching vector clip and a centered cover crop so the
+narrower aperture preserves the animation's proportions. Visitors may need
+to stand farther back to fit two full bodies within the narrow glass.
+
+- A separate vector surround adds layered gold moldings and carved foliage.
   `frame.svg` is transparent across the aperture, so the decoration never
   becomes part of the camera image.
 - **On the playa** switches to a desert night scale study with mountain
