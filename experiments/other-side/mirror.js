@@ -7,12 +7,13 @@ function surface(w = W, h = H) {
   return { canvas: c, ctx: c.getContext('2d', { willReadFrequently: true }) };
 }
 const mask = surface(180, 240), raw = surface(256, 256), paint = surface(), symbols = surface();
+const lastPresence = surface(180, 240);
 const history = Array.from({ length: 28 }, () => surface(180, 240));
 const video = $('camera');
 const modes = {
   double: { glyph: '☽', note: 'At first, it follows. Then it hesitates. Then it remembers how to fly.', instruction: 'Stand before it. Wait a little.\nYour reflection has other intentions.', phases: ['IT KNOWS YOUR SHAPE', 'SOMETHING FALLS BEHIND', 'THE SHADOW HAS A WILL', 'WHAT REMAINS TAKES FLIGHT'] },
-  oracle: { glyph: '✧', note: 'Your movement turns the card. Your stillness lets the image come through.', instruction: 'Let your body ask a question.\nMove slowly. Let the glass answer.', phases: ['THE BODY ASKS', 'A SIGN TAKES SHAPE', 'THE IMAGE FINDS YOU', 'THE READING UNFOLDS'] },
-  union: { glyph: '☿', note: 'Stand side by side. The space between you becomes something neither of you is.', instruction: 'Invite another presence.\nLet the space between you disappear.', phases: ['TWO SIDES OF THE GLASS', 'THE DISTANCE SOFTENS', 'THE BOUNDARY DISSOLVES', 'ONE IMPOSSIBLE CREATURE'] }
+  oracle: { glyph: '✧', note: 'Hold still. The body becomes a constellation; something older begins to look through it.', instruction: 'Let your body ask a question.\nBe still. Let the stars answer.', phases: ['THE BODY ASKS', 'A SIGN TAKES SHAPE', 'THE STARS FIND YOU', 'THE BODY BECOMES AN OMEN'] },
+  union: { glyph: '☿', note: 'Stand side by side. Two shadows grow one heart, and something neither of you could become alone.', instruction: 'Invite another presence.\nLet the space between you disappear.', phases: ['TWO SIDES OF THE GLASS', 'A THREAD BETWEEN YOU', 'THE BOUNDARY DISSOLVES', 'ONE HEART · ANOTHER BODY'] }
 };
 let mode = 'double', source = 'idle', segmenter, loading = false, stream;
 let elapsed = 0, lastNow = 0, lastInference = -1, lastVideoTime = -1;
@@ -20,6 +21,7 @@ let writeIndex = 0, historyCount = 0, frameCount = 0;
 let alpha = new Uint8ClampedArray(180 * 240), center = { x: .5, y: .55 }, movement = 0, presence = 0;
 let softened = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let cardIndex = 0, readingLocked = false;
+let stillness = 0, absence = 0, bodyTop = .25;
 const cycleSeconds = 34;
 const random = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
 const clamp = (v, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, v));
@@ -30,6 +32,7 @@ const stars = Array.from({ length: 100 }, (_, i) => ({ x: random(i + 80) * W, y:
 function reset() {
   elapsed = 0; historyCount = 0; writeIndex = 0; readingLocked = false;
   particles.forEach(p => p.valid = false);
+  $('glassTop').textContent = 'SPECULUM · ALTERUM';
 }
 function setMode(value) {
   mode = value; reset();
@@ -68,6 +71,11 @@ $('fullscreen').addEventListener('click', async () => {
 function motionButton() { $('reduceMotion').setAttribute('aria-pressed', String(softened)); $('reduceMotion').textContent = softened ? 'Restore motion' : 'Soften motion'; }
 motionButton();
 $('reduceMotion').addEventListener('click', () => { softened = !softened; motionButton(); });
+$('playaView').addEventListener('click', () => {
+  const on = document.body.classList.toggle('playa-view');
+  $('playaView').setAttribute('aria-pressed', String(on));
+  $('playaView').textContent = on ? 'Return to the study ↙' : 'On the playa ↗';
+});
 
 async function prepareVision() {
   if (segmenter) return;
@@ -132,18 +140,20 @@ function capture(now) {
 }
 function analyzeMask() {
   const pixels = mask.ctx.getImageData(0, 0, 180, 240).data;
-  let sum = 0, sx = 0, sy = 0, change = 0;
+  let sum = 0, sx = 0, sy = 0, change = 0, top = 240;
   for (let i = 0; i < alpha.length; i++) {
     const a = pixels[i * 4 + 3]; change += Math.abs(a - alpha[i]); alpha[i] = a;
-    if (a > 120) { sum++; sx += i % 180; sy += Math.floor(i / 180); }
+    if (a > 120) { sum++; sx += i % 180; sy += Math.floor(i / 180); top = Math.min(top, Math.floor(i / 180)); }
   }
   presence = sum / alpha.length;
   if (sum > 80) { center.x += (sx / sum / 180 - center.x) * .2; center.y += (sy / sum / 240 - center.y) * .2; }
   movement += (change / alpha.length / 255 - movement) * .12;
+  if (sum > 80) bodyTop += (top / 240 - bodyTop) * .15;
 }
 function remember() {
   const h = history[writeIndex]; h.ctx.clearRect(0, 0, 180, 240); h.ctx.drawImage(mask.canvas, 0, 0);
   writeIndex = (writeIndex + 1) % history.length; historyCount = Math.min(historyCount + 1, history.length);
+  if (presence > .04 && movement < .025) { lastPresence.ctx.clearRect(0, 0, 180, 240); lastPresence.ctx.drawImage(mask.canvas, 0, 0); }
 }
 function person(g, x, y, s, t, offset) {
   g.save(); g.translate(x, y); g.scale(s, s);
@@ -172,9 +182,9 @@ function silhouette(image, color, opacity = 1, x = 0, y = 0, scale = 1, angle = 
   ctx.save(); ctx.globalAlpha = opacity; ctx.drawImage(paint.canvas, 0, 0); ctx.restore();
 }
 function background(t) {
-  ctx.fillStyle = '#101915'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#080e0d'; ctx.fillRect(0, 0, W, H);
   const glow = ctx.createRadialGradient(W * .5, H * .43, 0, W * .5, H * .5, H * .65);
-  glow.addColorStop(0, '#344536'); glow.addColorStop(.5, '#1b2a22'); glow.addColorStop(1, '#080e0c');
+  glow.addColorStop(0, '#29382c'); glow.addColorStop(.5, '#12211c'); glow.addColorStop(1, '#050b0b');
   ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
   ctx.save();
   stars.forEach((s, i) => { ctx.globalAlpha = .12 + .13 * Math.sin(t * .23 + i); ctx.fillStyle = '#d8d6a7'; ctx.beginPath(); ctx.arc(s.x, (s.y - t * (softened ? .4 : 2) + H * 10) % H, s.r, 0, TAU); ctx.fill(); });
@@ -183,6 +193,10 @@ function background(t) {
     ctx.beginPath(); ctx.moveTo(-40, 280 + i * 155);
     ctx.bezierCurveTo(180, 210 + i * 155 + Math.sin(t * .18 + i) * 45, 420, 390 + i * 110, 770, 210 + i * 160); ctx.stroke();
   }
+  // A low horizon and drifting dust place the apparition in an impossible desert.
+  ctx.globalAlpha = .16; ctx.strokeStyle = '#b59b65'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, H * .83);
+  ctx.bezierCurveTo(W * .25, H * .81, W * .65, H * .85, W, H * .825); ctx.stroke();
   ctx.restore();
 }
 function moth(x, y, size, t, opacity, seed) {
@@ -199,13 +213,15 @@ function seedParticle(p) {
   }
 }
 function doubleEffect(t, p) {
-  const drift = smooth(.12, .52, p), dissolve = smooth(.57, .91, p);
+  const returnToBody = smooth(.9, 1, p);
+  const drift = smooth(.12, .52, p) * (1 - returnToBody), dissolve = smooth(.57, .86, p) * (1 - returnToBody);
   const delayed = history[(writeIndex - 1 - Math.floor(drift * Math.min(23, historyCount - 1)) + history.length * 2) % history.length].canvas;
   silhouette(mask.canvas, '#96a58a', .48 * (1 - drift * .6) * (1 - dissolve));
   const motion = softened ? .25 : 1;
   silhouette(delayed, '#aab596', .52 * drift * (1 - dissolve), Math.sin(t * .7) * 53 * drift * motion, Math.cos(t * .8) * 16 * drift * motion, 1, Math.sin(t * .45) * .09 * drift * motion);
   // A second, independently moving imprint creates extra limbs before release.
   silhouette(delayed, '#70806a', .3 * drift * (1 - dissolve), -Math.sin(t * .5 + 2) * 80 * drift * motion, 0, 1.02, -Math.sin(t * .45) * .14 * drift * motion);
+  if (absence > .1 && absence < 7) silhouette(lastPresence.canvas, '#beaa76', .35 * (1 - smooth(2, 7, absence)), Math.sin(t * .4) * 12 * motion);
   if (dissolve > 0) {
     particles.forEach((s, i) => {
       if (!s.valid) seedParticle(s); if (!s.valid) return;
@@ -213,7 +229,8 @@ function doubleEffect(t, p) {
       const spread = departure * (softened ? .35 : 1);
       const x = s.x * W + Math.sin(t * .8 + i * 2) * spread * (60 + random(i + 7) * 190);
       const y = s.y * H - departure * (150 + random(i + 14) * 600);
-      moth(x, y, 2 + random(i + 10) * 3, t, Math.sin(departure * Math.PI * .82) * .9, i);
+      const big = i % 7 === 0;
+      moth(x, y, big ? 7 + random(i + 10) * 9 : 2 + random(i + 10) * 3, t, Math.sin(departure * Math.PI * .82) * .9, i);
     });
   }
 }
@@ -226,8 +243,11 @@ function star(g, x, y, r, points = 8) {
   g.beginPath(); for (let i = 0; i < points * 2; i++) { const a = i * Math.PI / points - Math.PI / 2, s = i % 2 ? r * .28 : r; const px = x + Math.cos(a) * s, py = y + Math.sin(a) * s; if (i === 0) g.moveTo(px, py); else g.lineTo(px, py); } g.closePath(); g.stroke();
 }
 function tarotArt(g, card, t) {
-  g.clearRect(0, 0, W, H); g.fillStyle = '#b7a977'; g.fillRect(0, 0, W, H);
-  g.strokeStyle = '#323f30'; g.lineWidth = 1.5;
+  g.clearRect(0, 0, W, H);
+  const ink = g.createLinearGradient(0, 0, W, H);
+  ink.addColorStop(0, '#53614a'); ink.addColorStop(.45, '#263a30'); ink.addColorStop(.7, '#9f8b56'); ink.addColorStop(1, '#263a30');
+  g.fillStyle = ink; g.fillRect(0, 0, W, H);
+  g.strokeStyle = '#cfb778'; g.lineWidth = 2;
   const cx = W * (.5 + (center.x - .5) * .2), cy = H * .37;
   for (let i = 0; i < 38; i++) { const a = i / 38 * TAU + t * .015; g.beginPath(); g.moveTo(cx + Math.cos(a) * 108, cy + Math.sin(a) * 108); g.lineTo(cx + Math.cos(a) * 460, cy + Math.sin(a) * 460); g.stroke(); }
   g.beginPath(); g.arc(cx, cy, 102, 0, TAU); g.stroke();
@@ -235,29 +255,48 @@ function tarotArt(g, card, t) {
   else if (card === 1) { g.lineWidth = 3; star(g, cx, cy, 86); for (let i = 0; i < 7; i++) star(g, cx + Math.cos(i / 7 * TAU) * 170, cy + Math.sin(i / 7 * TAU) * 170, 15); }
   else { g.save(); g.translate(cx, cy); g.scale(2.2, 1); g.beginPath(); g.moveTo(0, 0); g.bezierCurveTo(-70, -65, -70, 65, 0, 0); g.bezierCurveTo(70, -65, 70, 65, 0, 0); g.stroke(); g.restore(); }
   for (let j = 0; j < 16; j++) { const y = 540 + j * 24; g.beginPath(); for (let x = 0; x <= W; x += 10) { const yy = y + Math.sin(x * .015 + j + t * .1) * 13; if (x === 0) g.moveTo(x, yy); else g.lineTo(x, yy); } g.stroke(); }
-  g.fillStyle = '#25382b'; g.font = '27px Georgia'; g.textAlign = 'center';
+  g.fillStyle = '#cbb780'; g.font = '27px Georgia'; g.textAlign = 'center';
   for (let i = 0; i < 20; i++) g.fillText(['✧', '☽', '☿', '✦'][i % 4], random(i + 90) * W, random(i + 43) * H);
 }
 function oracleEffect(t, p) {
-  const reveal = smooth(.12, .65, p);
+  const reveal = smooth(.12, .65, p) * (1 - smooth(.94, 1, p));
   if (!readingLocked && p > .32) { cardIndex = Math.floor(clamp(center.x + movement * 2, 0, .999) * 3); readingLocked = true; }
   const card = cards[cardIndex];
   silhouette(mask.canvas, '#82977d', .5 * (1 - reveal));
   const g = symbols.ctx; tarotArt(g, cardIndex, t);
   g.globalCompositeOperation = 'destination-in'; g.drawImage(mask.canvas, 0, 0, W, H); g.globalCompositeOperation = 'source-over';
   ctx.save(); ctx.globalAlpha = reveal * .95; ctx.drawImage(symbols.canvas, 0, 0); ctx.restore();
-  ctx.save(); ctx.globalAlpha = reveal * .7; ctx.strokeStyle = '#b7a371'; ctx.lineWidth = 1;
-  ctx.strokeRect(110, 185, 500, 655); ctx.strokeRect(118, 193, 484, 639);
-  ctx.beginPath(); ctx.arc(W / 2, 355, 127, 0, TAU); ctx.stroke();
-  ctx.textAlign = 'center'; ctx.fillStyle = '#d1c08f'; ctx.font = '22px Georgia'; ctx.fillText(card.number, W / 2, 235);
-  ctx.font = '25px Georgia'; ctx.fillText(card.title, W / 2, 795);
-  ctx.font = 'italic 20px Georgia'; ctx.fillText(card.phrase, W / 2, 878);
+  const haloX = W * center.x, haloY = Math.max(240, Math.min(450, H * bodyTop + 90));
+  ctx.save(); ctx.globalAlpha = reveal * (.35 + stillness * .4); ctx.strokeStyle = '#d3bb7e'; ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.arc(haloX, haloY, 105, 0, TAU); ctx.stroke();
+  ctx.beginPath(); ctx.arc(haloX, haloY, 115, 0, TAU); ctx.stroke();
+  for (let i = 0; i < 24; i++) { const a = i / 24 * TAU; ctx.beginPath(); ctx.moveTo(haloX + Math.cos(a) * 120, haloY + Math.sin(a) * 120); ctx.lineTo(haloX + Math.cos(a) * (i % 3 ? 126 : 146), haloY + Math.sin(a) * (i % 3 ? 126 : 146)); ctx.stroke(); }
   ctx.restore();
+  bodyConstellation(t, reveal * (.4 + stillness * .6));
+  if (reveal > .3) $('glassTop').textContent = `${card.number} · ${card.title}`;
   if (p > .73) particles.slice(0, 110).forEach((s, i) => {
     if (!s.valid) seedParticle(s); if (!s.valid) return;
     ctx.save(); ctx.globalAlpha = smooth(.73, .97, p) * (.4 + .3 * Math.sin(t + i)); ctx.strokeStyle = '#cdbb83'; ctx.lineWidth = 1;
     star(ctx, s.x * W + Math.sin(t * .2 + i) * (softened ? 3 : 15), s.y * H - (p - .73) * 130, 2 + random(i) * 6, 4); ctx.restore();
   });
+}
+function bodyConstellation(t, opacity) {
+  const points = [];
+  for (let y = 8; y < 236; y += 13) for (let x = 7; x < 177; x += 14) {
+    if (alpha[y * 180 + x] > 170) points.push({ x: x * W / 180, y: y * H / 240 });
+  }
+  ctx.save(); ctx.strokeStyle = '#d6bd7f'; ctx.fillStyle = '#f0dfaa'; ctx.lineWidth = .8;
+  points.forEach((a, i) => {
+    ctx.globalAlpha = opacity * .24;
+    for (let j = i + 1; j < Math.min(points.length, i + 14); j++) {
+      const b = points[j], d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (d < 95 && d > 25 && (i + j) % 3 === 0) { ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
+    }
+    ctx.globalAlpha = opacity * (.5 + .3 * Math.sin(t * .7 + i));
+    if (i % 6 === 0) star(ctx, a.x, a.y, 4 + stillness * 3, 4);
+    else { ctx.beginPath(); ctx.arc(a.x, a.y, 1.5, 0, TAU); ctx.fill(); }
+  });
+  ctx.restore();
 }
 function branch(x, y, angle, length, depth, t) {
   if (depth <= 0) return;
@@ -267,7 +306,7 @@ function branch(x, y, angle, length, depth, t) {
   branch(ex, ey, a - .5, length * .66, depth - 1, t); branch(ex, ey, a + .6, length * .64, depth - 1, t);
 }
 function unionEffect(t, p) {
-  const fusion = smooth(.14, .82, p), g = symbols.ctx;
+  const fusion = smooth(.14, .82, p) * (1 - smooth(.94, 1, p)), g = symbols.ctx;
   g.clearRect(0, 0, W, H);
   // Row-wise compression brings all foreground presences into one continuous form.
   for (let row = 0; row < 240; row += 2) {
@@ -299,7 +338,25 @@ function unionEffect(t, p) {
     ctx.save(); ctx.globalAlpha = fusion * .65; ctx.strokeStyle = '#d1c28c'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.ellipse(x, y + 55, 16, 6, 0, 0, TAU); ctx.stroke();
     ctx.fillStyle = '#e1d4a1'; ctx.beginPath(); ctx.arc(x, y + 55, 3, 0, TAU); ctx.fill(); ctx.restore();
+    sharedHeart(t, fusion);
   }
+}
+function sharedHeart(t, fusion) {
+  const x = center.x * W, y = Math.max(H * .43, Math.min(H * .7, center.y * H));
+  const pulse = 1 + Math.sin(t * 1.7) * .09;
+  ctx.save(); ctx.globalAlpha = fusion;
+  const light = ctx.createRadialGradient(x, y, 1, x, y, 95 * pulse);
+  light.addColorStop(0, '#e3cf8d88'); light.addColorStop(.2, '#c5aa5866'); light.addColorStop(1, '#b39b5100');
+  ctx.fillStyle = light; ctx.fillRect(x - 105, y - 105, 210, 210);
+  ctx.strokeStyle = '#e4ca88'; ctx.lineWidth = 1.3;
+  for (const side of [-1, 1]) for (let i = 0; i < 6; i++) {
+    ctx.globalAlpha = fusion * (.16 + i * .045); ctx.beginPath();
+    ctx.moveTo(x + side * (100 + i * 13) * fusion, y - 115 + i * 38);
+    ctx.bezierCurveTo(x + side * 110, y + 45, x + side * 35, y - 65, x, y); ctx.stroke();
+  }
+  ctx.globalAlpha = fusion * .9; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.ellipse(x, y, 14 * pulse, 21 * pulse, 0, 0, TAU); ctx.stroke();
+  star(ctx, x, y, 11 * pulse, 4); ctx.restore();
 }
 function frame(now) {
   requestAnimationFrame(frame);
@@ -308,6 +365,8 @@ function frame(now) {
   // In preview the figures are synthetic; the idle glass never claims a live feed.
   if (source === 'camera') capture(now);
   if (source === 'preview' && frameCount % 3 === 0) previewMask(elapsed * (softened ? .4 : 1));
+  stillness += ((movement < .008 && presence > .008 ? 1 : 0) - stillness) * Math.min(1, dt * .55);
+  absence = presence <= .008 ? absence + dt : 0;
   if (source !== 'idle' && (source === 'preview' || presence > .008)) elapsed += dt * (softened ? .65 : 1);
   if (elapsed >= cycleSeconds) { reset(); }
   const p = elapsed / cycleSeconds, t = now / 1000 * (softened ? .45 : 1);
