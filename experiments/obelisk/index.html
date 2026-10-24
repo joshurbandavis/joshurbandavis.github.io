@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Obelisk for a Deleted World · Josh Urban Davis</title>
+<meta name="description" content="Interactive 3D scale study of a shattered obelisk with floating infinity-mirror fragments, proposed for Black Rock City 2027.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;font-size:14px}
+/* Layout: full-bleed WebGL playa at dusk, one instrument panel docked bottom-left (bottom sheet on phones). Single dark look by choice. */
+:root{
+  --night:#0d1020;
+  --panel:rgba(14,16,30,.78);
+  --line:rgba(232,190,130,.22);
+  --ink:#efe6d8;
+  --muted:#a99f92;
+  --amber:#f0a94a;
+  --crimson:#d2483a;
+  --display:"Marcellus","Cormorant Garamond",Georgia,serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--night);color:var(--ink);font-family:var(--body);overflow:hidden}
+#stage{position:fixed;inset:0}
+#stage canvas{display:block;width:100%;height:100%;touch-action:none}
+.panel{
+  position:fixed;
+  left:max(16px, calc(env(safe-area-inset-left,0px) + 16px));
+  bottom:calc(env(safe-area-inset-bottom,0px) + 16px);
+  width:min(340px, calc(100vw - 32px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px)));
+  background:var(--panel);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--line);border-radius:6px;
+  padding:16px 16px 14px;
+  display:grid;gap:14px;
+  max-height:calc(100% - 32px);overflow:auto;
+}
+h1{font-family:var(--display);font-weight:400;font-size:1.35rem;letter-spacing:.02em;line-height:1.15;margin:0;text-wrap:balance}
+.sub{margin:4px 0 0;color:var(--muted);font-size:.8rem;line-height:1.4}
+.group{display:grid;gap:6px}
+.label{font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.seg button{
+  font:500 .78rem/1.2 var(--body);color:var(--ink);
+  background:transparent;border:1px solid var(--line);border-radius:4px;
+  padding:7px 4px;cursor:pointer;
+}
+.seg button small{display:block;font-family:var(--mono);font-size:.64rem;color:var(--muted);margin-top:2px}
+.seg button[aria-pressed="true"]{border-color:var(--amber);background:rgba(240,169,74,.14)}
+.seg button[aria-pressed="true"] small{color:var(--amber)}
+.seg button:focus-visible,.toggle:focus-within,input[type=range]:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.readout{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-family:var(--mono);font-size:.74rem;font-variant-numeric:tabular-nums;margin:0}
+.readout dt{color:var(--muted)}
+.readout dd{margin:0;text-align:right}
+.readout dd.flag{color:var(--amber)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.toggle{display:flex;align-items:center;gap:8px;font-size:.8rem;cursor:pointer}
+.toggle input{accent-color:var(--amber);width:16px;height:16px;margin:0}
+input[type=range]{width:100%;accent-color:var(--amber)}
+.dialhint{font-size:.72rem;color:var(--muted);display:flex;justify-content:space-between}
+.foot{font-size:.7rem;color:var(--muted);line-height:1.4;border-top:1px solid var(--line);padding-top:10px;margin:0}
+#collapse{display:none;font:500 .72rem var(--body);color:var(--muted);background:none;border:1px solid var(--line);border-radius:4px;padding:4px 8px;cursor:pointer}
+#err[hidden]{display:none}
+#err{position:fixed;inset:0;display:grid;place-items:center;padding:24px;text-align:center;color:var(--muted);font-size:.9rem}
+@media (max-width:560px){
+  .panel{left:max(8px, env(safe-area-inset-left,0px));right:max(8px, env(safe-area-inset-right,0px));width:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);padding:12px;gap:10px;max-height:56%}
+  #collapse{display:inline-block}
+  .panel.min .hide-min{display:none}
+  h1{font-size:1.15rem}
+}
+</style>
+</head>
+<body>
+
+
+<div id="stage" aria-label="Interactive 3D model of the obelisk on open playa"></div>
+<div id="err" hidden>Couldn't start 3D. This page needs WebGL, which this browser or device has turned off.</div>
+
+<aside class="panel" id="panel">
+  <div class="row" style="align-items:flex-start">
+    <div>
+      <h1>Obelisk for a Deleted World</h1>
+      <p class="sub hide-min">A broken monument whose peak is still rising. Proposed for Black Rock City 2027. Drag to orbit, scroll or pinch to zoom. Units in feet.</p>
+    </div>
+    <button id="collapse" aria-expanded="true">Hide</button>
+  </div>
+
+  <div class="group hide-min">
+    <span class="label" id="lbl-h">Height</span>
+    <div class="seg" role="group" aria-labelledby="lbl-h" id="heights">
+      <button id="h20" data-k="lean" aria-pressed="true">20 ft<small>compact</small></button>
+      <button id="h35" data-k="mid" aria-pressed="false">35 ft<small>tall</small></button>
+      <button id="h60" data-k="full" aria-pressed="false">60 ft<small>monumental</small></button>
+    </div>
+  </div>
+
+  <div class="group hide-min">
+    <span class="label" id="lbl-v">View</span>
+    <div class="seg" role="group" aria-labelledby="lbl-v" id="views">
+      <button id="vhero" data-v="hero" aria-pressed="true">Playa</button>
+      <button id="vaerial" data-v="aerial" aria-pressed="false">Aerial</button>
+      <button id="vinside" data-v="inside" aria-pressed="false">Inside</button>
+    </div>
+  </div>
+
+  <dl class="readout hide-min" id="readout"></dl>
+
+  <div class="group">
+    <span class="label"><label for="dial">Brass dial</label></span>
+    <input type="range" id="dial" min="0" max="100" value="35">
+    <div class="dialhint"><span>white</span><span>amber</span><span>crimson</span></div>
+  </div>
+
+  <div class="row hide-min">
+    <label class="toggle"><input type="checkbox" id="spine" checked> Show steel spine</label>
+    <label class="toggle"><input type="checkbox" id="crowd" checked> People for scale</label>
+  </div>
+
+  <p class="foot hide-min"><a href="/" style="color:inherit">joshurbandavis.com</a> · Experiments. Rough massing model, not an engineering drawing. Figures are 5′6″–6′1″. Fragments mount to a black spine that rises from inside the shards.</p>
+</aside>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script>
+(function(){
+'use strict';
+const stage=document.getElementById('stage');
+let renderer;
+try{
+  renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+}catch(e){document.getElementById('err').hidden=false;return;}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.outputEncoding=THREE.sRGBEncoding;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=0.82;
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+stage.appendChild(renderer.domElement);
+
+const scene=new THREE.Scene();
+const HORIZON=new THREE.Color('#e9895a');
+scene.fog=new THREE.FogExp2('#3b3249',0.0011);
+
+const camera=new THREE.PerspectiveCamera(40,1,0.1,6000);
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.dampingFactor=0.08;
+controls.maxPolarAngle=Math.PI*0.495;controls.minDistance=1.5;controls.maxDistance=600;
+
+// ---------- seeded random ----------
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+// ---------- sky ----------
+const SUN_DIR=new THREE.Vector3(-0.55,0.06,-0.83).normalize();
+function makeSky(){
+  const g=new THREE.SphereGeometry(4000,48,24);
+  const m=new THREE.ShaderMaterial({
+    side:THREE.BackSide,depthWrite:false,fog:false,
+    uniforms:{sun:{value:SUN_DIR}},
+    vertexShader:'varying vec3 vP;void main(){vP=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+    fragmentShader:[
+      'uniform vec3 sun;varying vec3 vP;',
+      'void main(){float h=clamp(vP.y,-.2,1.);',
+      'vec3 top=vec3(.03,.04,.13);vec3 mid=vec3(.12,.12,.30);vec3 low=vec3(.45,.24,.30);vec3 hor=vec3(.95,.45,.22);',
+      'vec3 c=mix(hor,low,smoothstep(0.,.06,h));c=mix(c,mid,smoothstep(.06,.28,h));c=mix(c,top,smoothstep(.28,.85,h));',
+      'float s=max(dot(vP,sun),0.);c+=vec3(1.,.5,.2)*pow(s,200.)*.8+vec3(1.,.42,.18)*pow(s,6.)*.12*(1.-smoothstep(0.,.25,h));',
+      'if(h<0.)c=mix(hor*.6,vec3(.25,.18,.18),smoothstep(0.,-.2,h));',
+      'gl_FragColor=vec4(c,1.);}'
+    ].join('\n')
+  });
+  return new THREE.Mesh(g,m);
+}
+const sky=makeSky();scene.add(sky);
+
+// ---------- playa ground ----------
+function playaTexture(){
+  const c=document.createElement('canvas');c.width=c.height=512;const x=c.getContext('2d');
+  x.fillStyle='#b7a38c';x.fillRect(0,0,512,512);
+  const r=rng(7);
+  for(let i=0;i<9000;i++){const v=150+r()*60|0;x.fillStyle='rgba('+v+','+(v-14)+','+(v-30)+','+(0.05+r()*0.08)+')';x.fillRect(r()*512,r()*512,1+r()*2,1+r()*2);}
+  x.strokeStyle='rgba(90,72,58,.18)';x.lineWidth=1;
+  for(let i=0;i<70;i++){x.beginPath();let px=r()*512,py=r()*512;x.moveTo(px,py);for(let k=0;k<5;k++){px+=(r()-.5)*90;py+=(r()-.5)*90;x.lineTo(px,py);}x.stroke();}
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(60,60);t.encoding=THREE.sRGBEncoding;t.anisotropy=8;return t;
+}
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(5000,5000),new THREE.MeshStandardMaterial({map:playaTexture(),roughness:.97,metalness:0}));
+ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+
+// distant mountains
+(function(){
+  const r=rng(11);const pts=[];const N=220;
+  const shape=[];for(let i=0;i<=N;i++){shape.push(60+r()*70+Math.sin(i*.09)*40+Math.sin(i*.31)*18);}
+  const g=new THREE.BufferGeometry();const pos=[];
+  for(let i=0;i<N;i++){
+    const a0=i/N*Math.PI*2,a1=(i+1)/N*Math.PI*2,R=2600;
+    const p=(a,h)=>[Math.cos(a)*R,h,Math.sin(a)*R];
+    const A=p(a0,-5),B=p(a1,-5),C=p(a1,shape[i+1]),D=p(a0,shape[i]);
+    pos.push(...A,...B,...C,...A,...C,...D);
+  }
+  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  scene.add(new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:'#3a3046',side:THREE.DoubleSide,fog:false})));
+})();
+
+// ---------- lights ----------
+const hemi=new THREE.HemisphereLight('#5a5c96','#6e5444',0.42);scene.add(hemi);
+const sun=new THREE.DirectionalLight('#ff9e66',0.85);
+sun.position.copy(SUN_DIR).multiplyScalar(400).setY(60);
+sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-120,right:120,top:120,bottom:-120,near:10,far:900});
+scene.add(sun);
+const coreLight=new THREE.PointLight('#ffb35c',2,90,1.6);scene.add(coreLight);
+const fragLight=new THREE.PointLight('#ffb35c',1,80,1.8);scene.add(fragLight);
+
+// ---------- environment for reflections ----------
+(function(){
+  const pm=new THREE.PMREMGenerator(renderer);
+  const es=new THREE.Scene();es.add(makeSky());
+  const eg=new THREE.Mesh(new THREE.PlaneGeometry(8000,8000),new THREE.MeshBasicMaterial({color:'#8d7766'}));eg.rotation.x=-Math.PI/2;eg.position.y=-2;es.add(eg);
+  scene.environment=pm.fromScene(es,0.03).texture;pm.dispose();
+})();
+
+// ---------- infinity-mirror texture ----------
+function mirrorTexture(seed){
+  const S=512,c=document.createElement('canvas');c.width=c.height=S;const x=c.getContext('2d');const r=rng(seed);
+  const g=x.createLinearGradient(0,0,0,S);g.addColorStop(0,'#0b0d22');g.addColorStop(.5,'#141633');g.addColorStop(1,'#0b0d22');
+  x.fillStyle=g;x.fillRect(0,0,S,S);
+  // receding facet lines
+  x.lineWidth=1.2;
+  for(let i=0;i<46;i++){
+    x.strokeStyle='rgba(255,'+(170+r()*60|0)+',90,'+(0.08+r()*0.22)+')';
+    x.beginPath();const a=r()*S,b=r()*S;x.moveTo(a,b);x.lineTo(a+(r()-.5)*S*.9,b+(r()-.5)*S*.9);x.lineTo(a+(r()-.5)*S*.6,b+(r()-.5)*S*.6);x.closePath();x.stroke();
+  }
+  // points of light, smaller and denser toward a vanishing centre
+  for(let i=0;i<1600;i++){
+    const k=r(),a=r()*Math.PI*2,d=Math.pow(r(),.7)*S*.72;
+    const px=S/2+Math.cos(a)*d,py=S/2+Math.sin(a)*d;const sz=.6+(d/S)*2.6*r();
+    const warm=r()<.62;x.fillStyle=warm?'rgba(255,196,120,'+(.5+k*.5)+')':'rgba(170,190,255,'+(.4+k*.5)+')';
+    x.beginPath();x.arc(px,py,sz,0,7);x.fill();
+  }
+  for(let i=0;i<14;i++){const px=r()*S,py=r()*S;const rg=x.createRadialGradient(px,py,0,px,py,18);rg.addColorStop(0,'rgba(255,214,150,.9)');rg.addColorStop(1,'rgba(255,170,80,0)');x.fillStyle=rg;x.fillRect(px-18,py-18,36,36);}
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;
+}
+const mirrorTex=mirrorTexture(3);
+function warmTexture(seed){
+  const S=256,c=document.createElement('canvas');c.width=c.height=S;const x=c.getContext('2d');const r=rng(seed);
+  x.fillStyle='#5a3414';x.fillRect(0,0,S,S);
+  for(let i=0;i<30;i++){x.strokeStyle='rgba(255,'+(190+r()*50|0)+',110,'+(0.25+r()*0.4)+')';x.lineWidth=1+r()*1.5;x.beginPath();x.moveTo(r()*S,r()*S);x.lineTo(r()*S,r()*S);x.stroke();}
+  for(let i=0;i<900;i++){const w=r()<.75;x.fillStyle=w?'rgba(255,215,150,'+(.5+r()*.5)+')':'rgba(180,200,255,'+(.5+r()*.5)+')';x.beginPath();x.arc(r()*S,r()*S,.5+r()*1.6,0,7);x.fill();}
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;
+}
+const warmTex=warmTexture(23);
+const mirrorTexB=mirrorTexture(19);
+
+// ---------- materials ----------
+const darkMirror=new THREE.MeshStandardMaterial({color:'#15151b',metalness:.92,roughness:.16,envMapIntensity:1.1,side:THREE.DoubleSide});
+const glowMat=new THREE.MeshStandardMaterial({color:'#000000',emissive:'#ffffff',emissiveMap:mirrorTex,emissiveIntensity:1.4,roughness:.3,metalness:.2,side:THREE.DoubleSide});
+const glowMatB=glowMat.clone();glowMatB.emissiveMap=mirrorTexB;
+const seamMat=new THREE.MeshBasicMaterial({map:warmTex,color:new THREE.Color(2.2,1.5,.8),toneMapped:false,side:THREE.DoubleSide});
+const edgeMat=new THREE.LineBasicMaterial({color:'#ffbf6e',transparent:true,opacity:.85,toneMapped:false});
+const shardEdgeMat=new THREE.LineBasicMaterial({color:'#d9a15a',transparent:true,opacity:.32});
+const spineMat=new THREE.MeshStandardMaterial({color:'#0a0a0c',roughness:.85,metalness:.3});
+const brassMat=new THREE.MeshStandardMaterial({color:'#b98a3e',metalness:1,roughness:.32});
+const personMat=new THREE.MeshStandardMaterial({color:'#0e0b0a',roughness:.95});
+
+// ---------- presets (feet) ----------
+const PRESETS={
+  lean:{shard:14,top:20,R:4.6,frag:[2,4],n:7},
+  mid:{shard:25,top:35,R:5.8,frag:[2.5,5],n:8},
+  full:{shard:35,top:60,R:7.2,frag:[3,6.5],n:9}
+};
+let current='lean';
+
+// ---------- geometry builders ----------
+function quad(pos,a,b,c,d){pos.push(...a,...b,...c,...a,...c,...d);}
+function makeShard(angle,R,w,d,h,lean,r){
+  const u=new THREE.Vector3(Math.cos(angle),0,Math.sin(angle));     // outward
+  const v=new THREE.Vector3(-Math.sin(angle),0,Math.cos(angle));    // tangent
+  const P=(rad,tan,y)=>{const p=u.clone().multiplyScalar(rad).add(v.clone().multiplyScalar(tan));return[p.x,y,p.z];};
+  const ri=R-d/2,ro=R+d/2,tw=w*0.58,rti=ri-lean,rto=ri-lean+d*0.62;
+  const jag=()=>0.8+r()*0.2;
+  const b=[P(ri,-w/2,0),P(ri,w/2,0),P(ro,w/2,0),P(ro,-w/2,0)];
+  const t=[P(rti,-tw/2,h*jag()),P(rti,tw/2,h*jag()),P(rto,tw/2,h),P(rto,-tw/2,h*jag())];
+  const pos=[];const groups=[];
+  const face=(a,bq,c,dq,m)=>{groups.push([pos.length/3,6,m]);quad(pos,a,bq,c,dq);};
+  face(b[0],b[1],t[1],t[0],1); // inner: infinity mirror
+  face(b[1],b[2],t[2],t[1],0);
+  face(b[2],b[3],t[3],t[2],0);
+  face(b[3],b[0],t[0],t[3],0);
+  face(t[0],t[1],t[2],t[3],0);
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  // UVs so the mirror texture spans the inner face
+  const uv=[];for(let i=0;i<pos.length/3;i++){uv.push(((i%6)===1||(i%6)===2||(i%6)===4)?1:0,(i%6)>=2&&(i%6)!==3?h/8:0);}
+  g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+  groups.forEach(([s,c,m])=>g.addGroup(s,c,m));g.computeVertexNormals();
+  return g;
+}
+function makeFragment(size,r){
+  const n=4+(r()*2|0),ring=[];
+  for(let i=0;i<n;i++){const a=i/n*Math.PI*2+(r()-.5)*.6,rad=size*(0.28+r()*0.18);ring.push(new THREE.Vector3(Math.cos(a)*rad,(r()-.5)*size*.18,Math.sin(a)*rad));}
+  const top=new THREE.Vector3((r()-.5)*size*.2,size*(0.55+r()*0.25),(r()-.5)*size*.2);
+  const bot=new THREE.Vector3((r()-.5)*size*.2,-size*(0.3+r()*0.2),(r()-.5)*size*.2);
+  const pos=[],uv=[],g=new THREE.BufferGeometry();let gi=0;const mats=[];
+  const tri=(a,b,c)=>{pos.push(a.x,a.y,a.z,b.x,b.y,b.z,c.x,c.y,c.z);uv.push(0,0,1,0,.5,1);mats.push(r()<.6?1:0);};
+  for(let i=0;i<n;i++){const a=ring[i],b=ring[(i+1)%n];tri(a,b,top);tri(b,a,bot);}
+  if(!mats.includes(1))mats[0]=1;mats[2]=1;
+  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+  mats.forEach((m,i)=>g.addGroup(i*3,3,m));g.computeVertexNormals();
+  return g;
+}
+function cylBetween(a,b,rad,mat){
+  const dir=new THREE.Vector3().subVectors(b,a),len=dir.length();
+  const m=new THREE.Mesh(new THREE.CylinderGeometry(rad,rad,len,10),mat);
+  m.position.copy(a).addScaledVector(dir,.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());
+  m.castShadow=true;return m;
+}
+
+// ---------- build ----------
+let monument=null,spineGroup=null,crowd=null,dialMesh=null;
+function disposeGroup(o){if(!o)return;o.traverse(c=>{if(c.geometry)c.geometry.dispose();});scene.remove(o);}
+function build(key){
+  disposeGroup(monument);disposeGroup(crowd);
+  const P=PRESETS[key],r=rng(42);
+  monument=new THREE.Group();spineGroup=new THREE.Group();
+  // shards: doorways at 0° and 180°
+  const angles=[45,90,135,225,270,315].map(a=>a*Math.PI/180);
+  const heights=[.9,1,.84,.95,.8,.88];
+  angles.forEach((a,i)=>{
+    const w=P.R*0.62,d=P.R*0.42,h=P.shard*heights[i];
+    const g=makeShard(a,P.R,w,d,h,P.R*0.16,r);
+    const m=new THREE.Mesh(g,[darkMirror,i%2?glowMat:glowMatB]);m.castShadow=true;m.receiveShadow=true;monument.add(m);
+    monument.add(new THREE.LineSegments(new THREE.EdgesGeometry(g,20),shardEdgeMat));
+  });
+  // seams of light between neighbouring shards (not the doorways)
+  [[45,90],[90,135],[225,270],[270,315]].forEach(([a1,a2])=>{
+    const a=(a1+a2)/2*Math.PI/180,hh=P.shard*0.78;
+    const s=new THREE.Mesh(new THREE.PlaneGeometry(P.R*0.14,hh),seamMat);
+    const sr=P.R+P.R*0.21+0.06;s.position.set(Math.cos(a)*sr,hh/2,Math.sin(a)*sr);s.rotation.y=-a+Math.PI/2;monument.add(s);
+  });
+  // chamber floor
+  const floor=new THREE.Mesh(new THREE.CircleGeometry(P.R*0.82,40),new THREE.MeshStandardMaterial({color:'#0e0d12',metalness:.9,roughness:.12}));
+  floor.rotation.x=-Math.PI/2;floor.position.y=.05;monument.add(floor);
+  // brass dial
+  const post=new THREE.Mesh(new THREE.CylinderGeometry(.18,.24,3,16),brassMat);post.position.y=1.5;monument.add(post);
+  dialMesh=new THREE.Mesh(new THREE.CylinderGeometry(.7,.7,.22,40),brassMat);dialMesh.position.y=3.1;monument.add(dialMesh);
+  const knob=new THREE.Mesh(new THREE.BoxGeometry(.12,.1,.6),brassMat);knob.position.set(0,.14,.3);dialMesh.add(knob);
+  // fragments rising from the break
+  const base=new THREE.Vector3(0,0,0),spineTop=P.top;
+  const SX=0,SZ=-P.R*0.95;
+  const spine=cylBetween(new THREE.Vector3(SX,0,SZ),new THREE.Vector3(SX,spineTop-P.frag[1]*0.4,SZ),Math.max(.25,P.top/160),spineMat);
+  spineGroup.add(spine);
+  for(let i=0;i<P.n;i++){
+    const t=i/(P.n-1);
+    const y=P.shard+1.2+t*(P.top-P.shard-1.2-P.frag[1]*0.35);
+    const spread=P.R*(0.2+t*0.55);
+    const a=i*2.39996+r()*.5;
+    const pos=new THREE.Vector3(Math.cos(a)*spread,y,Math.sin(a)*spread-P.R*0.25);
+    const size=P.frag[0]+r()*(P.frag[1]-P.frag[0]);
+    const g=makeFragment(size,r);
+    const f=new THREE.Mesh(g,[darkMirror,seamMat]);
+    f.position.copy(pos);f.rotation.set((r()-.5)*.9,r()*Math.PI*2,(r()-.5)*.9);f.castShadow=true;
+    monument.add(f);
+    const e=new THREE.LineSegments(new THREE.EdgesGeometry(g,1),edgeMat);e.position.copy(f.position);e.rotation.copy(f.rotation);monument.add(e);
+    const sp=new THREE.Vector3(SX,Math.min(y,spineTop-P.frag[1]*0.4),SZ);
+    spineGroup.add(cylBetween(sp,pos,Math.max(.1,P.top/420),spineMat));
+  }
+  monument.add(spineGroup);
+  spineGroup.visible=document.getElementById('spine').checked;
+  scene.add(monument);
+  coreLight.position.set(0,7,0);coreLight.distance=P.R*12;
+  fragLight.position.set(0,(P.shard+P.top)/2,0);fragLight.distance=P.top*1.6;
+  // crowd
+  crowd=new THREE.Group();
+  const body=new THREE.CylinderGeometry(.42,.55,1,10),head=new THREE.SphereGeometry(.34,12,10);
+  const rr=rng(5);
+  const inner=P.R+4,outer=Math.max(55,P.top*1.4);
+  for(let i=0;i<46;i++){
+    const ht=5.5+rr()*0.6,a=rr()*Math.PI*2,d=inner+Math.pow(rr(),1.3)*(outer-inner);
+    const p=new THREE.Group();
+    const b=new THREE.Mesh(body,personMat);b.scale.set(1,ht-0.85,0.62);b.position.y=(ht-0.85)/2;b.castShadow=true;p.add(b);
+    const h=new THREE.Mesh(head,personMat);h.position.y=ht-0.42;h.castShadow=true;p.add(h);
+    p.position.set(Math.cos(a)*d,0,Math.sin(a)*d);p.rotation.y=-a+Math.PI/2;crowd.add(p);
+  }
+  // one figure inside the chamber
+  const ins=new THREE.Group();const ib=new THREE.Mesh(body,personMat);ib.scale.set(1,4.9,.7);ib.position.y=2.45;ins.add(ib);
+  const ih=new THREE.Mesh(head,personMat);ih.position.y=5.3;ins.add(ih);ins.position.set(-P.R*0.35,0,0.5);ins.rotation.y=Math.PI/2;crowd.add(ins);
+  crowd.visible=document.getElementById('crowd').checked;
+  scene.add(crowd);
+  // readout
+  const ro=document.getElementById('readout');
+  ro.innerHTML='';
+  [['Shards',P.shard+' ft'],['Fragments to',P.top+' ft'],['Footprint','~'+Math.round(P.R*2+P.R*0.42)+' ft']].forEach(([k,v,f])=>{
+    const dt=document.createElement('dt');dt.textContent=k;const dd=document.createElement('dd');dd.textContent=v;if(f)dd.className='flag';ro.append(dt,dd);
+  });
+  setView(currentView,true);
+}
+
+// ---------- dial ----------
+const WHITE=new THREE.Color('#fff4e2'),AMBER=new THREE.Color('#ffa63d'),CRIMSON=new THREE.Color('#ff3b2a');
+function applyDial(v){
+  const t=v/100;const c=t<.5?WHITE.clone().lerp(AMBER,t*2):AMBER.clone().lerp(CRIMSON,(t-.5)*2);
+  const k=1.0+t*2.4;
+  [glowMat,glowMatB].forEach(m=>{m.emissive.copy(c);m.emissiveIntensity=k;});
+  edgeMat.color.copy(c);seamMat.color.copy(c).multiplyScalar(1.4+t*1.2);coreLight.color.copy(c);fragLight.color.copy(c);
+  coreLight.intensity=0.8+t*2.2;fragLight.intensity=0.6+t*2.2;
+  if(dialMesh)dialMesh.rotation.y=-t*Math.PI*1.5;
+}
+
+// ---------- views ----------
+let currentView='hero',anim=null;
+function viewPose(v){
+  const P=PRESETS[current];
+  if(v==='aerial')return{pos:new THREE.Vector3(P.top*0.3,P.top*1.5+30,P.top*0.45+22),tgt:new THREE.Vector3(0,P.shard*0.3,0)};
+  if(v==='inside')return{pos:new THREE.Vector3(P.R*0.78,5.2,0.15),tgt:new THREE.Vector3(-P.R,6.6,0)};
+  const dist=P.top*1.25+28;
+  return{pos:new THREE.Vector3(dist*0.52,5.5,dist*0.86),tgt:new THREE.Vector3(0,P.top*0.42,0)};
+}
+function setView(v,instant){
+  currentView=v;
+  document.querySelectorAll('#views button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)));
+  const p=viewPose(v);
+  controls.minDistance=v==='inside'?0.5:4;
+  if(instant||matchMedia('(prefers-reduced-motion: reduce)').matches){camera.position.copy(p.pos);controls.target.copy(p.tgt);controls.update();return;}
+  anim={t:0,fromP:camera.position.clone(),fromT:controls.target.clone(),toP:p.pos,toT:p.tgt};
+}
+
+// ---------- post ----------
+let composer=null;
+try{
+  composer=new THREE.EffectComposer(renderer);
+  composer.addPass(new THREE.RenderPass(scene,camera));
+  composer.addPass(new THREE.UnrealBloomPass(new THREE.Vector2(512,512),0.8,0.5,0.8));
+}catch(e){composer=null;}
+
+function resize(){
+  const w=stage.clientWidth,h=stage.clientHeight;
+  renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=w<h?52:40;camera.updateProjectionMatrix();
+  if(composer)composer.setSize(w,h);
+}
+window.addEventListener('resize',resize);
+
+// ---------- UI ----------
+document.querySelectorAll('#heights button').forEach(b=>b.addEventListener('click',()=>{
+  current=b.dataset.k;document.querySelectorAll('#heights button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));build(current);
+}));
+document.querySelectorAll('#views button').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.v)));
+const dial=document.getElementById('dial');dial.addEventListener('input',()=>applyDial(+dial.value));
+document.getElementById('spine').addEventListener('change',e=>{if(spineGroup)spineGroup.visible=e.target.checked;});
+document.getElementById('crowd').addEventListener('change',e=>{if(crowd)crowd.visible=e.target.checked;});
+const panel=document.getElementById('panel'),col=document.getElementById('collapse');
+col.addEventListener('click',()=>{const m=panel.classList.toggle('min');col.textContent=m?'Show':'Hide';col.setAttribute('aria-expanded',String(!m));});
+
+resize();build(current);applyDial(+dial.value);
+
+const clock=new THREE.Clock();
+(function loop(){
+  requestAnimationFrame(loop);
+  const dt=clock.getDelta();
+  if(anim){anim.t=Math.min(1,anim.t+dt/1.1);const e=anim.t<.5?2*anim.t*anim.t:1-Math.pow(-2*anim.t+2,2)/2;
+    camera.position.lerpVectors(anim.fromP,anim.toP,e);controls.target.lerpVectors(anim.fromT,anim.toT,e);if(anim.t>=1)anim=null;}
+  controls.update();
+  if(composer)composer.render();else renderer.render(scene,camera);
+})();
+window.__model={setView,build:k=>{current=k;build(k);},applyDial};
+})();
+</script>
+
+</body>
+</html>
