@@ -12,6 +12,12 @@ Browse the full collection through the [staircase](index.html),
   automatically. Includes animated stand-ins, reduced motion, and local camera
   processing with no recording or uploads. See [its notes](other-side/README.md).
 
+- [Obelisk for a Deleted World](obelisk/index.html) — an interactive 3D scale
+  study of a shattered obelisk with floating infinity-mirror fragments, proposed
+  for Black Rock City 2027. Orbit it on the playa at dusk at 20, 35, or 60 feet,
+  view it from above or inside, and tint the glow with a brass dial. Rough massing
+  model with people for scale, not an engineering drawing.
+
 - `please-wait/` — a fake Windows 95 "System" dialog that never finishes
   loading: the progress bar approaches 100% but is asymptotic and never
   arrives, and "Time remaining: calculating…" never resolves. The only
