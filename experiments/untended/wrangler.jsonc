@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "untended-garden",
+  "main": "worker.js",
+  "compatibility_date": "2026-09-16",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": {
+    "enabled": true
+  },
+  "kv_namespaces": [
+    {
+      "binding": "GARDEN_KV",
+      "id": "b233f2ea563e4ff99ef5f7aa28c9e99c"
+    }
+  ]
+}
